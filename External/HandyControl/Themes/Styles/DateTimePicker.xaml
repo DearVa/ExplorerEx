@@ -1,0 +1,11 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:hc="clr-namespace:HandyControl.Controls">
+
+    <Style BasedOn="{StaticResource DateTimePickerBaseStyle}" TargetType="hc:DateTimePicker"/>
+
+    <Style x:Key="DateTimePickerExtend" BasedOn="{StaticResource DateTimePickerExtendBaseStyle}" TargetType="hc:DateTimePicker"/>
+
+    <Style x:Key="DateTimePickerPlus" BasedOn="{StaticResource DateTimePickerPlusBaseStyle}" TargetType="hc:DateTimePicker"/>
+
+</ResourceDictionary>

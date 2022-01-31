@@ -1,0 +1,12 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:hc="clr-namespace:HandyControl.Controls">
+
+    <Style BasedOn="{StaticResource CompareSliderBaseStyle}" TargetType="hc:CompareSlider"/>
+
+    <Style BasedOn="{StaticResource PreviewSliderBaseStyle}" TargetType="hc:PreviewSlider"/>
+
+    <Style BasedOn="{StaticResource RangeSliderBaseStyle}" TargetType="hc:RangeSlider"/>
+
+    <Style BasedOn="{StaticResource SliderBaseStyle}" TargetType="Slider"/>
+
+</ResourceDictionary>

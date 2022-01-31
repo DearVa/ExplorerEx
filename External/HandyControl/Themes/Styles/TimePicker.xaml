@@ -1,0 +1,11 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:hc="clr-namespace:HandyControl.Controls">
+
+    <Style BasedOn="{StaticResource TimePickerBaseStyle}" TargetType="hc:TimePicker"/>
+
+    <Style x:Key="TimePickerExtend" BasedOn="{StaticResource TimePickerExtendBaseStyle}" TargetType="hc:TimePicker"/>
+
+    <Style x:Key="TimePickerPlus" BasedOn="{StaticResource TimePickerPlusBaseStyle}" TargetType="hc:TimePicker"/>
+
+</ResourceDictionary>

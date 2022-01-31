@@ -1,0 +1,11 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:hc="clr-namespace:HandyControl.Controls">
+
+    <Style BasedOn="{StaticResource NumericUpDownBaseStyle}" TargetType="hc:NumericUpDown"/>
+
+    <Style x:Key="NumericUpDownExtend" BasedOn="{StaticResource NumericUpDownExtendBaseStyle}" TargetType="hc:NumericUpDown"/>
+
+    <Style x:Key="NumericUpDownPlus" BasedOn="{StaticResource NumericUpDownPlusBaseStyle}" TargetType="hc:NumericUpDown"/>
+
+</ResourceDictionary>
