@@ -128,4 +128,16 @@
   <data name="Cannot_create" xml:space="preserve">
     <value>无法创建</value>
   </data>
+  <data name="Available: " xml:space="preserve">
+    <value>可用：</value>
+  </data>
+  <data name=", " xml:space="preserve">
+    <value>，</value>
+  </data>
+  <data name="Total: " xml:space="preserve">
+    <value>共有：</value>
+  </data>
+  <data name="Local_disk" xml:space="preserve">
+    <value>本地磁盘</value>
+  </data>
 </root>

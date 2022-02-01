@@ -15,44 +15,35 @@
     <Grid>
         <Grid.Resources>
             <DataTemplate x:Key="FileViewHomeTemplate">
-                <ListView d:DataContext="{d:DesignInstance vm:FileViewTabViewModel}"
-                          x:Name="HomeListView" Margin="10" 
+                <ListBox d:DataContext="{d:DesignInstance vm:FileViewTabViewModel}"
+                          x:Name="HomeListView" Margin="10" Padding="10"
                           ItemsSource="{Binding Items}"
-                          SelectionMode="Extended" 
-                          MouseUp="HomeListView_OnMouseUp"
+                          SelectionMode="Extended" hc:BorderElement.CornerRadius="5"
+                          MouseUp="HomeListBox_OnMouseUp"
                           SelectionChanged="{u:Event OnSelectionChanged}">
-                    <!--ItemClick="{x:Bind DiskDriveItemClicked}"-->
-                    <ListView.Resources>
-                        <!-- ReSharper disable Xaml.RedundantResource -->
-                        <SolidColorBrush x:Key="GridViewItemBackgroundSelected" Color="#cce8ff"/>
-                        <SolidColorBrush x:Key="GridViewItemBorderBrushSelected" Color="#99d1ff"/>
-                        <SolidColorBrush x:Key="GridViewItemBackgroundPointerOver" Color="#e5f3ff"/>
-                        <SolidColorBrush x:Key="GridViewItemBackgroundSelectedPointerOver" Color="#cce8ff"/>
-                        <!-- ReSharper restore Xaml.RedundantResource -->
-                    </ListView.Resources>
-                    <ListView.ItemsPanel>
+                    <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <WrapPanel x:Name="HomeWrapPanel" Orientation="Horizontal" IsItemsHost="True"/>
+                            <WrapPanel x:Name="HomeWrapPanel" Orientation="Horizontal"/>
                         </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
-                    <ListView.ItemTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Grid x:Name="HomeDriveGrid" d:DataContext="{d:DesignInstance m:DiskDriveItem}"
-                                  Height="60" Margin="5" VerticalAlignment="Center" Background="Red">
+                                  Height="60" Width="260" Margin="5" VerticalAlignment="Center">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="60"/>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
                                 <Image Grid.Column="0" Source="{Binding Icon}" VerticalAlignment="Center" Margin="5"/>
                                 <StackPanel Grid.Column="1" Orientation="Vertical">
-                                    <TextBlock Text="{Binding Name}"/>
-                                    <ProgressBar/>
-                                    <TextBlock Text="{Binding SpaceOverviewString}"/>
+                                    <TextBlock Text="{Binding Name, Mode=OneWay}"/>
+                                    <ProgressBar Value="{Binding FreeSpaceRatio, Mode=OneWay}" Maximum="1"/>
+                                    <TextBlock Text="{Binding SpaceOverviewString, Mode=OneWay}"/>
                                 </StackPanel>
                             </Grid>
                         </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </DataTemplate>
 
             <DataTemplate x:Key="FileViewDetailTemplate">

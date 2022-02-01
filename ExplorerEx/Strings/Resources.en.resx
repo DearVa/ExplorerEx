@@ -41,4 +41,16 @@
   <data name="Cannot_create" xml:space="preserve">
     <value>Cannot create</value>
   </data>
+  <data name="Available: " xml:space="preserve">
+    <value>Available: </value>
+  </data>
+  <data name=", " xml:space="preserve">
+    <value>, </value>
+  </data>
+  <data name="Total: " xml:space="preserve">
+    <value>Total: </value>
+  </data>
+  <data name="Local_disk" xml:space="preserve">
+    <value>Local disk</value>
+  </data>
 </root>

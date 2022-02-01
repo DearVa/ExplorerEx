@@ -26,6 +26,15 @@ internal abstract class FileViewBaseItem : INotifyPropertyChanged {
 	public bool IsDirectory { get; protected init; }
 
 	public abstract Task LoadIconAsync();
+
+	public virtual async Task RefreshAsync() {
+		if (!IsDirectory) {
+			await LoadIconAsync();
+		}
+		OnPropertyChanged(nameof(Icon));
+		OnPropertyChanged(nameof(FileSize));
+	}
+
 	public event PropertyChangedEventHandler PropertyChanged;
 
 	[NotifyPropertyChangedInvocator]

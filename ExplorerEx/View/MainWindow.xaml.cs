@@ -23,6 +23,18 @@ public sealed partial class MainWindow {
 		//SetTitleBar(TitleBarGrid);
 	}
 
+	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
+		switch (e.ChangedButton) {
+		case MouseButton.XButton1:  // 鼠标侧键返回
+			viewModel.SelectedTab.GoBackAsync(null, null);
+			break;
+		case MouseButton.XButton2:
+			viewModel.SelectedTab.GoForwardAsync(null, null);
+			break;
+		}
+		base.OnPreviewMouseUp(e);
+	}
+
 	private async void AddressBar_OnKeyDown(object sender, KeyEventArgs e) {
 		switch (e.Key) {
 		case Key.Enter:
@@ -39,8 +51,8 @@ public sealed partial class MainWindow {
 		}
 	}
 
-	private async void HomeListView_OnMouseUp(object sender, MouseButtonEventArgs e) {
-		if (ItemsControl.ContainerFromElement((ListView)sender, (DependencyObject)e.OriginalSource) is ListViewItem item) {
+	private async void HomeListBox_OnMouseUp(object sender, MouseButtonEventArgs e) {
+		if (ItemsControl.ContainerFromElement((ListBox)sender, (DependencyObject)e.OriginalSource) is ListBoxItem item) {
 			await viewModel.SelectedTab.Item_OnMouseUp((FileViewBaseItem)item.Content);
 		} else {
 			viewModel.SelectedTab.ClearSelection();

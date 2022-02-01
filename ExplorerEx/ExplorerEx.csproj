@@ -7,7 +7,12 @@
     <UseWPF>true</UseWPF>
     <Platforms>x64</Platforms>
     <SupportedOSPlatformVersion>10.0.18362.0</SupportedOSPlatformVersion>
+    <ApplicationIcon>Assets\ExplorerEx.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\ExplorerEx.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\External\HandyControl\HandyControl.csproj" />

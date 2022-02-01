@@ -11,17 +11,19 @@ namespace ExplorerEx.Model;
 internal class DiskDriveItem : FileViewBaseItem {
 	public DriveInfo Driver { get; }
 
-	public long UsedSpace { get; }
+	public long FreeSpace { get; }
 
 	public long TotalSpace { get; }
 
-	public string SpaceOverviewString => $"{"Available:".L()}{FileUtils.FormatByteSize(TotalSpace - UsedSpace)}{",".L()}{"Total:".L()}{FileUtils.FormatByteSize(TotalSpace)}";
+	public double FreeSpaceRatio => (double)FreeSpace / TotalSpace;
+
+	public string SpaceOverviewString => $"{"Available: ".L()}{FileUtils.FormatByteSize(FreeSpace)}{", ".L()}{"Total: ".L()}{FileUtils.FormatByteSize(TotalSpace)}";
 
 	public DiskDriveItem(DriveInfo driver) {
 		Driver = driver;
-		Name = $"{driver.VolumeLabel} ({driver.Name[..1]})";
+		Name = $"{(string.IsNullOrWhiteSpace(driver.VolumeLabel) ? "Local_disk".L() : driver.VolumeLabel)} ({driver.Name[..1]})";
 		TotalSpace = driver.TotalSize;
-		UsedSpace = TotalSpace - driver.AvailableFreeSpace;  // 考虑用户配额
+		FreeSpace = driver.AvailableFreeSpace;  // 考虑用户配额
 	}
 
 	public override async Task LoadIconAsync() {

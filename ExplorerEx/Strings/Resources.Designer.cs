@@ -61,7 +61,25 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似  的本地化字符串。
+        ///   查找类似 ， 的本地化字符串。
+        /// </summary>
+        internal static string __ {
+            get {
+                return ResourceManager.GetString(", ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 可用： 的本地化字符串。
+        /// </summary>
+        internal static string Available__ {
+            get {
+                return ResourceManager.GetString("Available: ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 无法创建 的本地化字符串。
         /// </summary>
         internal static string Cannot_create {
             get {
@@ -75,6 +93,15 @@ namespace ExplorerEx.Strings {
         internal static string Folder {
             get {
                 return ResourceManager.GetString("Folder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似  的本地化字符串。
+        /// </summary>
+        internal static string Local_disk {
+            get {
+                return ResourceManager.GetString("Local_disk", resourceCulture);
             }
         }
         
@@ -138,6 +165,15 @@ namespace ExplorerEx.Strings {
         internal static string This_computer {
             get {
                 return ResourceManager.GetString("This_computer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 共有： 的本地化字符串。
+        /// </summary>
+        internal static string Total__ {
+            get {
+                return ResourceManager.GetString("Total: ", resourceCulture);
             }
         }
         

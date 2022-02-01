@@ -27,16 +27,25 @@ internal class FileSystemItem : FileViewBaseItem {
 		} else {
 			FileSize = -1;
 			IsDirectory = true;
-			try {
-				if (Win32Interop.PathIsDirectoryEmpty(fileSystemInfo.FullName)) {
-					Icon = FolderDrawingImage;
-				} else {
-					Icon = EmptyFolderDrawingImage;
-				}
-			} catch {
+			LoadDirectoryIcon();
+		}
+	}
+
+	private void LoadDirectoryIcon() {
+		try {
+			if (Win32Interop.PathIsDirectoryEmpty(FileSystemInfo.FullName)) {
+				Icon = FolderDrawingImage;
+			} else {
 				Icon = EmptyFolderDrawingImage;
 			}
+		} catch {
+			Icon = EmptyFolderDrawingImage;
 		}
+	}
+
+	public override async Task RefreshAsync() {
+		LoadDirectoryIcon();
+		await base.RefreshAsync();
 	}
 
 	public override async Task LoadIconAsync() {

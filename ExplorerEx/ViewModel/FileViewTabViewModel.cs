@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using ExplorerEx.Model;
 using ExplorerEx.Selector;
 using ExplorerEx.Utils;
@@ -18,7 +19,7 @@ namespace ExplorerEx.ViewModel;
 /// <summary>
 /// 对应一个Tab
 /// </summary>
-internal class FileViewTabViewModel : ViewModelBase {
+internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 	public ContentPresenter FileViewContentPresenter { get; set; }
 
 	public FileViewDataTemplateSelector.Type Type { get; private set; }
@@ -74,11 +75,27 @@ internal class FileViewTabViewModel : ViewModelBase {
 
 	private int nextHistoryIndex, historyCount;
 
+	private readonly FileSystemWatcher watcher = new();
+
+	private readonly Dispatcher dispatcher;
+
 	private CancellationTokenSource cts;
 
 	public FileViewTabViewModel() : this(null) { }
 
 	public FileViewTabViewModel(string path) {
+		dispatcher = Application.Current.Dispatcher;
+
+		watcher.NotifyFilter = NotifyFilters.Attributes | NotifyFilters.CreationTime | NotifyFilters.DirectoryName | 
+		                       NotifyFilters.FileName | NotifyFilters.LastAccess | NotifyFilters.LastWrite | 
+		                       NotifyFilters.Security | NotifyFilters.Size;
+
+		watcher.Changed += Watcher_OnChanged;
+		watcher.Created += Watcher_OnCreated;
+		watcher.Deleted += Watcher_OnDeleted;
+		watcher.Renamed += Watcher_OnRenamed;
+		watcher.Error += Watcher_OnError;
+
 		LoadDirectoryAsync(path);
 	}
 
@@ -127,6 +144,7 @@ internal class FileViewTabViewModel : ViewModelBase {
 
 		var list = new List<FileViewBaseItem>();
 		if (isLoadRoot) {
+			watcher.EnableRaisingEvents = false;
 			FullPath = "This_computer".L();
 			OnPropertyChanged(nameof(Type));
 			OnPropertyChanged(nameof(FullPath));
@@ -142,6 +160,8 @@ internal class FileViewTabViewModel : ViewModelBase {
 			} else {
 				FullPath = path;
 			}
+			watcher.Path = FullPath;
+			watcher.EnableRaisingEvents = true;
 			OnPropertyChanged(nameof(Type));
 			OnPropertyChanged(nameof(FullPath));
 			OnPropertyChanged(nameof(Header));
@@ -232,12 +252,16 @@ internal class FileViewTabViewModel : ViewModelBase {
 	/// 和文件相关的UI，选择更改时更新
 	/// </summary>
 	private void UpdateFileUI() {
-		var size = SelectedFilesSize;
-		if (size == -1) {
+		if (Type == FileViewDataTemplateSelector.Type.Home) {
 			SelectedFileItemsSizeVisibility = Visibility.Collapsed;
 		} else {
-			SelectedFileItemsSizeString = FileUtils.FormatByteSize(size);
-			SelectedFileItemsSizeVisibility = Visibility.Visible;
+			var size = SelectedFilesSize;
+			if (size == -1) {
+				SelectedFileItemsSizeVisibility = Visibility.Collapsed;
+			} else {
+				SelectedFileItemsSizeString = FileUtils.FormatByteSize(size);
+				SelectedFileItemsSizeVisibility = Visibility.Visible;
+			}
 		}
 		OnPropertyChanged(nameof(IsItemSelected));
 		OnPropertyChanged(nameof(SelectedFileItemsCountVisibility));
@@ -297,5 +321,86 @@ internal class FileViewTabViewModel : ViewModelBase {
 			SelectedItems.Remove(removedItem);
 		}
 		UpdateFileUI();
+	}
+
+	private void Watcher_OnError(object sender, ErrorEventArgs e) {
+		if (Type == FileViewDataTemplateSelector.Type.Home) {
+			return;
+		}
+		throw new NotImplementedException();
+	}
+
+	private void Watcher_OnRenamed(object sender, RenamedEventArgs e) {
+		if (Type == FileViewDataTemplateSelector.Type.Home) {
+			return;
+		}
+		dispatcher.Invoke(async () => {
+			for (var i = 0; i < Items.Count; i++) {
+				if (((FileSystemItem)Items[i]).FullPath == e.OldFullPath) {
+					if (Directory.Exists(e.FullPath)) {
+						Items[i] = new FileSystemItem(new DirectoryInfo(e.FullPath)); 
+					} else if (File.Exists(e.FullPath)) {
+						var item = new FileSystemItem(new FileInfo(e.FullPath));
+						Items[i] = item;
+						await item.LoadIconAsync();
+					}
+					return;
+				}
+			}
+		});
+	}
+
+	private void Watcher_OnDeleted(object sender, FileSystemEventArgs e) {
+		if (Type == FileViewDataTemplateSelector.Type.Home) {
+			return;
+		}
+		dispatcher.Invoke(() => {
+			for (var i = 0; i < Items.Count; i++) {
+				if (((FileSystemItem)Items[i]).FullPath == e.FullPath) {
+					Items.RemoveAt(i);
+					return;
+				}
+			}
+		});
+	}
+
+	private void Watcher_OnCreated(object sender, FileSystemEventArgs e) {
+		if (Type == FileViewDataTemplateSelector.Type.Home) {
+			return;
+		}
+		dispatcher.Invoke(async () => {
+			FileSystemItem item;
+			if (Directory.Exists(e.FullPath)) {
+				item = new FileSystemItem(new DirectoryInfo(e.FullPath));
+			} else if (File.Exists(e.FullPath)) {
+				item = new FileSystemItem(new FileInfo(e.FullPath));
+			} else {
+				return;
+			}
+			Items.Add(item);
+			if (!item.IsDirectory) {
+				await item.LoadIconAsync();
+			}
+		});
+	}
+
+	private void Watcher_OnChanged(object sender, FileSystemEventArgs e) {
+		if (Type == FileViewDataTemplateSelector.Type.Home) {
+			return;
+		}
+		dispatcher.Invoke(async () => {
+			// ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
+			foreach (FileSystemItem item in Items) {
+				if (item.FullPath == e.FullPath) {
+					await item.RefreshAsync();
+					return;
+				}
+			}
+		});
+	}
+
+	public void Dispose() {
+		watcher?.Dispose();
+		cts?.Dispose();
 	}
 }
