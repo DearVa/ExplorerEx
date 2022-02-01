@@ -25,6 +25,6 @@ internal class DiskDriveItem : FileViewBaseItem {
 	}
 
 	public override async Task LoadIconAsync() {
-		Icon = IconHelper.GetLargePathIcon(Driver.Name, true, true);
+		Icon = await IconHelper.GetLargePathIcon(Driver.Name, true, true);
 	}
 }

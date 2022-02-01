@@ -4,7 +4,7 @@ using ExplorerEx.Strings;
 
 namespace ExplorerEx.Utils; 
 
-internal static class LangMgr {
+internal static class LangHelper {
 	/// <summary>
 	/// 本地化字符串
 	/// </summary>

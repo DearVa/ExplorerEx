@@ -5,9 +5,11 @@ using System.Windows.Markup;
 
 namespace ExplorerEx.Utils;
 
+[MarkupExtensionReturnType(typeof(Delegate))]
+[Localizability(LocalizationCategory.NeverLocalize)]
 internal class EventExtension : MarkupExtension {
 	[ConstructorArgument("path")]
-	public string HandlerMethodName { get; set; }
+	public string HandlerMethodName { get; }
 
 	public EventExtension(string handlerMethodName) {
 		HandlerMethodName = handlerMethodName;

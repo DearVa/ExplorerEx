@@ -7,7 +7,17 @@ using ExplorerEx.Annotations;
 namespace ExplorerEx.Model; 
 
 internal abstract class FileViewBaseItem : INotifyPropertyChanged {
-	public ImageSource Icon { get; protected set; }
+	public ImageSource Icon {
+		get => icon;
+		protected set {
+			if (icon != value) {
+				icon = value;
+				OnPropertyChanged();
+			}
+		}
+	}
+
+	private ImageSource icon;
 
 	public string Name { get; protected set; }
 
@@ -19,7 +29,7 @@ internal abstract class FileViewBaseItem : INotifyPropertyChanged {
 	public event PropertyChangedEventHandler PropertyChanged;
 
 	[NotifyPropertyChangedInvocator]
-	protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) {
+	protected void OnPropertyChanged([CallerMemberName] string propertyName = null) {
 		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 	}
 }

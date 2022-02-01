@@ -11,7 +11,6 @@ using System.Windows.Controls;
 using ExplorerEx.Model;
 using ExplorerEx.Selector;
 using ExplorerEx.Utils;
-using ExplorerEx.View;
 using hc = HandyControl.Controls;
 
 namespace ExplorerEx.ViewModel;
@@ -33,11 +32,15 @@ internal class FileViewTabViewModel : ViewModelBase {
 	/// </summary>
 	public ObservableCollection<FileViewBaseItem> Items { get; } = new();
 
+	public ObservableCollection<CreateFileItem> CreateFileItems => CreateFileItem.Items;
+
 	public ObservableHashSet<FileViewBaseItem> SelectedItems { get; } = new();
 
 	public bool CanGoBack => nextHistoryIndex > 1;
 
 	public bool CanGoForward => nextHistoryIndex < historyCount;
+
+	public bool CanGoToUpperLevel => Type != FileViewDataTemplateSelector.Type.Home;
 
 	public bool IsItemSelected => SelectedItems.Count > 0;
 
@@ -70,7 +73,6 @@ internal class FileViewTabViewModel : ViewModelBase {
 	private readonly List<string> historyPaths = new(128);
 
 	private int nextHistoryIndex, historyCount;
-
 
 	private CancellationTokenSource cts;
 
@@ -135,7 +137,11 @@ internal class FileViewTabViewModel : ViewModelBase {
 			}, cts.Token);
 
 		} else {
-			FullPath = path;
+			if (path.Length > 3) {
+				FullPath = path.TrimEnd('\\');
+			} else {
+				FullPath = path;
+			}
 			OnPropertyChanged(nameof(Type));
 			OnPropertyChanged(nameof(FullPath));
 			OnPropertyChanged(nameof(Header));
@@ -170,8 +176,8 @@ internal class FileViewTabViewModel : ViewModelBase {
 	/// <summary>
 	/// 回到上一页
 	/// </summary>
-	public async Task GoBackAsync() {
-		if (nextHistoryIndex > 1) {
+	public async void GoBackAsync(object sender, RoutedEventArgs e) {
+		if (CanGoBack) {
 			nextHistoryIndex--;
 			await LoadDirectoryAsync(historyPaths[nextHistoryIndex - 1], false);
 		}
@@ -180,10 +186,35 @@ internal class FileViewTabViewModel : ViewModelBase {
 	/// <summary>
 	/// 前进一页
 	/// </summary>
-	public async Task GoForwardAsync() {
-		if (nextHistoryIndex < historyCount) {
+	public async void GoForwardAsync(object sender, RoutedEventArgs e) {
+		if (CanGoForward) {
 			await LoadDirectoryAsync(historyPaths[nextHistoryIndex], false);
 			nextHistoryIndex++;
+		}
+	}
+
+	/// <summary>
+	/// 向上一级
+	/// </summary>
+	/// <returns></returns>
+	public async void GoToUpperLevelAsync(object sender, RoutedEventArgs e) {
+		if (CanGoToUpperLevel) {
+			if (FullPath.Length == 3) {
+				await LoadDirectoryAsync(null);
+			} else {
+				var lastIndexOfSlash = FullPath.LastIndexOf('\\');
+				switch (lastIndexOfSlash) {
+				case -1:
+					await LoadDirectoryAsync(null);
+					break;
+				case 2: // 例如F:\，此时需要保留最后的\
+					await LoadDirectoryAsync(FullPath[..3]);
+					break;
+				default:
+					await LoadDirectoryAsync(FullPath[..lastIndexOfSlash]);
+					break;
+				}
+			}
 		}
 	}
 
@@ -193,6 +224,7 @@ internal class FileViewTabViewModel : ViewModelBase {
 	private void UpdateFolderUI() {
 		OnPropertyChanged(nameof(CanGoBack));
 		OnPropertyChanged(nameof(CanGoForward));
+		OnPropertyChanged(nameof(CanGoToUpperLevel));
 		OnPropertyChanged(nameof(FileItemsCount));
 	}
 

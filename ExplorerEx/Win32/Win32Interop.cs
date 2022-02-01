@@ -1,16 +1,18 @@
-﻿using ExplorerEx.Utils;
-using System;
-using System.IO;
+﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace ExplorerEx.Win32;
 
 internal static class Win32Interop {
-	[DllImport("shlwapi.dll")]
+#pragma warning disable CS0649
+	// ReSharper disable InconsistentNaming
+	// ReSharper disable IdentifierTypo
+	// ReSharper disable StringLiteralTypo
+	// ReSharper disable UnusedMember.Global
+	// ReSharper disable FieldCanBeMadeReadOnly.Global
+	// ReSharper disable UnusedType.Global
+	[DllImport("shlwapi.dll", CharSet = CharSet.Unicode)]
 	public static extern bool PathIsDirectoryEmpty(string path);
 
 	[DllImport("user32.dll")]
@@ -19,32 +21,32 @@ internal static class Win32Interop {
 	[DllImport("user32.dll")]
 	public static extern IntPtr LoadCursor(IntPtr hInstance, long lpCursorName);
 
-	[DllImport("shell32.dll", BestFitMapping = false, CharSet = CharSet.Auto)]
-	private static extern IntPtr ExtractAssociatedIcon(ref IntPtr hInst, StringBuilder iconPath, ref int index);
+	[DllImport("shell32.dll", BestFitMapping = false, CharSet = CharSet.Unicode)]
+	public static extern IntPtr ExtractAssociatedIcon(ref IntPtr hInst, StringBuilder iconPath, ref int index);
 
 	[DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
-	private static extern bool GetIconInfo(IntPtr hIcon, IntPtr pIconInfo);
+	public static extern bool GetIconInfo(IntPtr hIcon, IntPtr pIconInfo);
 
 	[DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
-	private static extern bool DestroyIcon(IntPtr hIcon);
+	public static extern bool DestroyIcon(IntPtr hIcon);
 
 	[DllImport("gdi32.dll")]
-	private static extern IntPtr CreateCompatibleDC(IntPtr hdc);
+	public static extern IntPtr CreateCompatibleDC(IntPtr hdc);
 
 	[DllImport("gdi32.dll")]
-	private static extern bool DeleteDC(IntPtr hdc);
+	public static extern bool DeleteDC(IntPtr hdc);
 
 	[DllImport("gdi32.dll")]
-	private static extern IntPtr SelectObject(IntPtr hdc, IntPtr h);
+	public static extern IntPtr SelectObject(IntPtr hdc, IntPtr h);
 
 	[DllImport("gdi32.dll")]
-	private static extern int GetObject(IntPtr h, int c, IntPtr pv);
+	public static extern int GetObject(IntPtr h, int c, IntPtr pv);
 
 	[DllImport("gdi32.dll")]
-	private static extern int GetDIBits(ref IntPtr hdc, ref IntPtr hbm, uint start, uint cLines, IntPtr lpvBits, IntPtr lpbmi, uint usage);
+	public static extern int GetDIBits(ref IntPtr hdc, ref IntPtr hbm, uint start, uint cLines, IntPtr lpvBits, IntPtr lpbmi, uint usage);
 
 	[StructLayout(LayoutKind.Sequential)]
-	private struct BITMAP {
+	public struct BITMAP {
 		public int bmType;
 		public int bmWidth;
 		public int bmHeight;
@@ -55,7 +57,7 @@ internal static class Win32Interop {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	private struct BITMAPINFOHEADER {
+	public struct BITMAPINFOHEADER {
 		public int biSize;
 		public int biWidth;
 		public int biHeight;
@@ -70,13 +72,13 @@ internal static class Win32Interop {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	private struct BITMAPINFO {
+	public struct BITMAPINFO {
 		public BITMAPINFOHEADER bmiHeader;
 		public IntPtr bmiColors;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	private struct ICONINFO {
+	public struct ICONINFO {
 		public bool fIcon;
 		public int xHotspot;
 		public int yHotspot;
@@ -84,80 +86,235 @@ internal static class Win32Interop {
 		public IntPtr hbmColor;
 	}
 
-	public static async Task<WriteableBitmap> ExtractAssociatedIconAsync(string filePath) {
-		if (filePath == null) {
-			throw new ArgumentNullException(nameof(filePath));
-		}
-		Uri uri;
-		try {
-			uri = new Uri(filePath);
-		} catch (UriFormatException) {
-			filePath = Path.GetFullPath(filePath);
-			uri = new Uri(filePath);
-		}
-		if (uri.IsUnc) {
-			throw new ArgumentException("Resources/Win32_ExtractAssociatedIcon_UNC_path_is_not_supported".L(), nameof(filePath));
-		}
-		if (uri.IsFile) {
-			if (!File.Exists(filePath)) {
-				// IntSecurity.DemandReadFileIO(filePath);
-				throw new FileNotFoundException(filePath);
-			}
-			var sb = new StringBuilder(260);
-			sb.Append(filePath);
-			var index = 0;
-			var nullPtr = IntPtr.Zero;
-			var hIcon = ExtractAssociatedIcon(ref nullPtr, sb, ref index);
-			if (hIcon != IntPtr.Zero) {
-				var pIconInfo = Marshal.AllocHGlobal(Marshal.SizeOf<ICONINFO>());
-				if (GetIconInfo(hIcon, pIconInfo)) {
-					var iconInfo = Marshal.PtrToStructure<ICONINFO>(pIconInfo);
-					var hdc = CreateCompatibleDC(IntPtr.Zero);
-					var oldBitmap = SelectObject(hdc, iconInfo.hbmColor);
+	// This structure will contain information about the file
+	public struct SHFILEINFO {
+		/// <summary>
+		/// Handle to the icon representing the file
+		/// </summary>
+		public IntPtr hIcon;
 
-					var sizeOfBitmap = Marshal.SizeOf<BITMAP>();
-					var pBitmap = Marshal.AllocHGlobal(sizeOfBitmap);
-					if (GetObject(iconInfo.hbmColor, Marshal.SizeOf<BITMAP>(), pBitmap) == sizeOfBitmap) {
-						var bmp = Marshal.PtrToStructure<BITMAP>(pBitmap);
-						var info = new BITMAPINFO();
-						info.bmiHeader.biSize = Marshal.SizeOf<BITMAPINFOHEADER>();
-						info.bmiHeader.biWidth = bmp.bmWidth;
-						info.bmiHeader.biHeight = bmp.bmHeight;
-						info.bmiHeader.biPlanes = 1;
-						info.bmiHeader.biBitCount = bmp.bmBitsPixel;
-						info.bmiHeader.biCompression = 0;
-						info.bmiHeader.biSizeImage = ((bmp.bmWidth * bmp.bmBitsPixel + 31) / 32) * 4 * bmp.bmHeight;
+		/// <summary>
+		/// Index of the icon within the image list
+		/// </summary>
+		public int iIcon;
 
-						var pInfo = Marshal.AllocHGlobal(Marshal.SizeOf<BITMAPINFO>());
-						Marshal.StructureToPtr(info, pInfo, false);
-						var bitmap = new WriteableBitmap(bmp.bmWidth, bmp.bmHeight, 96d, 96d, PixelFormats.Bgra32, null);
-						bitmap.Lock();
-						GetDIBits(ref hdc, ref pIconInfo, 0, (uint)bmp.bmHeight, bitmap.BackBuffer, pInfo, 0);
-						bitmap.Unlock();
-						bitmap.Freeze();
-						SelectObject(hdc, oldBitmap);
-						Marshal.FreeHGlobal(pInfo);
-						Marshal.FreeHGlobal(pBitmap);
+		/// <summary>
+		/// Various attributes of the file
+		/// </summary>
+		public uint dwAttributes;
 
-						DeleteDC(hdc);
-						DestroyIcon(hIcon);
-						Marshal.FreeHGlobal(pIconInfo);
+		/// <summary>
+		/// Path to the file
+		/// </summary>
+		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+		public string szDisplayName;
 
-						return bitmap;
-					}
-					Marshal.FreeHGlobal(pBitmap);
-
-					DeleteDC(hdc);
-					DestroyIcon(hIcon);
-				}
-				Marshal.FreeHGlobal(pIconInfo);
-			}
-		}
-		return null;
+		/// <summary>
+		/// File type
+		/// </summary>
+		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
+		public string szTypeName;
 	}
 
-	public static void SetWestEastArrowCursor() {
-		var cursor = LoadCursor(IntPtr.Zero, 32644L);
-		SetCursor(cursor);
+	[DllImport("Kernel32.dll")]
+	public static extern bool CloseHandle(IntPtr handle);
+
+	public struct IMAGELISTDRAWPARAMS {
+		public int cbSize;
+		public IntPtr himl;
+		public int i;
+		public IntPtr hdcDst;
+		public int x;
+		public int y;
+		public int cx;
+		public int cy;
+		public int xBitmap;        // x offset from the upperLeft of bitmap
+		public int yBitmap;        // y offset from the upperLeft of bitmap
+		public int rgbBk;
+		public int rgbFg;
+		public int fStyle;
+		public int dwRop;
+		public int fState;
+		public int Frame;
+		public int crEffect;
 	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct RECT {
+		public int x;
+		public int y;
+		public int width;
+		public int height;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct POINT {
+		public int x;
+		public int y;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct IMAGEINFO {
+		public IntPtr hbmImage;
+		public IntPtr hbmMask;
+		public int Unused1;
+		public int Unused2;
+		public RECT rcImage;
+	}
+
+	#region Private ImageList COM Interop (XP)
+	[ComImport]
+	[Guid("46EB5926-582E-4017-9FDF-E8998DAA0950")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	public interface IImageList {
+		[PreserveSig]
+		int Add(IntPtr hbmImage, IntPtr hbmMask, ref int pi);
+
+		[PreserveSig]
+		int ReplaceIcon(int i, IntPtr hicon, ref int pi);
+
+		[PreserveSig]
+		int SetOverlayImage(int iImage, int iOverlay);
+
+		[PreserveSig]
+		int Replace(int i, IntPtr hbmImage, IntPtr hbmMask);
+
+		[PreserveSig]
+		int AddMasked(IntPtr hbmImage, int crMask, ref int pi);
+
+		[PreserveSig]
+		int Draw(ref IMAGELISTDRAWPARAMS pimldp);
+
+		[PreserveSig]
+		int Remove(int i);
+
+		[PreserveSig]
+		int GetIcon(int i, int flags, ref IntPtr picon);
+
+		[PreserveSig]
+		int GetImageInfo(int i, ref IMAGEINFO pImageInfo);
+
+		[PreserveSig]
+		int Copy(int iDst, IImageList punkSrc, int iSrc, int uFlags);
+
+		[PreserveSig]
+		int Merge(int i1, IImageList punk2, int i2, int dx, int dy, ref Guid riid, ref IntPtr ppv);
+
+		[PreserveSig]
+		int Clone(ref Guid riid, ref IntPtr ppv);
+
+		[PreserveSig]
+		int GetImageRect(int i, ref RECT prc);
+
+		[PreserveSig]
+		int GetIconSize(ref int cx, ref int cy);
+
+		[PreserveSig]
+		int SetIconSize(int cx, int cy);
+
+		[PreserveSig]
+		int GetImageCount(ref int pi);
+
+		[PreserveSig]
+		int SetImageCount(int uNewCount);
+
+		[PreserveSig]
+		int SetBkColor(int clrBk, ref int pclr);
+
+		[PreserveSig]
+		int GetBkColor(ref int pclr);
+
+		[PreserveSig]
+		int BeginDrag(int iTrack, int dxHotspot, int dyHotspot);
+
+		[PreserveSig]
+		int EndDrag();
+
+		[PreserveSig]
+		int DragEnter(IntPtr hwndLock, int x, int y);
+
+		[PreserveSig]
+		int DragLeave(IntPtr hwndLock);
+
+		[PreserveSig]
+		int DragMove(int x, int y);
+
+		[PreserveSig]
+		int SetDragCursorImage(ref IImageList punk, int iDrag, int dxHotspot, int dyHotspot);
+
+		[PreserveSig]
+		int DragShowNolock(int fShow);
+
+		[PreserveSig]
+		int GetDragImage(ref POINT ppt, ref POINT pptHotspot, ref Guid riid, ref IntPtr ppv);
+
+		[PreserveSig]
+		int GetItemFlags(int i, ref int dwFlags);
+
+		[PreserveSig]
+		int GetOverlayImage(int iOverlay, ref int piIndex);
+	};
+	#endregion
+
+	///
+	/// SHGetImageList is not exported correctly in XP.  See KB316931
+	/// http://support.microsoft.com/default.aspx?scid=kb;EN-US;Q316931
+	/// Apparently (and hopefully) ordinal 727 isn't going to change.
+	///
+	[DllImport("shell32.dll", EntryPoint = "#727")]
+	public static extern int SHGetImageList(uint iImageList, ref Guid riid, out IImageList ppv);
+
+	[DllImport("Shell32.dll", CharSet = CharSet.Ansi)]
+	public static extern int SHGetFileInfo(string pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, int cbFileInfo, uint uFlags);
+
+	[DllImport("Shell32.dll")]
+	public static extern int SHGetFileInfo(IntPtr pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, int cbFileInfo, uint uFlags);
+
+	[DllImport("shell32.dll", SetLastError = true)]
+	public static extern int SHGetSpecialFolderLocation(IntPtr hwndOwner, int nFolder, ref IntPtr ppidl);
+
+	public const uint FILE_ATTRIBUTE_READONLY = 0x00000001;
+	public const uint FILE_ATTRIBUTE_HIDDEN = 0x00000002;
+	public const uint FILE_ATTRIBUTE_SYSTEM = 0x00000004;
+	public const uint FILE_ATTRIBUTE_DIRECTORY = 0x00000010;
+	public const uint FILE_ATTRIBUTE_ARCHIVE = 0x00000020;
+	public const uint FILE_ATTRIBUTE_DEVICE = 0x00000040;
+	public const uint FILE_ATTRIBUTE_NORMAL = 0x00000080;
+	public const uint FILE_ATTRIBUTE_TEMPORARY = 0x00000100;
+	public const uint FILE_ATTRIBUTE_SPARSE_FILE = 0x00000200;
+	public const uint FILE_ATTRIBUTE_REPARSE_POINT = 0x00000400;
+	public const uint FILE_ATTRIBUTE_COMPRESSED = 0x00000800;
+	public const uint FILE_ATTRIBUTE_OFFLINE = 0x00001000;
+	public const uint FILE_ATTRIBUTE_NOT_CONTENT_INDEXED = 0x00002000;
+	public const uint FILE_ATTRIBUTE_ENCRYPTED = 0x00004000;
+	public const uint FILE_ATTRIBUTE_VIRTUAL = 0x00010000;
+
+	// Constants that we need in the function call
+	public const uint SHIL_JUMBO = 0x4;
+	public const uint SHIL_EXTRALARGE = 0x2;
+	public const uint SHGFI_ICON = 0x000000100;     // get icon
+	public const uint SHGFI_DISPLAYNAME = 0x000000200;     // get display name
+	public const uint SHGFI_TYPENAME = 0x000000400;     // get type name
+	public const uint SHGFI_ATTRIBUTES = 0x000000800;     // get attributes
+	public const uint SHGFI_ICONLOCATION = 0x000001000;     // get icon location
+	public const uint SHGFI_EXETYPE = 0x000002000;     // return exe type
+	public const uint SHGFI_SYSICONINDEX = 0x000004000;     // get system icon index
+	public const uint SHGFI_LINKOVERLAY = 0x000008000;     // put a link overlay on icon
+	public const uint SHGFI_SELECTED = 0x000010000;     // show icon in selected state
+	public const uint SHGFI_ATTR_SPECIFIED = 0x000020000;     // get only specified attributes
+	public const uint SHGFI_LARGEICON = 0x000000000;     // get large icon
+	public const uint SHGFI_SMALLICON = 0x000000001;     // get small icon
+	public const uint SHGFI_OPENICON = 0x000000002;     // get open icon
+	public const uint SHGFI_SHELLICONSIZE = 0x000000004;     // get shell size icon
+	public const uint SHGFI_PIDL = 0x000000008;     // pszPath is a pidl
+	public const uint SHGFI_USEFILEATTRIBUTES = 0x000000010;     // use passed dwFileAttribute
+
+	public const int ILD_TRANSPARENT = 1;
+	// ReSharper restore InconsistentNaming
+	// ReSharper restore IdentifierTypo
+	// ReSharper restore StringLiteralTypo
+	// ReSharper restore UnusedMember.Global
+	// ReSharper restore FieldCanBeMadeReadOnly.Global
+	// ReSharper restore UnusedType.Global
+#pragma warning restore CS0649
 }

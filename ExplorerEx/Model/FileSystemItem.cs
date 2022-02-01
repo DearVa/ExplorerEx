@@ -2,10 +2,9 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media;
 using ExplorerEx.Utils;
 using ExplorerEx.Win32;
+using static ExplorerEx.Win32.IconHelper;
 
 namespace ExplorerEx.Model;
 
@@ -18,42 +17,30 @@ internal class FileSystemItem : FileViewBaseItem {
 
 	public string FullPath => FileSystemInfo.FullName;
 
-	private static DrawingImage folderDrawingImage, emptyFolderDrawingImage, unknownTypeFileDrawingImage;
-
 	public FileSystemItem(FileSystemInfo fileSystemInfo) {
-		if (folderDrawingImage == null) {
-			Application.Current.Dispatcher.Invoke(() => {
-				var resources = Application.Current.Resources;
-				folderDrawingImage = (DrawingImage)resources["FolderDrawingImage"];
-				emptyFolderDrawingImage = (DrawingImage)resources["EmptyFolderDrawingImage"];
-				unknownTypeFileDrawingImage = (DrawingImage)resources["UnknownTypeFileDrawingImage"];
-			});
-		}
-
 		FileSystemInfo = fileSystemInfo;
 		Name = FileSystemInfo.Name;
 		if (fileSystemInfo is FileInfo fi) {
 			FileSize = fi.Length;
 			IsDirectory = false;
-			Icon = unknownTypeFileDrawingImage;
+			Icon = UnknownTypeFileDrawingImage;
 		} else {
 			FileSize = -1;
 			IsDirectory = true;
 			try {
 				if (Win32Interop.PathIsDirectoryEmpty(fileSystemInfo.FullName)) {
-					Icon = folderDrawingImage;
+					Icon = FolderDrawingImage;
 				} else {
-					Icon = emptyFolderDrawingImage;
+					Icon = EmptyFolderDrawingImage;
 				}
 			} catch {
-				Icon = emptyFolderDrawingImage;
+				Icon = EmptyFolderDrawingImage;
 			}
 		}
 	}
 
 	public override async Task LoadIconAsync() {
 		Debug.Assert(!IsDirectory);
-		//Icon = await Win32Interop.ExtractAssociatedIconAsync(FullPath);
-		Icon = IconHelper.GetPathIcon(FullPath, false, true, false);
+		Icon = await GetPathIconAsync(FullPath, false, true, false);
 	}
 }

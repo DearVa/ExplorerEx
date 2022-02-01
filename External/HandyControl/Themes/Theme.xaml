@@ -10384,10 +10384,29 @@
 									<Path x:Name="PathMain" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Data="{TemplateBinding hc:IconElement.Geometry}" />
 									<ContentPresenter x:Name="ContentPresenterMain" RecognizesAccessKey="True" VerticalAlignment="Center" Margin="6,0,0,0" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
 								</StackPanel>
-								<ToggleButton x:Name="PART_Arrow" Foreground="{TemplateBinding Foreground}" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Width="22" Height="Auto" Padding="0,10,8,10" HorizontalContentAlignment="Left" Grid.Column="1" Style="{StaticResource ToggleButtonIconTransparent}" hc:IconSwitchElement.GeometrySelected="{StaticResource UpGeometry}" hc:IconElement.Geometry="{StaticResource DownGeometry}" />
+								<ToggleButton x:Name="PART_Arrow" Foreground="{TemplateBinding Foreground}" IsChecked="{Binding IsDropDownOpen, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" Width="20" Margin="-6,0,0,0" Height="Auto" Padding="6,10,6,10" HorizontalContentAlignment="Left" Grid.Column="1" hc:IconSwitchElement.GeometrySelected="{StaticResource DownGeometry}" hc:IconElement.Geometry="{StaticResource DownGeometry}">
+									<ToggleButton.Resources>
+										<SineEase x:Key="SineEase" EasingMode="EaseInOut" />
+									</ToggleButton.Resources>
+									<ToggleButton.Style>
+										<Style BasedOn="{StaticResource ToggleButtonIconTransparent}" TargetType="ToggleButton">
+											<Style.Triggers>
+												<Trigger Property="IsChecked" Value="True">
+													<Trigger.EnterActions>
+														<BeginStoryboard>
+															<Storyboard TargetProperty="Padding">
+																<ThicknessAnimation AutoReverse="True" EasingFunction="{StaticResource SineEase}" From="6,10,6,10" To="6,14,6,10" Duration="0:0:0.2" />
+															</Storyboard>
+														</BeginStoryboard>
+													</Trigger.EnterActions>
+												</Trigger>
+											</Style.Triggers>
+										</Style>
+									</ToggleButton.Style>
+								</ToggleButton>
 							</Grid>
 						</Border>
-						<Popup AllowsTransparency="true" StaysOpen="False" IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Margin="1" PopupAnimation="Fade" Placement="Bottom">
+						<Popup x:Name="Popup" AllowsTransparency="true" StaysOpen="False" IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Margin="1" PopupAnimation="Slide" Placement="Bottom">
 							<Border CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" x:Name="dropDownBorder" MaxHeight="{TemplateBinding MaxDropDownHeight}" MinWidth="{Binding ActualWidth, ElementName=templateRoot}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Background="{DynamicResource RegionBrush}">
 								<ScrollViewer Margin="0,4" x:Name="DropDownScrollViewer">
 									<hc:SimplePanel RenderOptions.ClearTypeHint="Enabled">
@@ -10408,13 +10427,6 @@
 							<Setter Property="Visibility" Value="Collapsed" TargetName="PathMain" />
 							<Setter Property="Margin" Value="0" TargetName="ContentPresenterMain" />
 						</Trigger>
-						<MultiTrigger>
-							<MultiTrigger.Conditions>
-								<Condition Property="HitMode" Value="Click" />
-								<Condition Property="IsChecked" Value="True" SourceName="PART_Arrow" />
-							</MultiTrigger.Conditions>
-							<Setter Property="IsDropDownOpen" Value="True" />
-						</MultiTrigger>
 					</ControlTemplate.Triggers>
 				</ControlTemplate>
 			</Setter.Value>

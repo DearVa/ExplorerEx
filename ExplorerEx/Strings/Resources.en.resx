@@ -29,4 +29,16 @@
   <data name="This_computer" xml:space="preserve">
     <value>This computer</value>
   </data>
+  <data name="New_folder" xml:space="preserve">
+    <value>New Folder</value>
+  </data>
+  <data name="Shortcut" xml:space="preserve">
+    <value>Shortcut</value>
+  </data>
+  <data name="Folder" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="Cannot_create" xml:space="preserve">
+    <value>Cannot create</value>
+  </data>
 </root>

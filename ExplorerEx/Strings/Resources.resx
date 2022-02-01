@@ -116,4 +116,16 @@
   <data name="This_computer" xml:space="preserve">
     <value>此电脑</value>
   </data>
+  <data name="New_folder" xml:space="preserve">
+    <value>新建文件夹</value>
+  </data>
+  <data name="Shortcut" xml:space="preserve">
+    <value>快捷方式</value>
+  </data>
+  <data name="Folder" xml:space="preserve">
+    <value>文件夹</value>
+  </data>
+  <data name="Cannot_create" xml:space="preserve">
+    <value>无法创建</value>
+  </data>
 </root>

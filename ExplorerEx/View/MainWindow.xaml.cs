@@ -31,14 +31,6 @@ public sealed partial class MainWindow {
 		}
 	}
 
-	private async void GoBackButton_OnClick(object sender, RoutedEventArgs e) {
-		await viewModel.SelectedTab.GoBackAsync();
-	}
-
-	private async void GoForwardButton_OnClick(object sender, RoutedEventArgs e) {
-		await viewModel.SelectedTab.GoForwardAsync();
-	}
-
 	private async void DataGrid_OnMouseUp(object sender, MouseButtonEventArgs e) {
 		if (ItemsControl.ContainerFromElement((DataGrid)sender, (DependencyObject)e.OriginalSource) is DataGridRow row) {
 			await viewModel.SelectedTab.Item_OnMouseUp((FileViewBaseItem)row.Item);
