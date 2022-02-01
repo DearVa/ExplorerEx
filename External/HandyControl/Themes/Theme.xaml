@@ -6089,20 +6089,20 @@
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="MenuItem">
-					<Border x:Name="Bd" MinWidth="240" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
-						<Grid x:Name="Grid" Margin="{TemplateBinding Padding}">
+					<Border x:Name="Bd" MinWidth="120" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True" CornerRadius="5">
+						<Grid x:Name="Grid" HorizontalAlignment="Left" Margin="{TemplateBinding Padding}">
 							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="26" />
+								<ColumnDefinition Width="{TemplateBinding Height}" />
 								<ColumnDefinition Width="*" />
 								<ColumnDefinition Width="30" />
 								<ColumnDefinition SharedSizeGroup="MenuItemIGTColumnGroup" Width="Auto" />
 								<ColumnDefinition Width="20" />
 							</Grid.ColumnDefinitions>
-							<ContentPresenter Margin="0,0,10,0" x:Name="Icon" ContentSource="Icon" HorizontalAlignment="Right" Height="16" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" Width="16" />
+							<Image Grid.Column="0" x:Name="Icon" Source="{TemplateBinding Icon}" VerticalAlignment="Center" HorizontalAlignment="Center" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" />
 							<Border Margin="0,0,10,0" IsHitTestVisible="False" Grid.Column="0" x:Name="GlyphPanel" CornerRadius="2" Background="{DynamicResource PrimaryBrush}" ClipToBounds="False" HorizontalAlignment="Right" Height="16" Visibility="Hidden" VerticalAlignment="Center" Width="16">
 								<Path UseLayoutRounding="True" Width="12" Height="12" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource TextIconBrush}" />
 							</Border>
-							<ContentPresenter Grid.Column="1" x:Name="ContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" ContentSource="Header" Margin="0,3" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+							<ContentPresenter Grid.Column="1" x:Name="ContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" ContentSource="Header" VerticalAlignment="Center" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
 							<TextBlock x:Name="InputGestureText" Margin="0,0,10,0" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Left" Text="{TemplateBinding InputGestureText}" />
 						</Grid>
 					</Border>
@@ -6123,7 +6123,7 @@
 				<Setter Property="Template">
 					<Setter.Value>
 						<ControlTemplate TargetType="MenuItem">
-							<Border MinWidth="44" x:Name="templateRoot" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,1,1,0" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+							<Border MinWidth="44" x:Name="templateRoot" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,1,1,0" Background="{TemplateBinding Background}" SnapsToDevicePixels="True" CornerRadius="5">
 								<Grid VerticalAlignment="Center" Margin="{TemplateBinding Padding}">
 									<Grid.ColumnDefinitions>
 										<ColumnDefinition Width="Auto" />
@@ -6173,7 +6173,7 @@
 				<Setter Property="Template">
 					<Setter.Value>
 						<ControlTemplate TargetType="MenuItem">
-							<Border x:Name="templateRoot" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,1,1,0" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+							<Border x:Name="templateRoot" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,1,1,0" Background="{TemplateBinding Background}" SnapsToDevicePixels="True" CornerRadius="5">
 								<Grid Margin="{TemplateBinding Padding}">
 									<Grid.ColumnDefinitions>
 										<ColumnDefinition Width="Auto" />
@@ -6221,7 +6221,7 @@
 				<Setter Property="Template">
 					<Setter.Value>
 						<ControlTemplate TargetType="MenuItem">
-							<Border x:Name="Bd" MinWidth="240" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+							<Border x:Name="Bd" MinWidth="240" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True" CornerRadius="5">
 								<Grid x:Name="Grid" Margin="{TemplateBinding Padding}">
 									<Grid.ColumnDefinitions>
 										<ColumnDefinition Width="26" />
@@ -6273,7 +6273,7 @@
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="Menu">
-					<Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+					<Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true" CornerRadius="5">
 						<ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
 					</Border>
 				</ControlTemplate>
@@ -7768,8 +7768,8 @@
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="ContextMenu">
-					<Border Effect="{StaticResource EffectShadow2}" Margin="8" Background="{TemplateBinding Background}" CornerRadius="2" MaxHeight="{TemplateBinding MaxHeight}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}">
-						<ScrollViewer Style="{StaticResource ScrollViewerUpDown}" Margin="0,6">
+					<Border Effect="{StaticResource EffectShadow2}" Margin="8" Background="{TemplateBinding Background}" CornerRadius="8" MaxHeight="{TemplateBinding MaxHeight}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}">
+						<ScrollViewer Style="{StaticResource ScrollViewerUpDown}" Margin="6">
 							<ItemsPresenter />
 						</ScrollViewer>
 					</Border>

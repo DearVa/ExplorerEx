@@ -2,6 +2,7 @@
 using ExplorerEx.Utils;
 using System.Threading.Tasks;
 using ExplorerEx.Win32;
+using ExplorerEx.ViewModel;
 
 namespace ExplorerEx.Model; 
 
@@ -19,7 +20,7 @@ internal class DiskDriveItem : FileViewBaseItem {
 
 	public string SpaceOverviewString => $"{"Available: ".L()}{FileUtils.FormatByteSize(FreeSpace)}{", ".L()}{"Total: ".L()}{FileUtils.FormatByteSize(TotalSpace)}";
 
-	public DiskDriveItem(DriveInfo driver) {
+	public DiskDriveItem(FileViewTabViewModel ownerViewModel, DriveInfo driver) : base(ownerViewModel) {
 		Driver = driver;
 		Name = $"{(string.IsNullOrWhiteSpace(driver.VolumeLabel) ? "Local_disk".L() : driver.VolumeLabel)} ({driver.Name[..1]})";
 		TotalSpace = driver.TotalSize;

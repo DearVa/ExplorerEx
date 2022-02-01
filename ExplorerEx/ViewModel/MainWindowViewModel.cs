@@ -1,15 +1,9 @@
 ﻿using System.Collections.ObjectModel;
-using System.Windows;
-using System.Windows.Controls;
-using ExplorerEx.Selector;
-using ExplorerEx.Utils;
 using ExplorerEx.View;
 
 namespace ExplorerEx.ViewModel; 
 
 internal class MainWindowViewModel : ViewModelBase {
-	public ObservableCollection<MenuItem> NewButtonItems { get; } = new();
-
 	/// <summary>
 	/// 标签页
 	/// </summary>
@@ -39,8 +33,14 @@ internal class MainWindowViewModel : ViewModelBase {
 
 	private readonly MainWindow mainWindow;
 
-	public MainWindowViewModel(MainWindow mainWindow) {
+	public MainWindowViewModel(MainWindow mainWindow, string path) {
 		this.mainWindow = mainWindow;
-		TabViewItems.Add(new FileViewTabViewModel());
+		TabViewItems.Add(new FileViewTabViewModel(this, path));
+	}
+
+	public void OpenPathInNewTab(string path) {
+		var newTabIndex = mainWindow.MainTabControl.SelectedIndex + 1;
+		TabViewItems.Insert(newTabIndex, new FileViewTabViewModel(this, path));
+		mainWindow.MainTabControl.SelectedIndex = newTabIndex;
 	}
 }

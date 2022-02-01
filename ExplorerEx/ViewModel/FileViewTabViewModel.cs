@@ -12,6 +12,8 @@ using System.Windows.Threading;
 using ExplorerEx.Model;
 using ExplorerEx.Selector;
 using ExplorerEx.Utils;
+using HandyControl.Data;
+using Microsoft.VisualBasic.FileIO;
 using hc = HandyControl.Controls;
 
 namespace ExplorerEx.ViewModel;
@@ -20,6 +22,8 @@ namespace ExplorerEx.ViewModel;
 /// 对应一个Tab
 /// </summary>
 internal class FileViewTabViewModel : ViewModelBase, IDisposable {
+	public MainWindowViewModel OwnerViewModel { get; }
+
 	public ContentPresenter FileViewContentPresenter { get; set; }
 
 	public FileViewDataTemplateSelector.Type Type { get; private set; }
@@ -37,11 +41,19 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 
 	public ObservableHashSet<FileViewBaseItem> SelectedItems { get; } = new();
 
+	public SimpleCommand SelectionChangedCommand { get; }
+
 	public bool CanGoBack => nextHistoryIndex > 1;
+
+	public SimpleCommand GoBackCommand { get; }
 
 	public bool CanGoForward => nextHistoryIndex < historyCount;
 
+	public SimpleCommand GoForwardCommand { get; }
+
 	public bool CanGoToUpperLevel => Type != FileViewDataTemplateSelector.Type.Home;
+
+	public SimpleCommand GoToUpperLevelCommand { get; }
 
 	public bool IsItemSelected => SelectedItems.Count > 0;
 
@@ -80,15 +92,19 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 	private readonly Dispatcher dispatcher;
 
 	private CancellationTokenSource cts;
+	
+	public FileViewTabViewModel(MainWindowViewModel ownerViewModel, string path) {
+		OwnerViewModel = ownerViewModel;
+		GoBackCommand = new SimpleCommand(_ => GoBackAsync());
+		GoForwardCommand = new SimpleCommand(_ => GoForwardAsync());
+		GoToUpperLevelCommand = new SimpleCommand(_ => GoToUpperLevelAsync());
+		SelectionChangedCommand = new SimpleCommand(e => OnSelectionChanged(null, (SelectionChangedEventArgs)e));
 
-	public FileViewTabViewModel() : this(null) { }
-
-	public FileViewTabViewModel(string path) {
 		dispatcher = Application.Current.Dispatcher;
 
-		watcher.NotifyFilter = NotifyFilters.Attributes | NotifyFilters.CreationTime | NotifyFilters.DirectoryName | 
-		                       NotifyFilters.FileName | NotifyFilters.LastAccess | NotifyFilters.LastWrite | 
-		                       NotifyFilters.Security | NotifyFilters.Size;
+		watcher.NotifyFilter = NotifyFilters.Attributes | NotifyFilters.CreationTime | NotifyFilters.DirectoryName |
+							   NotifyFilters.FileName | NotifyFilters.LastAccess | NotifyFilters.LastWrite |
+							   NotifyFilters.Security | NotifyFilters.Size;
 
 		watcher.Changed += Watcher_OnChanged;
 		watcher.Created += Watcher_OnCreated;
@@ -135,12 +151,12 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 		Items.Clear();
 		Type = isLoadRoot ? FileViewDataTemplateSelector.Type.Home : FileViewDataTemplateSelector.Type.Detail;
 
-		if (Type != oldType) {
+		if (Type != oldType && FileViewContentPresenter != null) {
 			var selector = FileViewContentPresenter.ContentTemplateSelector;
 			FileViewContentPresenter.ContentTemplateSelector = null;
 			FileViewContentPresenter.ContentTemplateSelector = selector;
-			oldType = Type;
 		}
+		oldType = Type;
 
 		var list = new List<FileViewBaseItem>();
 		if (isLoadRoot) {
@@ -151,7 +167,7 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 			OnPropertyChanged(nameof(Header));
 
 			await Task.Run(() => {
-				list.AddRange(DriveInfo.GetDrives().Select(drive => new DiskDriveItem(drive)));
+				list.AddRange(DriveInfo.GetDrives().Select(drive => new DiskDriveItem(this, drive)));
 			}, cts.Token);
 
 		} else {
@@ -167,8 +183,8 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 			OnPropertyChanged(nameof(Header));
 
 			await Task.Run(() => {
-				list.AddRange(Directory.EnumerateDirectories(path).Select(path => new FileSystemItem(new DirectoryInfo(path))));
-				list.AddRange(Directory.EnumerateFiles(path).Select(filePath => new FileSystemItem(new FileInfo(filePath))));
+				list.AddRange(Directory.EnumerateDirectories(path).Select(path => new FileSystemItem(this, new DirectoryInfo(path))));
+				list.AddRange(Directory.EnumerateFiles(path).Select(filePath => new FileSystemItem(this, new FileInfo(filePath))));
 			}, cts.Token);
 		}
 
@@ -196,7 +212,7 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 	/// <summary>
 	/// 回到上一页
 	/// </summary>
-	public async void GoBackAsync(object sender, RoutedEventArgs e) {
+	public async void GoBackAsync() {
 		if (CanGoBack) {
 			nextHistoryIndex--;
 			await LoadDirectoryAsync(historyPaths[nextHistoryIndex - 1], false);
@@ -206,7 +222,7 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 	/// <summary>
 	/// 前进一页
 	/// </summary>
-	public async void GoForwardAsync(object sender, RoutedEventArgs e) {
+	public async void GoForwardAsync() {
 		if (CanGoForward) {
 			await LoadDirectoryAsync(historyPaths[nextHistoryIndex], false);
 			nextHistoryIndex++;
@@ -217,7 +233,7 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 	/// 向上一级
 	/// </summary>
 	/// <returns></returns>
-	public async void GoToUpperLevelAsync(object sender, RoutedEventArgs e) {
+	public async void GoToUpperLevelAsync() {
 		if (CanGoToUpperLevel) {
 			if (FullPath.Length == 3) {
 				await LoadDirectoryAsync(null);
@@ -233,6 +249,83 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 				default:
 					await LoadDirectoryAsync(FullPath[..lastIndexOfSlash]);
 					break;
+				}
+			}
+		}
+	}
+
+	/// <summary>
+	/// 将文件复制到剪贴板
+	/// </summary>
+	/// <param name="isCut"></param>
+	public void Copy(bool isCut) {
+		if (Type == FileViewDataTemplateSelector.Type.Home || SelectedItems.Count == 0) {
+			return;
+		}
+		var data = new DataObject(DataFormats.FileDrop, SelectedItems.Where(item => item is FileSystemItem).Select(item => ((FileSystemItem)item).FullPath).ToArray());
+		data.SetData("Type", isCut);
+		Clipboard.SetDataObject(data);
+	}
+
+	/// <summary>
+	/// 粘贴剪贴板中的文件
+	/// </summary>
+	public void Paste() {
+		if (Type == FileViewDataTemplateSelector.Type.Home) {
+			return;
+		}
+		if (Clipboard.GetDataObject() is DataObject data) {
+			var type = data.GetData("Type");
+			var files = data.GetData(DataFormats.FileDrop);
+			if (type is bool isCut && files is string[] f) {
+				foreach (var path in f) {
+					if (File.Exists(path)) {
+						if (isCut) {
+							File.Move(path, Path.Combine(FullPath, Path.GetFileName(path)));
+						} else {
+							File.Copy(path, Path.Combine(FullPath, Path.GetFileName(path)));
+						}
+					} else if (Directory.Exists(path)) {
+						if (isCut) {
+							Directory.Move(path, Path.Combine(FullPath, Path.GetFileName(path)));
+						} else {
+							//Directory.(path, Path.Combine(FullPath, Path.GetFileName(path)));
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public void Delete(bool recycle) {
+		if (Type == FileViewDataTemplateSelector.Type.Home || SelectedItems.Count == 0) {
+			return;
+		}
+		if (recycle) {
+			if (hc.MessageBox.Show(new MessageBoxInfo {
+				    CheckBoxText = "Remember my choice and don't ask again".L(),
+				    Message = "Are you sure to recycle these files?".L(),
+				    Image = MessageBoxImage.Question,
+				    Button = MessageBoxButton.YesNo
+			    }) != MessageBoxResult.Yes) {
+				return;
+			}
+		} else {
+			if (hc.MessageBox.Show(new MessageBoxInfo {
+				    CheckBoxText = "Remember my choice and don't ask again".L(),
+				    Message = "Are you sure to delete these files Permanently?".L(),
+				    Image = MessageBoxImage.Question,
+				    Button = MessageBoxButton.YesNo
+			    }) != MessageBoxResult.Yes) {
+				return;
+			}
+		}
+		foreach (var item in SelectedItems) {
+			if (item is FileSystemItem fsi) {
+				if (fsi.IsDirectory) {
+					FileSystem.DeleteDirectory(fsi.FullPath, UIOption.OnlyErrorDialogs, recycle ? RecycleOption.SendToRecycleBin : RecycleOption.DeletePermanently);
+				} else {
+					FileSystem.DeleteFile(fsi.FullPath, UIOption.OnlyErrorDialogs, recycle ? RecycleOption.SendToRecycleBin : RecycleOption.DeletePermanently);
 				}
 			}
 		}
@@ -273,15 +366,6 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 	private FileViewBaseItem lastClickItem;
 	private DateTimeOffset lastClickTime;
 
-	//public async void DiskDriveItemClicked(object sender, ItemClickEventArgs e) {
-	//	if (e.ClickedItem == lastClickItem && DateTimeOffset.Now <= lastClickTime.AddMilliseconds(500)) {
-	//		// 双击事件
-	//		await LoadDirectoryAsync(((DiskDriveItem)e.ClickedItem).Driver.Name);
-	//	}
-	//	lastClickItem = e.ClickedItem;
-	//	lastClickTime = DateTimeOffset.Now;
-	//}
-
 	public async Task Item_OnMouseUp(FileViewBaseItem item) {
 		if (item == lastClickItem && DateTimeOffset.Now <= lastClickTime.AddMilliseconds(500)) {
 			switch (item) {
@@ -289,18 +373,8 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 			case DiskDriveItem ddi:
 				await LoadDirectoryAsync(ddi.Driver.Name);
 				break;
-			case FileSystemItem { IsDirectory: true } fsi:
-				await LoadDirectoryAsync(fsi.FullPath);
-				break;
-			case FileSystemItem { IsDirectory: false } fsi:
-				try {
-					Process.Start(new ProcessStartInfo {
-						FileName = fsi.FullPath,
-						UseShellExecute = true
-					});
-				} catch (Exception e) {
-					Debugger.Break();
-				}
+			case FileSystemItem fsi:
+				await fsi.Open();
 				break;
 			}
 		}
@@ -308,17 +382,29 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 		lastClickTime = DateTimeOffset.Now;
 	}
 
+	private bool isClearingSelection;
+
 	public void ClearSelection() {
+		isClearingSelection = true;
+		foreach (var item in SelectedItems) {
+			item.IsSelected = false;
+		}
 		SelectedItems.Clear();
 		UpdateFileUI();
+		isClearingSelection = false;
 	}
 
 	public void OnSelectionChanged(object sender, SelectionChangedEventArgs e) {
+		if (isClearingSelection) {
+			return;
+		}
 		foreach (FileViewBaseItem addedItem in e.AddedItems) {
 			SelectedItems.Add(addedItem);
+			addedItem.IsSelected = true;
 		}
 		foreach (FileViewBaseItem removedItem in e.RemovedItems) {
 			SelectedItems.Remove(removedItem);
+			removedItem.IsSelected = false;
 		}
 		UpdateFileUI();
 	}
@@ -338,9 +424,9 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 			for (var i = 0; i < Items.Count; i++) {
 				if (((FileSystemItem)Items[i]).FullPath == e.OldFullPath) {
 					if (Directory.Exists(e.FullPath)) {
-						Items[i] = new FileSystemItem(new DirectoryInfo(e.FullPath)); 
+						Items[i] = new FileSystemItem(this, new DirectoryInfo(e.FullPath));
 					} else if (File.Exists(e.FullPath)) {
-						var item = new FileSystemItem(new FileInfo(e.FullPath));
+						var item = new FileSystemItem(this, new FileInfo(e.FullPath));
 						Items[i] = item;
 						await item.LoadIconAsync();
 					}
@@ -371,9 +457,9 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 		dispatcher.Invoke(async () => {
 			FileSystemItem item;
 			if (Directory.Exists(e.FullPath)) {
-				item = new FileSystemItem(new DirectoryInfo(e.FullPath));
+				item = new FileSystemItem(this, new DirectoryInfo(e.FullPath));
 			} else if (File.Exists(e.FullPath)) {
-				item = new FileSystemItem(new FileInfo(e.FullPath));
+				item = new FileSystemItem(this, new FileInfo(e.FullPath));
 			} else {
 				return;
 			}

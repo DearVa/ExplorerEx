@@ -70,6 +70,24 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 您确定要永久删除选择的文件吗？ 的本地化字符串。
+        /// </summary>
+        internal static string Are_you_sure_to_delete_these_files_Permanently_ {
+            get {
+                return ResourceManager.GetString("Are you sure to delete these files Permanently?", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 您确定要将选择的文件移动到回收站吗？ 的本地化字符串。
+        /// </summary>
+        internal static string Are_you_sure_to_recycle_these_files_ {
+            get {
+                return ResourceManager.GetString("Are you sure to recycle these files?", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 可用： 的本地化字符串。
         /// </summary>
         internal static string Available__ {
@@ -88,6 +106,33 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 无法打开此路径 的本地化字符串。
+        /// </summary>
+        internal static string Cannot_open_path {
+            get {
+                return ResourceManager.GetString("Cannot open path", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 请检查您的输入后再试。 的本地化字符串。
+        /// </summary>
+        internal static string Check_your_input_and_try_again_ {
+            get {
+                return ResourceManager.GetString("Check your input and try again.", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 打开文件失败 的本地化字符串。
+        /// </summary>
+        internal static string Fail_to_open_file {
+            get {
+                return ResourceManager.GetString("Fail to open file", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 文件夹 的本地化字符串。
         /// </summary>
         internal static string Folder {
@@ -97,7 +142,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似  的本地化字符串。
+        ///   查找类似 本地磁盘 的本地化字符串。
         /// </summary>
         internal static string Local_disk {
             get {
@@ -120,6 +165,51 @@ namespace ExplorerEx.Strings {
         internal static string New_folder {
             get {
                 return ResourceManager.GetString("New_folder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 打开 的本地化字符串。
+        /// </summary>
+        internal static string Open {
+            get {
+                return ResourceManager.GetString("Open", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 在新标签页中打开 的本地化字符串。
+        /// </summary>
+        internal static string Open_in_new_Tab {
+            get {
+                return ResourceManager.GetString("Open_in_new_Tab", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 在新窗口中打开 的本地化字符串。
+        /// </summary>
+        internal static string Open_in_new_Window {
+            get {
+                return ResourceManager.GetString("Open_in_new_Window", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 属性 的本地化字符串。
+        /// </summary>
+        internal static string Properties {
+            get {
+                return ResourceManager.GetString("Properties", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 记住我的选择，下次不再询问 的本地化字符串。
+        /// </summary>
+        internal static string Remember_my_choice_and_don_t_ask_again {
+            get {
+                return ResourceManager.GetString("Remember my choice and don\'t ask again", resourceCulture);
             }
         }
         

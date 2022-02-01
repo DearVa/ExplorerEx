@@ -3,63 +3,108 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:s="clr-namespace:ExplorerEx.Selector"
+    xmlns:c="clr-namespace:ExplorerEx.Converter"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:v="clr-namespace:ExplorerEx.View"
     xmlns:m="clr-namespace:ExplorerEx.Model"
     xmlns:u="clr-namespace:ExplorerEx.Utils"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
-    mc:Ignorable="d" Width="1200" Height="800"
+    mc:Ignorable="d" Width="1200" Height="800" Title="ExplorerEx"
     d:DataContext="{d:DesignInstance vm:MainWindowViewModel}">
 
     <Grid>
         <Grid.Resources>
+            <ContextMenu x:Key="DirectoryItemContextMenu" d:DataContext="{d:DesignInstance m:FileSystemItem}">
+                <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
+                          Command="{Binding OpenCommand}"
+                          Icon="{Binding Icon}" Header="{u:Lang Open}" FontSize="15"/>
+                <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
+                          Command="{Binding OpenInNewTabCommand}"
+                          Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Tab}" FontSize="15"/>
+                <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
+                          Command="{Binding OpenInNewWindowCommand}"
+                          Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Window}" FontSize="15"/>
+                <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
+                          Command="{Binding ShowPropertiesCommand}"
+                          Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}" FontSize="15"/>
+            </ContextMenu>
+
+            <ContextMenu x:Key="FileItemContextMenu" d:DataContext="{d:DesignInstance m:FileSystemItem}">
+                <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
+                          Command="{Binding OpenCommand}"
+                          Icon="{Binding Icon}" Header="{u:Lang Open}" FontSize="15"/>
+                <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
+                          Command="{Binding ShowPropertiesCommand}"
+                          Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}" FontSize="15"/>
+            </ContextMenu>
+
+            <c:FileSystemItemContextMenuConverter x:Key="FileSystemItemContextMenuConverter"
+                                                  DirectoryContextMenu="{StaticResource DirectoryItemContextMenu}"
+                                                  FileContextMenu="{StaticResource FileItemContextMenu}"/>
+
             <DataTemplate x:Key="FileViewHomeTemplate">
-                <ListBox d:DataContext="{d:DesignInstance vm:FileViewTabViewModel}"
-                          x:Name="HomeListView" Margin="10" Padding="10"
-                          ItemsSource="{Binding Items}"
-                          SelectionMode="Extended" hc:BorderElement.CornerRadius="5"
-                          MouseUp="HomeListBox_OnMouseUp"
-                          SelectionChanged="{u:Event OnSelectionChanged}">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel x:Name="HomeWrapPanel" Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid x:Name="HomeDriveGrid" d:DataContext="{d:DesignInstance m:DiskDriveItem}"
+                <v:ClippingBorder Margin="10,0,10,5" CornerRadius="8" 
+                                  BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
+                                  Background="{DynamicResource RegionBrush}">
+                    <ListBox d:DataContext="{d:DesignInstance vm:FileViewTabViewModel}" Margin="0,10"
+                         x:Name="HomeListView" ItemsSource="{Binding Items}"
+                         SelectionMode="Extended" hc:BorderElement.CornerRadius="5"
+                         MouseUp="HomeListBox_OnMouseUp" Background="{x:Null}">
+                        <hc:Interaction.Triggers>
+                            <hc:RoutedEventTrigger RoutedEvent="ListBox.SelectionChanged">
+                                <hc:EventToCommand Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True" />
+                            </hc:RoutedEventTrigger>
+                        </hc:Interaction.Triggers>
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel x:Name="HomeWrapPanel" Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem" BasedOn="{StaticResource ListBoxItemBaseStyle}">
+                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid x:Name="HomeDriveGrid" d:DataContext="{d:DesignInstance m:DiskDriveItem}"
                                   Height="60" Width="260" Margin="5" VerticalAlignment="Center">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="60"/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <Image Grid.Column="0" Source="{Binding Icon}" VerticalAlignment="Center" Margin="5"/>
-                                <StackPanel Grid.Column="1" Orientation="Vertical">
-                                    <TextBlock Text="{Binding Name, Mode=OneWay}"/>
-                                    <ProgressBar Value="{Binding FreeSpaceRatio, Mode=OneWay}" Maximum="1"/>
-                                    <TextBlock Text="{Binding SpaceOverviewString, Mode=OneWay}"/>
-                                </StackPanel>
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Image Grid.Column="0" Source="{Binding Icon}" VerticalAlignment="Center" Margin="5"/>
+                                    <StackPanel Grid.Column="1" Orientation="Vertical">
+                                        <TextBlock Text="{Binding Name, Mode=OneWay}"/>
+                                        <ProgressBar Value="{Binding FreeSpaceRatio, Mode=OneWay}" Maximum="1"/>
+                                        <TextBlock Text="{Binding SpaceOverviewString, Mode=OneWay}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </v:ClippingBorder>
             </DataTemplate>
 
             <DataTemplate x:Key="FileViewDetailTemplate">
                 <DataGrid d:DataContext="{d:DesignInstance vm:FileViewTabViewModel}"
                           ItemsSource="{Binding Items}"
                           SelectionMode="Extended" AutoGenerateColumns="False" RowHeight="30"
-                          SelectionChanged="{u:Event OnSelectionChanged}"
                           MouseUp="DataGrid_OnMouseUp">
-                    <DataGrid.Resources>
-                        <!-- ReSharper disable Xaml.RedundantResource -->
-                        <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="#cce8ff"/>
-                        <SolidColorBrush x:Key="ListViewItemBorderBrushSelected" Color="#99d1ff"/>
-                        <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver" Color="#e5f3ff"/>
-                        <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPointerOver" Color="#cce8ff"/>
-                        <!-- ReSharper restore Xaml.RedundantResource -->
-                    </DataGrid.Resources>
+                    <hc:Interaction.Triggers>
+                        <hc:RoutedEventTrigger RoutedEvent="ListBox.SelectionChanged">
+                            <hc:EventToCommand Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True" />
+                        </hc:RoutedEventTrigger>
+                    </hc:Interaction.Triggers>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle}">
+                            <Setter Property="ContextMenu"
+                                    Value="{Binding IsDirectory, Converter={StaticResource FileSystemItemContextMenuConverter}}"/>
+                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                        </Style>
+                    </DataGrid.RowStyle>
                     <DataGrid.Columns>
                         <DataGridTemplateColumn Header="名称" Width="600">
                             <DataGridTemplateColumn.CellTemplate>
@@ -72,8 +117,8 @@
                                             <ColumnDefinition/>
                                         </Grid.ColumnDefinitions>
                                         <Image Grid.Column="0" 
-                                                           Source="{Binding Icon}"
-                                                           VerticalAlignment="Center" Margin="5"/>
+                                               Source="{Binding Icon}"
+                                               VerticalAlignment="Center" Margin="5"/>
                                         <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"/>
                                     </Grid>
                                 </DataTemplate>
@@ -145,22 +190,10 @@
                                             </Menu.ItemsPanel>
                                             <Menu.ItemTemplate>
                                                 <DataTemplate>
-                                                    <MenuItem Height="20" Margin="-5,0,0,0" Background="Red" 
+                                                    <MenuItem Height="30" Margin="-5,0,0,0" hc:IconElement.Height="18" hc:IconElement.Width="18"
                                                               Command="{Binding CreateCommand}" 
-                                                              CommandParameter="{Binding DataContext.FullPath, RelativeSource={RelativeSource AncestorType=Menu}}">
-                                                        <MenuItem.Template>
-                                                            <ControlTemplate>
-                                                                <Grid>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="30"/>
-                                                                        <ColumnDefinition Width="Auto"/>
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <Image Grid.Column="0" Width="18" Height="18" VerticalAlignment="Center" Source="{Binding Icon}"/>
-                                                                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Description}" FontSize="15"/>
-                                                                </Grid>
-                                                            </ControlTemplate>
-                                                        </MenuItem.Template>
-                                                    </MenuItem>
+                                                              CommandParameter="{Binding DataContext.FullPath, RelativeSource={RelativeSource AncestorType=Menu}}"
+                                                              Icon="{Binding Icon}" Header="{Binding Description}" FontSize="15"/>
                                                 </DataTemplate>
                                             </Menu.ItemTemplate>
                                         </Menu>
@@ -217,13 +250,13 @@
                             <DockPanel>
                                 <Button Margin="5" hc:IconElement.Geometry="{StaticResource LeftArrowGeometry}" 
                                         IsEnabled="{Binding CanGoBack, Mode=OneWay}" 
-                                        Click="{u:Event GoBackAsync}"/>
+                                        Command="{Binding GoBackCommand}"/>
                                 <hc:SplitButton Margin="5" hc:IconElement.Geometry="{StaticResource RightArrowGeometry}" 
                                                 IsEnabled="{Binding CanGoForward, Mode=OneWay}" 
-                                                Click="{u:Event GoForwardAsync}" HitMode="Click"/>
+                                                Command="{Binding GoForwardCommand}" HitMode="Click"/>
                                 <Button Margin="5" hc:IconElement.Geometry="{StaticResource UpArrowGeometry}"
                                         IsEnabled="{Binding CanGoToUpperLevel, Mode=OneWay}" 
-                                        Click="{u:Event GoToUpperLevelAsync}"/>
+                                        Command="{Binding GoToUpperLevelCommand}"/>
 
                                 <TextBox DockPanel.Dock="Left" x:Name="AddressBar" Width="700" Margin="5" Text="{Binding FullPath, Mode=OneWay}" KeyDown="AddressBar_OnKeyDown"/>
                                 <TextBox DockPanel.Dock="Right" Margin="5"/>
@@ -259,7 +292,7 @@
                                             <Run Text="{Binding FileItemsCount, Mode=OneWay}"/>
                                             <Run Text="{u:Lang Run_ItemsCount}"/>
                                         </TextBlock>
-                                        <GridSplitter Width="1" Height="20" Background="{DynamicResource SecondaryBorderBrush}" Margin="10,0,10,0"/>
+                                        <GridSplitter Width="1" Height="25" Background="{DynamicResource SecondaryBorderBrush}" Margin="10,-5,10,0"/>
 
                                         <TextBlock Visibility="{Binding SelectedFileItemsCountVisibility, Mode=OneWay}">
                                             <Run Text="{u:Lang Run_SelectedItemsCount}"/>

@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using ExplorerEx.Utils;
+using ExplorerEx.View;
+using ExplorerEx.ViewModel;
 using ExplorerEx.Win32;
 using static ExplorerEx.Win32.IconHelper;
 
@@ -17,7 +19,15 @@ internal class FileSystemItem : FileViewBaseItem {
 
 	public string FullPath => FileSystemInfo.FullName;
 
-	public FileSystemItem(FileSystemInfo fileSystemInfo) {
+	public SimpleCommand OpenCommand { get; }
+
+	public SimpleCommand OpenInNewTabCommand { get; }
+
+	public SimpleCommand OpenInNewWindowCommand { get; }
+
+	public SimpleCommand ShowPropertiesCommand { get; }
+
+	public FileSystemItem(FileViewTabViewModel ownerViewModel, FileSystemInfo fileSystemInfo) : base(ownerViewModel) {
 		FileSystemInfo = fileSystemInfo;
 		Name = FileSystemInfo.Name;
 		if (fileSystemInfo is FileInfo fi) {
@@ -28,6 +38,29 @@ internal class FileSystemItem : FileViewBaseItem {
 			FileSize = -1;
 			IsDirectory = true;
 			LoadDirectoryIcon();
+		}
+		OpenCommand = new SimpleCommand(async _ => await Open());
+		OpenInNewTabCommand = new SimpleCommand(_ => {
+			if (IsDirectory) {
+				OwnerViewModel.OwnerViewModel.OpenPathInNewTab(FullPath);
+			}
+		});
+		OpenInNewWindowCommand = new SimpleCommand(_ => new MainWindow(FullPath).Show());
+		ShowPropertiesCommand = new SimpleCommand(_ => Win32Interop.ShowFileProperties(FullPath));
+	}
+
+	public async Task Open() {
+		if (IsDirectory) {
+			await OwnerViewModel.LoadDirectoryAsync(FullPath);
+		} else {
+			try {
+				Process.Start(new ProcessStartInfo {
+					FileName = FullPath,
+					UseShellExecute = true
+				});
+			} catch (Exception e) {
+				HandyControl.Controls.MessageBox.Error(e.Message, "Fail to open file".L());
+			}
 		}
 	}
 

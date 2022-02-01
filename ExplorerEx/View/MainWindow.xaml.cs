@@ -13,26 +13,51 @@ namespace ExplorerEx.View;
 public sealed partial class MainWindow {
 	private readonly MainWindowViewModel viewModel;
 
-	public MainWindow() {
-		DataContext = viewModel = new MainWindowViewModel(this);
+	public MainWindow() : this(null) { }
+
+	public MainWindow(string path) {
+		DataContext = viewModel = new MainWindowViewModel(this, path);
 		InitializeComponent();
-		//var hwnd = WindowNative.GetWindowHandle(this);
-		//var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
-		//titleBar = AppWindow.GetFromWindowId(windowId).TitleBar;
-		//titleBar.ExtendsContentIntoTitleBar = true;
-		//SetTitleBar(TitleBarGrid);
 	}
 
 	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
 		switch (e.ChangedButton) {
 		case MouseButton.XButton1:  // 鼠标侧键返回
-			viewModel.SelectedTab.GoBackAsync(null, null);
+			viewModel.SelectedTab.GoBackAsync();
 			break;
 		case MouseButton.XButton2:
-			viewModel.SelectedTab.GoForwardAsync(null, null);
+			viewModel.SelectedTab.GoForwardAsync();
 			break;
 		}
 		base.OnPreviewMouseUp(e);
+	}
+
+	protected override void OnPreviewKeyDown(KeyEventArgs e) {
+		if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
+			switch (e.Key) {
+			case Key.Z:
+				break;
+			case Key.X:
+				viewModel.SelectedTab.Copy(true);
+				break;
+			case Key.C:
+				viewModel.SelectedTab.Copy(false);
+				break;
+			case Key.V:
+				viewModel.SelectedTab.Paste();
+				break;
+			}
+		} else {
+			switch (e.Key) {
+			case Key.Delete:
+				viewModel.SelectedTab.Delete((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift);
+				break;
+			default:
+				base.OnPreviewKeyDown(e);
+				return;
+			}
+		}
+		e.Handled = true;
 	}
 
 	private async void AddressBar_OnKeyDown(object sender, KeyEventArgs e) {

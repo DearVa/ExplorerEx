@@ -140,4 +140,34 @@
   <data name="Local_disk" xml:space="preserve">
     <value>本地磁盘</value>
   </data>
+  <data name="Properties" xml:space="preserve">
+    <value>属性</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>打开</value>
+  </data>
+  <data name="Fail to open file" xml:space="preserve">
+    <value>打开文件失败</value>
+  </data>
+  <data name="Open_in_new_Tab" xml:space="preserve">
+    <value>在新标签页中打开</value>
+  </data>
+  <data name="Remember my choice and don&apos;t ask again" xml:space="preserve">
+    <value>记住我的选择，下次不再询问</value>
+  </data>
+  <data name="Are you sure to recycle these files?" xml:space="preserve">
+    <value>您确定要将选择的文件移动到回收站吗？</value>
+  </data>
+  <data name="Check your input and try again." xml:space="preserve">
+    <value>请检查您的输入后再试。</value>
+  </data>
+  <data name="Cannot open path" xml:space="preserve">
+    <value>无法打开此路径</value>
+  </data>
+  <data name="Are you sure to delete these files Permanently?" xml:space="preserve">
+    <value>您确定要永久删除选择的文件吗？</value>
+  </data>
+  <data name="Open_in_new_Window" xml:space="preserve">
+    <value>在新窗口中打开</value>
+  </data>
 </root>

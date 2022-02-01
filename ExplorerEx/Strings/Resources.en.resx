@@ -53,4 +53,34 @@
   <data name="Local_disk" xml:space="preserve">
     <value>Local disk</value>
   </data>
+  <data name="Properties" xml:space="preserve">
+    <value>Properties</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Open_in_new_Tab" xml:space="preserve">
+    <value>Open in new Tab</value>
+  </data>
+  <data name="Remember my choice and don&apos;t ask again" xml:space="preserve">
+    <value>Remember my choice and don't ask again</value>
+  </data>
+  <data name="Are you sure to recycle these files?" xml:space="preserve">
+    <value>Are you sure to recycle these files?</value>
+  </data>
+  <data name="Fail to open file" xml:space="preserve">
+    <value>Filed to open file</value>
+  </data>
+  <data name="Check your input and try again." xml:space="preserve">
+    <value>Check your input and try again.</value>
+  </data>
+  <data name="Cannot open path" xml:space="preserve">
+    <value>Cannot open path</value>
+  </data>
+  <data name="Are you sure to delete these files Permanently?" xml:space="preserve">
+    <value>Are you sure to delete these files Permanently?</value>
+  </data>
+  <data name="Open_in_new_Window" xml:space="preserve">
+    <value>Open in new Window</value>
+  </data>
 </root>
