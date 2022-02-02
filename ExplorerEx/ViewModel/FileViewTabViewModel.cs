@@ -12,6 +12,8 @@ using System.Windows.Threading;
 using ExplorerEx.Model;
 using ExplorerEx.Selector;
 using ExplorerEx.Utils;
+using ExplorerEx.View;
+using ExplorerEx.Win32;
 using HandyControl.Data;
 using Microsoft.VisualBasic.FileIO;
 using hc = HandyControl.Controls;
@@ -56,6 +58,10 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 	public SimpleCommand GoToUpperLevelCommand { get; }
 
 	public bool IsItemSelected => SelectedItems.Count > 0;
+
+	public bool CanPaste => Type != FileViewDataTemplateSelector.Type.Home && canPaste;
+
+	private bool canPaste;
 
 	public int FileItemsCount => Items.Count;
 
@@ -112,7 +118,14 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 		watcher.Renamed += Watcher_OnRenamed;
 		watcher.Error += Watcher_OnError;
 
+		MainWindow.ClipboardChanged += OnClipboardChanged;
+
 		LoadDirectoryAsync(path);
+	}
+
+	private void OnClipboardChanged() {
+		canPaste = MainWindow.ClipboardContent.Type != ClipboardDataType.Unknown;
+		OnPropertyChanged(nameof(CanPaste));
 	}
 
 	private void AddHistory(string path) {
@@ -135,7 +148,7 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 	/// <param name="path">如果为null或者WhiteSpace，就加载“此电脑”</param>
 	/// <param name="recordHistory"></param>
 	/// <returns></returns>
-	public async Task LoadDirectoryAsync(string path, bool recordHistory = true) {
+	public async Task LoadDirectoryAsync(string path, bool recordHistory = true, string selectedPath = null) {
 		var isLoadRoot = string.IsNullOrWhiteSpace(path);  // 加载“此电脑”
 
 		if (!isLoadRoot && !Directory.Exists(path)) {
@@ -146,7 +159,9 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 		cts?.Cancel();
 		cts = new CancellationTokenSource();
 
+#if DEBUG
 		var sw = Stopwatch.StartNew();
+#endif
 
 		Items.Clear();
 		Type = isLoadRoot ? FileViewDataTemplateSelector.Type.Home : FileViewDataTemplateSelector.Type.Detail;
@@ -183,13 +198,22 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 			OnPropertyChanged(nameof(Header));
 
 			await Task.Run(() => {
-				list.AddRange(Directory.EnumerateDirectories(path).Select(path => new FileSystemItem(this, new DirectoryInfo(path))));
+				foreach (var directory in Directory.EnumerateDirectories(path)) {
+					var item = new FileSystemItem(this, new DirectoryInfo(directory));
+					list.Add(item);
+					if (directory == selectedPath) {
+						item.IsSelected = true;
+						SelectedItems.Add(item);
+					}
+				}
 				list.AddRange(Directory.EnumerateFiles(path).Select(filePath => new FileSystemItem(this, new FileInfo(filePath))));
 			}, cts.Token);
 		}
 
+#if DEBUG
 		Trace.WriteLine($"Enumerate {path} costs: {sw.ElapsedMilliseconds}ms");
 		sw.Restart();
+#endif
 
 		foreach (var fileViewBaseItem in list) {
 			Items.Add(fileViewBaseItem);
@@ -205,8 +229,10 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 			await fileViewBaseItem.LoadIconAsync();
 		}
 
+#if DEBUG
 		Trace.WriteLine($"Update UI costs: {sw.ElapsedMilliseconds}ms");
 		sw.Stop();
+#endif
 	}
 
 	/// <summary>
@@ -215,7 +241,7 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 	public async void GoBackAsync() {
 		if (CanGoBack) {
 			nextHistoryIndex--;
-			await LoadDirectoryAsync(historyPaths[nextHistoryIndex - 1], false);
+			await LoadDirectoryAsync(historyPaths[nextHistoryIndex - 1], false, historyPaths[nextHistoryIndex]);
 		}
 	}
 
@@ -224,8 +250,8 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 	/// </summary>
 	public async void GoForwardAsync() {
 		if (CanGoForward) {
-			await LoadDirectoryAsync(historyPaths[nextHistoryIndex], false);
 			nextHistoryIndex++;
+			await LoadDirectoryAsync(historyPaths[nextHistoryIndex - 1], false);
 		}
 	}
 
@@ -263,21 +289,26 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 			return;
 		}
 		var data = new DataObject(DataFormats.FileDrop, SelectedItems.Where(item => item is FileSystemItem).Select(item => ((FileSystemItem)item).FullPath).ToArray());
-		data.SetData("Type", isCut);
+		data.SetData("IsCut", isCut);
 		Clipboard.SetDataObject(data);
 	}
 
 	/// <summary>
-	/// 粘贴剪贴板中的文件
+	/// 粘贴剪贴板中的文件或者文本、图片
 	/// </summary>
 	public void Paste() {
 		if (Type == FileViewDataTemplateSelector.Type.Home) {
 			return;
 		}
 		if (Clipboard.GetDataObject() is DataObject data) {
-			var type = data.GetData("Type");
 			var files = data.GetData(DataFormats.FileDrop);
-			if (type is bool isCut && files is string[] f) {
+			if (files is string[] f) {
+				bool isCut;
+				if (data.GetData("IsCut") is bool i) {
+					isCut = i;
+				} else {
+					isCut = false;
+				}
 				foreach (var path in f) {
 					if (File.Exists(path)) {
 						if (isCut) {
@@ -335,6 +366,7 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 	/// 和文件夹相关的UI，和是否选中文件无关
 	/// </summary>
 	private void UpdateFolderUI() {
+		OnPropertyChanged(nameof(CanPaste));
 		OnPropertyChanged(nameof(CanGoBack));
 		OnPropertyChanged(nameof(CanGoForward));
 		OnPropertyChanged(nameof(CanGoToUpperLevel));
@@ -486,6 +518,7 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 	}
 
 	public void Dispose() {
+		MainWindow.ClipboardChanged -= OnClipboardChanged;
 		watcher?.Dispose();
 		cts?.Dispose();
 	}

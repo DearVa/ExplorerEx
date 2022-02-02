@@ -350,6 +350,69 @@ internal static class Win32Interop {
 		info.fMask = SEE_MASK_INVOKEIDLIST;
 		return ShellExecuteEx(ref info);
 	}
+
+	[DllImport("User32.dll")]
+	public static extern int SetClipboardViewer(int hWndNewViewer);
+
+	[DllImport("User32.dll", CharSet = CharSet.Auto)]
+	public static extern bool ChangeClipboardChain(IntPtr hWndRemove, IntPtr hWndNewNext);
+
+	[DllImport("user32.dll", CharSet = CharSet.Auto)]
+	public static extern int SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, IntPtr lParam);
+
+	public const int WM_DRAWCLIPBOARD = 0x308;
+	public const int WM_CHANGECBCHAIN = 0x030D;
+
+	#region 亚克力效果
+	public enum AccentState {
+		ACCENT_DISABLED = 0,
+		ACCENT_ENABLE_GRADIENT = 1,
+		ACCENT_ENABLE_TRANSPARENTGRADIENT = 2,
+		ACCENT_ENABLE_BLURBEHIND = 3,
+		ACCENT_ENABLE_ACRYLICBLURBEHIND = 4,
+		ACCENT_INVALID_STATE = 5
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct AccentPolicy {
+		public AccentState AccentState;
+		public uint AccentFlags;
+		public uint GradientColor;
+		public uint AnimationId;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WindowCompositionAttributeData {
+		public WindowCompositionAttribute Attribute;
+		public IntPtr Data;
+		public int SizeOfData;
+	}
+
+	public enum WindowCompositionAttribute {
+		// ...
+		WCA_ACCENT_POLICY = 19
+		// ...
+	}
+
+	[DllImport("user32.dll")]
+	public static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
+
+	public enum DWMWINDOWATTRIBUTE {
+		DWMWA_WINDOW_CORNER_PREFERENCE = 33
+	}
+
+	// The DWM_WINDOW_CORNER_PREFERENCE enum for DwmSetWindowAttribute's third parameter, which tells the function
+	// what value of the enum to set.
+	public enum DWM_WINDOW_CORNER_PREFERENCE {
+		DWMWCP_DEFAULT = 0,
+		DWMWCP_DONOTROUND = 1,
+		DWMWCP_ROUND = 2,
+		DWMWCP_ROUNDSMALL = 3
+	}
+	
+	[DllImport("dwmapi.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+	public static extern long DwmSetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE attribute, ref DWM_WINDOW_CORNER_PREFERENCE pvAttribute, uint cbAttribute);
+	#endregion
 	// ReSharper restore InconsistentNaming
 	// ReSharper restore IdentifierTypo
 	// ReSharper restore StringLiteralTypo

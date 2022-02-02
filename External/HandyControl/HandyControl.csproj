@@ -102,6 +102,20 @@
   <ItemGroup>
     <Folder Include="Properties\Langs\" />
   </ItemGroup>
+  <ItemGroup>
+    <Page Update="Themes\Basic\Colors\ColorsArcylic.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+    <Page Update="Themes\Basic\Colors\ColorsDarkArcylic.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+    <Page Update="Themes\SkinDarkArcylic.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+    <Page Update="Themes\SkinArcylic.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+  </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command=".\Themes\XamlCombine.exe .\Themes\Theme.txt Theme.xaml" />
   </Target>

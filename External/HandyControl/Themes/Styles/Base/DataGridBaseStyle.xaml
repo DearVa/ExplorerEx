@@ -112,7 +112,7 @@
                     <SelectiveScrollingGrid>
                         <SelectiveScrollingGrid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </SelectiveScrollingGrid.ColumnDefinitions>
                         <SelectiveScrollingGrid.RowDefinitions>
                             <RowDefinition Height="*"/>

@@ -14,7 +14,7 @@ internal static class LangHelper {
 		try {
 			return Resources.ResourceManager.GetString(key);
 		} catch {
-			return key;
+			return "锟斤拷" + key + "烫烫烫";
 		}
 	}
 }

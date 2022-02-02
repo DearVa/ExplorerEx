@@ -124,6 +124,33 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 复制 的本地化字符串。
+        /// </summary>
+        internal static string Copy {
+            get {
+                return ResourceManager.GetString("Copy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 剪切 的本地化字符串。
+        /// </summary>
+        internal static string Cut {
+            get {
+                return ResourceManager.GetString("Cut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 删除 的本地化字符串。
+        /// </summary>
+        internal static string Delete {
+            get {
+                return ResourceManager.GetString("Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 打开文件失败 的本地化字符串。
         /// </summary>
         internal static string Fail_to_open_file {
@@ -196,6 +223,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 粘贴 的本地化字符串。
+        /// </summary>
+        internal static string Paste {
+            get {
+                return ResourceManager.GetString("Paste", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 属性 的本地化字符串。
         /// </summary>
         internal static string Properties {
@@ -214,6 +250,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 重命名 的本地化字符串。
+        /// </summary>
+        internal static string Rename {
+            get {
+                return ResourceManager.GetString("Rename", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似  个项目 的本地化字符串。
         /// </summary>
         internal static string Run_ItemsCount {
@@ -228,6 +273,15 @@ namespace ExplorerEx.Strings {
         internal static string Run_SelectedItemsCount {
             get {
                 return ResourceManager.GetString("Run_SelectedItemsCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 分享 的本地化字符串。
+        /// </summary>
+        internal static string Share {
+            get {
+                return ResourceManager.GetString("Share", resourceCulture);
             }
         }
         

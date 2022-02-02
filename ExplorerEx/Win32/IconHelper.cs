@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static ExplorerEx.Win32.Win32Interop;
@@ -14,6 +17,19 @@ internal static class IconHelper {
 	public static DrawingImage EmptyFolderDrawingImage { get; private set; }
 	public static DrawingImage UnknownTypeFileDrawingImage { get; private set; }
 
+	/// <summary>
+	/// 这些文件缩略图要每次都加载，不能缓存
+	/// </summary>
+	private static readonly HashSet<string> NoIconCacheExtensions = new() {
+		".exe", ".lnk", ".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".gif", ".svg",
+		".mp3", ".wav", ".flac", ".mp4", ".wmv", ".avi", ".docx", ".pptx", ".pdf"
+	};
+
+	/// <summary>
+	/// 如dll等文件，其图标都一样，就存拓展名下来，直接取，不用每次都生成
+	/// </summary>
+	private static readonly Dictionary<string, ImageSource> LoadedIcons = new();
+
 	public static void InitializeDefaultIcons(ResourceDictionary resources) {
 		FolderDrawingImage = (DrawingImage)resources["FolderDrawingImage"];
 		EmptyFolderDrawingImage = (DrawingImage)resources["EmptyFolderDrawingImage"];
@@ -21,37 +37,21 @@ internal static class IconHelper {
 	}
 
 	private static BitmapSource Icon2BitmapSource(IntPtr hIcon) {
-		var ic2 = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(hIcon, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+		var ic2 = Imaging.CreateBitmapSourceFromHIcon(hIcon, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
 		ic2.Freeze();
 		return ic2;
 	}
 
-	public static BitmapSource SystemIcon(bool small, int csidl) {
-		var pPid = IntPtr.Zero;
-		var hr = SHGetSpecialFolderLocation(IntPtr.Zero, csidl, ref pPid);
-		Debug.Assert(hr == 0);
-
-		var shFileInfo = new SHFILEINFO();
-
-		// Get a handle to the large icon
-		uint flags;
-		if (!small) {
-			flags = SHGFI_PIDL | SHGFI_ICON | SHGFI_LARGEICON | SHGFI_USEFILEATTRIBUTES;
-		} else {
-			flags = SHGFI_PIDL | SHGFI_ICON | SHGFI_SMALLICON | SHGFI_USEFILEATTRIBUTES;
+	public static Task<ImageSource> GetPathIconAsync(string fileName, bool smallIcon, bool checkDisk, bool addOverlay) {
+		var extension = Path.GetExtension(fileName);
+		if (string.IsNullOrEmpty(extension)) {
+			return Task.FromResult((ImageSource)UnknownTypeFileDrawingImage);
+		}
+		var useCache = extension is not ".exe" or ".lnk";
+		if (useCache && LoadedIcons.TryGetValue(extension, out var icon)) {
+			return Task.FromResult(icon);
 		}
 
-		var res = SHGetFileInfo(pPid, 0, ref shFileInfo, Marshal.SizeOf(shFileInfo), flags);
-		Debug.Assert(res != 0);
-
-		var myIcon = shFileInfo.hIcon;
-		Marshal.FreeCoTaskMem(pPid);
-		var bs = Icon2BitmapSource(myIcon);
-		DestroyIcon(shFileInfo.hIcon);
-		return bs;
-	}
-
-	public static Task<ImageSource> GetPathIconAsync(string fileName, bool smallIcon, bool checkDisk, bool addOverlay) {
 		return Task.Run(() => {
 			var shFileInfo = new SHFILEINFO();
 
@@ -74,9 +74,13 @@ internal static class IconHelper {
 				return UnknownTypeFileDrawingImage;
 			}
 
-			var bs = Icon2BitmapSource(shFileInfo.hIcon);
+			var icon = (ImageSource)Icon2BitmapSource(shFileInfo.hIcon);
 			DestroyIcon(shFileInfo.hIcon);
-			return (ImageSource)bs;
+			if (useCache) {
+				LoadedIcons.Add(extension, icon);
+			}
+
+			return icon;
 		});
 	}
 
@@ -92,7 +96,18 @@ internal static class IconHelper {
 		return shFileInfo.szTypeName;
 	}
 
-	public static Task<BitmapSource> GetLargePathIcon(string fileName, bool jumbo, bool checkDisk) {
+	public static Task<ImageSource> GetLargePathIcon(string fileName, bool jumbo, bool checkDisk) {
+		if (fileName.Length > 3) {
+			var extension = Path.GetExtension(fileName);
+			if (string.IsNullOrEmpty(extension)) {
+				return Task.FromResult((ImageSource)UnknownTypeFileDrawingImage);
+			}
+			var useCache = !NoIconCacheExtensions.Contains(extension);
+			if (useCache && LoadedIcons.TryGetValue(extension, out var icon)) {
+				return Task.FromResult(icon);
+			}
+		}
+
 		return Task.Run(() => {
 			var shFileInfo = new SHFILEINFO();
 			var flags = SHGFI_SYSICONINDEX;
@@ -103,7 +118,7 @@ internal static class IconHelper {
 
 			var res = SHGetFileInfo(fileName, FILE_ATTRIBUTE_NORMAL, ref shFileInfo, Marshal.SizeOf(shFileInfo), flags);
 			if (res == 0) {
-				throw new System.IO.FileNotFoundException();
+				throw new FileNotFoundException();
 			}
 			var iconIndex = shFileInfo.iIcon;
 
@@ -122,7 +137,7 @@ internal static class IconHelper {
 				throw new Exception("Error iml.GetIcon");
 			}
 
-			var bs = Icon2BitmapSource(hIcon);
+			var bs = (ImageSource)Icon2BitmapSource(hIcon);
 			DestroyIcon(hIcon);
 			return bs;
 		});

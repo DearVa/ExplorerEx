@@ -10773,14 +10773,6 @@
 						</Border>
 						<Path x:Name="PathMain" Margin="10,0,0,0" Grid.Column="0" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Data="{TemplateBinding hc:IconElement.Geometry}" />
 						<ContentPresenter Grid.Column="1" x:Name="contentPresenter" ContentSource="Header" Focusable="False" HorizontalAlignment="Stretch" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" />
-						<Border Name="BorderMask" Grid.Column="1" HorizontalAlignment="Right" Width="20" Background="{TemplateBinding Background}" Margin="0,0,1,1">
-							<Border.OpacityMask>
-								<LinearGradientBrush EndPoint="1,0" StartPoint="0,0">
-									<GradientStop Color="White" Offset="1" />
-									<GradientStop Offset="0" />
-								</LinearGradientBrush>
-							</Border.OpacityMask>
-						</Border>
 						<Button Grid.Column="2" Focusable="False" Command="interactivity:ControlCommands.Close" Visibility="{TemplateBinding ShowCloseButton,Converter={StaticResource Boolean2VisibilityConverter}}" Background="Transparent" Style="{StaticResource ButtonCustom}" Width="28">
 							<Path Fill="{DynamicResource PrimaryTextBrush}" Width="8" Height="8" Style="{StaticResource ClosePathStyle}" />
 						</Button>
@@ -10789,13 +10781,9 @@
 						<Trigger Property="IsSelected" Value="true">
 							<Setter Property="Panel.ZIndex" Value="1" />
 							<Setter Property="Visibility" TargetName="innerBorder" Value="Visible" />
-							<Setter Property="Background" TargetName="BorderMask" Value="{DynamicResource RegionBrush}" />
 						</Trigger>
 						<Trigger Property="hc:IconElement.Geometry" Value="{x:Null}">
 							<Setter Property="Visibility" Value="Collapsed" TargetName="PathMain" />
-						</Trigger>
-						<Trigger Property="ShowCloseButton" Value="True">
-							<Setter Property="Margin" Value="0,0,0,1" TargetName="BorderMask" />
 						</Trigger>
 						<Trigger Property="IsEnabled" Value="False">
 							<Setter Property="Opacity" Value="0.4" TargetName="contentPresenter" />
@@ -10806,7 +10794,7 @@
 		</Setter>
 	</Style>
 	<ControlTemplate x:Key="TabControlPlusTemplate" TargetType="hc:TabControl">
-		<Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+		<Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{x:Null}">
 			<Grid x:Name="templateRoot" ClipToBounds="true" SnapsToDevicePixels="true" KeyboardNavigation.TabNavigation="Local">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition x:Name="ColumnDefinition0" />
@@ -10816,7 +10804,7 @@
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="*" />
 				</Grid.RowDefinitions>
-				<Border Background="{TemplateBinding Background}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource BorderBrush}">
+				<Border Background="{x:Null}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource BorderBrush}">
 					<hc:TabPanel MinHeight="{TemplateBinding TabItemHeight}" TabItemHeight="{TemplateBinding TabItemHeight}" TabItemWidth="{TemplateBinding TabItemWidth}" IsTabFillEnabled="{TemplateBinding IsTabFillEnabled}" Margin="0,0,-1,-1" x:Name="PART_HeaderPanel" HorizontalAlignment="Left" Background="Transparent" IsItemsHost="true" KeyboardNavigation.TabIndex="1" Panel.ZIndex="1">
 						<interactivity:Interaction.Behaviors>
 							<interactivity:FluidMoveBehavior AppliesTo="Children" Duration="{Binding FluidMoveDuration,ElementName=PART_HeaderPanel}">
@@ -10827,7 +10815,7 @@
 						</interactivity:Interaction.Behaviors>
 					</hc:TabPanel>
 				</Border>
-				<Border x:Name="contentPanel" Background="{DynamicResource SecondaryRegionBrush}" Grid.Column="0" KeyboardNavigation.DirectionalNavigation="Contained" Grid.Row="1" KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
+				<Border x:Name="contentPanel" Background="{TemplateBinding Background}" Grid.Column="0" KeyboardNavigation.DirectionalNavigation="Contained" Grid.Row="1" KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
 					<ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent" Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
 				</Border>
 				<Border Visibility="{Binding Visibility,ElementName=PART_OverflowButton}" Margin="0,-1,0,0" Grid.Row="0" Grid.Column="0" BorderThickness="1,0,0,1" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource RegionBrush}" HorizontalAlignment="Right">
@@ -11869,7 +11857,7 @@
 					<SelectiveScrollingGrid>
 						<SelectiveScrollingGrid.ColumnDefinitions>
 							<ColumnDefinition Width="Auto" />
-							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="Auto" />
 						</SelectiveScrollingGrid.ColumnDefinitions>
 						<SelectiveScrollingGrid.RowDefinitions>
 							<RowDefinition Height="*" />
