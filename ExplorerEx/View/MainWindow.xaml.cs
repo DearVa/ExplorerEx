@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using ExplorerEx.Model;
+using ExplorerEx.Utils;
 using ExplorerEx.ViewModel;
 using ExplorerEx.Win32;
 using Microsoft.Win32;
@@ -24,7 +25,14 @@ public sealed partial class MainWindow {
 	public MainWindow() : this(null) { }
 
 	public MainWindow(string path) {
-		ChangeThemeWithSystem();
+		Width = ConfigHelper.LoadInt("WindowWidth", 1200);
+		Height = ConfigHelper.LoadInt("WindowHeight", 800);
+		Left = ConfigHelper.LoadInt("WindowLeft");
+		Top = ConfigHelper.LoadInt("WindowTop");
+		if (ConfigHelper.LoadBoolean("WindowMaximized")) {
+			WindowState = WindowState.Maximized;
+		}
+
 		DataContext = viewModel = new MainWindowViewModel(this, path);
 		InitializeComponent();
 
@@ -36,13 +44,11 @@ public sealed partial class MainWindow {
 				OnClipboardChanged();
 			}
 		}
-		
-		//EnableAcrylic();
 	}
 
 	protected override void OnContentRendered(EventArgs e) {
 		base.OnContentRendered(e);
-		EnableMica(false);
+		ChangeThemeWithSystem();
 	}
 
 	private void EnableAcrylic() {
@@ -143,7 +149,7 @@ public sealed partial class MainWindow {
 				Source = new Uri($"pack://application:,,,/HandyControl;component/Themes/Skin{(isDarkTheme ? "Dark" : string.Empty)}{(useBlur ? "Blur" : string.Empty)}.xaml", UriKind.Absolute)
 			});
 		} catch (Exception e) {
-			// Logger.Log(e);
+			Logger.Exception(e);
 			dictionaries.Add(new ResourceDictionary {
 				Source = new Uri($"pack://application:,,,/HandyControl;component/Themes/Skin.xaml", UriKind.Absolute)
 			});
@@ -210,6 +216,27 @@ public sealed partial class MainWindow {
 	private void DragArea_OnMouseDown(object sender, MouseButtonEventArgs e) {
 		if (e.ChangedButton == MouseButton.Left) {
 			DragMove();
+		}
+	}
+
+	protected override void OnStateChanged(EventArgs e) {
+		base.OnStateChanged(e);
+		ConfigHelper.Save("WindowMaximized", WindowState == WindowState.Maximized);
+	}
+
+	protected override void OnLocationChanged(EventArgs e) {
+		base.OnLocationChanged(e);
+		ConfigHelper.Save("WindowLeft", (int)Left);
+		ConfigHelper.Save("WindowTop", (int)Top);
+	}
+
+	protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
+		base.OnRenderSizeChanged(sizeInfo);
+		if (sizeInfo.WidthChanged) {
+			ConfigHelper.Save("WindowWidth", (int)sizeInfo.NewSize.Width);
+		}
+		if (sizeInfo.HeightChanged) {
+			ConfigHelper.Save("WindowHeight", (int)sizeInfo.NewSize.Height);
 		}
 	}
 }

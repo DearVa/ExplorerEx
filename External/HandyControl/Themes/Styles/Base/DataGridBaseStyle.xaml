@@ -81,14 +81,6 @@
                 </MultiDataTrigger.Conditions>
                 <Setter Property="Foreground" Value="{DynamicResource TextIconBrush}"/>
             </MultiDataTrigger>
-            <MultiTrigger>
-                <MultiTrigger.Conditions>
-                    <Condition Property="IsSelected" Value="true"/>
-                    <Condition Property="Selector.IsSelectionActive" Value="false"/>
-                </MultiTrigger.Conditions>
-                <Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}"/>
-                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-            </MultiTrigger>
         </Style.Triggers>
     </Style>
 
@@ -134,14 +126,6 @@
                 <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource TextIconBrush}"/>
             </Trigger>
-            <MultiTrigger>
-                <MultiTrigger.Conditions>
-                    <Condition Property="IsSelected" Value="true"/>
-                    <Condition Property="Selector.IsSelectionActive" Value="false"/>
-                </MultiTrigger.Conditions>
-                <Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}"/>
-                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-            </MultiTrigger>
         </Style.Triggers>
     </Style>
 

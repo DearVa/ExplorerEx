@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Configuration;
+using Microsoft.Win32;
 
 namespace ExplorerEx.Utils; 
 
@@ -7,66 +7,52 @@ namespace ExplorerEx.Utils;
 /// 用于处理配置文件
 /// </summary>
 public static class ConfigHelper {
+	private static readonly RegistryKey RegRoot = Registry.CurrentUser.OpenSubKey(@"Software\Dear.Va\ExplorerEx", true) ?? Registry.CurrentUser.CreateSubKey(@"Software\Dear.Va\ExplorerEx", true);
+
 	public static void Save(string key, object value) {
-		if (value == null) {
-			Delete(key);
-			return;
-		}
 		try {
-			var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-			var settings = configFile.AppSettings.Settings;
-			if (settings[key] == null) {
-				settings.Add(key, value.ToString());
-			} else {
-				settings[key].Value = value.ToString();
-			}
-			configFile.Save(ConfigurationSaveMode.Modified);
-			ConfigurationManager.RefreshSection(configFile.AppSettings.SectionInformation.Name);
-		} catch (ConfigurationErrorsException e) {
-			//Logger.Log(e);
+			RegRoot.SetValue(key, value);
+			RegRoot.Flush();
+		} catch (Exception e) {
+			Logger.Exception(e);
 		}
 	}
 
-	public static string Load(string key) {
+	public static object Load(string key) {
 		try {
-			var appSettings = ConfigurationManager.AppSettings;
-			return appSettings[key];
-		} catch (ConfigurationErrorsException e) {
-			//Logger.Log(e);
-			return null;
+			var value = RegRoot.GetValue(key);
+			RegRoot.Flush();
+			return value;
+		} catch (Exception e) {
+			Logger.Exception(e);
+			return default;
 		}
 	}
 
 	public static bool LoadBoolean(string key) {
 		try {
-			return Convert.ToBoolean(ConfigurationManager.AppSettings[key]);
-		} catch (ConfigurationErrorsException e) {
-			//Logger.Log(e);
+			return Convert.ToBoolean(Load(key));
+		} catch (Exception e) {
+			Logger.Exception(e);
 			return default;
 		}
 	}
 
-	public static int LoadInt(string key) {
+	public static int LoadInt(string key, int defaultValue = default) {
 		try {
-			return Convert.ToInt32(ConfigurationManager.AppSettings[key]);
-		} catch (ConfigurationErrorsException e) {
-			//Logger.Log(e);
-			return default;
+			return Convert.ToInt32(Load(key) ?? defaultValue);
+		} catch (Exception e) {
+			Logger.Exception(e);
+			return defaultValue;
 		}
 	}
 
 	public static bool Delete(string key) {
 		try {
-			var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-			var settings = configFile.AppSettings.Settings;
-			if (settings[key] == null) {
-				return false;
-			}
-			settings.Remove(key);
-			configFile.Save(ConfigurationSaveMode.Modified);
-			ConfigurationManager.RefreshSection(configFile.AppSettings.SectionInformation.Name);
+			RegRoot.DeleteValue(key);
+			RegRoot.Flush();
 			return true;
-		} catch (ConfigurationErrorsException) {
+		} catch (Exception) {
 			return false;
 		}
 	}

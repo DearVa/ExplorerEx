@@ -1,17 +1,20 @@
 ﻿using HandyControl.Tools.Extension;
 using System;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
+using ExplorerEx.Model;
 
 namespace ExplorerEx.View;
 
 public partial class FileDataGrid {
 	private ScrollViewer scrollViewer;
 	private Grid contentGrid;
-	private Border selectionRect, dgrBorder;
+	private Border selectionRect;
 
 	public event Action<object> ItemClicked;
 
@@ -29,7 +32,6 @@ public partial class FileDataGrid {
 		scrollViewer = (ScrollViewer)GetTemplateChild("DG_ScrollViewer");
 		contentGrid = (Grid)GetTemplateChild("ContentGrid");
 		selectionRect = (Border)GetTemplateChild("SelectionRect");
-		dgrBorder = (Border)GetTemplateChild("DGR_Border");
 	}
 
 	/// <summary>
@@ -53,7 +55,10 @@ public partial class FileDataGrid {
 			return;
 		}
 		if (e.ChangedButton is MouseButton.Left or MouseButton.Right) {
-			startPoint = e.GetPosition(contentGrid);
+			var point = e.GetPosition(contentGrid);
+			var x = Math.Min(Math.Max(point.X, 0), contentGrid.ActualWidth);
+			var y = Math.Min(Math.Max(point.Y, 0), contentGrid.ActualHeight);
+			startPoint = new Point(x, y);
 			isMouseDown = true;
 		}
 		base.OnPreviewMouseDown(e);
@@ -64,6 +69,8 @@ public partial class FileDataGrid {
 	protected override void OnPreviewMouseMove(MouseEventArgs e) {
 		if (isMouseDown && e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed) {
 			if (!isRectSelecting) {
+				lastStartIndex = Items.Count;
+				lastEndIndex = -1;
 				selectionRect.Visibility = Visibility.Visible;
 				Mouse.Capture(this);
 				scrollSpeed = new Vector();
@@ -92,29 +99,77 @@ public partial class FileDataGrid {
 		base.OnPreviewMouseMove(e);
 	}
 
+	private int lastStartIndex, lastEndIndex;
+
 	private void UpdateRectSelection() {
 		var point = Mouse.GetPosition(contentGrid);
-		double l, t, r, b;
-		if (point.X < startPoint.X) {
-			l = point.X;
-			r = contentGrid.ActualWidth - startPoint.X;
+		var x = Math.Min(Math.Max(point.X, 0), contentGrid.ActualWidth);
+		var y = Math.Min(Math.Max(point.Y, 0), contentGrid.ActualHeight);
+		double l, t, w, h;
+		if (x < startPoint.X) {
+			l = x;
+			w = startPoint.X - x;
 		} else {
 			l = startPoint.X;
-			r = contentGrid.ActualWidth - point.X;
+			w = x - startPoint.X;
 		}
-		if (point.Y < startPoint.Y) {
-			t = point.Y;
-			b = contentGrid.ActualHeight - startPoint.Y;
+		if (y < startPoint.Y) {
+			t = y;
+			h = startPoint.Y - y;
 		} else {
 			t = startPoint.Y;
-			b = contentGrid.ActualHeight - point.Y;
+			h = y - startPoint.Y;
 		}
-		selectionRect.Margin = new Thickness(l, t, r, b);
+		selectionRect.Margin = new Thickness(l, t, 0, 0);
+		selectionRect.Width = w;
+		selectionRect.Height = h;
 
-
+		if (Items.Count > 0) {
+			var row0 = (DataGridRow)ItemContainerGenerator.ContainerFromIndex(0);
+			var point0 = row0.TranslatePoint(new Point(), contentGrid);
+			if (l < point0.X + row0.DesiredSize.Width) {  // 框的左边界在列内。每列Width都是一样的
+				var row1 = (DataGridRow)ItemContainerGenerator.ContainerFromIndex(1);
+				var point1 = row1.TranslatePoint(new Point(), contentGrid);
+				var dY = point1.Y - point0.Y;
+				// 0: 5-15 1: 20-30 2: 35-45
+				// dY: 15  ActualHeight: 10  point0.Y: 5
+				// 设 t = 14, h = 10
+				// 选区为0-1
+				var startIndex = Math.Max((int)((t - point0.Y) / dY), 0);
+				var items = (ObservableCollection<FileViewBaseItem>)ItemsSource;  // 这里不用Items索引，我看过源代码，复杂度比较高
+				var endIndex = Math.Min((int)((h + t - point0.Y) / dY), items.Count - 1);
+				if (startIndex != lastStartIndex) {
+					for (var i = lastStartIndex; i < startIndex; i++) {
+						items[i].IsSelected = false;
+					}
+					for (var i = startIndex; i <= lastStartIndex && i <= endIndex; i++) {
+						items[i].IsSelected = true;
+					}
+					// Trace.WriteLine($"S: {startIndex} Ls: {lastStartIndex}");
+					lastStartIndex = startIndex;
+				}
+				if (endIndex != lastEndIndex) {
+					for (var i = endIndex + 1; i <= lastEndIndex; i++) {
+						items[i].IsSelected = false;
+					}
+					for (var i = Math.Max(lastEndIndex + 1, startIndex); i <= endIndex; i++) {
+						items[i].IsSelected = true;
+					}
+					// Trace.WriteLine($"E: {endIndex} Le: {lastEndIndex}");
+					lastEndIndex = endIndex;
+				}
+			} else if (lastStartIndex <= lastEndIndex) {
+				var items = (ObservableCollection<FileViewBaseItem>)ItemsSource;  // 这里不用Items索引，我看过源代码，复杂度比较高
+				for (var i = lastStartIndex; i <= lastEndIndex; i++) {
+					items[i].IsSelected = false;
+				}
+				lastStartIndex = Items.Count;
+				lastEndIndex = -1;
+			}
+		}
 	}
 
-	protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e) {
+	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
 		if (isRectSelecting && e.ChangedButton is MouseButton.Left or MouseButton.Right) {
 			selectionRect.Visibility = Visibility.Collapsed;
 			Mouse.Capture(null);
@@ -127,7 +182,7 @@ public partial class FileDataGrid {
 				BackgroundClicked?.Invoke();
 			}
 		}
-		base.OnPreviewMouseLeftButtonUp(e);
+		base.OnPreviewMouseUp(e);
 	}
 
 	private void RectSelectScroll(object sender, EventArgs e) {

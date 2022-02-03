@@ -196,6 +196,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 更多 的本地化字符串。
+        /// </summary>
+        internal static string More {
+            get {
+                return ResourceManager.GetString("More", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 新建 的本地化字符串。
         /// </summary>
         internal static string New {
@@ -336,6 +345,15 @@ namespace ExplorerEx.Strings {
         internal static string Total__ {
             get {
                 return ResourceManager.GetString("Total: ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 未知错误 的本地化字符串。
+        /// </summary>
+        internal static string Unknown_error {
+            get {
+                return ResourceManager.GetString("Unknown_error", resourceCulture);
             }
         }
         

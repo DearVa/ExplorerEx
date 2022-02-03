@@ -8,10 +8,23 @@
     <Platforms>x64</Platforms>
     <SupportedOSPlatformVersion>10.0.18362.0</SupportedOSPlatformVersion>
     <ApplicationIcon>Assets\ExplorerEx.ico</ApplicationIcon>
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\LogConfig.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="Assets\ExplorerEx.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\LogConfig.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NLog" Version="4.7.13" />
   </ItemGroup>
 
   <ItemGroup>

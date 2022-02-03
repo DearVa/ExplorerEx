@@ -255,9 +255,6 @@
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V197.99 H197.99 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-1.01,-1.01">
-                    <GeometryDrawing Brush="#FF727272" Geometry="F1 M197.99,197.99z M0,0z M100,199C45.55,199 1,154.46 1,100 1,45.54 45.55,1 100,1 154.45,1 199,45.54 199,100 199,154.46 154.46,199 100,199z M100,15.86A84.15,84.15,0,1,0,184.15,100A84.08,84.08,0,0,0,100,15.85z" />
-                </DrawingGroup>
-                <DrawingGroup Transform="1,0,0,1,-1.01,-1.01">
                     <GeometryDrawing Brush="#FF727272" Geometry="F1 M197.99,197.99z M0,0z M42.58,100A11.88,11.88,0,0,0,66.34,100L66.34,100A11.88,11.88,0,0,0,42.58,100z" />
                 </DrawingGroup>
                 <DrawingGroup Transform="1,0,0,1,-1.01,-1.01">

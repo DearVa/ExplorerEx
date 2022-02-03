@@ -72,7 +72,7 @@
                     </ScrollViewer.Template>
                     <Grid x:Name="ContentGrid">
                         <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                        <Border x:Name="SelectionRect" CornerRadius="3" Background="#66326cf3" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1" Visibility="Collapsed"/>
+                        <Border x:Name="SelectionRect" CornerRadius="3" Background="#66326cf3" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1" Visibility="Collapsed" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                     </Grid>
                 </ScrollViewer>
             </Border>

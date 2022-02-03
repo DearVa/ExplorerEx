@@ -11,9 +11,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
-    mc:Ignorable="d" Width="1200" Height="800" Title="ExplorerEx"
+    mc:Ignorable="d" Title="ExplorerEx"
     d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
-    Background="Transparent">
+    Background="Transparent" WindowStartupLocation="Manual">
 
     <WindowChrome.WindowChrome>
         <WindowChrome
@@ -117,7 +117,10 @@
                                     <Image Grid.Column="0" Source="{Binding Icon}" VerticalAlignment="Center" Margin="5"/>
                                     <StackPanel Grid.Column="1" Orientation="Vertical">
                                         <TextBlock Text="{Binding Name, Mode=OneWay}"/>
-                                        <ProgressBar Value="{Binding FreeSpaceRatio, Mode=OneWay}" Maximum="1" BorderThickness="1.5" Margin="0,5,0,5" SnapsToDevicePixels="True"/>
+                                        <ProgressBar Value="{Binding FreeSpaceRatio, Mode=OneWay}" 
+                                                     Foreground="{Binding ProgressBarBackground, Mode=OneWay}"
+                                                     Maximum="1" BorderThickness="1.5" Margin="0,5,0,5" 
+                                                     SnapsToDevicePixels="True"/>
                                         <TextBlock Text="{Binding SpaceOverviewString, Mode=OneWay}"/>
                                     </StackPanel>
                                 </Grid>
@@ -292,7 +295,7 @@
                                 </hc:SplitButton>
                                 <GridSplitter Width="1" Height="30" Background="{DynamicResource SecondaryBorderBrush}" Margin="10,0,10,0"/>
 
-                                <Button VerticalAlignment="Stretch" Width="45" Height="35" Padding="0">
+                                <Button VerticalAlignment="Stretch" Width="45" Height="35" Padding="0" ToolTip="{u:Lang More}">
                                     <Image Width="24" Height="24" Source="{StaticResource MoreDrawingImage}"/>
                                 </Button>
                             </StackPanel>

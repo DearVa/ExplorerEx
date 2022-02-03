@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      autoReload="true"
+      throwExceptions="false">
+
+  <targets>
+    <target name="logFile" xsi:type="File"
+            fileName="${gdc:item=LogPath}/${shortdate}.txt"
+            layout="${longdate} ${level} | ${message} ${onexception:${exception:format=message} ${newline} ${stacktrace}${newline}"
+            concurrentWrites="true"
+            keepFileOpen="false" />
+    <target name="logConsole" xsi:type="ColoredConsole" 
+            layout="${longdate} ${level} | ${message} ${onexception:${exception:format=message} ${newline} ${stacktrace}${newline}" />
+  </targets>
+
+  <rules>
+    <logger name="*" minlevel="Debug" writeTo="logFile" />
+    <logger name="*" minlevel="Debug" writeTo="logConsole" />
+  </rules>
+</nlog>

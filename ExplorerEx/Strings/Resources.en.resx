@@ -110,4 +110,10 @@
   <data name="Back_to_home" xml:space="preserve">
     <value>Back to home</value>
   </data>
+  <data name="Unknown_error" xml:space="preserve">
+    <value>Unknown error</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>More</value>
+  </data>
 </root>

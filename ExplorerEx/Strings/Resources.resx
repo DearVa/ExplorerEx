@@ -197,4 +197,10 @@
   <data name="Back_to_home" xml:space="preserve">
     <value>回到首页</value>
   </data>
+  <data name="Unknown_error" xml:space="preserve">
+    <value>未知错误</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>更多</value>
+  </data>
 </root>
