@@ -97,6 +97,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 回到首页 的本地化字符串。
+        /// </summary>
+        internal static string Back_to_home {
+            get {
+                return ResourceManager.GetString("Back_to_home", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 无法创建 的本地化字符串。
         /// </summary>
         internal static string Cannot_create {
@@ -147,6 +156,15 @@ namespace ExplorerEx.Strings {
         internal static string Delete {
             get {
                 return ResourceManager.GetString("Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 退出应用程序 的本地化字符串。
+        /// </summary>
+        internal static string Exit_application {
+            get {
+                return ResourceManager.GetString("Exit_application", resourceCulture);
             }
         }
         
@@ -243,9 +261,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 记住我的选择，下次不再询问 的本地化字符串。
         /// </summary>
-        internal static string Remember_my_choice_and_don_t_ask_again {
+        internal static string Remember_my_choice_and_dont_ask_again {
             get {
-                return ResourceManager.GetString("Remember my choice and don\'t ask again", resourceCulture);
+                return ResourceManager.GetString("Remember_my_choice_and_dont_ask_again", resourceCulture);
             }
         }
         
@@ -327,6 +345,15 @@ namespace ExplorerEx.Strings {
         internal static string View {
             get {
                 return ResourceManager.GetString("View", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 您关闭了最后一个标签页，请问您希望？ 的本地化字符串。
+        /// </summary>
+        internal static string You_closed_the_last_tab_what_do_you_want_ {
+            get {
+                return ResourceManager.GetString("You_closed_the_last_tab_what_do_you_want?", resourceCulture);
             }
         }
     }

@@ -152,7 +152,7 @@
   <data name="Open_in_new_Tab" xml:space="preserve">
     <value>在新标签页中打开</value>
   </data>
-  <data name="Remember my choice and don&apos;t ask again" xml:space="preserve">
+  <data name="Remember_my_choice_and_dont_ask_again" xml:space="preserve">
     <value>记住我的选择，下次不再询问</value>
   </data>
   <data name="Are you sure to recycle these files?" xml:space="preserve">
@@ -187,5 +187,14 @@
   </data>
   <data name="Delete" xml:space="preserve">
     <value>删除</value>
+  </data>
+  <data name="You_closed_the_last_tab_what_do_you_want?" xml:space="preserve">
+    <value>您关闭了最后一个标签页，请问您希望？</value>
+  </data>
+  <data name="Exit_application" xml:space="preserve">
+    <value>退出应用程序</value>
+  </data>
+  <data name="Back_to_home" xml:space="preserve">
+    <value>回到首页</value>
   </data>
 </root>

@@ -401,6 +401,7 @@ namespace HandyControl.Controls {
 				messageBox.CancelButtonText = info.CancelButtonText;
 				messageBox.YesButtonText = info.YesButtonText;
 				messageBox.NoButtonText = info.NoButtonText;
+				messageBox.IsChecked = info.IsChecked;
 				SetButtonStatus(messageBox, info.Button, info.DefaultResult);
 				SetImage(messageBox, info.Image);
 

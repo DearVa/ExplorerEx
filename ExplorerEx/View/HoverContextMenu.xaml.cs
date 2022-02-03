@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
+using HandyControl.Tools;
 
 namespace ExplorerEx.View;
 
@@ -62,6 +63,13 @@ public partial class HoverContextMenu {
 	protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
 		CalculateAnimation(e, 50);
 		base.OnPreviewMouseLeftButtonDown(e);
+	}
+
+	protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e) {
+		base.OnPreviewMouseLeftButtonUp(e);
+		if (e.OriginalSource.IsChildOf(typeof(Button))) {
+			IsOpen = false;
+		}
 	}
 
 	private void CalculateAnimation(MouseEventArgs e, double pressForce) {

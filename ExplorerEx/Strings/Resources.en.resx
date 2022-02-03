@@ -62,7 +62,7 @@
   <data name="Open_in_new_Tab" xml:space="preserve">
     <value>Open in new Tab</value>
   </data>
-  <data name="Remember my choice and don&apos;t ask again" xml:space="preserve">
+  <data name="Remember_my_choice_and_dont_ask_again" xml:space="preserve">
     <value>Remember my choice and don't ask again</value>
   </data>
   <data name="Are you sure to recycle these files?" xml:space="preserve">
@@ -100,5 +100,14 @@
   </data>
   <data name="Delete" xml:space="preserve">
     <value>Delete</value>
+  </data>
+  <data name="You_closed_the_last_tab_what_do_you_want?" xml:space="preserve">
+    <value>You closed the last tab, what do you want?</value>
+  </data>
+  <data name="Exit_application" xml:space="preserve">
+    <value>Exit application</value>
+  </data>
+  <data name="Back_to_home" xml:space="preserve">
+    <value>Back to home</value>
   </data>
 </root>

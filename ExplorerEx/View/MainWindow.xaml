@@ -13,21 +13,45 @@
     xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
     mc:Ignorable="d" Width="1200" Height="800" Title="ExplorerEx"
     d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
-    AllowsTransparency="True" WindowStyle="None" Background="#01000000" ResizeMode="CanResizeWithGrip">
+    Background="Transparent">
 
-    <Window.Style>
-        <Style TargetType="{x:Type Window}">
-            <Setter Property="WindowChrome.WindowChrome">
-                <Setter.Value>
-                    <WindowChrome UseAeroCaptionButtons="True"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Style>
+    <WindowChrome.WindowChrome>
+        <WindowChrome
+            CaptionHeight="20"
+            ResizeBorderThickness="8"
+            CornerRadius="10"
+            GlassFrameThickness="-1"
+            UseAeroCaptionButtons="True" />
+    </WindowChrome.WindowChrome>
 
     <Grid>
         <Grid.Resources>
-            <v:HoverContextMenu x:Key="DirectoryItemContextMenu" d:DataContext="{d:DesignInstance m:FileSystemItem}">
+            <ControlTemplate x:Key="FileOperationsTemplate">
+                <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance m:FileSystemItem}">
+                    <Button Height="35" ToolTip="{u:Lang Cut}" 
+                            Command="{Binding DataContext.CutCommand, RelativeSource={RelativeSource AncestorType=v:FileDataGrid}}">
+                        <Image Width="20" Height="20" Source="{StaticResource CutDrawingImage}"/>
+                    </Button>
+                    <Button Height="35" Margin="6,0,0,0" ToolTip="{u:Lang Copy}"
+                            Command="{Binding DataContext.CopyCommand, RelativeSource={RelativeSource AncestorType=v:FileDataGrid}}">
+                        <Image Width="20" Height="20" Source="{StaticResource CopyDrawingImage}"/>
+                    </Button>
+                    <Button Height="35" Margin="6,0,0,0" ToolTip="{u:Lang Rename}"
+                            Command="{Binding DataContext.RenameCommand, RelativeSource={RelativeSource AncestorType=v:FileDataGrid}}">
+                        <Image Width="20" Height="20" Source="{StaticResource RenameDrawingImage}"/>
+                    </Button>
+                    <Button Height="35" Margin="6,0,6,0" ToolTip="{u:Lang Share}"
+                            Command="{Binding DataContext.ShareCommand, RelativeSource={RelativeSource AncestorType=v:FileDataGrid}}">
+                        <Image Width="20" Height="20" Source="{StaticResource ShareDrawingImage}"/>
+                    </Button>
+                    <Button Height="35" ToolTip="{u:Lang Delete}"
+                            Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=v:FileDataGrid}}">
+                        <Image Width="20" Height="20" Source="{StaticResource DeleteDrawingImage}"/>
+                    </Button>
+                </StackPanel>
+            </ControlTemplate>
+
+            <v:HoverContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance m:FileSystemItem}">
                 <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
                           Command="{Binding OpenCommand}"
                           Icon="{Binding Icon}" Header="{u:Lang Open}" FontSize="15"/>
@@ -43,6 +67,9 @@
             </v:HoverContextMenu>
 
             <v:HoverContextMenu x:Key="FileItemContextMenu" d:DataContext="{d:DesignInstance m:FileSystemItem}">
+                <MenuItem Height="35" Template="{StaticResource FileOperationsTemplate}"/>
+                <Separator/>
+
                 <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
                           Command="{Binding OpenCommand}"
                           Icon="{Binding Icon}" Header="{u:Lang Open}" FontSize="15"/>
@@ -52,7 +79,7 @@
             </v:HoverContextMenu>
 
             <c:FileSystemItemContextMenuConverter x:Key="FileSystemItemContextMenuConverter"
-                                                  DirectoryContextMenu="{StaticResource DirectoryItemContextMenu}"
+                                                  DirectoryContextMenu="{StaticResource FolderItemContextMenu}"
                                                   FileContextMenu="{StaticResource FileItemContextMenu}"/>
 
             <DataTemplate x:Key="FileViewHomeTemplate">
@@ -173,8 +200,13 @@
 
         <hc:TabControl x:Name="MainTabControl" ItemsSource="{Binding TabViewItems}"
                        IsDraggable="True" ShowCloseButton="True" IsAnimationEnabled="True" TabItemHeight="35"
-                       SelectedIndex="{Binding TabViewSelectedIndex}" 
+                       SelectedIndex="{Binding TabViewSelectedIndex}" ShowOverflowButton="False"
                        Background="{DynamicResource BackgroundBrush}" BorderBrush="{x:Null}" Margin="0,10,0,0">
+            <hc:Interaction.Triggers>
+                <hc:RoutedEventTrigger RoutedEvent="hc:TabItem.Closing">
+                    <hc:EventToCommand Command="{Binding TabClosingCommand}" PassEventArgsToCommand="True"/>
+                </hc:RoutedEventTrigger>
+            </hc:Interaction.Triggers>
             <hc:TabControl.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Width="200"

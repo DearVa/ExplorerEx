@@ -59,6 +59,16 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 
 	public bool IsItemSelected => SelectedItems.Count > 0;
 
+	public SimpleCommand CutCommand { get; }
+
+	public SimpleCommand CopyCommand { get; }
+
+	public SimpleCommand RenameCommand { get; }
+
+	public SimpleCommand ShareCommand { get; }
+
+	public SimpleCommand DeleteCommand { get; }
+
 	public bool CanPaste => Type != FileViewDataTemplateSelector.Type.Home && canPaste;
 
 	private bool canPaste;
@@ -106,6 +116,12 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 		GoToUpperLevelCommand = new SimpleCommand(_ => GoToUpperLevelAsync());
 		SelectionChangedCommand = new SimpleCommand(e => OnSelectionChanged(null, (SelectionChangedEventArgs)e));
 
+		CutCommand = new SimpleCommand(_ => Copy(true));
+		CopyCommand = new SimpleCommand(_ => Copy(false));
+		//RenameCommand = new SimpleCommand(_ => Copy(false));
+		//ShareCommand = new SimpleCommand(_ => Copy(false));
+		DeleteCommand = new SimpleCommand(_ => Delete(true));
+
 		dispatcher = Application.Current.Dispatcher;
 
 		watcher.NotifyFilter = NotifyFilters.Attributes | NotifyFilters.CreationTime | NotifyFilters.DirectoryName |
@@ -147,6 +163,7 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 	/// </summary>
 	/// <param name="path">如果为null或者WhiteSpace，就加载“此电脑”</param>
 	/// <param name="recordHistory"></param>
+	/// <param name="selectedPath"></param>
 	/// <returns></returns>
 	public async Task LoadDirectoryAsync(string path, bool recordHistory = true, string selectedPath = null) {
 		var isLoadRoot = string.IsNullOrWhiteSpace(path);  // 加载“此电脑”
@@ -334,7 +351,7 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 		}
 		if (recycle) {
 			if (hc.MessageBox.Show(new MessageBoxInfo {
-				    CheckBoxText = "Remember my choice and don't ask again".L(),
+				    CheckBoxText = "Remember_my_choice_and_dont_ask_again".L(),
 				    Message = "Are you sure to recycle these files?".L(),
 				    Image = MessageBoxImage.Question,
 				    Button = MessageBoxButton.YesNo
@@ -343,7 +360,7 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 			}
 		} else {
 			if (hc.MessageBox.Show(new MessageBoxInfo {
-				    CheckBoxText = "Remember my choice and don't ask again".L(),
+				    CheckBoxText = "Remember_my_choice_and_dont_ask_again".L(),
 				    Message = "Are you sure to delete these files Permanently?".L(),
 				    Image = MessageBoxImage.Question,
 				    Button = MessageBoxButton.YesNo

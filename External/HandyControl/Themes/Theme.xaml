@@ -12693,6 +12693,7 @@
 							<Grid.RowDefinitions>
 								<RowDefinition Height="Auto" />
 								<RowDefinition />
+								<RowDefinition Height="Auto" />
 							</Grid.RowDefinitions>
 							<Grid Background="{TemplateBinding NonClientAreaBackground}" Name="PART_NonClientArea" TextElement.Foreground="{TemplateBinding NonClientAreaForeground}">
 								<Grid.ColumnDefinitions>
@@ -12746,6 +12747,7 @@
 								</ScrollViewer>
 								<StackPanel Name="PART_Panel" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="0,10,0,16" Orientation="Horizontal" HorizontalAlignment="Center" />
 							</Grid>
+							<CheckBox Grid.Row="2" IsChecked="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" Visibility="{TemplateBinding CheckBoxVisibility}" Content="{TemplateBinding CheckBoxText}" HorizontalAlignment="Center" Margin="0,0,4,10" />
 						</Grid>
 					</Border>
 					<ControlTemplate.Triggers>

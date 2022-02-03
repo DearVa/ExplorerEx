@@ -362,6 +362,7 @@ internal static class Win32Interop {
 
 	public const int WM_DRAWCLIPBOARD = 0x308;
 	public const int WM_CHANGECBCHAIN = 0x030D;
+	public const int WM_THEMECHANGED = 0x031A;
 
 	#region 亚克力效果
 	public enum AccentState {
@@ -389,16 +390,16 @@ internal static class Win32Interop {
 	}
 
 	public enum WindowCompositionAttribute {
-		// ...
 		WCA_ACCENT_POLICY = 19
-		// ...
 	}
 
 	[DllImport("user32.dll")]
 	public static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
 
-	public enum DWMWINDOWATTRIBUTE {
-		DWMWA_WINDOW_CORNER_PREFERENCE = 33
+	public enum DwmWindowAttribute {
+		DWMWA_WINDOW_CORNER_PREFERENCE = 33,
+		DWMWA_USE_IMMERSIVE_DARK_MODE = 20,
+		DWMWA_MICA_EFFECT = 1029
 	}
 
 	// The DWM_WINDOW_CORNER_PREFERENCE enum for DwmSetWindowAttribute's third parameter, which tells the function
@@ -411,7 +412,7 @@ internal static class Win32Interop {
 	}
 	
 	[DllImport("dwmapi.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-	public static extern long DwmSetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE attribute, ref DWM_WINDOW_CORNER_PREFERENCE pvAttribute, uint cbAttribute);
+	public static extern long DwmSetWindowAttribute(IntPtr hwnd, DwmWindowAttribute attribute, ref int pvAttribute, uint cbAttribute);
 	#endregion
 	// ReSharper restore InconsistentNaming
 	// ReSharper restore IdentifierTypo

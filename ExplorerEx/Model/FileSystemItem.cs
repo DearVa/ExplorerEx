@@ -39,7 +39,7 @@ internal class FileSystemItem : FileViewBaseItem {
 			IsDirectory = true;
 			LoadDirectoryIcon();
 		}
-		OpenCommand = new SimpleCommand(async _ => await Open());
+		OpenCommand = new SimpleCommand(_ => Open());
 		OpenInNewTabCommand = new SimpleCommand(_ => {
 			if (IsDirectory) {
 				OwnerViewModel.OwnerViewModel.OpenPathInNewTab(FullPath);

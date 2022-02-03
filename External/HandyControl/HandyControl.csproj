@@ -103,16 +103,16 @@
     <Folder Include="Properties\Langs\" />
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Themes\Basic\Colors\ColorsArcylic.xaml">
+    <Page Update="Themes\Basic\Colors\ColorsBlur.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>
-    <Page Update="Themes\Basic\Colors\ColorsDarkArcylic.xaml">
+    <Page Update="Themes\Basic\Colors\ColorsDarkBlur.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>
-    <Page Update="Themes\SkinDarkArcylic.xaml">
+    <Page Update="Themes\SkinDarkBlur.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>
-    <Page Update="Themes\SkinArcylic.xaml">
+    <Page Update="Themes\SkinBlur.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>
   </ItemGroup>
