@@ -17,7 +17,7 @@ namespace ExplorerEx.Model;
 /// <summary>
 /// 新建 一个文件
 /// </summary>
-internal class CreateFileItem : INotifyPropertyChanged {
+public class CreateFileItem : INotifyPropertyChanged {
 	public ImageSource Icon { get; protected set; }
 
 	public string Description { get; protected set; }

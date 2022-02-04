@@ -15,7 +15,7 @@ namespace ExplorerEx.View;
 
 public sealed partial class MainWindow {
 	public static event Action ClipboardChanged;
-	public static ClipboardContent ClipboardContent { get; private set; }
+	public static DataObjectContent DataObjectContent { get; private set; }
 
 	private readonly IntPtr hwnd;
 	private IntPtr nextClipboardViewer;
@@ -105,7 +105,7 @@ public sealed partial class MainWindow {
 
 	private static void OnClipboardChanged() {
 		try {
-			ClipboardContent = new ClipboardContent(Clipboard.GetDataObject());
+			DataObjectContent = new DataObjectContent(Clipboard.GetDataObject());
 			ClipboardChanged?.Invoke();
 		} catch (Exception e) {
 			HandyControl.Controls.MessageBox.Error(e.ToString());
@@ -198,10 +198,12 @@ public sealed partial class MainWindow {
 	}
 
 	private async void HomeListBox_OnMouseUp(object sender, MouseButtonEventArgs e) {
-		if (e.ChangedButton == MouseButton.Left && ItemsControl.ContainerFromElement((ListBox)sender, (DependencyObject)e.OriginalSource) is ListBoxItem item) {
-			await viewModel.SelectedTab.Item_OnMouseUp((FileViewBaseItem)item.Content);
-		} else {
-			viewModel.SelectedTab.ClearSelection();
+		if (e.ChangedButton == MouseButton.Left) {
+			if (ItemsControl.ContainerFromElement((ListBox)sender, (DependencyObject)e.OriginalSource) is ListBoxItem item) {
+				await viewModel.SelectedTab.Item_OnMouseUp((FileViewBaseItem)item.Content);
+			} else {
+				viewModel.SelectedTab.ClearSelection();
+			}
 		}
 	}
 

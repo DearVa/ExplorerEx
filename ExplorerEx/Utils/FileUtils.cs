@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Windows.UI.StartScreen;
+using System.Text;
+using static ExplorerEx.Win32.Win32Interop;
 
 namespace ExplorerEx.Utils;
 internal class FileUtils {
@@ -77,4 +79,67 @@ internal class FileUtils {
 			return $"{adjustedSize:n1} {SizeSuffixes[mag]}";
 		}
 	}
+
+	/// <summary>
+	/// Shell文件操作
+	/// </summary>
+	/// <param name="type"></param>
+	/// <param name="sourceFiles"></param>
+	/// <param name="destinationFiles"></param>
+	/// <exception cref="ArgumentException"></exception>
+	/// <exception cref="IOException"></exception>
+	public static void FileOperation(FileOpType type, IList<string> sourceFiles, IList<string> destinationFiles = null) {
+		if (sourceFiles is not { Count: > 0 }) {
+			return;
+		}
+		if (type != FileOpType.Delete && (destinationFiles == null || sourceFiles.Count != destinationFiles.Count)) {
+			throw new ArgumentException("原文件与目标文件个数不匹配");
+		}
+		var fFlags = FILEOP_FLAGS.FOF_NOCONFIRMMKDIR | FILEOP_FLAGS.FOF_ALLOWUNDO;
+		if (sourceFiles.Count > 1) {
+			fFlags |= FILEOP_FLAGS.FOF_MULTIDESTFILES;
+		}
+		if (type == FileOpType.Delete) {
+			fFlags |= FILEOP_FLAGS.FOF_NOCONFIRMATION;
+		}
+		var fo = new SHFILEOPSTRUCT {
+			fileOpType = type,
+			pFrom = ParseFileList(sourceFiles),
+			fFlags = fFlags
+		};
+		if (type != FileOpType.Delete) {
+			fo.pTo = ParseFileList(destinationFiles);
+		}
+		var result = SHFileOperation(fo);
+		if (result != 0) {
+			throw new IOException(GetErrorString(result));
+		}
+	}
+
+	private static string ParseFileList(IEnumerable<string> files) {
+		var sb = new StringBuilder();
+		foreach (var file in files) {
+			sb.Append(Path.GetFullPath(file)).Append('\0');
+		}
+		return sb.Append('\0').ToString();
+	}
+
+	/// <summary>
+	/// ms-help://MS.MSDNQTR.v90.chs/shellcc/platform/shell/reference/functions/shfileoperation.htm
+	/// </summary>
+	/// <param name="code"></param>
+	/// <returns></returns>
+	private static string GetErrorString(int code) {
+		return code switch {
+			0 => "Success",
+			0x74 => "The source is a root directory, which cannot be moved or renamed.",
+			0x76 => "Security settings denied access to the source.",
+			0x7C => "The path in the source or destination or both was invalid.",
+			0x10000 => "An unspecified error occurred on the destination.",
+			0x402 => "An unknown error occurred. This is typically due to an invalid path in the source or destination. This error does not occur on Windows Vista and later.",
+			_ => $"Unknown Error: {code}"
+		};
+	}
 }
+
+class FileUtilsImpl : FileUtils { }

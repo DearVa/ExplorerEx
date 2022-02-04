@@ -13,15 +13,10 @@
     xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
     mc:Ignorable="d" Title="ExplorerEx"
     d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
-    Background="Transparent" WindowStartupLocation="Manual">
+    Background="Transparent" WindowStartupLocation="Manual" BorderThickness="0">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome
-            CaptionHeight="20"
-            ResizeBorderThickness="8"
-            CornerRadius="10"
-            GlassFrameThickness="-1"
-            UseAeroCaptionButtons="True" />
+        <WindowChrome GlassFrameThickness="-1"/>
     </WindowChrome.WindowChrome>
 
     <Grid>
@@ -140,7 +135,10 @@
                                     Background="{DynamicResource RegionBrush}">
                         <hc:Interaction.Triggers>
                             <hc:RoutedEventTrigger RoutedEvent="ListBox.SelectionChanged">
-                                <hc:EventToCommand Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True" />
+                                <hc:EventToCommand Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True"/>
+                            </hc:RoutedEventTrigger>
+                            <hc:RoutedEventTrigger RoutedEvent="v:FileDataGrid.FileDrop">
+                                <hc:EventToCommand Command="{Binding FileDropCommand}" PassEventArgsToCommand="True"/>
                             </hc:RoutedEventTrigger>
                         </hc:Interaction.Triggers>
                         <v:FileDataGrid.RowStyle>

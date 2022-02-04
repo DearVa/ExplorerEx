@@ -7,7 +7,7 @@ using ExplorerEx.ViewModel;
 
 namespace ExplorerEx.Model; 
 
-internal abstract class FileViewBaseItem : INotifyPropertyChanged {
+public abstract class FileViewBaseItem : INotifyPropertyChanged {
 	protected FileViewTabViewModel OwnerViewModel { get; }
 
 	public ImageSource Icon {

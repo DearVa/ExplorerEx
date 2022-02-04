@@ -15,7 +15,6 @@ using ExplorerEx.Utils;
 using ExplorerEx.View;
 using ExplorerEx.Win32;
 using HandyControl.Data;
-using Microsoft.VisualBasic.FileIO;
 using hc = HandyControl.Controls;
 
 namespace ExplorerEx.ViewModel;
@@ -23,7 +22,7 @@ namespace ExplorerEx.ViewModel;
 /// <summary>
 /// 对应一个Tab
 /// </summary>
-internal class FileViewTabViewModel : ViewModelBase, IDisposable {
+public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	public MainWindowViewModel OwnerViewModel { get; }
 
 	public ContentPresenter FileViewContentPresenter { get; set; }
@@ -68,6 +67,8 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 	public SimpleCommand ShareCommand { get; }
 
 	public SimpleCommand DeleteCommand { get; }
+
+	public SimpleCommand FileDropCommand { get; }
 
 	public bool CanPaste => Type != FileViewDataTemplateSelector.Type.Home && canPaste;
 
@@ -114,13 +115,15 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 		GoBackCommand = new SimpleCommand(_ => GoBackAsync());
 		GoForwardCommand = new SimpleCommand(_ => GoForwardAsync());
 		GoToUpperLevelCommand = new SimpleCommand(_ => GoToUpperLevelAsync());
-		SelectionChangedCommand = new SimpleCommand(e => OnSelectionChanged(null, (SelectionChangedEventArgs)e));
+		SelectionChangedCommand = new SimpleCommand(e => OnSelectionChanged((SelectionChangedEventArgs)e));
 
 		CutCommand = new SimpleCommand(_ => Copy(true));
 		CopyCommand = new SimpleCommand(_ => Copy(false));
 		//RenameCommand = new SimpleCommand(_ => Copy(false));
 		//ShareCommand = new SimpleCommand(_ => Copy(false));
 		DeleteCommand = new SimpleCommand(_ => Delete(true));
+
+		FileDropCommand = new SimpleCommand(e => OnDrop((FileDropEventArgs)e));
 
 		dispatcher = Application.Current.Dispatcher;
 
@@ -140,7 +143,7 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 	}
 
 	private void OnClipboardChanged() {
-		canPaste = MainWindow.ClipboardContent.Type != ClipboardDataType.Unknown;
+		canPaste = MainWindow.DataObjectContent.Type != DataObjectType.Unknown;
 		OnPropertyChanged(nameof(CanPaste));
 	}
 
@@ -180,16 +183,6 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 		var sw = Stopwatch.StartNew();
 #endif
 
-		Items.Clear();
-		Type = isLoadRoot ? FileViewDataTemplateSelector.Type.Home : FileViewDataTemplateSelector.Type.Detail;
-
-		if (Type != oldType && FileViewContentPresenter != null) {
-			var selector = FileViewContentPresenter.ContentTemplateSelector;
-			FileViewContentPresenter.ContentTemplateSelector = null;
-			FileViewContentPresenter.ContentTemplateSelector = selector;
-		}
-		oldType = Type;
-
 		var list = new List<FileViewBaseItem>();
 		if (isLoadRoot) {
 			watcher.EnableRaisingEvents = false;
@@ -208,7 +201,13 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 			} else {
 				FullPath = path;
 			}
-			watcher.Path = FullPath;
+			try {
+				watcher.Path = FullPath;
+			} catch {
+				hc.MessageBox.Error("Access_denied".L(), "Cannot_access_directory".L());
+				await LoadDirectoryAsync(historyPaths[nextHistoryIndex - 1], false, path);
+				return;
+			}
 			watcher.EnableRaisingEvents = true;
 			OnPropertyChanged(nameof(Type));
 			OnPropertyChanged(nameof(FullPath));
@@ -232,9 +231,20 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 		sw.Restart();
 #endif
 
+		Items.Clear();
+		Type = isLoadRoot ? FileViewDataTemplateSelector.Type.Home : FileViewDataTemplateSelector.Type.Detail;
+
+		if (Type != oldType && FileViewContentPresenter != null) {
+			var selector = FileViewContentPresenter.ContentTemplateSelector;
+			FileViewContentPresenter.ContentTemplateSelector = null;
+			FileViewContentPresenter.ContentTemplateSelector = selector;
+		}
+		oldType = Type;
+
 		foreach (var fileViewBaseItem in list) {
 			Items.Add(fileViewBaseItem);
 		}
+		
 
 		if (recordHistory) {
 			AddHistory(path);
@@ -242,12 +252,17 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 		UpdateFolderUI();
 		UpdateFileUI();
 
+#if DEBUG
+		Trace.WriteLine($"Update UI costs: {sw.ElapsedMilliseconds}ms");
+		sw.Restart();
+#endif
+
 		foreach (var fileViewBaseItem in list.Where(item => !item.IsDirectory)) {
 			await fileViewBaseItem.LoadIconAsync();
 		}
 
 #if DEBUG
-		Trace.WriteLine($"Update UI costs: {sw.ElapsedMilliseconds}ms");
+		Trace.WriteLine($"Async load Icon costs: {sw.ElapsedMilliseconds}ms");
 		sw.Stop();
 #endif
 	}
@@ -318,28 +333,18 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 			return;
 		}
 		if (Clipboard.GetDataObject() is DataObject data) {
-			var files = data.GetData(DataFormats.FileDrop);
-			if (files is string[] f) {
+			if (data.GetData(DataFormats.FileDrop) is string[] filePaths) {
 				bool isCut;
 				if (data.GetData("IsCut") is bool i) {
 					isCut = i;
 				} else {
 					isCut = false;
 				}
-				foreach (var path in f) {
-					if (File.Exists(path)) {
-						if (isCut) {
-							File.Move(path, Path.Combine(FullPath, Path.GetFileName(path)));
-						} else {
-							File.Copy(path, Path.Combine(FullPath, Path.GetFileName(path)));
-						}
-					} else if (Directory.Exists(path)) {
-						if (isCut) {
-							Directory.Move(path, Path.Combine(FullPath, Path.GetFileName(path)));
-						} else {
-							//Directory.(path, Path.Combine(FullPath, Path.GetFileName(path)));
-						}
-					}
+				var destPaths = filePaths.Select(path => Path.Combine(FullPath, Path.GetFileName(path))).ToList();
+				try {
+					FileUtils.FileOperation(isCut ? Win32Interop.FileOpType.Move : Win32Interop.FileOpType.Copy, filePaths, destPaths);
+				} catch (Exception e) {
+					Logger.Exception(e);
 				}
 			}
 		}
@@ -350,31 +355,65 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 			return;
 		}
 		if (recycle) {
-			if (hc.MessageBox.Show(new MessageBoxInfo {
-				    CheckBoxText = "Remember_my_choice_and_dont_ask_again".L(),
-				    Message = "Are you sure to recycle these files?".L(),
-				    Image = MessageBoxImage.Question,
-				    Button = MessageBoxButton.YesNo
-			    }) != MessageBoxResult.Yes) {
-				return;
+			if (!ConfigHelper.LoadBoolean("Recycle")) {
+				var msi = new MessageBoxInfo {
+					CheckBoxText = "Dont_show_this_message_again".L(),
+					Message = "Are you sure to recycle these files?".L(),
+					Image = MessageBoxImage.Question,
+					Button = MessageBoxButton.YesNo,
+					IsChecked = false
+				};
+				var result = hc.MessageBox.Show(msi);
+				if (msi.IsChecked) {
+					ConfigHelper.Save("Recycle", true);
+				}
+				if (result != MessageBoxResult.Yes) {
+					return;
+				}
 			}
 		} else {
-			if (hc.MessageBox.Show(new MessageBoxInfo {
-				    CheckBoxText = "Remember_my_choice_and_dont_ask_again".L(),
-				    Message = "Are you sure to delete these files Permanently?".L(),
-				    Image = MessageBoxImage.Question,
-				    Button = MessageBoxButton.YesNo
-			    }) != MessageBoxResult.Yes) {
-				return;
+			if (!ConfigHelper.LoadBoolean("Delete")) {
+				var msi = new MessageBoxInfo {
+					CheckBoxText = "Dont_show_this_message_again".L(),
+					Message = "Are you sure to delete these files Permanently?".L(),
+					Image = MessageBoxImage.Question,
+					Button = MessageBoxButton.YesNo,
+					IsChecked = false
+				};
+				var result = hc.MessageBox.Show(msi);
+				if (msi.IsChecked) {
+					ConfigHelper.Save("Delete", true);
+				}
+				if (result != MessageBoxResult.Yes) {
+					return;
+				}
 			}
 		}
-		foreach (var item in SelectedItems) {
-			if (item is FileSystemItem fsi) {
-				if (fsi.IsDirectory) {
-					FileSystem.DeleteDirectory(fsi.FullPath, UIOption.OnlyErrorDialogs, recycle ? RecycleOption.SendToRecycleBin : RecycleOption.DeletePermanently);
-				} else {
-					FileSystem.DeleteFile(fsi.FullPath, UIOption.OnlyErrorDialogs, recycle ? RecycleOption.SendToRecycleBin : RecycleOption.DeletePermanently);
+		if (recycle) {
+			try {
+				FileUtils.FileOperation(Win32Interop.FileOpType.Delete, SelectedItems.Where(item => item is FileSystemItem)
+					.Cast<FileSystemItem>().Select(item => item.FullPath).ToArray());
+			} catch (Exception e) {
+				Logger.Exception(e);
+			}
+		} else {
+			var failedFiles = new List<string>();
+			foreach (var item in SelectedItems) {
+				if (item is FileSystemItem fsi) {
+					try {
+						if (fsi.IsDirectory) {
+							Directory.Delete(fsi.FullPath, true);
+						} else {
+							File.Delete(fsi.FullPath);
+						}
+					} catch (Exception e) {
+						Logger.Exception(e, false);
+						failedFiles.Add(fsi.FullPath);
+					}
 				}
+			}
+			if (failedFiles.Count > 0) {
+				hc.MessageBox.Error(string.Join('\n', failedFiles), "The_following_files_failed_to_delete".L());
 			}
 		}
 	}
@@ -443,7 +482,7 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 		isClearingSelection = false;
 	}
 
-	public void OnSelectionChanged(object sender, SelectionChangedEventArgs e) {
+	private void OnSelectionChanged(SelectionChangedEventArgs e) {
 		if (isClearingSelection) {
 			return;
 		}
@@ -457,6 +496,44 @@ internal class FileViewTabViewModel : ViewModelBase, IDisposable {
 		}
 		UpdateFileUI();
 	}
+
+
+	private void OnDrop(FileDropEventArgs e) {
+		var path = e.Path ?? FullPath;
+		if (path.Length > 4 && path[^4..] is ".exe" or ".lnk") {  // 拖文件运行
+			if (File.Exists(path) && e.Content.Type == DataObjectType.File) {
+				try {
+					Process.Start(new ProcessStartInfo {
+						FileName = path,
+						Arguments = string.Join(' ', e.Content.Data.GetFileDropList()),
+						UseShellExecute = true
+					});
+				} catch (Exception ex) {
+					Logger.Exception(ex);
+				}
+			}
+		} else if (Directory.Exists(path)) {
+			var p = new Win32Interop.POINT();
+			Win32Interop.GetCursorPos(ref p);
+			var mousePoint = new Point(p.x, p.y);
+			switch (e.Content.Type) {
+			case DataObjectType.File:
+				break;
+			case DataObjectType.Bitmap:
+				break;
+			case DataObjectType.Html:
+				new SaveDataObjectWindow(path, e.Content.Data.GetData(DataFormats.Html)!.ToString(), mousePoint).Show();
+				break;
+			case DataObjectType.Text:
+				new SaveDataObjectWindow(path, e.Content.Data.GetData(DataFormats.Text)!.ToString(), mousePoint).Show();
+				break;
+			case DataObjectType.UnicodeText:
+				new SaveDataObjectWindow(path, e.Content.Data.GetData(DataFormats.UnicodeText)!.ToString(), mousePoint).Show();
+				break;
+			}
+		}
+	}
+
 
 	private void Watcher_OnError(object sender, ErrorEventArgs e) {
 		if (Type == FileViewDataTemplateSelector.Type.Home) {

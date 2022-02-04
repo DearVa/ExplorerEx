@@ -67,9 +67,9 @@ internal class FileSystemItem : FileViewBaseItem {
 	private void LoadDirectoryIcon() {
 		try {
 			if (Win32Interop.PathIsDirectoryEmpty(FileSystemInfo.FullName)) {
-				Icon = FolderDrawingImage;
-			} else {
 				Icon = EmptyFolderDrawingImage;
+			} else {
+				Icon = FolderDrawingImage;
 			}
 		} catch {
 			Icon = EmptyFolderDrawingImage;

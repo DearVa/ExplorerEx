@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace ExplorerEx.Utils; 
+namespace ExplorerEx.Utils;
 
-internal class SimpleCommand : ICommand {
+public class SimpleCommand : ICommand {
 	public event Action<object> Action;
 
 	public SimpleCommand() { }

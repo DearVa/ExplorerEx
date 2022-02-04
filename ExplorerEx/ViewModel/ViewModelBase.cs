@@ -3,9 +3,9 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using ExplorerEx.Annotations;
 
-namespace ExplorerEx.ViewModel; 
+namespace ExplorerEx.ViewModel;
 
-internal class ViewModelBase : INotifyPropertyChanged {
+public class ViewModelBase : INotifyPropertyChanged {
 	public event PropertyChangedEventHandler PropertyChanged;
 
 	[NotifyPropertyChangedInvocator]

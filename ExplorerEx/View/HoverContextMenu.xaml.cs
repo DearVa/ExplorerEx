@@ -73,8 +73,8 @@ public partial class HoverContextMenu {
 	}
 
 	private void CalculateAnimation(MouseEventArgs e, double pressForce) {
-		var moveX = -(e.GetPosition(border).X / border.ActualWidth - 0.5) * pressForce * whRatio;
-		var moveY = (e.GetPosition(border).Y / border.ActualHeight - 0.5) * pressForce;
+		var moveX = -(e.GetPosition(border).Y / border.ActualWidth - 0.5) * pressForce * whRatio;
+		var moveY = (e.GetPosition(border).X / border.ActualHeight - 0.5) * pressForce;
 
 		var da = new DoubleAnimation {
 			Duration = new Duration(TimeSpan.FromSeconds(0.5d)),

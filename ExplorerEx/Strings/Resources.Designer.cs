@@ -70,6 +70,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 拒绝访问 的本地化字符串。
+        /// </summary>
+        internal static string Access_denied {
+            get {
+                return ResourceManager.GetString("Access_denied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 您确定要永久删除选择的文件吗？ 的本地化字符串。
         /// </summary>
         internal static string Are_you_sure_to_delete_these_files_Permanently_ {
@@ -102,6 +111,15 @@ namespace ExplorerEx.Strings {
         internal static string Back_to_home {
             get {
                 return ResourceManager.GetString("Back_to_home", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 无法访问文件夹 的本地化字符串。
+        /// </summary>
+        internal static string Cannot_access_directory {
+            get {
+                return ResourceManager.GetString("Cannot_access_directory", resourceCulture);
             }
         }
         
@@ -160,6 +178,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 不要再显示该信息 的本地化字符串。
+        /// </summary>
+        internal static string Dont_show_this_message_again {
+            get {
+                return ResourceManager.GetString("Dont_show_this_message_again", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 退出应用程序 的本地化字符串。
         /// </summary>
         internal static string Exit_application {
@@ -183,6 +210,33 @@ namespace ExplorerEx.Strings {
         internal static string Folder {
             get {
                 return ResourceManager.GetString("Folder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 图像 的本地化字符串。
+        /// </summary>
+        internal static string Image {
+            get {
+                return ResourceManager.GetString("Image", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 链接 的本地化字符串。
+        /// </summary>
+        internal static string Link {
+            get {
+                return ResourceManager.GetString("Link", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 正在加载图片： 的本地化字符串。
+        /// </summary>
+        internal static string Loading_image_from {
+            get {
+                return ResourceManager.GetString("Loading_image_from", resourceCulture);
             }
         }
         
@@ -304,6 +358,42 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 保存 的本地化字符串。
+        /// </summary>
+        internal static string Save {
+            get {
+                return ResourceManager.GetString("Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 保存为 的本地化字符串。
+        /// </summary>
+        internal static string Save_as {
+            get {
+                return ResourceManager.GetString("Save_as", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 保存为文件 的本地化字符串。
+        /// </summary>
+        internal static string Save_as_file {
+            get {
+                return ResourceManager.GetString("Save_as_file", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 保存文件名 的本地化字符串。
+        /// </summary>
+        internal static string Save_file_name {
+            get {
+                return ResourceManager.GetString("Save_file_name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 分享 的本地化字符串。
         /// </summary>
         internal static string Share {
@@ -327,6 +417,24 @@ namespace ExplorerEx.Strings {
         internal static string Sort {
             get {
                 return ResourceManager.GetString("Sort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 文本 的本地化字符串。
+        /// </summary>
+        internal static string Text {
+            get {
+                return ResourceManager.GetString("Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 以下文件删除失败： 的本地化字符串。
+        /// </summary>
+        internal static string The_following_files_failed_to_delete {
+            get {
+                return ResourceManager.GetString("The_following_files_failed_to_delete", resourceCulture);
             }
         }
         

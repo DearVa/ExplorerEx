@@ -116,4 +116,40 @@
   <data name="More" xml:space="preserve">
     <value>More</value>
   </data>
+  <data name="The_following_files_failed_to_delete" xml:space="preserve">
+    <value>The following file(s) failed to delete:</value>
+  </data>
+  <data name="Save_as_file" xml:space="preserve">
+    <value>Save as file</value>
+  </data>
+  <data name="Save_file_name" xml:space="preserve">
+    <value>Save file name</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Text" xml:space="preserve">
+    <value>Text</value>
+  </data>
+  <data name="Link" xml:space="preserve">
+    <value>Link</value>
+  </data>
+  <data name="Image" xml:space="preserve">
+    <value>Image</value>
+  </data>
+  <data name="Save_as" xml:space="preserve">
+    <value>Save as</value>
+  </data>
+  <data name="Loading_image_from" xml:space="preserve">
+    <value>Loading image from: </value>
+  </data>
+  <data name="Dont_show_this_message_again" xml:space="preserve">
+    <value>Don't show this message again</value>
+  </data>
+  <data name="Cannot_access_directory" xml:space="preserve">
+    <value>Cannot access directory</value>
+  </data>
+  <data name="Access_denied" xml:space="preserve">
+    <value>Access denied</value>
+  </data>
 </root>

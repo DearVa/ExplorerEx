@@ -3,9 +3,9 @@ using System.Windows;
 using System.Windows.Controls;
 using ExplorerEx.ViewModel;
 
-namespace ExplorerEx.Selector; 
+namespace ExplorerEx.Selector;
 
-internal class FileViewDataTemplateSelector : DataTemplateSelector {
+public class FileViewDataTemplateSelector : DataTemplateSelector {
 	public enum Type {
 		Home,
 		Detail

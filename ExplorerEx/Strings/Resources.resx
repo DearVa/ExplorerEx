@@ -203,4 +203,40 @@
   <data name="More" xml:space="preserve">
     <value>更多</value>
   </data>
+  <data name="The_following_files_failed_to_delete" xml:space="preserve">
+    <value>以下文件删除失败：</value>
+  </data>
+  <data name="Save_as_file" xml:space="preserve">
+    <value>保存为文件</value>
+  </data>
+  <data name="Save_file_name" xml:space="preserve">
+    <value>保存文件名</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Text" xml:space="preserve">
+    <value>文本</value>
+  </data>
+  <data name="Link" xml:space="preserve">
+    <value>链接</value>
+  </data>
+  <data name="Image" xml:space="preserve">
+    <value>图像</value>
+  </data>
+  <data name="Save_as" xml:space="preserve">
+    <value>保存为</value>
+  </data>
+  <data name="Loading_image_from" xml:space="preserve">
+    <value>正在加载图片：</value>
+  </data>
+  <data name="Dont_show_this_message_again" xml:space="preserve">
+    <value>不要再显示该信息</value>
+  </data>
+  <data name="Cannot_access_directory" xml:space="preserve">
+    <value>无法访问文件夹</value>
+  </data>
+  <data name="Access_denied" xml:space="preserve">
+    <value>拒绝访问</value>
+  </data>
 </root>

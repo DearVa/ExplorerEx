@@ -7,7 +7,7 @@ using MessageBox = HandyControl.Controls.MessageBox;
 
 namespace ExplorerEx.ViewModel;
 
-internal class MainWindowViewModel : ViewModelBase {
+public class MainWindowViewModel : ViewModelBase {
 	/// <summary>
 	/// 标签页
 	/// </summary>
