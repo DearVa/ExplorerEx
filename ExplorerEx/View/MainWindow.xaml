@@ -116,7 +116,7 @@
                                         <ProgressBar Value="{Binding FreeSpaceRatio, Mode=OneWay}" 
                                                      Foreground="{Binding ProgressBarBackground, Mode=OneWay}"
                                                      Maximum="1" BorderThickness="1.5" Margin="0,5,0,5" 
-                                                     SnapsToDevicePixels="True"/>
+                                                     SnapsToDevicePixels="True" hc:ProgressBarAttach.AnimationDisabled="True"/>
                                         <TextBlock Text="{Binding SpaceOverviewString, Mode=OneWay}"/>
                                     </StackPanel>
                                 </Grid>
@@ -145,7 +145,7 @@
                         <v:FileDataGrid.RowStyle>
                             <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle}">
                                 <Setter Property="ContextMenu"
-                                    Value="{Binding IsDirectory, Converter={StaticResource FileSystemItemContextMenuConverter}}"/>
+                                    Value="{Binding IsFolder, Converter={StaticResource FileSystemItemContextMenuConverter}}"/>
                                 <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
                             </Style>
                         </v:FileDataGrid.RowStyle>
@@ -217,6 +217,9 @@
             <hc:Interaction.Triggers>
                 <hc:RoutedEventTrigger RoutedEvent="hc:TabItem.Closing">
                     <hc:EventToCommand Command="{Binding TabClosingCommand}" PassEventArgsToCommand="True"/>
+                </hc:RoutedEventTrigger>
+                <hc:RoutedEventTrigger RoutedEvent="hc:TabControl.NewTab">
+                    <hc:EventToCommand Command="{Binding NewTabCommand}" PassEventArgsToCommand="True"/>
                 </hc:RoutedEventTrigger>
             </hc:Interaction.Triggers>
             <hc:TabControl.ItemTemplate>

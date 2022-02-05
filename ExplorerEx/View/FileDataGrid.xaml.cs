@@ -50,7 +50,7 @@ public partial class FileDataGrid {
 	/// </summary>
 	private bool isMouseDown;
 
-	private bool isFileDrag;
+	private bool isMouseDownOnItem;
 	private Point startDragPosition;
 
 	/// <summary>
@@ -64,21 +64,20 @@ public partial class FileDataGrid {
 	protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
 		if (e.ChangedButton is MouseButton.Left or MouseButton.Right) {
 			if (IsChildOf(typeof(ScrollBar), (UIElement)e.OriginalSource)) {
-				isFileDrag = false;
+				isMouseDownOnItem = false;
 				return;
 			}
 			isMouseDown = true;
-			if (isFileDrag) {
-				isFileDrag = false;
-			} else if (ContainerFromElement(this, (DependencyObject)e.OriginalSource) is DataGridRow row) {
+			if (ContainerFromElement(this, (DependencyObject)e.OriginalSource) is DataGridRow row) {
 				((FileSystemItem)row.Item).IsSelected = true;
-				isFileDrag = true;
-				return;
+				isMouseDownOnItem = true;
+			} else {
+				isMouseDownOnItem = false;
+				startDragPosition = e.GetPosition(contentGrid);
+				var x = Math.Min(Math.Max(startDragPosition.X, 0), contentGrid.ActualWidth);
+				var y = Math.Min(Math.Max(startDragPosition.Y, 0), contentGrid.ActualHeight);
+				startSelectionPoint = new Point(x + scrollViewer.HorizontalOffset, y + scrollViewer.VerticalOffset);
 			}
-			startDragPosition = e.GetPosition(contentGrid);
-			var x = Math.Min(Math.Max(startDragPosition.X, 0), contentGrid.ActualWidth);
-			var y = Math.Min(Math.Max(startDragPosition.Y, 0), contentGrid.ActualHeight);
-			startSelectionPoint = new Point(x + scrollViewer.HorizontalOffset, y + scrollViewer.VerticalOffset);
 		}
 		base.OnPreviewMouseDown(e);
 	}
@@ -88,7 +87,7 @@ public partial class FileDataGrid {
 	protected override void OnPreviewMouseMove(MouseEventArgs e) {
 		if (isMouseDown && e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed) {
 			var point = e.GetPosition(contentGrid);
-			if (isFileDrag) {
+			if (isMouseDownOnItem) {
 				if (Math.Abs(point.X - startDragPosition.X) > SystemParameters.MinimumHorizontalDragDistance ||
 					Math.Abs(point.Y - startDragPosition.Y) > SystemParameters.MinimumVerticalDragDistance) {
 					var data = new DataObject(DataFormats.FileDrop, SelectedItems.Cast<FileSystemItem>().Select(item => item.FullPath).ToArray(), true);
@@ -204,7 +203,7 @@ public partial class FileDataGrid {
 	}
 
 	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
-		isFileDrag = false;
+		isMouseDownOnItem = false;
 		if (isRectSelecting && e.ChangedButton is MouseButton.Left or MouseButton.Right) {
 			selectionRect.Visibility = Visibility.Collapsed;
 			Mouse.Capture(null);

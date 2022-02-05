@@ -82,6 +82,9 @@
                             <Setter Property="Visibility" TargetName="PART_GlowRect" Value="Collapsed"/>
                             <Setter Property="Visibility" TargetName="Animation" Value="Visible"/>
                         </Trigger>
+                        <Trigger Property="hc:ProgressBarAttach.AnimationDisabled" Value="True">
+                            <Setter Property="Visibility" TargetName="PART_GlowRect" Value="Collapsed"/>
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>

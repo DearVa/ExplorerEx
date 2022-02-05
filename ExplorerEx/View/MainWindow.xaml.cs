@@ -118,6 +118,8 @@ public sealed partial class MainWindow {
 			}
 			break;
 		case WM_THEMECHANGED:
+		case WM_DWMCOMPOSITIONCHANGED:
+		case WM_DWMCOLORIZATIONCOLORCHANGED:
 			ChangeThemeWithSystem();
 			break;
 		case 13288:  // 启动了另一个实例

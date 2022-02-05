@@ -118,6 +118,9 @@ public class TabPanel : Panel {
 		var containerWidth = tabControl.TabBorder.ActualWidth;
 		if (containerWidth > 0 && itemWidth * count > containerWidth) {
 			itemWidth = containerWidth / count;
+			tabControl.NewTabButton.Margin = new Thickness(containerWidth + 4, 4, 0, 4);
+		} else {
+			tabControl.NewTabButton.Margin = new Thickness(itemWidth * count + 4, 4, 0, 4);
 		}
 
 		for (var index = 0; index < count; index++) {

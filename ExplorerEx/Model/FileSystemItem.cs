@@ -10,7 +10,7 @@ using static ExplorerEx.Win32.IconHelper;
 
 namespace ExplorerEx.Model;
 
-internal class FileSystemItem : FileViewBaseItem {
+public class FileSystemItem : FileViewBaseItem {
 	public FileSystemInfo FileSystemInfo { get; }
 
 	public DateTime LastWriteTime => FileSystemInfo.LastWriteTime;
@@ -88,7 +88,7 @@ internal class FileSystemItem : FileViewBaseItem {
 		Icon = await GetPathIconAsync(FullPath, false, true, false);
 	}
 
-	public override async Task RefreshAsync() {
+	public async Task RefreshAsync() {
 		if (IsFolder) {
 			LoadDirectoryIcon();
 		} else {

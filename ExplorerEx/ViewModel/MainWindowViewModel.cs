@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
 using ExplorerEx.Utils;
@@ -38,12 +39,15 @@ public class MainWindowViewModel : ViewModelBase {
 
 	public SimpleCommand TabClosingCommand { get; }
 
+	public SimpleCommand NewTabCommand { get; }
+
 	private readonly MainWindow mainWindow;
 
 	public MainWindowViewModel(MainWindow mainWindow) {
 		this.mainWindow = mainWindow;
 
 		TabClosingCommand = new SimpleCommand(OnTabClosing);
+		NewTabCommand = new SimpleCommand(OnNewTab);
 
 		TabViewItems.Add(new FileViewTabViewModel(this));
 	}
@@ -108,5 +112,10 @@ public class MainWindowViewModel : ViewModelBase {
 				TabViewSelectedIndex--;
 			}
 		}
+		GC.Collect();
+	}
+
+	private async void OnNewTab(object args) {
+		await OpenPathInNewTabAsync(null);
 	}
 }

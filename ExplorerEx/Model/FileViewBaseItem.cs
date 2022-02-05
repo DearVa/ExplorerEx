@@ -1,12 +1,9 @@
 ﻿using System.ComponentModel;
-using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using ExplorerEx.Annotations;
 using ExplorerEx.ViewModel;
-using ExplorerEx.Win32;
-using static ExplorerEx.Win32.IconHelper;
 
 namespace ExplorerEx.Model; 
 
@@ -48,8 +45,6 @@ public abstract class FileViewBaseItem : INotifyPropertyChanged {
 	}
 
 	public abstract Task LoadIconAsync();
-
-	public abstract Task RefreshAsync();
 
 	public event PropertyChangedEventHandler PropertyChanged;
 

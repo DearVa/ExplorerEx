@@ -369,6 +369,8 @@ internal static class Win32Interop {
 	public const int WM_DRAWCLIPBOARD = 0x308;
 	public const int WM_CHANGECBCHAIN = 0x030D;
 	public const int WM_THEMECHANGED = 0x031A;
+	public const int WM_DWMCOMPOSITIONCHANGED = 0x31E;
+	public const int WM_DWMCOLORIZATIONCOLORCHANGED = 0x320;
 
 	#region 亚克力效果
 	public enum AccentState {

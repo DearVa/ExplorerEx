@@ -13,7 +13,7 @@ namespace ExplorerEx.Model;
 /// <summary>
 /// 硬盘驱动器
 /// </summary>
-internal class DiskDriveItem : FileViewBaseItem {
+public class DiskDriveItem : FileViewBaseItem {
 	public DriveInfo Driver { get; }
 
 	public long FreeSpace { get; }
@@ -41,7 +41,7 @@ internal class DiskDriveItem : FileViewBaseItem {
 		Icon = await IconHelper.GetLargePathIcon(Driver.Name, true, true);
 	}
 
-	public override async Task RefreshAsync() {
+	public async Task RefreshAsync() {
 		await LoadIconAsync();
 		OnPropertyChanged(nameof(Icon));
 	}
