@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows;
 using ExplorerEx.Utils;
 using ExplorerEx.View;
@@ -39,18 +40,32 @@ public class MainWindowViewModel : ViewModelBase {
 
 	private readonly MainWindow mainWindow;
 
-	public MainWindowViewModel(MainWindow mainWindow, string path) {
+	public MainWindowViewModel(MainWindow mainWindow) {
 		this.mainWindow = mainWindow;
 
 		TabClosingCommand = new SimpleCommand(OnTabClosing);
 
-		TabViewItems.Add(new FileViewTabViewModel(this, path));
+		TabViewItems.Add(new FileViewTabViewModel(this));
 	}
 
-	public void OpenPathInNewTab(string path) {
+	public async Task StartUpLoad(string path) {
+		if (!await SelectedTab.LoadDirectoryAsync(path)) {
+			mainWindow.Close();
+		}
+	}
+
+	public async Task OpenPathInNewTabAsync(string path) {
 		var newTabIndex = mainWindow.MainTabControl.SelectedIndex + 1;
-		TabViewItems.Insert(newTabIndex, new FileViewTabViewModel(this, path));
-		mainWindow.MainTabControl.SelectedIndex = newTabIndex;
+		var item = new FileViewTabViewModel(this);
+		TabViewItems.Insert(newTabIndex, item);
+		TabViewSelectedIndex = newTabIndex;
+		if (!await SelectedTab.LoadDirectoryAsync(path)) {
+			if (TabViewItems.Count > 1) {
+				TabViewItems.Remove(item);
+			} else {
+				mainWindow.Close();
+			}
+		}
 	}
 
 	private async void OnTabClosing(object args) {

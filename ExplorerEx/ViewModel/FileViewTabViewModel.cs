@@ -62,6 +62,8 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 
 	public SimpleCommand CopyCommand { get; }
 
+	public SimpleCommand PasteCommand { get; }
+
 	public SimpleCommand RenameCommand { get; }
 
 	public SimpleCommand ShareCommand { get; }
@@ -91,7 +93,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 			}
 			var size = 0L;
 			foreach (var item in SelectedItems) {
-				if (item.IsDirectory) {
+				if (item.IsFolder) {
 					return -1L;
 				}
 				size += item.FileSize;
@@ -110,7 +112,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 
 	private CancellationTokenSource cts;
 	
-	public FileViewTabViewModel(MainWindowViewModel ownerViewModel, string path) {
+	public FileViewTabViewModel(MainWindowViewModel ownerViewModel) {
 		OwnerViewModel = ownerViewModel;
 		GoBackCommand = new SimpleCommand(_ => GoBackAsync());
 		GoForwardCommand = new SimpleCommand(_ => GoForwardAsync());
@@ -119,6 +121,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 
 		CutCommand = new SimpleCommand(_ => Copy(true));
 		CopyCommand = new SimpleCommand(_ => Copy(false));
+		PasteCommand = new SimpleCommand(_ => Paste());
 		//RenameCommand = new SimpleCommand(_ => Copy(false));
 		//ShareCommand = new SimpleCommand(_ => Copy(false));
 		DeleteCommand = new SimpleCommand(_ => Delete(true));
@@ -138,8 +141,6 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		watcher.Error += Watcher_OnError;
 
 		MainWindow.ClipboardChanged += OnClipboardChanged;
-
-		LoadDirectoryAsync(path);
 	}
 
 	private void OnClipboardChanged() {
@@ -168,12 +169,13 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	/// <param name="recordHistory"></param>
 	/// <param name="selectedPath"></param>
 	/// <returns></returns>
-	public async Task LoadDirectoryAsync(string path, bool recordHistory = true, string selectedPath = null) {
+	public async Task<bool> LoadDirectoryAsync(string path, bool recordHistory = true, string selectedPath = null) {
 		var isLoadRoot = string.IsNullOrWhiteSpace(path);  // 加载“此电脑”
+		Type = isLoadRoot ? FileViewDataTemplateSelector.Type.Home : FileViewDataTemplateSelector.Type.Detail;
 
 		if (!isLoadRoot && !Directory.Exists(path)) {
 			hc.MessageBox.Error("Check your input and try again.", "Cannot open path");
-			return;
+			return false;
 		}
 
 		cts?.Cancel();
@@ -203,12 +205,15 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 			}
 			try {
 				watcher.Path = FullPath;
+				watcher.EnableRaisingEvents = true;
 			} catch {
 				hc.MessageBox.Error("Access_denied".L(), "Cannot_access_directory".L());
-				await LoadDirectoryAsync(historyPaths[nextHistoryIndex - 1], false, path);
-				return;
+				if (nextHistoryIndex > 0) {
+					await LoadDirectoryAsync(historyPaths[nextHistoryIndex - 1], false, path);
+				}
+				return false;
 			}
-			watcher.EnableRaisingEvents = true;
+			
 			OnPropertyChanged(nameof(Type));
 			OnPropertyChanged(nameof(FullPath));
 			OnPropertyChanged(nameof(Header));
@@ -232,8 +237,6 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 #endif
 
 		Items.Clear();
-		Type = isLoadRoot ? FileViewDataTemplateSelector.Type.Home : FileViewDataTemplateSelector.Type.Detail;
-
 		if (Type != oldType && FileViewContentPresenter != null) {
 			var selector = FileViewContentPresenter.ContentTemplateSelector;
 			FileViewContentPresenter.ContentTemplateSelector = null;
@@ -257,7 +260,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		sw.Restart();
 #endif
 
-		foreach (var fileViewBaseItem in list.Where(item => !item.IsDirectory)) {
+		foreach (var fileViewBaseItem in list.Where(item => !item.IsFolder)) {
 			await fileViewBaseItem.LoadIconAsync();
 		}
 
@@ -265,6 +268,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		Trace.WriteLine($"Async load Icon costs: {sw.ElapsedMilliseconds}ms");
 		sw.Stop();
 #endif
+		return true;
 	}
 
 	/// <summary>
@@ -401,7 +405,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 			foreach (var item in SelectedItems) {
 				if (item is FileSystemItem fsi) {
 					try {
-						if (fsi.IsDirectory) {
+						if (fsi.IsFolder) {
 							Directory.Delete(fsi.FullPath, true);
 						} else {
 							File.Delete(fsi.FullPath);
@@ -462,7 +466,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 				await LoadDirectoryAsync(ddi.Driver.Name);
 				break;
 			case FileSystemItem fsi:
-				await fsi.Open();
+				await fsi.OpenAsync();
 				break;
 			}
 		}
@@ -590,7 +594,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 				return;
 			}
 			Items.Add(item);
-			if (!item.IsDirectory) {
+			if (!item.IsFolder) {
 				await item.LoadIconAsync();
 			}
 		});

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,40 +16,60 @@ using static ExplorerEx.Win32.Win32Interop;
 namespace ExplorerEx.View;
 
 public sealed partial class MainWindow {
+	public static MainWindow Instance => MainWindows[0];
+	
+	private static readonly List<MainWindow> MainWindows = new();
+
 	public static event Action ClipboardChanged;
 	public static DataObjectContent DataObjectContent { get; private set; }
 
-	private readonly IntPtr hwnd;
+	private readonly HwndSource hwnd;
+	private static bool isClipboardViewerSet;
 	private IntPtr nextClipboardViewer;
 
 	private readonly MainWindowViewModel viewModel;
+	private readonly string startupPath;
 
 	public MainWindow() : this(null) { }
 
 	public MainWindow(string path) {
+		startupPath = path;
+		MainWindows.Add(this);
 		Width = ConfigHelper.LoadInt("WindowWidth", 1200);
 		Height = ConfigHelper.LoadInt("WindowHeight", 800);
-		Left = ConfigHelper.LoadInt("WindowLeft");
-		Top = ConfigHelper.LoadInt("WindowTop");
-		if (ConfigHelper.LoadBoolean("WindowMaximized")) {
-			WindowState = WindowState.Maximized;
+		var left = ConfigHelper.LoadInt("WindowLeft");
+		var top = ConfigHelper.LoadInt("WindowTop");
+		if (MainWindows.Count > 1) {
+			left += Random.Shared.Next(-100, 100);
+			top += Random.Shared.Next(-100, 100);
 		}
+		Left = Math.Min(Math.Max(100 - Width, left), SystemParameters.PrimaryScreenWidth - 100);
+		Top = Math.Min(Math.Max(0, top), SystemParameters.PrimaryScreenHeight - 100);
 
-		DataContext = viewModel = new MainWindowViewModel(this, path);
+		DataContext = viewModel = new MainWindowViewModel(this);
 		InitializeComponent();
 
-		hwnd = new WindowInteropHelper(this).EnsureHandle();
-		if (nextClipboardViewer == IntPtr.Zero) {  // 捕捉剪切板事件，只需要绑定一个即可
-			nextClipboardViewer = (IntPtr)SetClipboardViewer((int)hwnd);
-			if (nextClipboardViewer != IntPtr.Zero) {
-				HwndSource.FromHwnd(hwnd)!.AddHook(WndProc);
-				OnClipboardChanged();
-			}
+		if (ConfigHelper.LoadBoolean("WindowMaximized")) {
+			WindowState = WindowState.Maximized;
+			RootGrid.Margin = new Thickness(8);
 		}
+
+		hwnd = HwndSource.FromHwnd(new WindowInteropHelper(this).EnsureHandle())!;
+		if (!isClipboardViewerSet) {
+			nextClipboardViewer = SetClipboardViewer(hwnd.Handle);
+			var error = Marshal.GetLastWin32Error();
+			if (error != 0) {
+				Logger.Error($"监控剪贴板失败，错误代码为：{error}");
+			}
+			isClipboardViewerSet = true;
+			OnClipboardChanged();
+		}
+		hwnd.AddHook(WndProc);
 	}
 
-	protected override void OnContentRendered(EventArgs e) {
+	protected override async void OnContentRendered(EventArgs e) {
 		base.OnContentRendered(e);
+		await viewModel.StartUpLoad(startupPath);
 		ChangeThemeWithSystem();
 	}
 
@@ -68,7 +90,7 @@ public sealed partial class MainWindow {
 			Data = pAccent
 		};
 
-		SetWindowCompositionAttribute(hwnd, ref data);
+		SetWindowCompositionAttribute(hwnd.Handle, ref data);
 
 		Marshal.FreeHGlobal(pAccent);
 	}
@@ -76,9 +98,9 @@ public sealed partial class MainWindow {
 	private void EnableMica(bool isDarkTheme) {
 		if (Environment.OSVersion.Version >= Version.Parse("10.0.22000.0")) {
 			var isDark = isDarkTheme ? 1 : 0;
-			DwmSetWindowAttribute(hwnd, DwmWindowAttribute.DWMWA_USE_IMMERSIVE_DARK_MODE, ref isDark, sizeof(uint));
+			DwmSetWindowAttribute(hwnd.Handle, DwmWindowAttribute.DWMWA_USE_IMMERSIVE_DARK_MODE, ref isDark, sizeof(uint));
 			var trueValue = 1;
-			DwmSetWindowAttribute(hwnd, DwmWindowAttribute.DWMWA_MICA_EFFECT, ref trueValue, sizeof(uint));
+			DwmSetWindowAttribute(hwnd.Handle, DwmWindowAttribute.DWMWA_MICA_EFFECT, ref trueValue, sizeof(uint));
 		}
 	}
 
@@ -98,6 +120,18 @@ public sealed partial class MainWindow {
 		case WM_THEMECHANGED:
 			ChangeThemeWithSystem();
 			break;
+		case 13288:  // 启动了另一个实例
+			var pid = (int)wParam;
+			try {
+				var other = Process.GetProcessById(pid);
+				var args = other.GetCommandLine().Split(' ');
+				var path = args.Length > 1 ? args[1] : null;
+				new MainWindow(path).Show();
+			} catch (Exception e) {
+				Logger.Exception(e, false);
+			}
+			handled = true;
+			break;
 		}
 
 		return IntPtr.Zero;
@@ -113,9 +147,10 @@ public sealed partial class MainWindow {
 	}
 
 	protected override void OnClosed(EventArgs e) {
+		MainWindows.Remove(this);
 		base.OnClosed(e);
 		if (nextClipboardViewer != IntPtr.Zero) {
-			ChangeClipboardChain(hwnd, nextClipboardViewer);
+			ChangeClipboardChain(hwnd.Handle, nextClipboardViewer);
 		}
 	}
 
@@ -157,7 +192,7 @@ public sealed partial class MainWindow {
 		dictionaries.Add(new ResourceDictionary {
 			Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Theme.xaml", UriKind.Absolute)
 		});
-
+		
 		EnableMica(isDarkTheme);
 	}
 
@@ -223,7 +258,13 @@ public sealed partial class MainWindow {
 
 	protected override void OnStateChanged(EventArgs e) {
 		base.OnStateChanged(e);
-		ConfigHelper.Save("WindowMaximized", WindowState == WindowState.Maximized);
+		var isMaximized = WindowState == WindowState.Maximized;
+		ConfigHelper.Save("WindowMaximized", isMaximized);
+		if (isMaximized) {
+			RootGrid.Margin = new Thickness(8);
+		} else {
+			RootGrid.Margin = new Thickness();
+		}
 	}
 
 	protected override void OnLocationChanged(EventArgs e) {

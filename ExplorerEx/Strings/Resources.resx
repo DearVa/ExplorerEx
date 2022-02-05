@@ -239,4 +239,19 @@
   <data name="Access_denied" xml:space="preserve">
     <value>拒绝访问</value>
   </data>
+  <data name="Name" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="Modification_date" xml:space="preserve">
+    <value>修改日期</value>
+  </data>
+  <data name="File_size" xml:space="preserve">
+    <value>文件大小</value>
+  </data>
+  <data name="File_type" xml:space="preserve">
+    <value>文件类型</value>
+  </data>
+  <data name="Empty_folder" xml:space="preserve">
+    <value>空文件夹</value>
+  </data>
 </root>

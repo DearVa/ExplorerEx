@@ -15,6 +15,8 @@ internal class FileSystemItem : FileViewBaseItem {
 
 	public DateTime LastWriteTime => FileSystemInfo.LastWriteTime;
 
+	public string FileTypeString => IsFolder ? (isEmptyFolder ? "Empty_folder".L() : "Folder".L()) : GetFileTypeDescription(Path.GetExtension(FileSystemInfo.Name));
+
 	public string FileSizeString => FileUtils.FormatByteSize(FileSize);
 
 	public string FullPath => FileSystemInfo.FullName;
@@ -27,30 +29,34 @@ internal class FileSystemItem : FileViewBaseItem {
 
 	public SimpleCommand ShowPropertiesCommand { get; }
 
+	private bool isEmptyFolder;
+
 	public FileSystemItem(FileViewTabViewModel ownerViewModel, FileSystemInfo fileSystemInfo) : base(ownerViewModel) {
 		FileSystemInfo = fileSystemInfo;
 		Name = FileSystemInfo.Name;
 		if (fileSystemInfo is FileInfo fi) {
 			FileSize = fi.Length;
-			IsDirectory = false;
+			IsFolder = false;
 			Icon = UnknownTypeFileDrawingImage;
 		} else {
 			FileSize = -1;
-			IsDirectory = true;
+			IsFolder = true;
 			LoadDirectoryIcon();
 		}
-		OpenCommand = new SimpleCommand(_ => Open());
-		OpenInNewTabCommand = new SimpleCommand(_ => {
-			if (IsDirectory) {
-				OwnerViewModel.OwnerViewModel.OpenPathInNewTab(FullPath);
+		// ReSharper disable once AsyncVoidLambda
+		OpenCommand = new SimpleCommand(async _ => await OpenAsync());
+		// ReSharper disable once AsyncVoidLambda
+		OpenInNewTabCommand = new SimpleCommand(async _ => {
+			if (IsFolder) {
+				await OwnerViewModel.OwnerViewModel.OpenPathInNewTabAsync(FullPath);
 			}
 		});
 		OpenInNewWindowCommand = new SimpleCommand(_ => new MainWindow(FullPath).Show());
 		ShowPropertiesCommand = new SimpleCommand(_ => Win32Interop.ShowFileProperties(FullPath));
 	}
 
-	public async Task Open() {
-		if (IsDirectory) {
+	public async Task OpenAsync() {
+		if (IsFolder) {
 			await OwnerViewModel.LoadDirectoryAsync(FullPath);
 		} else {
 			try {
@@ -66,7 +72,8 @@ internal class FileSystemItem : FileViewBaseItem {
 
 	private void LoadDirectoryIcon() {
 		try {
-			if (Win32Interop.PathIsDirectoryEmpty(FileSystemInfo.FullName)) {
+			isEmptyFolder = Win32Interop.PathIsDirectoryEmpty(FileSystemInfo.FullName);
+			if (isEmptyFolder) {
 				Icon = EmptyFolderDrawingImage;
 			} else {
 				Icon = FolderDrawingImage;
@@ -76,13 +83,18 @@ internal class FileSystemItem : FileViewBaseItem {
 		}
 	}
 
-	public override async Task RefreshAsync() {
-		LoadDirectoryIcon();
-		await base.RefreshAsync();
+	public override async Task LoadIconAsync() {
+		Debug.Assert(!IsFolder);
+		Icon = await GetPathIconAsync(FullPath, false, true, false);
 	}
 
-	public override async Task LoadIconAsync() {
-		Debug.Assert(!IsDirectory);
-		Icon = await GetPathIconAsync(FullPath, false, true, false);
+	public override async Task RefreshAsync() {
+		if (IsFolder) {
+			LoadDirectoryIcon();
+		} else {
+			await LoadIconAsync();
+			OnPropertyChanged(nameof(FileSize));
+		}
+		OnPropertyChanged(nameof(Icon));
 	}
 }

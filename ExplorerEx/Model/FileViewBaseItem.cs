@@ -1,9 +1,12 @@
 ﻿using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using ExplorerEx.Annotations;
 using ExplorerEx.ViewModel;
+using ExplorerEx.Win32;
+using static ExplorerEx.Win32.IconHelper;
 
 namespace ExplorerEx.Model; 
 
@@ -26,7 +29,7 @@ public abstract class FileViewBaseItem : INotifyPropertyChanged {
 
 	public long FileSize { get; protected init; }
 
-	public bool IsDirectory { get; protected init; }
+	public bool IsFolder { get; protected init; }
 
 	public bool IsSelected {
 		get => isSelected;
@@ -46,13 +49,7 @@ public abstract class FileViewBaseItem : INotifyPropertyChanged {
 
 	public abstract Task LoadIconAsync();
 
-	public virtual async Task RefreshAsync() {
-		if (!IsDirectory) {
-			await LoadIconAsync();
-		}
-		OnPropertyChanged(nameof(Icon));
-		OnPropertyChanged(nameof(FileSize));
-	}
+	public abstract Task RefreshAsync();
 
 	public event PropertyChangedEventHandler PropertyChanged;
 

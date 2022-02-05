@@ -64,10 +64,14 @@ public partial class FileDataGrid {
 	protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
 		if (e.ChangedButton is MouseButton.Left or MouseButton.Right) {
 			if (IsChildOf(typeof(ScrollBar), (UIElement)e.OriginalSource)) {
+				isFileDrag = false;
 				return;
 			}
 			isMouseDown = true;
-			if (!isFileDrag && ContainerFromElement(this, (DependencyObject)e.OriginalSource) is DataGridRow) {
+			if (isFileDrag) {
+				isFileDrag = false;
+			} else if (ContainerFromElement(this, (DependencyObject)e.OriginalSource) is DataGridRow row) {
+				((FileSystemItem)row.Item).IsSelected = true;
 				isFileDrag = true;
 				return;
 			}
@@ -200,6 +204,7 @@ public partial class FileDataGrid {
 	}
 
 	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
+		isFileDrag = false;
 		if (isRectSelecting && e.ChangedButton is MouseButton.Left or MouseButton.Right) {
 			selectionRect.Visibility = Visibility.Collapsed;
 			Mouse.Capture(null);

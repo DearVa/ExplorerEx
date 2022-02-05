@@ -187,6 +187,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 空文件夹 的本地化字符串。
+        /// </summary>
+        internal static string Empty_folder {
+            get {
+                return ResourceManager.GetString("Empty_folder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 退出应用程序 的本地化字符串。
         /// </summary>
         internal static string Exit_application {
@@ -201,6 +210,24 @@ namespace ExplorerEx.Strings {
         internal static string Fail_to_open_file {
             get {
                 return ResourceManager.GetString("Fail to open file", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 文件大小 的本地化字符串。
+        /// </summary>
+        internal static string File_size {
+            get {
+                return ResourceManager.GetString("File_size", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 文件类型 的本地化字符串。
+        /// </summary>
+        internal static string File_type {
+            get {
+                return ResourceManager.GetString("File_type", resourceCulture);
             }
         }
         
@@ -250,11 +277,29 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 修改日期 的本地化字符串。
+        /// </summary>
+        internal static string Modification_date {
+            get {
+                return ResourceManager.GetString("Modification_date", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 更多 的本地化字符串。
         /// </summary>
         internal static string More {
             get {
                 return ResourceManager.GetString("More", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 名称 的本地化字符串。
+        /// </summary>
+        internal static string Name {
+            get {
+                return ResourceManager.GetString("Name", resourceCulture);
             }
         }
         

@@ -152,4 +152,19 @@
   <data name="Access_denied" xml:space="preserve">
     <value>Access denied</value>
   </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Modification_date" xml:space="preserve">
+    <value>Modification date</value>
+  </data>
+  <data name="File_size" xml:space="preserve">
+    <value>File size</value>
+  </data>
+  <data name="File_type" xml:space="preserve">
+    <value>File type</value>
+  </data>
+  <data name="Empty_folder" xml:space="preserve">
+    <value>Empty folder</value>
+  </data>
 </root>

@@ -6,7 +6,7 @@ using HandyControl.Data;
 using HandyControl.Data.Enum;
 using HandyControl.Tools;
 
-namespace HandyControl.Controls; 
+namespace HandyControl.Controls;
 
 public class SplitButton : ButtonBase {
 	public static readonly DependencyProperty HitModeProperty = DependencyProperty.Register(
@@ -42,7 +42,6 @@ public class SplitButton : ButtonBase {
 	}
 
 	private ToggleButton arrowButton;
-	private Popup popup;
 
 	public override void OnApplyTemplate() {
 		base.OnApplyTemplate();
@@ -50,34 +49,26 @@ public class SplitButton : ButtonBase {
 		if (HitMode == HitMode.None) {  // 这种模式就是点击整个按钮就会打开菜单，按钮本身没有作用
 			arrowButton.IsHitTestVisible = false;  // 就不响应点击事件
 		}
-		popup = (Popup)GetTemplateChild("Popup");
 	}
-
-	private bool lastClickIsOpen;
 
 	protected override void OnClick() {
 		if (HitMode == HitMode.None) {
-			if (lastClickIsOpen) {
-				lastClickIsOpen = false;
-				return;
-			}
-			IsDropDownOpen = !IsDropDownOpen;
-			return;
+			IsDropDownOpen = true;
 		}
 		base.OnClick();
 	}
 
-	protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e) {
-		if (e.OriginalSource.IsChildOf(typeof(MenuItem))) {
-			SetCurrentValue(IsDropDownOpenProperty, ValueBoxes.FalseBox);
-			lastClickIsOpen = false;
-			return;
-		}
-
+	protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
 		if (IsDropDownOpen) {
-			lastClickIsOpen = true;
+			if (e.OriginalSource.IsChildOf(typeof(MenuItem))) {
+				IsDropDownOpen = false;
+			}
+			e.Handled = true;
 		}
+		base.OnPreviewMouseLeftButtonDown(e);
+	}
 
+	protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e) {
 		base.OnPreviewMouseLeftButtonUp(e);
 
 		switch (HitMode) {

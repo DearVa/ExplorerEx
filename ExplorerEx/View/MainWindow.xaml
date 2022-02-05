@@ -13,13 +13,14 @@
     xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
     mc:Ignorable="d" Title="ExplorerEx"
     d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
-    Background="Transparent" WindowStartupLocation="Manual" BorderThickness="0">
+    Background="Transparent" WindowStartupLocation="Manual" 
+    Foreground="{DynamicResource PrimaryTextBrush}" BorderThickness="0">
 
     <WindowChrome.WindowChrome>
         <WindowChrome GlassFrameThickness="-1"/>
     </WindowChrome.WindowChrome>
 
-    <Grid>
+    <Grid x:Name="RootGrid">
         <Grid.Resources>
             <ControlTemplate x:Key="FileOperationsTemplate">
                 <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance m:FileSystemItem}">
@@ -132,7 +133,7 @@
                     <v:FileDataGrid d:DataContext="{d:DesignInstance vm:FileViewTabViewModel}"
                                     ItemsSource="{Binding Items}"
                                     ItemClicked="FileDataGrid_OnItemClicked" BackgroundClicked="FileDataGrid_OnBackgroundClicked"
-                                    Background="{DynamicResource RegionBrush}">
+                                    Background="{DynamicResource RegionBrush}" Foreground="{DynamicResource PrimaryTextBrush}">
                         <hc:Interaction.Triggers>
                             <hc:RoutedEventTrigger RoutedEvent="ListBox.SelectionChanged">
                                 <hc:EventToCommand Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True"/>
@@ -149,7 +150,7 @@
                             </Style>
                         </v:FileDataGrid.RowStyle>
                         <v:FileDataGrid.Columns>
-                            <DataGridTemplateColumn Header="名称" Width="350">
+                            <DataGridTemplateColumn Header="{u:Lang Name}" Width="350">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Grid Height="30" VerticalAlignment="Center" 
@@ -167,7 +168,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="修改日期" Width="200">
+                            <DataGridTemplateColumn Header="{u:Lang Modification_date}" Width="200">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock d:DataContext="{d:DesignInstance m:FileSystemItem}"
@@ -177,7 +178,17 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="文件大小" Width="100">
+                            <DataGridTemplateColumn Header="{u:Lang File_type}" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock d:DataContext="{d:DesignInstance m:FileSystemItem}"
+                                                   Text="{Binding FileTypeString}" 
+                                                   VerticalAlignment="Center"
+                                                   IsHitTestVisible="False"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="{u:Lang File_size}" Width="100">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock d:DataContext="{d:DesignInstance m:FileSystemItem}"
@@ -199,9 +210,9 @@
 
         <Border MouseDown="DragArea_OnMouseDown" Background="#22FFFFFF"/>
 
-        <hc:TabControl x:Name="MainTabControl" ItemsSource="{Binding TabViewItems}"
-                       IsDraggable="True" ShowCloseButton="True" IsAnimationEnabled="True" TabItemHeight="35"
-                       SelectedIndex="{Binding TabViewSelectedIndex}" ShowOverflowButton="False"
+        <hc:TabControl x:Name="MainTabControl" ItemsSource="{Binding TabViewItems}" 
+                       TabItemHeight="35" TabIndex="{Binding TabViewSelectedIndex, Mode=TwoWay}" 
+                       SelectedIndex="{Binding TabViewSelectedIndex, Mode=TwoWay}"
                        Background="{DynamicResource BackgroundBrush}" BorderBrush="{x:Null}" Margin="0,10,0,0">
             <hc:Interaction.Triggers>
                 <hc:RoutedEventTrigger RoutedEvent="hc:TabItem.Closing">
@@ -233,7 +244,7 @@
                                         <TextBlock Text="{u:Lang New}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                     </StackPanel>
                                     <hc:SplitButton.DropDownContent>
-                                        <Menu Margin="4,0,4,0" Width="Auto" BorderBrush="{x:Null}" 
+                                        <Menu Margin="4,0,4,0" Width="Auto" BorderBrush="{x:Null}"
                                               ItemsSource="{Binding CreateFileItems}">
                                             <Menu.ItemsPanel>
                                                 <ItemsPanelTemplate>
@@ -254,27 +265,33 @@
                                 <GridSplitter Width="1" Height="30" Background="{DynamicResource SecondaryBorderBrush}" Margin="10,0,10,0"/>
 
                                 <Button VerticalAlignment="Stretch" Height="35" ToolTip="{u:Lang Cut}"
-                                            IsEnabled="{Binding IsItemSelected, Mode=OneWay}">
+                                        IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
+                                        Command="{Binding CutCommand}">
                                     <Image Width="20" Height="20" Source="{StaticResource CutDrawingImage}"/>
                                 </Button>
                                 <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Copy}"
-                                            IsEnabled="{Binding IsItemSelected, Mode=OneWay}">
+                                        IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
+                                        Command="{Binding CopyCommand}">
                                     <Image Width="20" Height="20" Source="{StaticResource CopyDrawingImage}"/>
                                 </Button>
                                 <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Paste}"
-                                        IsEnabled="{Binding CanPaste, Mode=OneWay}">
+                                        IsEnabled="{Binding CanPaste, Mode=OneWay}"
+                                        Command="{Binding PasteCommand}">
                                     <Image Width="20" Height="20" Source="{StaticResource PasteDrawingImage}"/>
                                 </Button>
                                 <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Rename}"
-                                    IsEnabled="{Binding IsItemSelected, Mode=OneWay}">
+                                        IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
+                                        Command="{Binding RenameCommand}">
                                     <Image Width="20" Height="20" Source="{StaticResource RenameDrawingImage}"/>
                                 </Button>
                                 <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Share}"
-                                            IsEnabled="{Binding IsItemSelected, Mode=OneWay}">
+                                        IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
+                                        Command="{Binding ShareCommand}">
                                     <Image Width="20" Height="20" Source="{StaticResource ShareDrawingImage}"/>
                                 </Button>
                                 <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Delete}"
-                                            IsEnabled="{Binding IsItemSelected, Mode=OneWay}">
+                                        IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
+                                        Command="{Binding DeleteCommand}">
                                     <Image Width="20" Height="20" Source="{StaticResource DeleteDrawingImage}"/>
                                 </Button>
                                 <GridSplitter Width="1" Height="30" Background="{DynamicResource SecondaryBorderBrush}" Margin="10,0,10,0"/>
@@ -346,19 +363,19 @@
 
                                 <Border Grid.Row="1" Padding="20,0,0,0">
                                     <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance vm:FileViewTabViewModel}">
-                                        <TextBlock>
+                                        <TextBlock Foreground="{DynamicResource PrimaryTextBrush}">
                                             <Run Text="{Binding FileItemsCount, Mode=OneWay}"/>
                                             <Run Text="{u:Lang Run_ItemsCount}"/>
                                         </TextBlock>
                                         <GridSplitter Width="1" Height="25" Background="{DynamicResource SecondaryBorderBrush}" Margin="10,-5,10,0"/>
 
-                                        <TextBlock Visibility="{Binding SelectedFileItemsCountVisibility, Mode=OneWay}">
+                                        <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" Visibility="{Binding SelectedFileItemsCountVisibility, Mode=OneWay}">
                                             <Run Text="{u:Lang Run_SelectedItemsCount}"/>
                                             <Run Text="{Binding SelectedFileItemsCount, Mode=OneWay}"/>
                                             <Run Text="{u:Lang Run_ItemsCount}"/>
                                         </TextBlock>
 
-                                        <TextBlock Margin="10,0,0,0" 
+                                        <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" Margin="10,0,0,0" 
                                                    Visibility="{Binding SelectedFileItemsSizeVisibility, Mode=OneWay}"
                                                    Text="{Binding SelectedFileItemsSizeString, Mode=OneWay}"/>
                                     </StackPanel>

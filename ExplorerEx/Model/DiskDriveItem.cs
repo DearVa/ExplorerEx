@@ -41,6 +41,11 @@ internal class DiskDriveItem : FileViewBaseItem {
 		Icon = await IconHelper.GetLargePathIcon(Driver.Name, true, true);
 	}
 
+	public override async Task RefreshAsync() {
+		await LoadIconAsync();
+		OnPropertyChanged(nameof(Icon));
+	}
+
 	private class Gradient {
 		private readonly int segmentLength;
 		private readonly HSVColor[] colors;

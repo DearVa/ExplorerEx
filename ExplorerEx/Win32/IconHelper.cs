@@ -28,7 +28,9 @@ internal static class IconHelper {
 	/// <summary>
 	/// 如dll等文件，其图标都一样，就存拓展名下来，直接取，不用每次都生成
 	/// </summary>
-	private static readonly Dictionary<string, ImageSource> LoadedIcons = new();
+	private static readonly Dictionary<string, ImageSource> CachedIcons = new();
+
+	private static readonly Dictionary<string, string> CachedDescriptions = new();
 
 	public static void InitializeDefaultIcons(ResourceDictionary resources) {
 		FolderDrawingImage = (DrawingImage)resources["FolderDrawingImage"];
@@ -48,7 +50,7 @@ internal static class IconHelper {
 			return Task.FromResult((ImageSource)UnknownTypeFileDrawingImage);
 		}
 		var useCache = extension is not ".exe" or ".lnk";
-		if (useCache && LoadedIcons.TryGetValue(extension, out var icon)) {
+		if (useCache && CachedIcons.TryGetValue(extension, out var icon)) {
 			return Task.FromResult(icon);
 		}
 
@@ -77,22 +79,26 @@ internal static class IconHelper {
 			var icon = (ImageSource)Icon2BitmapSource(shFileInfo.hIcon);
 			DestroyIcon(shFileInfo.hIcon);
 			if (useCache) {
-				LoadedIcons.Add(extension, icon);
+				CachedIcons.Add(extension, icon);
 			}
 
 			return icon;
 		});
 	}
 
-	public static string GetFileTypeDescription(string fileNameOrExtension) {
-		var shFileInfo = new SHFILEINFO();
-
-		var res = SHGetFileInfo(fileNameOrExtension, FILE_ATTRIBUTE_NORMAL, ref shFileInfo, Marshal.SizeOf(shFileInfo), SHGFI_USEFILEATTRIBUTES | SHGFI_TYPENAME);
-		if (res == 0) {
-			Trace.WriteLine($"无法获取 {fileNameOrExtension} 的描述，Res: {res}");
-			return null;
+	public static string GetFileTypeDescription(string extension) {
+		if (CachedDescriptions.TryGetValue(extension, out var desc)) {
+			return desc;
 		}
 
+		var shFileInfo = new SHFILEINFO();
+		var res = SHGetFileInfo(extension, FILE_ATTRIBUTE_NORMAL, ref shFileInfo, Marshal.SizeOf(shFileInfo), SHGFI_USEFILEATTRIBUTES | SHGFI_TYPENAME);
+		if (res == 0) {
+			Trace.WriteLine($"无法获取 {extension} 的描述，Res: {res}");
+			return null;
+		}
+		
+		CachedDescriptions.Add(extension, shFileInfo.szTypeName);
 		return shFileInfo.szTypeName;
 	}
 
@@ -103,7 +109,7 @@ internal static class IconHelper {
 				return Task.FromResult((ImageSource)UnknownTypeFileDrawingImage);
 			}
 			var useCache = !NoIconCacheExtensions.Contains(extension);
-			if (useCache && LoadedIcons.TryGetValue(extension, out var icon)) {
+			if (useCache && CachedIcons.TryGetValue(extension, out var icon)) {
 				return Task.FromResult(icon);
 			}
 		}
