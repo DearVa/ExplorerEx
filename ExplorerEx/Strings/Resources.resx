@@ -254,4 +254,12 @@
   <data name="Empty_folder" xml:space="preserve">
     <value>空文件夹</value>
   </data>
+  <data name="Are_you_sure_to_change_extension" xml:space="preserve">
+    <value>如果改变文件拓展名，则可能导致文件不可用。
+
+确定要更改吗？</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>搜索</value>
+  </data>
 </root>

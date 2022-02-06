@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -34,16 +33,15 @@ internal class FileUtils {
 	};
 
 	/// <summary>
-	/// 判断是否是非法的文件名，传入的是文件的完整路径，所以不需要GetFileName
+	/// 判断是否是非法的文件名，传入的是文件名
 	/// </summary>
-	/// <param name="filePath"></param>
+	/// <param name="fileName"></param>
 	/// <returns></returns>
-	public bool IsProhibitedFileName(string filePath) {
-		if (filePath == null) {
-			throw new ArgumentNullException(nameof(filePath));
+	public static bool IsProhibitedFileName(string fileName) {
+		if (fileName == null) {
+			return true;
 		}
-		var fileName = Path.GetFileName(filePath).ToLower();
-		if (ProhibitedFileNames.Contains(fileName)) {
+		if (ProhibitedFileNames.Contains(fileName.ToLower())) {
 			return true;
 		}
 		return fileName.Any(c => c is '\\' or '/' or ':' or '*' or '?' or '"' or '<' or '>' or '|');
@@ -109,6 +107,40 @@ internal class FileUtils {
 		};
 		if (type != FileOpType.Delete) {
 			fo.pTo = ParseFileList(destinationFiles);
+		}
+		var result = SHFileOperation(fo);
+		if (result != 0) {
+			throw new IOException(GetErrorString(result));
+		}
+	}
+
+	/// <summary>
+	/// Shell文件操作
+	/// </summary>
+	/// <param name="type"></param>
+	/// <param name="sourceFile"></param>
+	/// <param name="destinationFile"></param>
+	/// <exception cref="ArgumentNullException"></exception>
+	/// <exception cref="ArgumentException"></exception>
+	/// <exception cref="IOException"></exception>
+	public static void FileOperation(FileOpType type, string sourceFile, string destinationFile = null) {
+		if (sourceFile == null) {
+			throw new ArgumentNullException(nameof(sourceFile));
+		}
+		if (type != FileOpType.Delete && destinationFile == null) {
+			throw new ArgumentNullException(nameof(destinationFile), "必须指定目标文件名");
+		}
+		var fFlags = FILEOP_FLAGS.FOF_NOCONFIRMMKDIR | FILEOP_FLAGS.FOF_ALLOWUNDO;
+		if (type == FileOpType.Delete) {
+			fFlags |= FILEOP_FLAGS.FOF_NOCONFIRMATION;
+		}
+		var fo = new SHFILEOPSTRUCT {
+			fileOpType = type,
+			pFrom = sourceFile + '\0',
+			fFlags = fFlags
+		};
+		if (type != FileOpType.Delete) {
+			fo.pTo = destinationFile + '\0';
 		}
 		var result = SHFileOperation(fo);
 		if (result != 0) {

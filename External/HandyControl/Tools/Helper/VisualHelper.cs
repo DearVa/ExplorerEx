@@ -23,7 +23,7 @@ namespace HandyControl.Tools {
 				? VisualTreeHelper.GetChild(d, 0) as FrameworkElement
 				: null;
 
-		public static T GetChild<T>(DependencyObject d) where T : DependencyObject {
+		public static T GetChild<T>(this DependencyObject d) where T : DependencyObject {
 			if (d == null) return default;
 			if (d is T t) return t;
 
@@ -37,7 +37,7 @@ namespace HandyControl.Tools {
 			return default;
 		}
 
-		public static T GetParent<T>(DependencyObject d) where T : DependencyObject =>
+		public static T GetParent<T>(this DependencyObject d) where T : DependencyObject =>
 			d switch {
 				null => default,
 				T t => t,
@@ -67,36 +67,43 @@ namespace HandyControl.Tools {
 			return true;
 		}
 
-		public static bool IsChildOf(this object child, UIElement parent) {
-			if (child is UIElement ui) {
-				return IsChildOf(ui, parent);
+		public static bool IsChildOf(this object child, UIElement parent, UIElement stopAt = null) {
+			if (child is DependencyObject ui) {
+				return IsChildOf(ui, parent, stopAt);
 			}
 			return false;
 		}
 
-		public static bool IsChildOf(this UIElement child, UIElement parent) {
-			while (child != null) {
+		public static bool IsChildOf(this DependencyObject child, UIElement parent, UIElement stopAt = null) {
+			while (child is not null and not Window) {
+				if (child == stopAt) {
+					return false;
+				}
 				if (child == parent) {
 					return true;
 				}
-				child = child.GetVisualOrLogicalParent() as UIElement;
+				child = VisualTreeHelper.GetParent(child);
 			}
 			return false;
 		}
 
-		public static bool IsChildOf(this object child, Type parentType) {
-			if (child is UIElement ui) {
-				return IsChildOf(ui, parentType);
+		public static bool IsChildOf(this object child, Type parentType, Type stopAtType = null) {
+			if (child is DependencyObject ui) {
+				return IsChildOf(ui, parentType, stopAtType);
 			}
 			return false;
 		}
 
-		public static bool IsChildOf(this UIElement child, Type parentType) {
-			while (child != null) {
-				if (child.GetType() == parentType) {
+		public static bool IsChildOf(this DependencyObject child, Type parentType, Type stopAtType = null) {
+			while (child is not null and not Window) {
+				var type = child.GetType();
+				if (type == stopAtType) {
+					return false;
+				}
+				if (type == parentType) {
 					return true;
 				}
-				child = child.GetVisualOrLogicalParent() as UIElement;
+				child = VisualTreeHelper.GetParent(child);
 			}
 			return false;
 		}

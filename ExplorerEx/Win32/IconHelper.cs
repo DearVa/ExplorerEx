@@ -79,7 +79,9 @@ internal static class IconHelper {
 			var icon = (ImageSource)Icon2BitmapSource(shFileInfo.hIcon);
 			DestroyIcon(shFileInfo.hIcon);
 			if (useCache) {
-				CachedIcons.Add(extension, icon);
+				lock (CachedIcons) {
+					CachedIcons.Add(extension, icon);
+				}
 			}
 
 			return icon;

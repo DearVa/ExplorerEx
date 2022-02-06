@@ -41,6 +41,10 @@ public class DiskDriveItem : FileViewBaseItem {
 		Icon = await IconHelper.GetLargePathIcon(Driver.Name, true, true);
 	}
 
+	protected override bool Rename() {
+		throw new NotImplementedException();
+	}
+
 	public async Task RefreshAsync() {
 		await LoadIconAsync();
 		OnPropertyChanged(nameof(Icon));

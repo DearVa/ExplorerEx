@@ -11,6 +11,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
+    xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
     mc:Ignorable="d" Title="ExplorerEx"
     d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
     Background="Transparent" WindowStartupLocation="Manual" 
@@ -22,62 +23,6 @@
 
     <Grid x:Name="RootGrid">
         <Grid.Resources>
-            <ControlTemplate x:Key="FileOperationsTemplate">
-                <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance m:FileSystemItem}">
-                    <Button Height="35" ToolTip="{u:Lang Cut}" 
-                            Command="{Binding DataContext.CutCommand, RelativeSource={RelativeSource AncestorType=v:FileDataGrid}}">
-                        <Image Width="20" Height="20" Source="{StaticResource CutDrawingImage}"/>
-                    </Button>
-                    <Button Height="35" Margin="6,0,0,0" ToolTip="{u:Lang Copy}"
-                            Command="{Binding DataContext.CopyCommand, RelativeSource={RelativeSource AncestorType=v:FileDataGrid}}">
-                        <Image Width="20" Height="20" Source="{StaticResource CopyDrawingImage}"/>
-                    </Button>
-                    <Button Height="35" Margin="6,0,0,0" ToolTip="{u:Lang Rename}"
-                            Command="{Binding DataContext.RenameCommand, RelativeSource={RelativeSource AncestorType=v:FileDataGrid}}">
-                        <Image Width="20" Height="20" Source="{StaticResource RenameDrawingImage}"/>
-                    </Button>
-                    <Button Height="35" Margin="6,0,6,0" ToolTip="{u:Lang Share}"
-                            Command="{Binding DataContext.ShareCommand, RelativeSource={RelativeSource AncestorType=v:FileDataGrid}}">
-                        <Image Width="20" Height="20" Source="{StaticResource ShareDrawingImage}"/>
-                    </Button>
-                    <Button Height="35" ToolTip="{u:Lang Delete}"
-                            Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=v:FileDataGrid}}">
-                        <Image Width="20" Height="20" Source="{StaticResource DeleteDrawingImage}"/>
-                    </Button>
-                </StackPanel>
-            </ControlTemplate>
-
-            <v:HoverContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance m:FileSystemItem}">
-                <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
-                          Command="{Binding OpenCommand}"
-                          Icon="{Binding Icon}" Header="{u:Lang Open}" FontSize="15"/>
-                <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
-                          Command="{Binding OpenInNewTabCommand}"
-                          Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Tab}" FontSize="15"/>
-                <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
-                          Command="{Binding OpenInNewWindowCommand}"
-                          Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Window}" FontSize="15"/>
-                <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
-                          Command="{Binding ShowPropertiesCommand}"
-                          Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}" FontSize="15"/>
-            </v:HoverContextMenu>
-
-            <v:HoverContextMenu x:Key="FileItemContextMenu" d:DataContext="{d:DesignInstance m:FileSystemItem}">
-                <MenuItem Height="35" Template="{StaticResource FileOperationsTemplate}"/>
-                <Separator/>
-
-                <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
-                          Command="{Binding OpenCommand}"
-                          Icon="{Binding Icon}" Header="{u:Lang Open}" FontSize="15"/>
-                <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
-                          Command="{Binding ShowPropertiesCommand}"
-                          Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}" FontSize="15"/>
-            </v:HoverContextMenu>
-
-            <c:FileSystemItemContextMenuConverter x:Key="FileSystemItemContextMenuConverter"
-                                                  DirectoryContextMenu="{StaticResource FolderItemContextMenu}"
-                                                  FileContextMenu="{StaticResource FileItemContextMenu}"/>
-
             <DataTemplate x:Key="FileViewHomeTemplate">
                 <v:ClippingBorder Margin="10,0,10,5" CornerRadius="8" 
                                   BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
@@ -130,7 +75,7 @@
                 <v:ClippingBorder Margin="10,0,10,5" CornerRadius="8" 
                                   BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
                                   Background="{DynamicResource RegionBrush}">
-                    <v:FileDataGrid d:DataContext="{d:DesignInstance vm:FileViewTabViewModel}"
+                    <ct:FileDataGrid d:DataContext="{d:DesignInstance vm:FileViewTabViewModel}"
                                     ItemsSource="{Binding Items}"
                                     ItemClicked="FileDataGrid_OnItemClicked" BackgroundClicked="FileDataGrid_OnBackgroundClicked"
                                     Background="{DynamicResource RegionBrush}" Foreground="{DynamicResource PrimaryTextBrush}">
@@ -138,68 +83,11 @@
                             <hc:RoutedEventTrigger RoutedEvent="ListBox.SelectionChanged">
                                 <hc:EventToCommand Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True"/>
                             </hc:RoutedEventTrigger>
-                            <hc:RoutedEventTrigger RoutedEvent="v:FileDataGrid.FileDrop">
+                            <hc:RoutedEventTrigger RoutedEvent="ct:FileDataGrid.FileDrop">
                                 <hc:EventToCommand Command="{Binding FileDropCommand}" PassEventArgsToCommand="True"/>
                             </hc:RoutedEventTrigger>
                         </hc:Interaction.Triggers>
-                        <v:FileDataGrid.RowStyle>
-                            <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle}">
-                                <Setter Property="ContextMenu"
-                                    Value="{Binding IsFolder, Converter={StaticResource FileSystemItemContextMenuConverter}}"/>
-                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                            </Style>
-                        </v:FileDataGrid.RowStyle>
-                        <v:FileDataGrid.Columns>
-                            <DataGridTemplateColumn Header="{u:Lang Name}" Width="350">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Grid Height="30" VerticalAlignment="Center" 
-                                          d:DataContext="{d:DesignInstance m:FileSystemItem}"
-                                          IsHitTestVisible="False">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="30"/>
-                                                <ColumnDefinition/>
-                                            </Grid.ColumnDefinitions>
-                                            <Image Grid.Column="0" 
-                                               Source="{Binding Icon}"
-                                               VerticalAlignment="Center" Margin="5"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="{u:Lang Modification_date}" Width="200">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock d:DataContext="{d:DesignInstance m:FileSystemItem}"
-                                               Text="{Binding LastWriteTime}" 
-                                               VerticalAlignment="Center"
-                                               IsHitTestVisible="False"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="{u:Lang File_type}" Width="100">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock d:DataContext="{d:DesignInstance m:FileSystemItem}"
-                                                   Text="{Binding FileTypeString}" 
-                                                   VerticalAlignment="Center"
-                                                   IsHitTestVisible="False"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="{u:Lang File_size}" Width="100">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock d:DataContext="{d:DesignInstance m:FileSystemItem}"
-                                               Text="{Binding FileSizeString}" 
-                                               VerticalAlignment="Center"
-                                               IsHitTestVisible="False"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                        </v:FileDataGrid.Columns>
-                    </v:FileDataGrid>
+                    </ct:FileDataGrid>
                 </v:ClippingBorder>
             </DataTemplate>
 
@@ -324,20 +212,27 @@
                         </Grid>
 
                         <Border Grid.Row="1" BorderThickness="0,1,0,0" Padding="5,5,5,5">
-                            <DockPanel>
-                                <Button Margin="5" hc:IconElement.Geometry="{StaticResource LeftArrowGeometry}" 
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="300"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Margin="5" hc:IconElement.Geometry="{StaticResource LeftArrowGeometry}" 
                                         IsEnabled="{Binding CanGoBack, Mode=OneWay}" 
                                         Command="{Binding GoBackCommand}"/>
-                                <hc:SplitButton Margin="5" hc:IconElement.Geometry="{StaticResource RightArrowGeometry}" 
+                                <hc:SplitButton Grid.Column="1" Margin="5" hc:IconElement.Geometry="{StaticResource RightArrowGeometry}" 
                                                 IsEnabled="{Binding CanGoForward, Mode=OneWay}" 
                                                 Command="{Binding GoForwardCommand}" HitMode="Click"/>
-                                <Button Margin="5" hc:IconElement.Geometry="{StaticResource UpArrowGeometry}"
+                                <Button Grid.Column="2" Margin="5" hc:IconElement.Geometry="{StaticResource UpArrowGeometry}"
                                         IsEnabled="{Binding CanGoToUpperLevel, Mode=OneWay}" 
                                         Command="{Binding GoToUpperLevelCommand}"/>
 
-                                <TextBox DockPanel.Dock="Left" x:Name="AddressBar" Width="700" BorderThickness="0,0,0,2" Margin="5" Text="{Binding FullPath, Mode=OneWay}" KeyDown="AddressBar_OnKeyDown"/>
-                                <TextBox DockPanel.Dock="Right" BorderThickness="0,0,0,2" Margin="5"/>
-                            </DockPanel>
+                                <TextBox Grid.Column="3" DockPanel.Dock="Left" x:Name="AddressBar" BorderThickness="0,0,0,2" Margin="5" Text="{Binding FullPath, Mode=OneWay}" KeyDown="AddressBar_OnKeyDown"/>
+                                <hc:TextBox Grid.Column="4" DockPanel.Dock="Right" BorderThickness="0,0,0,2" Margin="5" hc:InfoElement.Placeholder="{Binding SearchPlaceholderText, Mode=OneWay}"/>
+                            </Grid>
                         </Border>
 
                         <Grid Grid.Row="2">
@@ -380,7 +275,7 @@
 
                                         <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" Margin="10,0,0,0" 
                                                    Visibility="{Binding SelectedFileItemsSizeVisibility, Mode=OneWay}"
-                                                   Text="{Binding SelectedFileItemsSizeString, Mode=OneWay}"/>
+                                                   Text="{Binding SelectedFileItemsSizeText, Mode=OneWay}"/>
                                     </StackPanel>
                                 </Border>
                             </Grid>

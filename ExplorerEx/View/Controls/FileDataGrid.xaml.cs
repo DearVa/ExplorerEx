@@ -1,7 +1,8 @@
-﻿using HandyControl.Tools.Extension;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -9,8 +10,10 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using ExplorerEx.Model;
 using ExplorerEx.Win32;
+using HandyControl.Tools;
+using TextBox = HandyControl.Controls.TextBox;
 
-namespace ExplorerEx.View;
+namespace ExplorerEx.View.Controls;
 
 public partial class FileDataGrid {
 	private ScrollViewer scrollViewer;
@@ -36,6 +39,19 @@ public partial class FileDataGrid {
 
 	public FileDataGrid() {
 		InitializeComponent();
+		EventManager.RegisterClassHandler(typeof(TextBox), GotFocusEvent, new RoutedEventHandler(OnRenameTextBoxGotFocus));
+	}
+
+	private void OnRenameTextBoxGotFocus(object sender, RoutedEventArgs e) {
+		var textBox = (TextBox)sender;
+		renamingItem = (FileViewBaseItem)textBox.DataContext;
+		var lastIndexOfDot = textBox.Text.LastIndexOf('.');
+		if (lastIndexOfDot == -1) {
+			textBox.SelectAll();
+		} else {
+			textBox.Select(0, lastIndexOfDot);
+		}
+		e.Handled = true;
 	}
 
 	public override void OnApplyTemplate() {
@@ -46,9 +62,9 @@ public partial class FileDataGrid {
 	}
 
 	/// <summary>
-	/// 是否左键点击了，不加这个可能会从外部拖进来依旧是框选状态
+	/// 是否鼠标点击了，不加这个可能会从外部拖进来依旧是框选状态
 	/// </summary>
-	private bool isMouseDown;
+	private bool isPreparedForRect;
 
 	private bool isMouseDownOnItem;
 	private Point startDragPosition;
@@ -61,17 +77,44 @@ public partial class FileDataGrid {
 	private Point startSelectionPoint;
 	private DispatcherTimer timer;
 
+	private FileViewBaseItem renamingItem;
+	private CancellationTokenSource renameCts;
+
 	protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
+		if (renamingItem is { EditingName: not null }) {
+			if (!e.OriginalSource.IsChildOf(typeof(TextBox), typeof(FileDataGrid))) {
+				renamingItem.StopRename();
+			}
+			return;
+		}
+		renameCts?.Cancel();
 		if (e.ChangedButton is MouseButton.Left or MouseButton.Right) {
-			if (IsChildOf(typeof(ScrollBar), (UIElement)e.OriginalSource)) {
+			if (e.OriginalSource.IsChildOf(typeof(ScrollBar), typeof(FileDataGrid))) {
 				isMouseDownOnItem = false;
 				return;
 			}
-			isMouseDown = true;
 			if (ContainerFromElement(this, (DependencyObject)e.OriginalSource) is DataGridRow row) {
-				((FileSystemItem)row.Item).IsSelected = true;
+				var item = (FileSystemItem)row.Item;
+				if (item.IsSelected) {
+					if (renameCts == null) {
+						var cts = renameCts = new CancellationTokenSource();
+						Task.Run(() => {
+							Thread.Sleep(600);
+							if (!cts.IsCancellationRequested) {
+								item.BeginRename();
+							}
+						}, renameCts.Token);
+					} else {
+						renameCts = null;
+					}
+				} else {
+					item.IsSelected = true;
+					renameCts = null;
+				}
 				isMouseDownOnItem = true;
+				isPreparedForRect = false;
 			} else {
+				isPreparedForRect = true;
 				isMouseDownOnItem = false;
 				startDragPosition = e.GetPosition(contentGrid);
 				var x = Math.Min(Math.Max(startDragPosition.X, 0), contentGrid.ActualWidth);
@@ -85,7 +128,10 @@ public partial class FileDataGrid {
 	private Vector scrollSpeed;
 
 	protected override void OnPreviewMouseMove(MouseEventArgs e) {
-		if (isMouseDown && e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed) {
+		if (renamingItem is {EditingName: not null}) {
+			return;
+		}
+		if ((isPreparedForRect || isMouseDownOnItem) && e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed) {
 			var point = e.GetPosition(contentGrid);
 			if (isMouseDownOnItem) {
 				if (Math.Abs(point.X - startDragPosition.X) > SystemParameters.MinimumHorizontalDragDistance ||
@@ -112,7 +158,7 @@ public partial class FileDataGrid {
 				isRectSelecting = true;
 			}
 			UpdateRectSelection();
-			
+
 			if (point.X < 0) {
 				scrollSpeed.X = point.X / 10d;
 			} else if (point.Y > ActualWidth) {
@@ -204,10 +250,13 @@ public partial class FileDataGrid {
 
 	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
 		isMouseDownOnItem = false;
+		if (renamingItem is { EditingName: not null }) {
+			return;
+		}
 		if (isRectSelecting && e.ChangedButton is MouseButton.Left or MouseButton.Right) {
 			selectionRect.Visibility = Visibility.Collapsed;
 			Mouse.Capture(null);
-			isMouseDown = isRectSelecting = false;
+			isPreparedForRect = isRectSelecting = false;
 			timer?.Stop();
 		} else if (e.ChangedButton == MouseButton.Left) {
 			if (ContainerFromElement(this, (DependencyObject)e.OriginalSource) is DataGridRow row) {
@@ -223,16 +272,6 @@ public partial class FileDataGrid {
 		scrollViewer.ScrollToHorizontalOffset(scrollViewer.HorizontalOffset + scrollSpeed.X);
 		scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset + scrollSpeed.Y);
 		UpdateRectSelection();
-	}
-
-	private static bool IsChildOf(Type parentType, UIElement child) {
-		while (child != null) {
-			if (child.GetType() == parentType) {
-				return true;
-			}
-			child = (UIElement)child.GetVisualOrLogicalParent();
-		}
-		return false;
 	}
 
 	private void OnDragOver(object sender, DragEventArgs e) {
@@ -266,6 +305,11 @@ public partial class FileDataGrid {
 	//		e.Handled = true;
 	//	}
 	//}
+
+	protected override void OnLostFocus(RoutedEventArgs e) {
+		renamingItem?.StopRename();
+		base.OnLostFocus(e);
+	}
 }
 
 public class FileDropEventArgs : RoutedEventArgs {
@@ -279,5 +323,5 @@ public class FileDropEventArgs : RoutedEventArgs {
 		RoutedEvent = e;
 		Content = content;
 		Path = path;
-	} 
+	}
 }

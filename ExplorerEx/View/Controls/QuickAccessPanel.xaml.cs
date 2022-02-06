@@ -1,4 +1,4 @@
-﻿namespace ExplorerEx.View; 
+﻿namespace ExplorerEx.View.Controls; 
 
 /// <summary>
 /// QuickAccessPanel.xaml 的交互逻辑

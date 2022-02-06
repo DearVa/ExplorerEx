@@ -79,6 +79,17 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 如果改变文件拓展名，则可能导致文件不可用。
+        ///
+        ///确定要更改吗？ 的本地化字符串。
+        /// </summary>
+        internal static string Are_you_sure_to_change_extension {
+            get {
+                return ResourceManager.GetString("Are_you_sure_to_change_extension", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 您确定要永久删除选择的文件吗？ 的本地化字符串。
         /// </summary>
         internal static string Are_you_sure_to_delete_these_files_Permanently_ {
@@ -435,6 +446,15 @@ namespace ExplorerEx.Strings {
         internal static string Save_file_name {
             get {
                 return ResourceManager.GetString("Save_file_name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 搜索 的本地化字符串。
+        /// </summary>
+        internal static string Search {
+            get {
+                return ResourceManager.GetString("Search", resourceCulture);
             }
         }
         

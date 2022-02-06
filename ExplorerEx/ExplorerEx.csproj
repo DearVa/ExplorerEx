@@ -20,6 +20,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\External\Everything\Everything64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="Assets\LogConfig.xml" />
   </ItemGroup>
 
@@ -32,6 +38,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="AssemblyInfo.cs">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Compile>
     <Compile Update="Strings\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

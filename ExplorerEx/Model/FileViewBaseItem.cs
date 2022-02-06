@@ -1,9 +1,14 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using ExplorerEx.Annotations;
+using ExplorerEx.Utils;
 using ExplorerEx.ViewModel;
+using HandyControl.Controls;
+using HandyControl.Data;
 
 namespace ExplorerEx.Model; 
 
@@ -42,6 +47,7 @@ public abstract class FileViewBaseItem : INotifyPropertyChanged {
 
 	protected FileViewBaseItem(FileViewTabViewModel ownerViewModel) {
 		OwnerViewModel = ownerViewModel;
+		LostFocusCommand = new SimpleCommand(OnLostFocus);
 	}
 
 	public abstract Task LoadIconAsync();
@@ -52,4 +58,48 @@ public abstract class FileViewBaseItem : INotifyPropertyChanged {
 	protected void OnPropertyChanged([CallerMemberName] string propertyName = null) {
 		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 	}
+
+	#region 文件重命名
+	public string EditingName { get; set; }
+
+	/// <summary>
+	/// 校验文件名是否有效
+	/// </summary>
+	public Func<string, OperationResult<bool>> VerifyFunc { get; } = fn => new OperationResult<bool> {
+		Data = !FileUtils.IsProhibitedFileName(fn)
+	};
+
+	public bool IsErrorFileName { get; set; }
+
+	public SimpleCommand LostFocusCommand { get; }
+
+	/// <summary>
+	/// 显示重命名的输入框
+	/// </summary>
+	public void BeginRename() {
+		EditingName = Name;
+		OnPropertyChanged(nameof(EditingName));
+	}
+
+	public void StopRename() {
+		if (!IsErrorFileName && EditingName != Name) {
+			if (Rename()) {
+				Name = EditingName;
+				OnPropertyChanged(nameof(Name));
+			}
+		}
+		EditingName = null;
+		OnPropertyChanged(nameof(EditingName));
+	}
+
+	public void OnLostFocus(object args) {
+		StopRename();
+	}
+
+	/// <summary>
+	/// 重命名，此时EditingName是新的名字
+	/// </summary>
+	protected abstract bool Rename();
+
+	#endregion
 }

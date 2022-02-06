@@ -7,7 +7,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
 using HandyControl.Tools;
 
-namespace ExplorerEx.View;
+namespace ExplorerEx.View.Controls;
 
 /// <summary>
 /// 一个悬浮的菜单（徒增功耗

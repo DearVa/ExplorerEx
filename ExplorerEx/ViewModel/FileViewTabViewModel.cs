@@ -13,6 +13,7 @@ using ExplorerEx.Model;
 using ExplorerEx.Selector;
 using ExplorerEx.Utils;
 using ExplorerEx.View;
+using ExplorerEx.View.Controls;
 using ExplorerEx.Win32;
 using HandyControl.Data;
 using hc = HandyControl.Controls;
@@ -84,7 +85,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 
 	public Visibility SelectedFileItemsSizeVisibility { get; private set; }
 
-	public string SelectedFileItemsSizeString { get; private set; }
+	public string SelectedFileItemsSizeText { get; private set; }
 
 	public long SelectedFilesSize {
 		get {
@@ -101,6 +102,8 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 			return size;
 		}
 	}
+
+	public string SearchPlaceholderText => $"{"Search".L()} {Header}";
 
 	private readonly List<string> historyPaths = new(128);
 
@@ -122,7 +125,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		CutCommand = new SimpleCommand(_ => Copy(true));
 		CopyCommand = new SimpleCommand(_ => Copy(false));
 		PasteCommand = new SimpleCommand(_ => Paste());
-		//RenameCommand = new SimpleCommand(_ => Copy(false));
+		RenameCommand = new SimpleCommand(_ => Rename());
 		//ShareCommand = new SimpleCommand(_ => Copy(false));
 		DeleteCommand = new SimpleCommand(_ => Delete(true));
 
@@ -354,46 +357,30 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		}
 	}
 
+	/// <summary>
+	/// 重命名
+	/// </summary>
+	public void Rename() {
+		if (SelectedItems.Count == 0) {
+			return;
+		}
+		if (Type == FileViewDataTemplateSelector.Type.Home) {
+			SelectedItems.First().BeginRename();
+		} else if (SelectedItems.Count == 1) {
+			SelectedItems.First().BeginRename();
+		} else {
+			// TODO: 批量重命名
+		}
+	}
+
 	public void Delete(bool recycle) {
 		if (Type == FileViewDataTemplateSelector.Type.Home || SelectedItems.Count == 0) {
 			return;
 		}
 		if (recycle) {
-			if (!ConfigHelper.LoadBoolean("Recycle")) {
-				var msi = new MessageBoxInfo {
-					CheckBoxText = "Dont_show_this_message_again".L(),
-					Message = "Are you sure to recycle these files?".L(),
-					Image = MessageBoxImage.Question,
-					Button = MessageBoxButton.YesNo,
-					IsChecked = false
-				};
-				var result = hc.MessageBox.Show(msi);
-				if (msi.IsChecked) {
-					ConfigHelper.Save("Recycle", true);
-				}
-				if (result != MessageBoxResult.Yes) {
-					return;
-				}
+			if (!MessageBoxHelper.AskWithDefault("Recycle", "Are you sure to recycle these files?".L())) {
+				return;
 			}
-		} else {
-			if (!ConfigHelper.LoadBoolean("Delete")) {
-				var msi = new MessageBoxInfo {
-					CheckBoxText = "Dont_show_this_message_again".L(),
-					Message = "Are you sure to delete these files Permanently?".L(),
-					Image = MessageBoxImage.Question,
-					Button = MessageBoxButton.YesNo,
-					IsChecked = false
-				};
-				var result = hc.MessageBox.Show(msi);
-				if (msi.IsChecked) {
-					ConfigHelper.Save("Delete", true);
-				}
-				if (result != MessageBoxResult.Yes) {
-					return;
-				}
-			}
-		}
-		if (recycle) {
 			try {
 				FileUtils.FileOperation(Win32Interop.FileOpType.Delete, SelectedItems.Where(item => item is FileSystemItem)
 					.Cast<FileSystemItem>().Select(item => item.FullPath).ToArray());
@@ -401,6 +388,9 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 				Logger.Exception(e);
 			}
 		} else {
+			if (!MessageBoxHelper.AskWithDefault("Delete", "Are you sure to delete these files Permanently?".L())) {
+				return;
+			}
 			var failedFiles = new List<string>();
 			foreach (var item in SelectedItems) {
 				if (item is FileSystemItem fsi) {
@@ -431,6 +421,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		OnPropertyChanged(nameof(CanGoForward));
 		OnPropertyChanged(nameof(CanGoToUpperLevel));
 		OnPropertyChanged(nameof(FileItemsCount));
+		OnPropertyChanged(nameof(SearchPlaceholderText));
 	}
 
 	/// <summary>
@@ -444,7 +435,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 			if (size == -1) {
 				SelectedFileItemsSizeVisibility = Visibility.Collapsed;
 			} else {
-				SelectedFileItemsSizeString = FileUtils.FormatByteSize(size);
+				SelectedFileItemsSizeText = FileUtils.FormatByteSize(size);
 				SelectedFileItemsSizeVisibility = Visibility.Visible;
 			}
 		}
@@ -452,7 +443,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		OnPropertyChanged(nameof(SelectedFileItemsCountVisibility));
 		OnPropertyChanged(nameof(SelectedFileItemsCount));
 		OnPropertyChanged(nameof(SelectedFileItemsSizeVisibility));
-		OnPropertyChanged(nameof(SelectedFileItemsSizeString));
+		OnPropertyChanged(nameof(SelectedFileItemsSizeText));
 	}
 
 	private FileViewBaseItem lastClickItem;

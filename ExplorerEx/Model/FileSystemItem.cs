@@ -88,6 +88,25 @@ public class FileSystemItem : FileViewBaseItem {
 		Icon = await GetPathIconAsync(FullPath, false, true, false);
 	}
 
+	protected override bool Rename() {
+		if (EditingName == null) {
+			return false;
+		}
+		var basePath = Path.GetDirectoryName(FullPath);
+		if (Path.GetExtension(FullPath) != Path.GetExtension(EditingName)) {
+			if (!MessageBoxHelper.AskWithDefault("RenameExtension", "Are_you_sure_to_change_extension".L())) {
+				return false;
+			}
+		}
+		try {
+			FileUtils.FileOperation(Win32Interop.FileOpType.Rename, FullPath, Path.Combine(basePath!, EditingName));
+			return true;
+		} catch (Exception e) {
+			Logger.Exception(e);
+		}
+		return false;
+	}
+
 	public async Task RefreshAsync() {
 		if (IsFolder) {
 			LoadDirectoryIcon();
