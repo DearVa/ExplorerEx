@@ -262,4 +262,16 @@
   <data name="Search" xml:space="preserve">
     <value>搜索</value>
   </data>
+  <data name="Everything_is_not_available" xml:space="preserve">
+    <value>Everything未运行或未安装，暂时无法使用搜索。</value>
+  </data>
+  <data name="Removable_disk" xml:space="preserve">
+    <value>可移动磁盘</value>
+  </data>
+  <data name="CD_drive" xml:space="preserve">
+    <value>光盘驱动器</value>
+  </data>
+  <data name="Other_type_disk" xml:space="preserve">
+    <value>其他类型磁盘</value>
+  </data>
 </root>

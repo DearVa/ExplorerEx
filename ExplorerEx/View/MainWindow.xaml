@@ -61,8 +61,10 @@
                                         <ProgressBar Value="{Binding FreeSpaceRatio, Mode=OneWay}" 
                                                      Foreground="{Binding ProgressBarBackground, Mode=OneWay}"
                                                      Maximum="1" BorderThickness="1.5" Margin="0,5,0,5" 
-                                                     SnapsToDevicePixels="True" hc:ProgressBarAttach.AnimationDisabled="True"/>
-                                        <TextBlock Text="{Binding SpaceOverviewString, Mode=OneWay}"/>
+                                                     SnapsToDevicePixels="True" hc:ProgressBarAttach.AnimationDisabled="True"
+                                                     Visibility="{Binding IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                                        <TextBlock Text="{Binding SpaceOverviewString, Mode=OneWay}"
+                                                   Visibility="{Binding IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
                                     </StackPanel>
                                 </Grid>
                             </ItemContainerTemplate>
@@ -77,7 +79,6 @@
                                   Background="{DynamicResource RegionBrush}">
                     <ct:FileDataGrid d:DataContext="{d:DesignInstance vm:FileViewTabViewModel}"
                                     ItemsSource="{Binding Items}"
-                                    ItemClicked="FileDataGrid_OnItemClicked" BackgroundClicked="FileDataGrid_OnBackgroundClicked"
                                     Background="{DynamicResource RegionBrush}" Foreground="{DynamicResource PrimaryTextBrush}">
                         <hc:Interaction.Triggers>
                             <hc:RoutedEventTrigger RoutedEvent="ListBox.SelectionChanged">
@@ -85,6 +86,9 @@
                             </hc:RoutedEventTrigger>
                             <hc:RoutedEventTrigger RoutedEvent="ct:FileDataGrid.FileDrop">
                                 <hc:EventToCommand Command="{Binding FileDropCommand}" PassEventArgsToCommand="True"/>
+                            </hc:RoutedEventTrigger>
+                            <hc:RoutedEventTrigger RoutedEvent="ct:FileDataGrid.ItemDoubleClicked">
+                                <hc:EventToCommand Command="{Binding ItemDoubleClickedCommand}" PassEventArgsToCommand="True"/>
                             </hc:RoutedEventTrigger>
                         </hc:Interaction.Triggers>
                     </ct:FileDataGrid>
@@ -230,8 +234,11 @@
                                         IsEnabled="{Binding CanGoToUpperLevel, Mode=OneWay}" 
                                         Command="{Binding GoToUpperLevelCommand}"/>
 
-                                <TextBox Grid.Column="3" DockPanel.Dock="Left" x:Name="AddressBar" BorderThickness="0,0,0,2" Margin="5" Text="{Binding FullPath, Mode=OneWay}" KeyDown="AddressBar_OnKeyDown"/>
-                                <hc:TextBox Grid.Column="4" DockPanel.Dock="Right" BorderThickness="0,0,0,2" Margin="5" hc:InfoElement.Placeholder="{Binding SearchPlaceholderText, Mode=OneWay}"/>
+                                <TextBox Grid.Column="3" DockPanel.Dock="Left" x:Name="AddressBar" BorderThickness="0,0,0,2" 
+                                         Margin="5" Text="{Binding FullPath, Mode=OneWay}" KeyDown="AddressBar_OnKeyDown"/>
+                                <hc:TextBox Grid.Column="4" DockPanel.Dock="Right" BorderThickness="0,0,0,2" ShowClearButton="True" 
+                                            Margin="5" hc:InfoElement.Placeholder="{Binding SearchPlaceholderText, Mode=OneWay}"
+                                            Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
                             </Grid>
                         </Border>
 

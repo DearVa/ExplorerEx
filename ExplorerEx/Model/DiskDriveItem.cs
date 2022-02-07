@@ -7,6 +7,7 @@ using ExplorerEx.ViewModel;
 using System.Runtime.CompilerServices;
 using System;
 using System.Diagnostics;
+using HandyControl.Controls;
 
 namespace ExplorerEx.Model; 
 
@@ -15,6 +16,8 @@ namespace ExplorerEx.Model;
 /// </summary>
 public class DiskDriveItem : FileViewBaseItem {
 	public DriveInfo Driver { get; }
+
+	public bool IsReady => Driver.IsReady;
 
 	public long FreeSpace { get; }
 
@@ -32,9 +35,22 @@ public class DiskDriveItem : FileViewBaseItem {
 
 	public DiskDriveItem(FileViewTabViewModel ownerViewModel, DriveInfo driver) : base(ownerViewModel) {
 		Driver = driver;
-		Name = $"{(string.IsNullOrWhiteSpace(driver.VolumeLabel) ? "Local_disk".L() : driver.VolumeLabel)} ({driver.Name[..1]})";
-		TotalSpace = driver.TotalSize;
-		FreeSpace = driver.AvailableFreeSpace;  // 考虑用户配额
+		if (driver.IsReady) {
+			Name = $"{(string.IsNullOrWhiteSpace(driver.VolumeLabel) ? GetDriveTypeString() : driver.VolumeLabel)} ({driver.Name[..1]})";
+			TotalSpace = driver.TotalSize;
+			FreeSpace = driver.AvailableFreeSpace; // 考虑用户配额
+		} else {
+			Name = $"{GetDriveTypeString()} ({driver.Name[..1]})";
+		}
+	}
+
+	private string GetDriveTypeString() {
+		return Driver.DriveType switch {
+			DriveType.Removable => "Removable_disk".L(),
+			DriveType.CDRom => "CD_drive".L(),
+			DriveType.Fixed => "Local_disk".L(),
+			_ => "Other_type_disk".L()
+		};
 	}
 
 	public override async Task LoadIconAsync() {

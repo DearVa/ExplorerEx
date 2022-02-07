@@ -15,7 +15,6 @@ using ExplorerEx.Utils;
 using ExplorerEx.View;
 using ExplorerEx.View.Controls;
 using ExplorerEx.Win32;
-using HandyControl.Data;
 using hc = HandyControl.Controls;
 
 namespace ExplorerEx.ViewModel;
@@ -25,6 +24,8 @@ namespace ExplorerEx.ViewModel;
 /// </summary>
 public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	public MainWindowViewModel OwnerViewModel { get; }
+
+	public MainWindow OwnerWindow => OwnerViewModel.MainWindow;
 
 	public ContentPresenter FileViewContentPresenter { get; set; }
 
@@ -73,6 +74,8 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 
 	public SimpleCommand FileDropCommand { get; }
 
+	public SimpleCommand ItemDoubleClickedCommand { get; }
+
 	public bool CanPaste => Type != FileViewDataTemplateSelector.Type.Home && canPaste;
 
 	private bool canPaste;
@@ -105,6 +108,25 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 
 	public string SearchPlaceholderText => $"{"Search".L()} {Header}";
 
+	/// <summary>
+	/// 如果不为null，就说明用户输入了搜索，OneWayToSource
+	/// </summary>
+	public string SearchText {
+		set {
+			if (string.IsNullOrWhiteSpace(value)) {
+				if (searchText != null) {
+					searchText = null;
+					UpdateSearch(); // 这样如果用户输入了很多空格就不用更新了
+				}
+			} else {
+				searchText = value;
+				UpdateSearch();
+			}
+		}
+	}
+
+	private string searchText;
+
 	private readonly List<string> historyPaths = new(128);
 
 	private int nextHistoryIndex, historyCount;
@@ -114,9 +136,11 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	private readonly Dispatcher dispatcher;
 
 	private CancellationTokenSource cts;
-	
+
 	public FileViewTabViewModel(MainWindowViewModel ownerViewModel) {
 		OwnerViewModel = ownerViewModel;
+		OwnerWindow.EverythingQueryReplied += OnEverythingQueryReplied;
+
 		GoBackCommand = new SimpleCommand(_ => GoBackAsync());
 		GoForwardCommand = new SimpleCommand(_ => GoForwardAsync());
 		GoToUpperLevelCommand = new SimpleCommand(_ => GoToUpperLevelAsync());
@@ -130,6 +154,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		DeleteCommand = new SimpleCommand(_ => Delete(true));
 
 		FileDropCommand = new SimpleCommand(e => OnDrop((FileDropEventArgs)e));
+		ItemDoubleClickedCommand = new SimpleCommand(async e => await Item_OnDoubleClicked((FileDataGrid.ItemClickEventArgs)e));
 
 		dispatcher = Application.Current.Dispatcher;
 
@@ -173,7 +198,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	/// <param name="selectedPath"></param>
 	/// <returns></returns>
 	public async Task<bool> LoadDirectoryAsync(string path, bool recordHistory = true, string selectedPath = null) {
-		var isLoadRoot = string.IsNullOrWhiteSpace(path);  // 加载“此电脑”
+		var isLoadRoot = string.IsNullOrWhiteSpace(path) || path == "This_computer".L();  // 加载“此电脑”
 		Type = isLoadRoot ? FileViewDataTemplateSelector.Type.Home : FileViewDataTemplateSelector.Type.Detail;
 
 		if (!isLoadRoot && !Directory.Exists(path)) {
@@ -216,7 +241,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 				}
 				return false;
 			}
-			
+
 			OnPropertyChanged(nameof(Type));
 			OnPropertyChanged(nameof(FullPath));
 			OnPropertyChanged(nameof(Header));
@@ -240,17 +265,12 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 #endif
 
 		Items.Clear();
-		if (Type != oldType && FileViewContentPresenter != null) {
-			var selector = FileViewContentPresenter.ContentTemplateSelector;
-			FileViewContentPresenter.ContentTemplateSelector = null;
-			FileViewContentPresenter.ContentTemplateSelector = selector;
-		}
-		oldType = Type;
+		UpdateTypeSelector();
 
 		foreach (var fileViewBaseItem in list) {
 			Items.Add(fileViewBaseItem);
 		}
-		
+
 
 		if (recordHistory) {
 			AddHistory(path);
@@ -272,6 +292,15 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		sw.Stop();
 #endif
 		return true;
+	}
+
+	private void UpdateTypeSelector() {
+		if (Type != oldType && FileViewContentPresenter != null) {
+			var selector = FileViewContentPresenter.ContentTemplateSelector;
+			FileViewContentPresenter.ContentTemplateSelector = null;
+			FileViewContentPresenter.ContentTemplateSelector = selector;
+		}
+		oldType = Type;
 	}
 
 	/// <summary>
@@ -446,23 +475,16 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		OnPropertyChanged(nameof(SelectedFileItemsSizeText));
 	}
 
-	private FileViewBaseItem lastClickItem;
-	private DateTimeOffset lastClickTime;
-
-	public async Task Item_OnMouseUp(FileViewBaseItem item) {
-		if (item == lastClickItem && DateTimeOffset.Now <= lastClickTime.AddMilliseconds(500)) {
-			switch (item) {
-			// 双击事件
-			case DiskDriveItem ddi:
-				await LoadDirectoryAsync(ddi.Driver.Name);
-				break;
-			case FileSystemItem fsi:
-				await fsi.OpenAsync();
-				break;
-			}
+	public async Task Item_OnDoubleClicked(FileDataGrid.ItemClickEventArgs e) {
+		switch (e.Item) {
+		// 双击事件
+		case DiskDriveItem ddi:
+			await LoadDirectoryAsync(ddi.Driver.Name);
+			break;
+		case FileSystemItem fsi:
+			await fsi.OpenAsync();
+			break;
 		}
-		lastClickItem = item;
-		lastClickTime = DateTimeOffset.Now;
 	}
 
 	private bool isClearingSelection;
@@ -529,6 +551,72 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		}
 	}
 
+	/// <summary>
+	/// 当用户更改SearchTextBox时触发
+	/// </summary>
+	private async void UpdateSearch() {
+		everythingReplyCts?.Cancel();
+		if (searchText == null) {
+			await LoadDirectoryAsync(FullPath);
+		} else {
+			if (EverythingInterop.IsAvailable) {
+				Items.Clear();  // 清空文件列表，进入搜索模式
+
+				// EverythingInterop.Reset();
+				EverythingInterop.Search = searchText;
+				EverythingInterop.Max = 999;
+				// EverythingInterop.SetRequestFlags(EverythingInterop.RequestType.FullPathAndFileName | EverythingInterop.RequestType.DateModified | EverythingInterop.RequestType.Size);
+				// EverythingInterop.SetSort(EverythingInterop.SortMode.NameAscending);
+				OwnerViewModel.MainWindow.RegisterEverythingQuery();
+				EverythingInterop.Query(false);
+			} else {
+				hc.MessageBox.Error("Everything_is_not_available".L());
+			}
+		}
+	}
+
+	private CancellationTokenSource everythingReplyCts;
+
+	private async void OnEverythingQueryReplied(uint id) {
+		Type = FileViewDataTemplateSelector.Type.Detail;
+		everythingReplyCts?.Cancel();
+		everythingReplyCts = new CancellationTokenSource();
+		List<FileSystemItem> list = null;
+		await Task.Run(() => {
+			var resultCount = EverythingInterop.GetNumFileResults();
+			if (resultCount > 999) {
+				resultCount = 999;
+			}
+			list = new List<FileSystemItem>((int)resultCount);
+			for (var i = 0U; i < resultCount; i++) {
+				try {
+					var fullPath = EverythingInterop.GetResultFullPathName(i);
+					if (Directory.Exists(fullPath)) {
+						list.Add(new FileSystemItem(this, new DirectoryInfo(fullPath)));
+					} else if (File.Exists(fullPath)) {
+						list.Add(new FileSystemItem(this, new FileInfo(fullPath)));
+					}
+				} catch (Exception e) {
+					Logger.Exception(e, false);
+					break;
+				}
+			}
+		}, everythingReplyCts.Token);
+
+		Items.Clear();
+		UpdateTypeSelector();
+
+		foreach (var item in list) {
+			Items.Add(item);
+		}
+
+		UpdateFolderUI();
+		UpdateFileUI();
+
+		foreach (var fileViewBaseItem in list.Where(item => !item.IsFolder)) {
+			await fileViewBaseItem.LoadIconAsync();
+		}
+	}
 
 	private void Watcher_OnError(object sender, ErrorEventArgs e) {
 		if (Type == FileViewDataTemplateSelector.Type.Home) {

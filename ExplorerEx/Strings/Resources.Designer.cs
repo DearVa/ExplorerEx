@@ -153,6 +153,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 光盘驱动器 的本地化字符串。
+        /// </summary>
+        internal static string CD_drive {
+            get {
+                return ResourceManager.GetString("CD_drive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 请检查您的输入后再试。 的本地化字符串。
         /// </summary>
         internal static string Check_your_input_and_try_again_ {
@@ -203,6 +212,15 @@ namespace ExplorerEx.Strings {
         internal static string Empty_folder {
             get {
                 return ResourceManager.GetString("Empty_folder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Everything未运行或未安装，暂时无法使用搜索。 的本地化字符串。
+        /// </summary>
+        internal static string Everything_is_not_available {
+            get {
+                return ResourceManager.GetString("Everything_is_not_available", resourceCulture);
             }
         }
         
@@ -360,6 +378,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 其他类型磁盘 的本地化字符串。
+        /// </summary>
+        internal static string Other_type_disk {
+            get {
+                return ResourceManager.GetString("Other_type_disk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 粘贴 的本地化字符串。
         /// </summary>
         internal static string Paste {
@@ -383,6 +410,15 @@ namespace ExplorerEx.Strings {
         internal static string Remember_my_choice_and_dont_ask_again {
             get {
                 return ResourceManager.GetString("Remember_my_choice_and_dont_ask_again", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 可移动磁盘 的本地化字符串。
+        /// </summary>
+        internal static string Removable_disk {
+            get {
+                return ResourceManager.GetString("Removable_disk", resourceCulture);
             }
         }
         

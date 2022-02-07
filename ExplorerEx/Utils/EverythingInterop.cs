@@ -2,121 +2,179 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace ExplorerEx.Utils; 
+namespace ExplorerEx.Utils;
 
-internal class EverythingInterop {
-	private const int EVERYTHING_OK = 0;
-	private const int EVERYTHING_ERROR_MEMORY = 1;
-	private const int EVERYTHING_ERROR_IPC = 2;
-	private const int EVERYTHING_ERROR_REGISTERCLASSEX = 3;
-	private const int EVERYTHING_ERROR_CREATEWINDOW = 4;
-	private const int EVERYTHING_ERROR_CREATETHREAD = 5;
-	private const int EVERYTHING_ERROR_INVALIDINDEX = 6;
-	private const int EVERYTHING_ERROR_INVALIDCALL = 7;
+public class EverythingException : Exception {
+	public EverythingException(string msg) : base(msg) { }
+}
 
-	private const int EVERYTHING_REQUEST_FILE_NAME = 0x00000001;
-	private const int EVERYTHING_REQUEST_PATH = 0x00000002;
-	private const int EVERYTHING_REQUEST_FULL_PATH_AND_FILE_NAME = 0x00000004;
-	private const int EVERYTHING_REQUEST_EXTENSION = 0x00000008;
-	private const int EVERYTHING_REQUEST_SIZE = 0x00000010;
-	private const int EVERYTHING_REQUEST_DATE_CREATED = 0x00000020;
-	private const int EVERYTHING_REQUEST_DATE_MODIFIED = 0x00000040;
-	private const int EVERYTHING_REQUEST_DATE_ACCESSED = 0x00000080;
-	private const int EVERYTHING_REQUEST_ATTRIBUTES = 0x00000100;
-	private const int EVERYTHING_REQUEST_FILE_LIST_FILE_NAME = 0x00000200;
-	private const int EVERYTHING_REQUEST_RUN_COUNT = 0x00000400;
-	private const int EVERYTHING_REQUEST_DATE_RUN = 0x00000800;
-	private const int EVERYTHING_REQUEST_DATE_RECENTLY_CHANGED = 0x00001000;
-	private const int EVERYTHING_REQUEST_HIGHLIGHTED_FILE_NAME = 0x00002000;
-	private const int EVERYTHING_REQUEST_HIGHLIGHTED_PATH = 0x00004000;
-	private const int EVERYTHING_REQUEST_HIGHLIGHTED_FULL_PATH_AND_FILE_NAME = 0x00008000;
+internal static class EverythingInterop {
+	public enum ResultType {
+		Ok = 0,
+		ErrorMemory = 1,
+		ErrorIpc = 2,
+		ErrorRegistryClassException = 3,
+		ErrorCreateWindow = 4,
+		ErrorCreateThread = 5,
+		ErrorInvalidIndex = 6,
+		ErrorInvalidCall = 7
+	}
 
-	private const int EVERYTHING_SORT_NAME_ASCENDING = 1;
-	private const int EVERYTHING_SORT_NAME_DESCENDING = 2;
-	private const int EVERYTHING_SORT_PATH_ASCENDING = 3;
-	private const int EVERYTHING_SORT_PATH_DESCENDING = 4;
-	private const int EVERYTHING_SORT_SIZE_ASCENDING = 5;
-	private const int EVERYTHING_SORT_SIZE_DESCENDING = 6;
-	private const int EVERYTHING_SORT_EXTENSION_ASCENDING = 7;
-	private const int EVERYTHING_SORT_EXTENSION_DESCENDING = 8;
-	private const int EVERYTHING_SORT_TYPE_NAME_ASCENDING = 9;
-	private const int EVERYTHING_SORT_TYPE_NAME_DESCENDING = 10;
-	private const int EVERYTHING_SORT_DATE_CREATED_ASCENDING = 11;
-	private const int EVERYTHING_SORT_DATE_CREATED_DESCENDING = 12;
-	private const int EVERYTHING_SORT_DATE_MODIFIED_ASCENDING = 13;
-	private const int EVERYTHING_SORT_DATE_MODIFIED_DESCENDING = 14;
-	private const int EVERYTHING_SORT_ATTRIBUTES_ASCENDING = 15;
-	private const int EVERYTHING_SORT_ATTRIBUTES_DESCENDING = 16;
-	private const int EVERYTHING_SORT_FILE_LIST_FILENAME_ASCENDING = 17;
-	private const int EVERYTHING_SORT_FILE_LIST_FILENAME_DESCENDING = 18;
-	private const int EVERYTHING_SORT_RUN_COUNT_ASCENDING = 19;
-	private const int EVERYTHING_SORT_RUN_COUNT_DESCENDING = 20;
-	private const int EVERYTHING_SORT_DATE_RECENTLY_CHANGED_ASCENDING = 21;
-	private const int EVERYTHING_SORT_DATE_RECENTLY_CHANGED_DESCENDING = 22;
-	private const int EVERYTHING_SORT_DATE_ACCESSED_ASCENDING = 23;
-	private const int EVERYTHING_SORT_DATE_ACCESSED_DESCENDING = 24;
-	private const int EVERYTHING_SORT_DATE_RUN_ASCENDING = 25;
-	private const int EVERYTHING_SORT_DATE_RUN_DESCENDING = 26;
+	[Flags]
+	public enum RequestType {
+		FileName = 0x00000001,
+		Path = 0x00000002,
+		FullPathAndFileName = 0x00000004,
+		Extension = 0x00000008,
+		Size = 0x00000010,
+		DateCreated = 0x00000020,
+		DateModified = 0x00000040,
+		DateAccessed = 0x00000080,
+		Attributes = 0x00000100,
+		FileListFileName = 0x00000200,
+		RunCount = 0x00000400,
+		DateRun = 0x00000800,
+		DateRecentlyChanged = 0x00001000,
+		HighlightedFileName = 0x00002000,
+		HighlightedPath = 0x00004000,
+		HighlightedFullPathAndFileName = 0x00008000
+	}
 
-	private const int EVERYTHING_TARGET_MACHINE_X86 = 1;
-	private const int EVERYTHING_TARGET_MACHINE_X64 = 2;
-	private const int EVERYTHING_TARGET_MACHINE_ARM = 3;
-	
+	public enum SortMode {
+		NameAscending = 1,
+		NameDescending = 2,
+		PathAscending = 3,
+		PathDescending = 4,
+		SizeAscending = 5,
+		SizeDescending = 6,
+		ExtensionAscending = 7,
+		ExtensionDescending = 8,
+		TypeNameAscending = 9,
+		TypeNameDescending = 10,
+		DateCreatedAscending = 11,
+		DateCreatedDescending = 12,
+		DateModifiedAscending = 13,
+		DateModifiedDescending = 14,
+		AttributesAscending = 15,
+		AttributesDescending = 16,
+		FileListFileNameAscending = 17,
+		FileListFileNameDescending = 18,
+		RunCountAscending = 19,
+		RunCountDescending = 20,
+		DateRecentlyChangedAscending = 21,
+		DateRecentlyChangedDescending = 22,
+		DateAccessedAscending = 23,
+		DateAccessedDescending = 24,
+		DateRunAscending = 25,
+		DateRunDescending = 26
+	}
+
+	public enum TargetMachineType {
+		X86 = 1,
+		X64 = 2,
+		Arm = 3
+	}
+
 	private const string DllName = "Everything64.dll";
 
+	private static void Check(uint result) {
+		if (result != 0) {
+			throw new EverythingException(Enum.GetName(typeof(ResultType), result) ?? "Unknown Error");
+		}
+	}
+
 	[DllImport(DllName, CharSet = CharSet.Unicode)]
-	public static extern uint Everything_SetSearchW(string lpSearchString);
+	private static extern uint Everything_SetSearchW(string lpSearchString);
 
 	[DllImport(DllName)]
-	public static extern void Everything_SetMatchPath(bool bEnable);
+    private static extern IntPtr Everything_GetSearchW();
+
+    public static string Search {
+	    get => Marshal.PtrToStringUni(Everything_GetSearchW());
+		set => Check(Everything_SetSearchW(value));
+	}
+
+    [DllImport(DllName)]
+	private static extern void Everything_SetMatchPath(bool isEnable);
 
 	[DllImport(DllName)]
-	public static extern void Everything_SetMatchCase(bool bEnable);
+	private static extern bool Everything_GetMatchPath();
+
+	public static bool IsMatchPath {
+		get => Everything_GetMatchPath();
+		set => Everything_SetMatchPath(value);
+	}
 
 	[DllImport(DllName)]
-	public static extern void Everything_SetMatchWholeWord(bool bEnable);
+	private static extern void Everything_SetMatchCase(bool isEnable);
 
 	[DllImport(DllName)]
-	public static extern void Everything_SetRegex(bool bEnable);
+	private static extern bool Everything_GetMatchCase();
+
+    public static bool IsMatchCase {
+        get => Everything_GetMatchCase();
+        set => Everything_SetMatchCase(value);
+    }
 
 	[DllImport(DllName)]
-	public static extern void Everything_SetMax(uint dwMax);
+	private static extern void Everything_SetMatchWholeWord(bool isEnable);
 
 	[DllImport(DllName)]
-	public static extern void Everything_SetOffset(uint dwOffset);
+	private static extern bool Everything_GetMatchWholeWord();
+
+    public static bool IsMatchWholeWord {
+        get => Everything_GetMatchWholeWord();
+        set => Everything_SetMatchWholeWord(value);
+    }
+
+    [DllImport(DllName)]
+    private static extern void Everything_SetRegex(bool isEnable);
 
 	[DllImport(DllName)]
-	public static extern bool Everything_GetMatchPath();
+	private static extern bool Everything_GetRegex();
+
+    public static bool UseRegex {
+        get => Everything_GetRegex();
+        set => Everything_SetRegex(value);
+    }
 
 	[DllImport(DllName)]
-	public static extern bool Everything_GetMatchCase();
+	private static extern void Everything_SetMax(uint max);
 
 	[DllImport(DllName)]
-	public static extern bool Everything_GetMatchWholeWord();
+	private static extern uint Everything_GetMax();
+
+    public static uint Max {
+        get => Everything_GetMax();
+        set => Everything_SetMax(value);
+    }
 
 	[DllImport(DllName)]
-	public static extern bool Everything_GetRegex();
+	private static extern void Everything_SetOffset(uint offset);
 
 	[DllImport(DllName)]
-	public static extern uint Everything_GetMax();
+	private static extern uint Everything_GetOffset();
+	
+    public static uint Offset {
+        get => Everything_GetOffset();
+        set => Everything_SetOffset(value);
+    }
 
-	[DllImport(DllName)]
-	public static extern uint Everything_GetOffset();
+    [DllImport(DllName)]
+    private static extern uint Everything_GetLastError();
 
-	[DllImport(DllName)]
-	public static extern IntPtr Everything_GetSearchW();
+    public static ResultType GetLastError() {
+		return (ResultType)Everything_GetLastError();
+    }
 
-	[DllImport(DllName)]
-	public static extern uint Everything_GetLastError();
+	[DllImport(DllName, EntryPoint = "Everything_QueryW")]
+	public static extern bool Query(bool waitForSearch);
 
-	[DllImport(DllName)]
-	public static extern bool Everything_QueryW(bool bWait);
+	[DllImport(DllName, EntryPoint = "Everything_SortResultsByPath")]
+	public static extern void SortResultsByPath();
 
-	[DllImport(DllName)]
-	public static extern void Everything_SortResultsByPath();
-
-	[DllImport(DllName)]
-	public static extern uint Everything_GetNumFileResults();
+	[DllImport(DllName, EntryPoint = "Everything_GetNumFileResults")]
+	public static extern uint GetNumFileResults();
 
 	[DllImport(DllName)]
 	public static extern uint Everything_GetNumFolderResults();
@@ -142,30 +200,27 @@ internal class EverythingInterop {
 	[DllImport(DllName)]
 	public static extern bool Everything_IsFileResult(uint nIndex);
 
-	[DllImport(DllName, CharSet = CharSet.Unicode)]
-	public static extern void Everything_GetResultFullPathName(uint nIndex, StringBuilder lpString, uint nMaxCount);
-
-	[DllImport(DllName)]
-	public static extern void Everything_Reset();
+	[DllImport(DllName, EntryPoint = "Everything_Reset")]
+	public static extern void Reset();
 
 	[DllImport(DllName, CharSet = CharSet.Unicode)]
 	public static extern IntPtr Everything_GetResultFileName(uint nIndex);
 
 	// Everything 1.4
-	[DllImport(DllName)]
-	public static extern void Everything_SetSort(uint dwSortType);
+	[DllImport(DllName, EntryPoint = "Everything_SetSort")]
+	public static extern void SetSort(SortMode sortModeFlags);
 
-	[DllImport(DllName)]
-	public static extern uint Everything_GetSort();
+	[DllImport(DllName, EntryPoint = "Everything_SetSort")]
+	public static extern uint GetSort();
 
 	[DllImport(DllName)]
 	public static extern uint Everything_GetResultListSort();
 
-	[DllImport(DllName)]
-	public static extern void Everything_SetRequestFlags(uint dwRequestFlags);
+	[DllImport(DllName, EntryPoint = "Everything_SetRequestFlags")]
+	public static extern void SetRequestFlags(RequestType dwRequestTypeFlags);
 
-	[DllImport(DllName)]
-	public static extern uint Everything_GetRequestFlags();
+	[DllImport(DllName, EntryPoint = "Everything_GetRequestFlags")]
+	public static extern uint GetRequestFlags();
 
 	[DllImport(DllName)]
 	public static extern uint Everything_GetResultListRequestFlags();
@@ -174,13 +229,13 @@ internal class EverythingInterop {
 	public static extern IntPtr Everything_GetResultExtension(uint nIndex);
 
 	[DllImport(DllName)]
-	public static extern bool Everything_GetResultSize(uint nIndex, out long lpFileSize);
+	public static extern bool GetResultSize(uint nIndex, out long lpFileSize);
 
 	[DllImport(DllName)]
 	public static extern bool Everything_GetResultDateCreated(uint nIndex, out long lpFileTime);
 
 	[DllImport(DllName)]
-	public static extern bool Everything_GetResultDateModified(uint nIndex, out long lpFileTime);
+	public static extern bool GetResultDateModified(uint nIndex, out long lpFileTime);
 
 	[DllImport(DllName)]
 	public static extern bool Everything_GetResultDateAccessed(uint nIndex, out long lpFileTime);
@@ -209,6 +264,20 @@ internal class EverythingInterop {
 	[DllImport(DllName, CharSet = CharSet.Unicode)]
 	public static extern IntPtr Everything_GetResultHighlightedFullPathAndFileName(uint nIndex);
 
+	[DllImport(DllName, CharSet = CharSet.Unicode)]
+	private static extern uint Everything_GetResultFullPathName(uint nIndex, StringBuilder lpString, uint nMaxCount);
+
+	private static readonly StringBuilder Buffer = new(260);
+
+	public static string GetResultFullPathName(uint index) {
+		lock (Buffer) {
+			if (Everything_GetResultFullPathName(index, Buffer, 260) == 0) {
+				throw new EverythingException("Everything_GetResultFullPathName");
+			}
+			return Buffer.ToString();
+		}
+	}
+
 	[DllImport(DllName)]
 	public static extern uint Everything_GetRunCountFromFileName(string lpFileName);
 
@@ -217,4 +286,18 @@ internal class EverythingInterop {
 
 	[DllImport(DllName)]
 	public static extern uint Everything_IncRunCountFromFileName(string lpFileName);
+
+	[DllImport(DllName)]
+	public static extern int Everything_GetMajorVersion();
+
+	[DllImport(DllName, EntryPoint = "Everything_IsQueryReply")]
+	public static extern bool IsQueryReply(int msg, IntPtr wParam, IntPtr lParam, uint id);
+
+	[DllImport(DllName, EntryPoint = "Everything_SetReplyID")]
+	public static extern void SetReplyID(uint id);
+
+	[DllImport(DllName, EntryPoint = "Everything_SetReplyWindow")]
+	public static extern void SetReplyWindow(IntPtr hwnd);
+
+	public static bool IsAvailable => Everything_GetMajorVersion() != 0;
 }

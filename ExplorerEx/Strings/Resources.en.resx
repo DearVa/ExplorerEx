@@ -175,4 +175,16 @@ Are you sure you want to change?</value>
   <data name="Search" xml:space="preserve">
     <value>Search</value>
   </data>
+  <data name="Everything_is_not_available" xml:space="preserve">
+    <value>Everything is not running or not installed, cannot search now.</value>
+  </data>
+  <data name="Removable_disk" xml:space="preserve">
+    <value>Removable disk</value>
+  </data>
+  <data name="CD_drive" xml:space="preserve">
+    <value>CD drive</value>
+  </data>
+  <data name="Other_type_disk" xml:space="preserve">
+    <value>Other type disk</value>
+  </data>
 </root>

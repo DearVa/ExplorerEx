@@ -41,10 +41,10 @@ public class MainWindowViewModel : ViewModelBase {
 
 	public SimpleCommand NewTabCommand { get; }
 
-	private readonly MainWindow mainWindow;
+	public MainWindow MainWindow { get; }
 
 	public MainWindowViewModel(MainWindow mainWindow) {
-		this.mainWindow = mainWindow;
+		MainWindow = mainWindow;
 
 		TabClosingCommand = new SimpleCommand(OnTabClosing);
 		NewTabCommand = new SimpleCommand(OnNewTab);
@@ -54,12 +54,12 @@ public class MainWindowViewModel : ViewModelBase {
 
 	public async Task StartUpLoad(string path) {
 		if (!await SelectedTab.LoadDirectoryAsync(path)) {
-			mainWindow.Close();
+			MainWindow.Close();
 		}
 	}
 
 	public async Task OpenPathInNewTabAsync(string path) {
-		var newTabIndex = mainWindow.MainTabControl.SelectedIndex + 1;
+		var newTabIndex = MainWindow.MainTabControl.SelectedIndex + 1;
 		var item = new FileViewTabViewModel(this);
 		TabViewItems.Insert(newTabIndex, item);
 		TabViewSelectedIndex = newTabIndex;
@@ -67,7 +67,7 @@ public class MainWindowViewModel : ViewModelBase {
 			if (TabViewItems.Count > 1) {
 				TabViewItems.Remove(item);
 			} else {
-				mainWindow.Close();
+				MainWindow.Close();
 			}
 		}
 	}

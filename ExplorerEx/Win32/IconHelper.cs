@@ -80,7 +80,7 @@ internal static class IconHelper {
 			DestroyIcon(shFileInfo.hIcon);
 			if (useCache) {
 				lock (CachedIcons) {
-					CachedIcons.Add(extension, icon);
+					CachedIcons.TryAdd(extension, icon);
 				}
 			}
 

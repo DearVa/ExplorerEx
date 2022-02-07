@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -21,6 +22,9 @@ public sealed partial class MainWindow {
 	private static readonly List<MainWindow> MainWindows = new();
 
 	public static event Action ClipboardChanged;
+
+	public event Action<uint> EverythingQueryReplied;
+
 	public static DataObjectContent DataObjectContent { get; private set; }
 
 	private readonly HwndSource hwnd;
@@ -29,6 +33,9 @@ public sealed partial class MainWindow {
 
 	private readonly MainWindowViewModel viewModel;
 	private readonly string startupPath;
+
+	private static volatile uint globalEverythingQueryId;
+	private uint everythingQueryId;
 
 	public MainWindow() : this(null) { }
 
@@ -105,38 +112,54 @@ public sealed partial class MainWindow {
 	}
 
 	private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
-		switch (msg) {
-		case WM_DRAWCLIPBOARD:
-			OnClipboardChanged();
-			SendMessage(nextClipboardViewer, msg, wParam, lParam);
-			break;
-		case WM_CHANGECBCHAIN:
-			if (wParam == nextClipboardViewer) {
-				nextClipboardViewer = lParam;
-			} else {
+		if (everythingQueryId != 0 && EverythingQueryReplied != null && EverythingInterop.IsQueryReply(msg, wParam, lParam, everythingQueryId)) {
+			EverythingQueryReplied.Invoke(everythingQueryId);
+		} else {
+			switch (msg) {
+			case WM_DRAWCLIPBOARD:
+				OnClipboardChanged();
 				SendMessage(nextClipboardViewer, msg, wParam, lParam);
+				break;
+			case WM_CHANGECBCHAIN:
+				if (wParam == nextClipboardViewer) {
+					nextClipboardViewer = lParam;
+				} else {
+					SendMessage(nextClipboardViewer, msg, wParam, lParam);
+				}
+				break;
+			case WM_THEMECHANGED:
+			case WM_DWMCOMPOSITIONCHANGED:
+			case WM_DWMCOLORIZATIONCOLORCHANGED:
+				ChangeThemeWithSystem();
+				break;
+			case 13288: // 启动了另一个实例
+				var pid = (int)wParam;
+				try {
+					var other = Process.GetProcessById(pid);
+					var args = other.GetCommandLine().Split(' ');
+					var path = args.Length > 1 ? args[1] : null;
+					new MainWindow(path).Show();
+				} catch (Exception e) {
+					Logger.Exception(e, false);
+				}
+				handled = true;
+				break;
 			}
-			break;
-		case WM_THEMECHANGED:
-		case WM_DWMCOMPOSITIONCHANGED:
-		case WM_DWMCOLORIZATIONCOLORCHANGED:
-			ChangeThemeWithSystem();
-			break;
-		case 13288:  // 启动了另一个实例
-			var pid = (int)wParam;
-			try {
-				var other = Process.GetProcessById(pid);
-				var args = other.GetCommandLine().Split(' ');
-				var path = args.Length > 1 ? args[1] : null;
-				new MainWindow(path).Show();
-			} catch (Exception e) {
-				Logger.Exception(e, false);
-			}
-			handled = true;
-			break;
 		}
-
 		return IntPtr.Zero;
+	}
+
+	/// <summary>
+	/// 在调用Everything的Query之前，先调用这个方法注册，当查询返回，会触发<see cref="EverythingQueryReplied"/>
+	/// </summary>
+	/// <returns>分配的查询ID</returns>
+	public uint RegisterEverythingQuery() {
+		lock (this) {
+			everythingQueryId = Interlocked.Increment(ref globalEverythingQueryId);
+			EverythingInterop.SetReplyWindow(hwnd.Handle);
+			EverythingInterop.SetReplyID(everythingQueryId);
+			return everythingQueryId;
+		}
 	}
 
 	private static void OnClipboardChanged() {
@@ -234,22 +257,21 @@ public sealed partial class MainWindow {
 		}
 	}
 
+	private ListBoxItem lastClickItem;
+	private DateTimeOffset lastClickTime;
+
 	private async void HomeListBox_OnMouseUp(object sender, MouseButtonEventArgs e) {
 		if (e.ChangedButton == MouseButton.Left) {
 			if (ItemsControl.ContainerFromElement((ListBox)sender, (DependencyObject)e.OriginalSource) is ListBoxItem item) {
-				await viewModel.SelectedTab.Item_OnMouseUp((FileViewBaseItem)item.Content);
+				if (lastClickItem == item && DateTimeOffset.Now <= lastClickTime.AddMilliseconds(500)) {
+					await viewModel.SelectedTab.LoadDirectoryAsync(((DiskDriveItem)item.Content).Driver.Name);
+				}
+				lastClickItem = item;
+				lastClickTime = DateTimeOffset.Now;
 			} else {
 				viewModel.SelectedTab.ClearSelection();
 			}
 		}
-	}
-
-	private async void FileDataGrid_OnItemClicked(object item) {
-		await viewModel.SelectedTab.Item_OnMouseUp((FileViewBaseItem)item);
-	}
-
-	private void FileDataGrid_OnBackgroundClicked() {
-		viewModel.SelectedTab.ClearSelection();
 	}
 
 	private void DragArea_OnMouseDown(object sender, MouseButtonEventArgs e) {
