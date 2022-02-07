@@ -32,9 +32,16 @@ public class DiskDriveItem : FileViewBaseItem {
 
 	public DiskDriveItem(FileViewTabViewModel ownerViewModel, DriveInfo driver) : base(ownerViewModel) {
 		Driver = driver;
-		Name = $"{(string.IsNullOrWhiteSpace(driver.VolumeLabel) ? "Local_disk".L() : driver.VolumeLabel)} ({driver.Name[..1]})";
-		TotalSpace = driver.TotalSize;
-		FreeSpace = driver.AvailableFreeSpace;  // 考虑用户配额
+		if (driver.IsReady)
+		{
+			Name = $"{(string.IsNullOrWhiteSpace(driver.VolumeLabel) ? "Local_disk".L() : driver.VolumeLabel)} ({driver.Name[..1]})";
+			TotalSpace = driver.TotalSize;
+			FreeSpace = driver.AvailableFreeSpace;  // 考虑用户配额
+		}
+		else
+        {
+			Name = "设备未就绪";
+		}
 	}
 
 	public override async Task LoadIconAsync() {
