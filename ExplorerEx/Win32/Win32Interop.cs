@@ -35,6 +35,9 @@ internal static class Win32Interop {
 	[DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
 	public static extern bool DestroyIcon(IntPtr hIcon);
 
+	[DllImport("user32.dll")]
+	public static extern int GetDoubleClickTime();
+
 	[DllImport("gdi32.dll")]
 	public static extern IntPtr CreateCompatibleDC(IntPtr hdc);
 
@@ -347,6 +350,11 @@ internal static class Win32Interop {
 	private const int SW_SHOW = 5;
 	private const uint SEE_MASK_INVOKEIDLIST = 12;
 
+	/// <summary>
+	/// 显示文件的属性面板
+	/// </summary>
+	/// <param name="filePath"></param>
+	/// <returns></returns>
 	public static bool ShowFileProperties(string filePath) {
 		var info = new SHELLEXECUTEINFO();
 		info.cbSize = Marshal.SizeOf(info);

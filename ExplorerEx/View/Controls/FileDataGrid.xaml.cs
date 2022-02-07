@@ -118,12 +118,17 @@ public partial class FileDataGrid {
 
 	public void ClearSelection() {
 		var selectedItems = SelectedItems;
-		if (selectedItems.Count > 0) {
+		switch (selectedItems.Count) {
+		case 1:
+			((FileViewBaseItem)selectedItems[0])!.IsSelected = false;
+			break;
+		case > 1:
 			var list = new FileViewBaseItem[selectedItems.Count];
 			selectedItems.CopyTo(list, 0);
 			foreach (var item in list) {
 				item.IsSelected = false;
 			}
+			break;
 		}
 	}
 
@@ -136,6 +141,13 @@ public partial class FileDataGrid {
 		}
 		base.OnItemsChanged(e);
 	}
+
+	/// <summary>
+	/// 用于处理双击事件
+	/// </summary>
+	private FileViewBaseItem lastClickItem;
+	private DateTimeOffset lastClickTime;
+	private bool isDoubleClicked;
 
 	/// <summary>
 	/// 认真观察了自带文件管理器的交互方式。
@@ -153,14 +165,19 @@ public partial class FileDataGrid {
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
 		Trace.WriteLine("MouseDown");
-		if (e.ChangedButton is MouseButton.Left or MouseButton.Right && !e.OriginalSource.IsChildOf(typeof(ScrollBar), typeof(FileDataGrid))) {
+		isDoubleClicked = false;
+		if (e.OriginalSource.IsChildOf(typeof(ScrollBar), typeof(FileDataGrid))) {
+			base.OnPreviewMouseDown(e);
+			return;
+		}
+
+		if (e.ChangedButton is MouseButton.Left or MouseButton.Right) {
 			isMouseDown = true;
 
 			if (renameCts != null) {
 				renameCts.Cancel();
 				renameCts = null;
 			}
-
 			if (renamingItem is { EditingName: not null }) {
 				if (!e.OriginalSource.IsChildOf(typeof(TextBox), typeof(FileDataGrid))) {
 					renamingItem.StopRename();
@@ -168,43 +185,55 @@ public partial class FileDataGrid {
 			}
 
 			if (ContainerFromElement(this, (DependencyObject)e.OriginalSource) is DataGridRow row) {
-				mouseDownRowIndex = Items.IndexOf((FileViewBaseItem)row.Item);
-				if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) {
-					lastMouseDownRowIndex = mouseDownRowIndex;
-					row.IsSelected = !row.IsSelected;
-				} else if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) {
-					if (lastMouseDownRowIndex == -1) {
+				var item = (FileViewBaseItem)row.Item;
+				// 双击
+				if (item == lastClickItem && DateTimeOffset.Now <= lastClickTime.AddMilliseconds(Win32Interop.GetDoubleClickTime())) {
+					isDoubleClicked = true;
+					renameCts?.Cancel();
+					renameCts = null;
+					ClearSelection();
+					RaiseEvent(new ItemClickEventArgs(ItemDoubleClickedEvent, item));
+				} else {
+					mouseDownRowIndex = Items.IndexOf(item);
+					if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) {
 						lastMouseDownRowIndex = mouseDownRowIndex;
-						row.IsSelected = true;
-					} else {
-						if (mouseDownRowIndex != lastMouseDownRowIndex) {
-							int startIndex, endIndex;
-							if (mouseDownRowIndex < lastMouseDownRowIndex) {
-								startIndex = mouseDownRowIndex;
-								endIndex = lastMouseDownRowIndex;
-							} else {
-								startIndex = lastMouseDownRowIndex;
-								endIndex = mouseDownRowIndex;
-							}
-							ClearSelection();
-							for (var i = startIndex; i <= endIndex; i++) {
-								Items[i].IsSelected = true;
+						row.IsSelected = !row.IsSelected;
+					} else if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) {
+						if (lastMouseDownRowIndex == -1) {
+							lastMouseDownRowIndex = mouseDownRowIndex;
+							row.IsSelected = true;
+						} else {
+							if (mouseDownRowIndex != lastMouseDownRowIndex) {
+								int startIndex, endIndex;
+								if (mouseDownRowIndex < lastMouseDownRowIndex) {
+									startIndex = mouseDownRowIndex;
+									endIndex = lastMouseDownRowIndex;
+								} else {
+									startIndex = lastMouseDownRowIndex;
+									endIndex = mouseDownRowIndex;
+								}
+								ClearSelection();
+								for (var i = startIndex; i <= endIndex; i++) {
+									Items[i].IsSelected = true;
+								}
 							}
 						}
-					}
-				} else {
-					lastMouseDownRowIndex = mouseDownRowIndex;
-					var selectedItems = SelectedItems;
-					if (selectedItems.Count == 0) {
-						row.IsSelected = true;
-					} else if (!row.IsSelected) {
-						ClearSelection();
-						row.IsSelected = true;
-					} else if (selectedItems.Count == 1 && e.ChangedButton == MouseButton.Left) {
-						isPreparedForRenaming = true;
-						Trace.WriteLine("isPreparedForRenaming");
+					} else {
+						lastMouseDownRowIndex = mouseDownRowIndex;
+						var selectedItems = SelectedItems;
+						if (selectedItems.Count == 0) {
+							row.IsSelected = true;
+						} else if (!row.IsSelected) {
+							ClearSelection();
+							row.IsSelected = true;
+						} else if (selectedItems.Count == 1 && e.ChangedButton == MouseButton.Left) {
+							isPreparedForRenaming = true;
+							Trace.WriteLine("isPreparedForRenaming");
+						}
 					}
 				}
+				lastClickItem = item;
+				lastClickTime = DateTimeOffset.Now;
 			} else {
 				mouseDownRowIndex = -1;
 				startDragPosition = e.GetPosition(contentGrid);
@@ -227,6 +256,10 @@ public partial class FileDataGrid {
 	/// </summary>
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseMove(MouseEventArgs e) {
+		if (e.OriginalSource.IsChildOf(typeof(ScrollBar), typeof(FileDataGrid)) || isDoubleClicked) {
+			base.OnPreviewMouseMove(e);
+			return;
+		}
 		// 只有isMouseDown（即OnPreviewMouseDown触发过）为true，这个才有用
 		if (isMouseDown && !isDragDropping && e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed) {
 			var point = e.GetPosition(contentGrid);
@@ -318,8 +351,7 @@ public partial class FileDataGrid {
 				var endIndex = Math.Min((int)((h + t - point0.Y) / dY), items.Count - 1);
 				if (startIndex != lastStartIndex && startIndex < items.Count) {
 					for (var i = lastStartIndex; i < startIndex; i++) {
-						if (i < items.Count)
-						{
+						if (i < items.Count) {
 							items[i].IsSelected = false;
 						}
 					}
@@ -350,11 +382,12 @@ public partial class FileDataGrid {
 		}
 	}
 
-	private DataGridRow lastClickRow;
-	private DateTimeOffset lastClickTime;
-
 	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
 		Trace.WriteLine("MouseUp");
+		if (e.OriginalSource.IsChildOf(typeof(ScrollBar), typeof(FileDataGrid)) || isDoubleClicked) {
+			base.OnPreviewMouseUp(e);
+			return;
+		}
 		// 只有isMouseDown（即OnPreviewMouseDown触发过）为true，这个才有用
 		if (isMouseDown && e.ChangedButton is MouseButton.Left or MouseButton.Right) {
 			isMouseDown = false;
@@ -370,7 +403,7 @@ public partial class FileDataGrid {
 					if (renameCts == null) {
 						var cts = renameCts = new CancellationTokenSource();
 						Task.Run(() => {
-							Thread.Sleep(600);  // 要比双击的时间长一些
+							Thread.Sleep((int)(Win32Interop.GetDoubleClickTime() * 1.5f));  // 要比双击的时间长一些
 							if (!cts.IsCancellationRequested) {
 								item.BeginRename();
 							}
@@ -379,25 +412,33 @@ public partial class FileDataGrid {
 						renameCts = null;
 					}
 				}
-			} else if (e.ChangedButton == MouseButton.Left) {
+			} else {
+				var isClickOnItem = mouseDownRowIndex >= 0 && mouseDownRowIndex < Items.Count;
 				var isCtrlOrShiftPressed = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ||
-				                           Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
-				if (ContainerFromElement(this, (DependencyObject)e.OriginalSource) is DataGridRow row) {
-					if (row == lastClickRow && DateTimeOffset.Now <= lastClickTime.AddMilliseconds(500)) {
-						renameCts?.Cancel();
-						renameCts = null;
-						RaiseEvent(new ItemClickEventArgs(ItemDoubleClickedEvent, (FileViewBaseItem)row.Item));
-					} else {
+										   Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
+				switch (e.ChangedButton) {
+				case MouseButton.Left:
+					if (isClickOnItem) {
+						var item = (FileSystemItem)Items[mouseDownRowIndex];
 						if (!isCtrlOrShiftPressed && SelectedItems.Count > 1) {
 							ClearSelection();
 						}
-						row.IsSelected = true;
-						RaiseEvent(new ItemClickEventArgs(ItemClickedEvent, (FileViewBaseItem)row.Item));
+						item.IsSelected = true;
+						RaiseEvent(new ItemClickEventArgs(ItemClickedEvent, item));
+					} else if (!isCtrlOrShiftPressed) {
+						ClearSelection();
 					}
-					lastClickRow = row;
-					lastClickTime = DateTimeOffset.Now;
-				} else if (!isCtrlOrShiftPressed) {
-					ClearSelection();
+					break;
+				case MouseButton.Right:
+					if (isClickOnItem) {
+						var item = (FileSystemItem)Items[mouseDownRowIndex];
+						var menu = ((DataGridRow)ContainerFromElement(this, (DependencyObject)e.OriginalSource))!.ContextMenu!;
+						menu.DataContext = item;
+						menu.IsOpen = true;
+					} else {
+						// ContextMenu!.IsOpen = true;
+					}
+					break;
 				}
 			}
 		}

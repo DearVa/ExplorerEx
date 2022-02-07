@@ -18,23 +18,23 @@
         <ControlTemplate x:Key="FileOperationsTemplate">
             <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance m:FileSystemItem}">
                 <Button Height="35" ToolTip="{u:Lang Cut}" 
-                        Command="{Binding DataContext.CutCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}">
+                        Command="{Binding DataContext.CutCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid, AncestorLevel=2}}">
                     <Image Width="20" Height="20" Source="{StaticResource CutDrawingImage}"/>
                 </Button>
                 <Button Height="35" Margin="6,0,0,0" ToolTip="{u:Lang Copy}"
-                        Command="{Binding DataContext.CopyCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}">
+                        Command="{Binding DataContext.CopyCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid, AncestorLevel=2}}">
                     <Image Width="20" Height="20" Source="{StaticResource CopyDrawingImage}"/>
                 </Button>
                 <Button Height="35" Margin="6,0,0,0" ToolTip="{u:Lang Rename}"
-                        Command="{Binding DataContext.RenameCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}">
+                        Command="{Binding DataContext.RenameCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid, AncestorLevel=2}}">
                     <Image Width="20" Height="20" Source="{StaticResource RenameDrawingImage}"/>
                 </Button>
                 <Button Height="35" Margin="6,0,6,0" ToolTip="{u:Lang Share}"
-                        Command="{Binding DataContext.ShareCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}">
+                        Command="{Binding DataContext.ShareCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid, AncestorLevel=2}}">
                     <Image Width="20" Height="20" Source="{StaticResource ShareDrawingImage}"/>
                 </Button>
                 <Button Height="35" ToolTip="{u:Lang Delete}"
-                        Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}">
+                        Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid, AncestorLevel=2}}">
                     <Image Width="20" Height="20" Source="{StaticResource DeleteDrawingImage}"/>
                 </Button>
             </StackPanel>

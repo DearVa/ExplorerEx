@@ -55,15 +55,19 @@ public class FileSystemItem : FileViewBaseItem {
 		ShowPropertiesCommand = new SimpleCommand(_ => Win32Interop.ShowFileProperties(FullPath));
 	}
 
-	public async Task OpenAsync() {
+	public async Task OpenAsync(bool runAs = false) {
 		if (IsFolder) {
 			await OwnerViewModel.LoadDirectoryAsync(FullPath);
 		} else {
 			try {
-				Process.Start(new ProcessStartInfo {
+				var psi = new ProcessStartInfo {
 					FileName = FullPath,
 					UseShellExecute = true
-				});
+				};
+				if (runAs) {
+					psi.Verb = "runas";
+				}
+				Process.Start(psi);
 			} catch (Exception e) {
 				HandyControl.Controls.MessageBox.Error(e.Message, "Fail to open file".L());
 			}

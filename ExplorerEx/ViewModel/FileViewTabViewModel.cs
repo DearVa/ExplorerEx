@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
 using ExplorerEx.Model;
 using ExplorerEx.Selector;
@@ -476,13 +477,38 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	}
 
 	public async Task Item_OnDoubleClicked(FileDataGrid.ItemClickEventArgs e) {
+		var isCtrlPressed = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
+		var isShiftPressed = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
+		var isAltPressed = Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt);
 		switch (e.Item) {
 		// 双击事件
 		case DiskDriveItem ddi:
-			await LoadDirectoryAsync(ddi.Driver.Name);
+			if (isCtrlPressed) {
+				await OwnerViewModel.OpenPathInNewTabAsync(ddi.Driver.Name);
+			} else if (isShiftPressed) {
+				new MainWindow(ddi.Driver.Name).Show();
+			} else if (isAltPressed) {
+				Win32Interop.ShowFileProperties(ddi.Driver.Name);
+			} else {
+				await LoadDirectoryAsync(ddi.Driver.Name);
+			}
 			break;
 		case FileSystemItem fsi:
-			await fsi.OpenAsync();
+			if (isAltPressed) {
+				Win32Interop.ShowFileProperties(fsi.FullPath);
+			} else {
+				if (fsi.IsFolder) {
+					if (isCtrlPressed) {
+						await OwnerViewModel.OpenPathInNewTabAsync(fsi.FullPath);
+					} else if (isShiftPressed) {
+						new MainWindow(fsi.FullPath).Show();
+					} else {
+						await LoadDirectoryAsync(fsi.FullPath);
+					}
+				} else {
+					await fsi.OpenAsync(isCtrlPressed || isShiftPressed);
+				}
+			}
 			break;
 		}
 	}
