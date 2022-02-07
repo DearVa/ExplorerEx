@@ -318,7 +318,10 @@ public partial class FileDataGrid {
 				var endIndex = Math.Min((int)((h + t - point0.Y) / dY), items.Count - 1);
 				if (startIndex != lastStartIndex && startIndex < items.Count) {
 					for (var i = lastStartIndex; i < startIndex; i++) {
-						items[i].IsSelected = false;
+						if (i < items.Count)
+						{
+							items[i].IsSelected = false;
+						}
 					}
 					for (var i = startIndex; i <= lastStartIndex && i <= endIndex; i++) {
 						items[i].IsSelected = true;
