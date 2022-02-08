@@ -15,19 +15,14 @@ public class FileSystemItem : FileViewBaseItem {
 
 	public DateTime LastWriteTime => FileSystemInfo.LastWriteTime;
 
-	public string FileTypeString => IsFolder ? (isEmptyFolder ? "Empty_folder".L() : "Folder".L()) : GetFileTypeDescription(Path.GetExtension(FileSystemInfo.Name));
+	/// <summary>
+	/// 类型
+	/// </summary>
+	public override string Type => IsFolder ? (isEmptyFolder ? "Empty_folder".L() : "Folder".L()) : GetFileTypeDescription(Path.GetExtension(FileSystemInfo.Name));
 
 	public string FileSizeString => FileUtils.FormatByteSize(FileSize);
 
-	public string FullPath => FileSystemInfo.FullName;
-
-	public SimpleCommand OpenCommand { get; }
-
-	public SimpleCommand OpenInNewTabCommand { get; }
-
-	public SimpleCommand OpenInNewWindowCommand { get; }
-
-	public SimpleCommand ShowPropertiesCommand { get; }
+	public override string FullPath => FileSystemInfo.FullName;
 
 	private bool isEmptyFolder;
 
@@ -45,14 +40,6 @@ public class FileSystemItem : FileViewBaseItem {
 		}
 		// ReSharper disable once AsyncVoidLambda
 		OpenCommand = new SimpleCommand(async _ => await OpenAsync());
-		// ReSharper disable once AsyncVoidLambda
-		OpenInNewTabCommand = new SimpleCommand(async _ => {
-			if (IsFolder) {
-				await OwnerViewModel.OwnerViewModel.OpenPathInNewTabAsync(FullPath);
-			}
-		});
-		OpenInNewWindowCommand = new SimpleCommand(_ => new MainWindow(FullPath).Show());
-		ShowPropertiesCommand = new SimpleCommand(_ => Win32Interop.ShowFileProperties(FullPath));
 	}
 
 	public async Task OpenAsync(bool runAs = false) {

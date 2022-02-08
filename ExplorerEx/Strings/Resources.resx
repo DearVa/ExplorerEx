@@ -248,8 +248,8 @@
   <data name="File_size" xml:space="preserve">
     <value>文件大小</value>
   </data>
-  <data name="File_type" xml:space="preserve">
-    <value>文件类型</value>
+  <data name="Type" xml:space="preserve">
+    <value>类型</value>
   </data>
   <data name="Empty_folder" xml:space="preserve">
     <value>空文件夹</value>
@@ -273,5 +273,23 @@
   </data>
   <data name="Other_type_disk" xml:space="preserve">
     <value>其他类型磁盘</value>
+  </data>
+  <data name="Big_icon" xml:space="preserve">
+    <value>大图标</value>
+  </data>
+  <data name="Small_icon" xml:space="preserve">
+    <value>小图标</value>
+  </data>
+  <data name="List" xml:space="preserve">
+    <value>列表</value>
+  </data>
+  <data name="Detail" xml:space="preserve">
+    <value>详细信息</value>
+  </data>
+  <data name="Tile" xml:space="preserve">
+    <value>平铺</value>
+  </data>
+  <data name="Content" xml:space="preserve">
+    <value>内容</value>
   </data>
 </root>

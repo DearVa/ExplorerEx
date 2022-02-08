@@ -173,6 +173,9 @@ public sealed partial class MainWindow {
 
 	protected override void OnClosed(EventArgs e) {
 		MainWindows.Remove(this);
+		foreach (var tab in viewModel.TabViewItems) {
+			tab.Dispose();
+		}
 		base.OnClosed(e);
 		if (nextClipboardViewer != IntPtr.Zero) {
 			ChangeClipboardChain(hwnd.Handle, nextClipboardViewer);

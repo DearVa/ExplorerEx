@@ -6,7 +6,9 @@ using System.Windows;
 using System.Windows.Media;
 using ExplorerEx.Annotations;
 using ExplorerEx.Utils;
+using ExplorerEx.View;
 using ExplorerEx.ViewModel;
+using ExplorerEx.Win32;
 using HandyControl.Controls;
 using HandyControl.Data;
 
@@ -27,7 +29,14 @@ public abstract class FileViewBaseItem : INotifyPropertyChanged {
 
 	private ImageSource icon;
 
+	public abstract string FullPath { get; }
+
 	public string Name { get; protected set; }
+
+	/// <summary>
+	/// 类型描述
+	/// </summary>
+	public abstract string Type { get; }
 
 	public long FileSize { get; protected init; }
 
@@ -45,9 +54,25 @@ public abstract class FileViewBaseItem : INotifyPropertyChanged {
 
 	private bool isSelected;
 
+	public SimpleCommand OpenCommand { get; protected init; }
+
+	public SimpleCommand OpenInNewTabCommand { get; }
+
+	public SimpleCommand OpenInNewWindowCommand { get; }
+
+	public SimpleCommand ShowPropertiesCommand { get; }
+
 	protected FileViewBaseItem(FileViewTabViewModel ownerViewModel) {
 		OwnerViewModel = ownerViewModel;
 		LostFocusCommand = new SimpleCommand(OnLostFocus);
+		// ReSharper disable once AsyncVoidLambda
+		OpenInNewTabCommand = new SimpleCommand(async _ => {
+			if (IsFolder) {
+				await OwnerViewModel.OwnerViewModel.OpenPathInNewTabAsync(FullPath);
+			}
+		});
+		OpenInNewWindowCommand = new SimpleCommand(_ => new MainWindow(FullPath).Show());
+		ShowPropertiesCommand = new SimpleCommand(_ => Win32Interop.ShowFileProperties(FullPath));
 	}
 
 	public abstract Task LoadIconAsync();

@@ -7,17 +7,25 @@ using ExplorerEx.ViewModel;
 using System.Runtime.CompilerServices;
 using System;
 using System.Diagnostics;
-using HandyControl.Controls;
 
 namespace ExplorerEx.Model; 
 
 /// <summary>
 /// 硬盘驱动器
 /// </summary>
-public class DiskDriveItem : FileViewBaseItem {
+public sealed class DiskDriveItem : FileViewBaseItem {
 	public DriveInfo Driver { get; }
 
 	public bool IsReady => Driver.IsReady;
+
+	public override string FullPath => Driver.Name;
+
+	public override string Type => Driver.DriveType switch {
+		DriveType.Removable => "Removable_disk".L(),
+		DriveType.CDRom => "CD_drive".L(),
+		DriveType.Fixed => "Local_disk".L(),
+		_ => "Other_type_disk".L()
+	};
 
 	public long FreeSpace { get; }
 
@@ -36,21 +44,14 @@ public class DiskDriveItem : FileViewBaseItem {
 	public DiskDriveItem(FileViewTabViewModel ownerViewModel, DriveInfo driver) : base(ownerViewModel) {
 		Driver = driver;
 		if (driver.IsReady) {
-			Name = $"{(string.IsNullOrWhiteSpace(driver.VolumeLabel) ? GetDriveTypeString() : driver.VolumeLabel)} ({driver.Name[..1]})";
+			Name = $"{(string.IsNullOrWhiteSpace(driver.VolumeLabel) ? Type : driver.VolumeLabel)} ({driver.Name[..1]})";
 			TotalSpace = driver.TotalSize;
 			FreeSpace = driver.AvailableFreeSpace; // 考虑用户配额
 		} else {
-			Name = $"{GetDriveTypeString()} ({driver.Name[..1]})";
+			Name = $"{Type} ({driver.Name[..1]})";
 		}
-	}
-
-	private string GetDriveTypeString() {
-		return Driver.DriveType switch {
-			DriveType.Removable => "Removable_disk".L(),
-			DriveType.CDRom => "CD_drive".L(),
-			DriveType.Fixed => "Local_disk".L(),
-			_ => "Other_type_disk".L()
-		};
+		// ReSharper disable once AsyncVoidLambda
+		OpenCommand = new SimpleCommand(async _ => await OwnerViewModel.LoadDirectoryAsync(FullPath));
 	}
 
 	public override async Task LoadIconAsync() {

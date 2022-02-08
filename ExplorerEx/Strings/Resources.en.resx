@@ -161,8 +161,8 @@
   <data name="File_size" xml:space="preserve">
     <value>File size</value>
   </data>
-  <data name="File_type" xml:space="preserve">
-    <value>File type</value>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
   </data>
   <data name="Empty_folder" xml:space="preserve">
     <value>Empty folder</value>
@@ -186,5 +186,23 @@ Are you sure you want to change?</value>
   </data>
   <data name="Other_type_disk" xml:space="preserve">
     <value>Other type disk</value>
+  </data>
+  <data name="Big_icon" xml:space="preserve">
+    <value>Big icon</value>
+  </data>
+  <data name="Small_icon" xml:space="preserve">
+    <value>Small icon</value>
+  </data>
+  <data name="List" xml:space="preserve">
+    <value>List</value>
+  </data>
+  <data name="Detail" xml:space="preserve">
+    <value>Detail</value>
+  </data>
+  <data name="Tile" xml:space="preserve">
+    <value>Tile</value>
+  </data>
+  <data name="Content" xml:space="preserve">
+    <value>Content</value>
   </data>
 </root>

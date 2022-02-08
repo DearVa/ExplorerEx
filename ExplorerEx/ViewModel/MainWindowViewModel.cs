@@ -106,6 +106,7 @@ public class MainWindowViewModel : ViewModelBase {
 				break;
 			}
 		} else {
+			SelectedTab.Dispose();
 			if (tabViewSelectedIndex == 0) {
 				TabViewSelectedIndex++;
 			} else {

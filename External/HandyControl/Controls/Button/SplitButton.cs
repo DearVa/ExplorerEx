@@ -58,33 +58,31 @@ public class SplitButton : ButtonBase {
 		base.OnClick();
 	}
 
-	protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
-		if (IsDropDownOpen) {
-			if (e.OriginalSource.IsChildOf(typeof(MenuItem))) {
-				IsDropDownOpen = false;
-			}
-			e.Handled = true;
-		}
-		base.OnPreviewMouseLeftButtonDown(e);
-	}
-
 	protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e) {
 		base.OnPreviewMouseLeftButtonUp(e);
 
-		switch (HitMode) {
-		case HitMode.Hover:
-			e.Handled = true;
-			IsDropDownOpen = true;
-			break;
-		case HitMode.Click when e.OriginalSource.IsChildOf(arrowButton):
-			e.Handled = true;
-			if (IsDropDownOpen) {
-				SetCurrentValue(IsDropDownOpenProperty, ValueBoxes.FalseBox);
-				Mouse.Capture(null);
-			} else {
-				SetCurrentValue(IsDropDownOpenProperty, ValueBoxes.TrueBox);
+		if (IsDropDownOpen) {
+			var menuItem = e.OriginalSource.FindParent<MenuItem, SplitButton>();
+			if (menuItem != null) {
+				Command.Execute(menuItem);  // 点击到了MenuItem
+				IsDropDownOpen = false;
 			}
-			break;
+		} else {
+			switch (HitMode) {
+			case HitMode.Hover:
+				e.Handled = true;
+				IsDropDownOpen = true;
+				break;
+			case HitMode.Click when e.OriginalSource.IsChildOf(arrowButton, this):
+				e.Handled = true;
+				if (IsDropDownOpen) {
+					SetCurrentValue(IsDropDownOpenProperty, ValueBoxes.FalseBox);
+					Mouse.Capture(null);
+				} else {
+					SetCurrentValue(IsDropDownOpenProperty, ValueBoxes.TrueBox);
+				}
+				break;
+			}
 		}
 	}
 

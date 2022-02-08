@@ -126,6 +126,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 大图标 的本地化字符串。
+        /// </summary>
+        internal static string Big_icon {
+            get {
+                return ResourceManager.GetString("Big_icon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 无法访问文件夹 的本地化字符串。
         /// </summary>
         internal static string Cannot_access_directory {
@@ -171,6 +180,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 内容 的本地化字符串。
+        /// </summary>
+        internal static string Content {
+            get {
+                return ResourceManager.GetString("Content", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 复制 的本地化字符串。
         /// </summary>
         internal static string Copy {
@@ -194,6 +212,15 @@ namespace ExplorerEx.Strings {
         internal static string Delete {
             get {
                 return ResourceManager.GetString("Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 详细信息 的本地化字符串。
+        /// </summary>
+        internal static string Detail {
+            get {
+                return ResourceManager.GetString("Detail", resourceCulture);
             }
         }
         
@@ -252,15 +279,6 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 文件类型 的本地化字符串。
-        /// </summary>
-        internal static string File_type {
-            get {
-                return ResourceManager.GetString("File_type", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 文件夹 的本地化字符串。
         /// </summary>
         internal static string Folder {
@@ -284,6 +302,15 @@ namespace ExplorerEx.Strings {
         internal static string Link {
             get {
                 return ResourceManager.GetString("Link", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 列表 的本地化字符串。
+        /// </summary>
+        internal static string List {
+            get {
+                return ResourceManager.GetString("List", resourceCulture);
             }
         }
         
@@ -513,6 +540,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 小图标 的本地化字符串。
+        /// </summary>
+        internal static string Small_icon {
+            get {
+                return ResourceManager.GetString("Small_icon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 排序 的本地化字符串。
         /// </summary>
         internal static string Sort {
@@ -549,11 +585,29 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 平铺 的本地化字符串。
+        /// </summary>
+        internal static string Tile {
+            get {
+                return ResourceManager.GetString("Tile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 共有： 的本地化字符串。
         /// </summary>
         internal static string Total__ {
             get {
                 return ResourceManager.GetString("Total: ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 类型 的本地化字符串。
+        /// </summary>
+        internal static string Type {
+            get {
+                return ResourceManager.GetString("Type", resourceCulture);
             }
         }
         

@@ -10,7 +10,9 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
+using ExplorerEx.Converter;
 using ExplorerEx.Model;
+using ExplorerEx.Utils;
 using ExplorerEx.Win32;
 using HandyControl.Tools;
 using TextBox = HandyControl.Controls.TextBox;
@@ -21,6 +23,72 @@ namespace ExplorerEx.View.Controls;
 /// 要能够响应鼠标事件，处理点选、框选、拖放、重命名和双击
 /// </summary>
 public partial class FileDataGrid {
+	public enum ViewTypes {
+		/// <summary>
+		/// 图标，表现为WarpPanel，每个小格上边是缩略图下边是文件名
+		/// </summary>
+		Icon,
+		/// <summary>
+		/// 列表，表现为WarpPanel，每个小格左边是缩略图右边是文件名
+		/// </summary>
+		List,
+		/// <summary>
+		/// 详细信息，表现为DataGrid，上面有Header，一列一列的
+		/// </summary>
+		Detail,
+		/// <summary>
+		/// 平铺，表现为WarpPanel，每个小格左边是缩略图右边从上到下依次是文件名、文件类型描述、文件大小
+		/// </summary>
+		Tile,
+		/// <summary>
+		/// 内容，表现为DataGrid，但Header不可见，左边是图标、文件名、大小，右边是详细信息
+		/// </summary>
+		Content
+	}
+
+	/// <summary>
+	/// 选择详细信息中的显示列
+	/// </summary>
+	[Flags]
+	public enum Lists {
+		// Name必选，忽略
+
+		/// <summary>
+		/// 修改日期
+		/// </summary>
+		ModificationDate = 0b1,
+		/// <summary>
+		/// 类型
+		/// </summary>
+		Type = 0b10,
+		/// <summary>
+		/// 文件大小
+		/// </summary>
+		FileSize = 0b100,
+		/// <summary>
+		/// 创建日期
+		/// </summary>
+		CreationDate = 0b1000,
+	}
+
+	/// <summary>
+	/// 当前路径的类型
+	/// </summary>
+	public enum PathTypes {
+		/// <summary>
+		/// 首页，“此电脑”
+		/// </summary>
+		Home,
+		/// <summary>
+		/// 普通，即浏览正常文件
+		/// </summary>
+		Normal,
+		/// <summary>
+		/// 网络驱动器
+		/// </summary>
+		NetworkDisk
+	}
+
 	private ScrollViewer scrollViewer;
 	private Grid contentGrid;
 	private Border selectionRect;
@@ -58,9 +126,70 @@ public partial class FileDataGrid {
 		remove => RemoveHandler(ItemDoubleClickedEvent, value);
 	}
 
+	public static readonly DependencyProperty ViewTypeProperty = DependencyProperty.Register(
+		"ViewType", typeof(ViewTypes), typeof(FileDataGrid), new PropertyMetadata(ViewTypes.Tile, ViewType_OnChanged));
+
+	private static void ViewType_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		if (e.NewValue != e.OldValue) {
+			((FileDataGrid)d).UpdateColumns();
+		}
+	}
+
+	public ViewTypes ViewType {
+		get => (ViewTypes)GetValue(ViewTypeProperty);
+		set => SetValue(ViewTypeProperty, value);
+	}
+
+	public static readonly DependencyProperty PathTypeProperty = DependencyProperty.Register(
+		"PathType", typeof(PathTypes), typeof(FileDataGrid), new PropertyMetadata(PathTypes.Home));
+
+	public PathTypes PathType {
+		get => (PathTypes)GetValue(PathTypeProperty);
+		set => SetValue(PathTypeProperty, value);
+	}
+
+	public static readonly DependencyProperty ItemSizeProperty = DependencyProperty.Register(
+		"ItemSize", typeof(Size), typeof(FileDataGrid), new PropertyMetadata(new Size(0d, 70d)));
+
+	/// <summary>
+	/// 项目大小
+	/// </summary>
+	public Size ItemSize {
+		get => (Size)GetValue(ItemSizeProperty);
+		set => SetValue(ItemSizeProperty, value);
+	}
+
+	public Lists DetailLists {
+		get => detailLists;
+		set {
+			if (detailLists != value) {
+				detailLists = value;
+				UpdateColumns();
+			}
+		}
+	}
+
+	private Lists detailLists = Lists.ModificationDate | Lists.Type | Lists.FileSize;
+
+	private readonly FileDataGridColumnsConverter columnsConverter;
+
 	public FileDataGrid() {
 		InitializeComponent();
 		EventManager.RegisterClassHandler(typeof(TextBox), GotFocusEvent, new RoutedEventHandler(OnRenameTextBoxGotFocus));
+		columnsConverter = (FileDataGridColumnsConverter)FindResource("ColumnsConverter");
+		UpdateColumns();
+	}
+
+	/// <summary>
+	/// 根据<see cref="PathType"/>、<see cref="ViewType"/>和<see cref="detailLists"/>选择列，同时更新<see cref="DataGrid.ColumnHeaderHeight"/>
+	/// </summary>
+	private void UpdateColumns() {
+		columnsConverter.Convert(Columns, PathType, ViewType, detailLists);
+		if (ViewType == ViewTypes.Detail) {
+			ColumnHeaderHeight = 20d;
+		} else {
+			ColumnHeaderHeight = 0d;
+		}
 	}
 
 	private void OnRenameTextBoxGotFocus(object sender, RoutedEventArgs e) {
@@ -116,22 +245,6 @@ public partial class FileDataGrid {
 	private FileViewBaseItem renamingItem;
 	private CancellationTokenSource renameCts;
 
-	public void ClearSelection() {
-		var selectedItems = SelectedItems;
-		switch (selectedItems.Count) {
-		case 1:
-			((FileViewBaseItem)selectedItems[0])!.IsSelected = false;
-			break;
-		case > 1:
-			var list = new FileViewBaseItem[selectedItems.Count];
-			selectedItems.CopyTo(list, 0);
-			foreach (var item in list) {
-				item.IsSelected = false;
-			}
-			break;
-		}
-	}
-
 	protected override void OnItemsChanged(NotifyCollectionChangedEventArgs e) {
 		if (e.OldStartingIndex == lastMouseDownRowIndex) {
 			lastMouseDownRowIndex = -1;
@@ -166,7 +279,7 @@ public partial class FileDataGrid {
 	protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
 		Trace.WriteLine("MouseDown");
 		isDoubleClicked = false;
-		if (e.OriginalSource.IsChildOf(typeof(ScrollBar), typeof(FileDataGrid))) {
+		if (e.OriginalSource.FindParent<ScrollBar, FileDataGrid>() != null) {
 			base.OnPreviewMouseDown(e);
 			return;
 		}
@@ -179,7 +292,7 @@ public partial class FileDataGrid {
 				renameCts = null;
 			}
 			if (renamingItem is { EditingName: not null }) {
-				if (!e.OriginalSource.IsChildOf(typeof(TextBox), typeof(FileDataGrid))) {
+				if (e.OriginalSource.FindParent<TextBox, FileDataGrid>() == null) {
 					renamingItem.StopRename();
 				}
 			}
@@ -191,7 +304,7 @@ public partial class FileDataGrid {
 					isDoubleClicked = true;
 					renameCts?.Cancel();
 					renameCts = null;
-					ClearSelection();
+					UnselectAll();
 					RaiseEvent(new ItemClickEventArgs(ItemDoubleClickedEvent, item));
 				} else {
 					mouseDownRowIndex = Items.IndexOf(item);
@@ -212,7 +325,7 @@ public partial class FileDataGrid {
 									startIndex = lastMouseDownRowIndex;
 									endIndex = mouseDownRowIndex;
 								}
-								ClearSelection();
+								UnselectAll();
 								for (var i = startIndex; i <= endIndex; i++) {
 									Items[i].IsSelected = true;
 								}
@@ -224,7 +337,7 @@ public partial class FileDataGrid {
 						if (selectedItems.Count == 0) {
 							row.IsSelected = true;
 						} else if (!row.IsSelected) {
-							ClearSelection();
+							UnselectAll();
 							row.IsSelected = true;
 						} else if (selectedItems.Count == 1 && e.ChangedButton == MouseButton.Left) {
 							isPreparedForRenaming = true;
@@ -256,7 +369,7 @@ public partial class FileDataGrid {
 	/// </summary>
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseMove(MouseEventArgs e) {
-		if (e.OriginalSource.IsChildOf(typeof(ScrollBar), typeof(FileDataGrid)) || isDoubleClicked) {
+		if (e.OriginalSource.FindParent<ScrollBar, FileDataGrid>() != null || isDoubleClicked) {
 			base.OnPreviewMouseMove(e);
 			return;
 		}
@@ -266,12 +379,12 @@ public partial class FileDataGrid {
 			if (Math.Abs(point.X - startDragPosition.X) > SystemParameters.MinimumHorizontalDragDistance ||
 				Math.Abs(point.Y - startDragPosition.Y) > SystemParameters.MinimumVerticalDragDistance) {
 				if (mouseDownRowIndex != -1) {
-					var data = new DataObject(DataFormats.FileDrop, SelectedItems.Cast<FileSystemItem>().Select(item => item.FullPath).ToArray(), true);
+					var data = new DataObject(DataFormats.FileDrop, SelectedItems.Cast<FileViewBaseItem>().Select(item => item.FullPath).ToArray(), true);
 					isDragDropping = true;
 					DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Link | DragDropEffects.Move);
 				} else {
 					if (!isRectSelecting) {
-						ClearSelection();
+						UnselectAll();
 						if (lastStartIndex <= lastEndIndex) {
 							var items = Items;
 							for (var i = lastStartIndex; i <= lastEndIndex; i++) {
@@ -384,7 +497,7 @@ public partial class FileDataGrid {
 
 	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
 		Trace.WriteLine("MouseUp");
-		if (e.OriginalSource.IsChildOf(typeof(ScrollBar), typeof(FileDataGrid)) || isDoubleClicked) {
+		if (e.OriginalSource.FindParent<ScrollBar, FileDataGrid>() != null || isDoubleClicked) {
 			base.OnPreviewMouseUp(e);
 			return;
 		}
@@ -399,7 +512,7 @@ public partial class FileDataGrid {
 			} else if (isPreparedForRenaming) {
 				isPreparedForRenaming = false;
 				if (mouseDownRowIndex >= 0 && mouseDownRowIndex < Items.Count) {  // 防止集合改变过
-					var item = (FileSystemItem)Items[mouseDownRowIndex];
+					var item = Items[mouseDownRowIndex];
 					if (renameCts == null) {
 						var cts = renameCts = new CancellationTokenSource();
 						Task.Run(() => {
@@ -419,19 +532,19 @@ public partial class FileDataGrid {
 				switch (e.ChangedButton) {
 				case MouseButton.Left:
 					if (isClickOnItem) {
-						var item = (FileSystemItem)Items[mouseDownRowIndex];
+						var item = Items[mouseDownRowIndex];
 						if (!isCtrlOrShiftPressed && SelectedItems.Count > 1) {
-							ClearSelection();
+							UnselectAll();
 						}
 						item.IsSelected = true;
 						RaiseEvent(new ItemClickEventArgs(ItemClickedEvent, item));
 					} else if (!isCtrlOrShiftPressed) {
-						ClearSelection();
+						UnselectAll();
 					}
 					break;
 				case MouseButton.Right:
 					if (isClickOnItem) {
-						var item = (FileSystemItem)Items[mouseDownRowIndex];
+						var item = Items[mouseDownRowIndex];
 						var menu = ((DataGridRow)ContainerFromElement(this, (DependencyObject)e.OriginalSource))!.ContextMenu!;
 						menu.DataContext = item;
 						menu.IsOpen = true;
@@ -486,7 +599,7 @@ public partial class FileDataGrid {
 		//var data = new DataObjectContent(e.Data);
 		//bool isDirectory;
 		//if (ContainerFromElement(this, (DependencyObject)e.OriginalSource) is DataGridRow row) {
-		//	var item = (FileSystemItem)row.Item;
+		//	var item = row.Item;
 		//	if (item.IsDirectory) {
 		//	
 		//	}
@@ -499,7 +612,7 @@ public partial class FileDataGrid {
 		string path;
 		// 拖动文件到了项目上
 		if (ContainerFromElement(this, (DependencyObject)e.OriginalSource) is DataGridRow row) {
-			var item = (FileSystemItem)row.Item;
+			var item = (FileViewBaseItem)row.Item;
 			path = item.FullPath;
 		} else {
 			path = null;

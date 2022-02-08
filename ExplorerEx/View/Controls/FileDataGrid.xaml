@@ -8,15 +8,17 @@
              xmlns:m="clr-namespace:ExplorerEx.Model"
              xmlns:c="clr-namespace:ExplorerEx.Converter"
              xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
-             Style="{StaticResource DataGridBaseStyle}"
+             xmlns:vw="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+             d:DataContext="{d:DesignInstance ct:FileDataGrid}"
              Background="{x:Null}" SelectionMode="Extended" 
-             AutoGenerateColumns="False" RowHeight="30" ColumnHeaderHeight="20"
+             AutoGenerateColumns="False" ColumnHeaderHeight="20"
+             RowHeight="{Binding ItemSize.Height, Mode=OneWay, RelativeSource={RelativeSource Self}}"
              VirtualizingStackPanel.IsVirtualizing="True"
              VirtualizingStackPanel.ScrollUnit="Pixel"
              mc:Ignorable="d" AllowDrop="True">
     <DataGrid.Resources>
         <ControlTemplate x:Key="FileOperationsTemplate">
-            <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance m:FileSystemItem}">
+            <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
                 <Button Height="35" ToolTip="{u:Lang Cut}" 
                         Command="{Binding DataContext.CutCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid, AncestorLevel=2}}">
                     <Image Width="20" Height="20" Source="{StaticResource CutDrawingImage}"/>
@@ -29,10 +31,10 @@
                         Command="{Binding DataContext.RenameCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid, AncestorLevel=2}}">
                     <Image Width="20" Height="20" Source="{StaticResource RenameDrawingImage}"/>
                 </Button>
-                <Button Height="35" Margin="6,0,6,0" ToolTip="{u:Lang Share}"
+                <!--<Button Height="35" Margin="6,0,6,0" ToolTip="{u:Lang Share}"
                         Command="{Binding DataContext.ShareCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid, AncestorLevel=2}}">
                     <Image Width="20" Height="20" Source="{StaticResource ShareDrawingImage}"/>
-                </Button>
+                </Button>-->
                 <Button Height="35" ToolTip="{u:Lang Delete}"
                         Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid, AncestorLevel=2}}">
                     <Image Width="20" Height="20" Source="{StaticResource DeleteDrawingImage}"/>
@@ -40,7 +42,7 @@
             </StackPanel>
         </ControlTemplate>
 
-        <ct:HoverContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance m:FileSystemItem}">
+        <ct:HoverContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
             <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
                       Command="{Binding OpenCommand}"
                       Icon="{Binding Icon}" Header="{u:Lang Open}" FontSize="15"/>
@@ -55,7 +57,7 @@
                       Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}" FontSize="15"/>
         </ct:HoverContextMenu>
 
-        <ct:HoverContextMenu x:Key="FileItemContextMenu" d:DataContext="{d:DesignInstance m:FileSystemItem}">
+        <ct:HoverContextMenu x:Key="FileItemContextMenu" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
             <MenuItem Height="35" Template="{StaticResource FileOperationsTemplate}"/>
             <Separator/>
 
@@ -70,7 +72,172 @@
         <c:FileSystemItemContextMenuConverter x:Key="FileSystemItemContextMenuConverter"
                                                   DirectoryContextMenu="{StaticResource FolderItemContextMenu}"
                                                   FileContextMenu="{StaticResource FileItemContextMenu}"/>
+
+        <ItemsPanelTemplate x:Key="StackPanelTemplate">
+            <VirtualizingStackPanel/>
+        </ItemsPanelTemplate>
+
+        <ItemsPanelTemplate x:Key="WrapPanelTemplate">
+            <vw:VirtualizingWrapPanel/>
+        </ItemsPanelTemplate>
+
+        <c:FileDataGridItemsPanelConverter x:Key="ItemsPanelConverter"
+                                           StackPanelTemplate="{StaticResource StackPanelTemplate}"
+                                           WrapPanelTemplate="{StaticResource WrapPanelTemplate}"/>
+
+        <DataGridTemplateColumn x:Key="IconColumn" Width="160">
+            <DataGridTemplateColumn.CellStyle>
+                <Style TargetType="DataGridCell" BasedOn="{StaticResource DataGridCellStyle}">
+                    <Setter Property="Padding" Value="0"/>
+                </Style>
+            </DataGridTemplateColumn.CellStyle>
+            <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                    <Grid Height="240" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Image Grid.Row="0" HorizontalAlignment="Center"
+                               Source="{Binding Icon}"
+                               VerticalAlignment="Center" Margin="10"/>
+                        <TextBlock Grid.Row="1" Text="{Binding Name, Mode=OneWay}" TextWrapping="Wrap" HorizontalAlignment="Center"
+                                   Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityReConverter}}"/>
+                        <hc:TextBox x:Name="RenameTextBox" Grid.Row="1" hc:BorderElement.CornerRadius="3" TextWrapping="Wrap" HorizontalAlignment="Center"
+                                    Text="{Binding EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                    Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityConverter}}"
+                                    VerifyFunc="{u:Get VerifyFunc}" IsError="{Binding IsErrorFileName, Mode=OneWayToSource}">
+                            <hc:Interaction.Triggers>
+                                <hc:RoutedEventTrigger RoutedEvent="TextBox.LostFocus">
+                                    <hc:EventToCommand Command="{Binding LostFocusCommand}" PassEventArgsToCommand="True"/>
+                                </hc:RoutedEventTrigger>
+                            </hc:Interaction.Triggers>
+                            <hc:TextBox.Style>
+                                <Style TargetType="hc:TextBox" BasedOn="{StaticResource TextBoxPlusBaseStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding EditingName, Converter={StaticResource Object2BooleanConverter}}" Value="True">
+                                            <Setter Property="FocusManager.FocusedElement" Value="{Binding ElementName=RenameTextBox}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </hc:TextBox.Style>
+                        </hc:TextBox>
+                    </Grid>
+                </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        <!--主页显示驱动器-->
+        <DataGridTemplateColumn x:Key="TileHomeTemplate" Width="260">
+            <DataGridTemplateColumn.CellStyle>
+                <Style TargetType="DataGridCell" BasedOn="{StaticResource DataGridCellStyle}">
+                    <Setter Property="Padding" Value="0"/>
+                </Style>
+            </DataGridTemplateColumn.CellStyle>
+            <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                    <Grid d:DataContext="{d:DesignInstance m:DiskDriveItem}"
+                          Height="60" Margin="5" VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Column="0" Source="{Binding Icon}" VerticalAlignment="Center" Margin="5"/>
+                        <StackPanel Grid.Column="1" Orientation="Vertical">
+                            <TextBlock Text="{Binding Name, Mode=OneWay}"/>
+                            <ProgressBar Value="{Binding FreeSpaceRatio, Mode=OneWay}" 
+                                         Foreground="{Binding ProgressBarBackground, Mode=OneWay}"
+                                         Maximum="1" BorderThickness="1.5" Margin="0,5,0,5" 
+                                         SnapsToDevicePixels="True" hc:ProgressBarAttach.AnimationDisabled="True"
+                                         Visibility="{Binding IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                            <TextBlock Text="{Binding SpaceOverviewString, Mode=OneWay}"
+                                       Visibility="{Binding IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTemplateColumn x:Key="NameColumn" Header="{u:Lang Name}" Width="350">
+            <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                    <Grid Height="30" VerticalAlignment="Center" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Column="0" 
+                               Source="{Binding Icon}"
+                               VerticalAlignment="Center" Margin="5"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Name, Mode=OneWay}" VerticalAlignment="Center" 
+                                   Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityReConverter}}"/>
+                        <hc:TextBox x:Name="RenameTextBox" Grid.Column="1" hc:BorderElement.CornerRadius="3"
+                                    Text="{Binding EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" 
+                                    Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityConverter}}"
+                                    VerifyFunc="{u:Get VerifyFunc}" IsError="{Binding IsErrorFileName, Mode=OneWayToSource}">
+                            <hc:Interaction.Triggers>
+                                <hc:RoutedEventTrigger RoutedEvent="TextBox.LostFocus">
+                                    <hc:EventToCommand Command="{Binding LostFocusCommand}" PassEventArgsToCommand="True"/>
+                                </hc:RoutedEventTrigger>
+                            </hc:Interaction.Triggers>
+                            <hc:TextBox.Style>
+                                <Style TargetType="hc:TextBox" BasedOn="{StaticResource TextBoxPlusBaseStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding EditingName, Converter={StaticResource Object2BooleanConverter}}" Value="True">
+                                            <Setter Property="FocusManager.FocusedElement" Value="{Binding ElementName=RenameTextBox}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </hc:TextBox.Style>
+                        </hc:TextBox>
+                    </Grid>
+                </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTemplateColumn x:Key="ModificationDateColumn" Header="{u:Lang Modification_date}" Width="200">
+            <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                    <TextBlock d:DataContext="{d:DesignInstance m:FileSystemItem}"
+                               Text="{Binding LastWriteTime}" 
+                               VerticalAlignment="Center"
+                               IsHitTestVisible="False"/>
+                </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTemplateColumn x:Key="TypeColumn" Header="{u:Lang Type}" Width="100">
+            <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                    <TextBlock d:DataContext="{d:DesignInstance m:FileViewBaseItem}"
+                               Text="{Binding Type}" 
+                               VerticalAlignment="Center"
+                               IsHitTestVisible="False"/>
+                </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTemplateColumn x:Key="FileSizeColumn" Header="{u:Lang File_size}" Width="100">
+            <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                    <TextBlock d:DataContext="{d:DesignInstance m:FileSystemItem}"
+                               Text="{Binding FileSizeString}" 
+                               VerticalAlignment="Center"
+                               IsHitTestVisible="False"/>
+                </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+
+        <!-- 该资源在C#逻辑中获取 -->
+        <!-- ReSharper disable once Xaml.RedundantResource -->
+        <c:FileDataGridColumnsConverter x:Key="ColumnsConverter"
+                                        IconTemplate="{StaticResource IconColumn}" TileHomeTemplate="{StaticResource TileHomeTemplate}"
+                                        Name="{StaticResource NameColumn}" ModificationDate="{StaticResource ModificationDateColumn}"
+                                        Type="{StaticResource TypeColumn}" FileSize="{StaticResource FileSizeColumn}"/>
+
     </DataGrid.Resources>
+
+    <DataGrid.Style>
+        <Style TargetType="ct:FileDataGrid" BasedOn="{StaticResource DataGridBaseStyle}">
+            <Setter Property="ItemsPanel" 
+                    Value="{Binding ViewType, Mode=OneWay, Converter={StaticResource ItemsPanelConverter}, RelativeSource={RelativeSource Self}}"/>
+        </Style>
+    </DataGrid.Style>
 
     <DataGrid.Template>
         <ControlTemplate TargetType="DataGrid">
@@ -107,14 +274,6 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
-                                    <Button Command="{x:Static DataGrid.SelectAllCommand}" Width="{Binding CellsPanelHorizontalOffset, RelativeSource={RelativeSource AncestorType=DataGrid},Converter={StaticResource DoubleMinConverter}}" Style="{StaticResource ButtonIcon}" hc:IconElement.Geometry="{StaticResource AllGeometry}" Foreground="{DynamicResource PrimaryBrush}">
-                                        <Button.Visibility>
-                                            <MultiBinding Converter="{StaticResource DataGridSelectAllButtonVisibilityConverter}">
-                                                <Binding Path="HeadersVisibility" RelativeSource="{RelativeSource AncestorType=DataGrid}"/>
-                                                <Binding Path="(hc:DataGridAttach.ShowSelectAllButton)" RelativeSource="{RelativeSource AncestorType=DataGrid}"/>
-                                            </MultiBinding>
-                                        </Button.Visibility>
-                                    </Button>
                                     <DataGridColumnHeadersPresenter x:Name="PART_ColumnHeadersPresenter" Grid.ColumnSpan="2" Grid.Row="0" Grid.Column="1" Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.Column}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
                                     <hc:ToggleBlock IsChecked="{Binding HasItems,RelativeSource={RelativeSource AncestorType=DataGrid},Mode=OneWay}" Grid.ColumnSpan="3" Grid.Column="0" Grid.Row="1" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
                                         <hc:ToggleBlock.CheckedContent>
@@ -146,78 +305,11 @@
             </Grid>
         </ControlTemplate>
     </DataGrid.Template>
+
     <DataGrid.RowStyle>
         <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle}">
             <Setter Property="ContextMenu" Value="{Binding IsFolder, Converter={StaticResource FileSystemItemContextMenuConverter}}"/>
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
         </Style>
     </DataGrid.RowStyle>
-    <DataGrid.Columns>
-        <DataGridTemplateColumn Header="{u:Lang Name}" Width="350">
-            <DataGridTemplateColumn.CellTemplate>
-                <DataTemplate>
-                    <Grid Height="30" VerticalAlignment="Center" d:DataContext="{d:DesignInstance m:FileSystemItem}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="30"/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Image Grid.Column="0" 
-                               Source="{Binding Icon}"
-                               VerticalAlignment="Center" Margin="5"/>
-                        <TextBlock Grid.Column="1" Text="{Binding Name, Mode=OneWay}" VerticalAlignment="Center" 
-                                   Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityReConverter}}"/>
-                        <hc:TextBox x:Name="RenameTextBox" Grid.Column="1" hc:BorderElement.CornerRadius="3"
-                                    Text="{Binding EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" 
-                                    Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityConverter}}"
-                                    VerifyFunc="{u:Get VerifyFunc}" IsError="{Binding IsErrorFileName, Mode=OneWayToSource}">
-                            <hc:Interaction.Triggers>
-                                <hc:RoutedEventTrigger RoutedEvent="TextBox.LostFocus">
-                                    <hc:EventToCommand Command="{Binding LostFocusCommand}" PassEventArgsToCommand="True"/>
-                                </hc:RoutedEventTrigger>
-                            </hc:Interaction.Triggers>
-                            <hc:TextBox.Style>
-                                <Style TargetType="hc:TextBox" BasedOn="{StaticResource TextBoxPlusBaseStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding EditingName, Converter={StaticResource Object2BooleanConverter}}" Value="True">
-                                            <Setter Property="FocusManager.FocusedElement" Value="{Binding ElementName=RenameTextBox}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:TextBox.Style>
-                        </hc:TextBox>
-                    </Grid>
-                </DataTemplate>
-            </DataGridTemplateColumn.CellTemplate>
-        </DataGridTemplateColumn>
-        <DataGridTemplateColumn Header="{u:Lang Modification_date}" Width="200">
-            <DataGridTemplateColumn.CellTemplate>
-                <DataTemplate>
-                    <TextBlock d:DataContext="{d:DesignInstance m:FileSystemItem}"
-                               Text="{Binding LastWriteTime}" 
-                               VerticalAlignment="Center"
-                               IsHitTestVisible="False"/>
-                </DataTemplate>
-            </DataGridTemplateColumn.CellTemplate>
-        </DataGridTemplateColumn>
-        <DataGridTemplateColumn Header="{u:Lang File_type}" Width="100">
-            <DataGridTemplateColumn.CellTemplate>
-                <DataTemplate>
-                    <TextBlock d:DataContext="{d:DesignInstance m:FileSystemItem}"
-                               Text="{Binding FileTypeString}" 
-                               VerticalAlignment="Center"
-                               IsHitTestVisible="False"/>
-                </DataTemplate>
-            </DataGridTemplateColumn.CellTemplate>
-        </DataGridTemplateColumn>
-        <DataGridTemplateColumn Header="{u:Lang File_size}" Width="100">
-            <DataGridTemplateColumn.CellTemplate>
-                <DataTemplate>
-                    <TextBlock d:DataContext="{d:DesignInstance m:FileSystemItem}"
-                               Text="{Binding FileSizeString}" 
-                               VerticalAlignment="Center"
-                               IsHitTestVisible="False"/>
-                </DataTemplate>
-            </DataGridTemplateColumn.CellTemplate>
-        </DataGridTemplateColumn>
-    </DataGrid.Columns>
 </DataGrid>

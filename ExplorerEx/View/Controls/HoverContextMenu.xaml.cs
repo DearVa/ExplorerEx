@@ -67,7 +67,7 @@ public partial class HoverContextMenu {
 
 	protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e) {
 		base.OnPreviewMouseLeftButtonUp(e);
-		if (e.OriginalSource.IsChildOf(typeof(Button))) {
+		if (e.OriginalSource.FindParent<Button, HoverContextMenu>() != null) {
 			IsOpen = false;
 		}
 	}

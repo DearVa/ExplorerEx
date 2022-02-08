@@ -87,25 +87,59 @@ namespace HandyControl.Tools {
 			return false;
 		}
 
-		public static bool IsChildOf(this object child, Type parentType, Type stopAtType = null) {
+		public static T FindParent<T>(this object child) where T : class {
 			if (child is DependencyObject ui) {
-				return IsChildOf(ui, parentType, stopAtType);
+				return FindParent<T>(ui);
 			}
-			return false;
+			return null;
 		}
 
-		public static bool IsChildOf(this DependencyObject child, Type parentType, Type stopAtType = null) {
+		public static T FindParent<T>(this DependencyObject child) where T : class {
 			while (child is not null and not Window) {
-				var type = child.GetType();
-				if (type == stopAtType) {
-					return false;
-				}
-				if (type == parentType) {
-					return true;
+				if (child is T t) {
+					return t;
 				}
 				child = VisualTreeHelper.GetParent(child);
 			}
-			return false;
+			return null;
+		}
+
+		/// <summary>
+		/// 寻找类型为T的UI元素，如果遇到S类型的元素则停止寻找，返回null
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <typeparam name="S"></typeparam>
+		/// <param name="child"></param>
+		/// <returns></returns>
+		// ReSharper disable once InconsistentNaming
+		public static T FindParent<T, S>(this object child) where T : class where S : class {
+			if (child is DependencyObject ui) {
+				return FindParent<T, S>(ui);
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// 寻找类型为T的UI元素，如果遇到S类型的元素则停止寻找，返回null
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <typeparam name="S"></typeparam>
+		/// <param name="child"></param>
+		/// <returns></returns>
+		// ReSharper disable once InconsistentNaming
+		public static T FindParent<T, S>(this DependencyObject child) where T : class where S : class {
+			while (child is not null and not Window) {
+				switch (child) {
+				case S:
+					return null;
+				case T t:
+					return t;
+				default:
+					child = VisualTreeHelper.GetParent(child);
+					break;
+				}
+			}
+			return null;
 		}
 	}
 }

@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <PackageReference Include="NLog" Version="4.7.13" />
+    <PackageReference Include="VirtualizingWrapPanel" Version="1.5.7" />
   </ItemGroup>
 
   <ItemGroup>
