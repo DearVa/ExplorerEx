@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using ExplorerEx.Utils;
-using ExplorerEx.View;
 using ExplorerEx.ViewModel;
 using ExplorerEx.Win32;
 using static ExplorerEx.Win32.IconHelper;
@@ -24,6 +23,11 @@ public class FileSystemItem : FileViewBaseItem {
 
 	public override string FullPath => FileSystemInfo.FullName;
 
+	/// <summary>
+	/// 是否使用大图标
+	/// </summary>
+	public bool UseLargeIcon { get; set; }
+
 	private bool isEmptyFolder;
 
 	public FileSystemItem(FileViewTabViewModel ownerViewModel, FileSystemInfo fileSystemInfo) : base(ownerViewModel) {
@@ -42,6 +46,11 @@ public class FileSystemItem : FileViewBaseItem {
 		OpenCommand = new SimpleCommand(async _ => await OpenAsync());
 	}
 
+	/// <summary>
+	/// 打开该文件或者文件夹
+	/// </summary>
+	/// <param name="runAs">以管理员身份运行，只对文件有效</param>
+	/// <returns></returns>
 	public async Task OpenAsync(bool runAs = false) {
 		if (IsFolder) {
 			await OwnerViewModel.LoadDirectoryAsync(FullPath);
@@ -76,7 +85,11 @@ public class FileSystemItem : FileViewBaseItem {
 
 	public override async Task LoadIconAsync() {
 		Debug.Assert(!IsFolder);
-		Icon = await GetPathIconAsync(FullPath, false, true, false);
+		if (UseLargeIcon) {
+			Icon = await GetPathThumbnailAsync(FullPath);
+		} else {
+			Icon = await GetPathIconAsync(FullPath, true);
+		}
 	}
 
 	protected override bool Rename() {

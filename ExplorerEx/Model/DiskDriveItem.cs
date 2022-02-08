@@ -55,7 +55,7 @@ public sealed class DiskDriveItem : FileViewBaseItem {
 	}
 
 	public override async Task LoadIconAsync() {
-		Icon = await IconHelper.GetLargePathIcon(Driver.Name, true, true);
+		Icon = await IconHelper.GetPathThumbnailAsync(Driver.Name);
 	}
 
 	protected override bool Rename() {

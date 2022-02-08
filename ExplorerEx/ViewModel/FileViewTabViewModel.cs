@@ -191,15 +191,21 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		}
 	}
 
+	private bool isLastViewTypeUseLargeIcon;
+	/// <summary>
+	/// 切换视图时，有的要使用大图标，有的要使用小图标，所以要运行一个Task去更改，取消这个来中断Task
+	/// </summary>
+	private CancellationTokenSource switchIconCts;
+
 	private void SwitchViewType(int type) {
 		switch (type) {
 		case 0:  // 大图标
 			ViewType = FileDataGrid.ViewTypes.Icon;
-			ItemSize = new Size(160d, 200d);
+			ItemSize = new Size(160d, 210d);
 			break;
 		case 1:  // 小图标
 			ViewType = FileDataGrid.ViewTypes.Icon;
-			ItemSize = new Size(80d, 100d);
+			ItemSize = new Size(80d, 105d);
 			break;
 		case 2:  // 列表
 			ViewType = FileDataGrid.ViewTypes.List;
@@ -220,6 +226,19 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		}
 		OnPropertyChanged(nameof(ViewType));
 		OnPropertyChanged(nameof(ItemSize));
+		var useLargeIcon = type is 0 or 4 or 5;
+		if (useLargeIcon != isLastViewTypeUseLargeIcon) {
+			switchIconCts?.Cancel();
+			var list = Items.Where(item => item is FileSystemItem && !item.IsFolder).Cast<FileSystemItem>().Where(item => item.UseLargeIcon != useLargeIcon).ToArray();
+			switchIconCts = new CancellationTokenSource();
+			Task.Run(() => {
+				foreach (var item in list) {
+					item.UseLargeIcon = useLargeIcon;
+					item.LoadIconAsync().Wait();
+				}
+			}, switchIconCts.Token);
+			isLastViewTypeUseLargeIcon = useLargeIcon;
+		}
 	}
 
 	private void OnClipboardChanged() {
@@ -247,6 +266,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	/// <param name="selectedPath"></param>
 	/// <returns></returns>
 	public async Task<bool> LoadDirectoryAsync(string path, bool recordHistory = true, string selectedPath = null) {
+		switchIconCts?.Cancel();
 		var isLoadRoot = string.IsNullOrWhiteSpace(path) || path == "This_computer".L();  // 加载“此电脑”
 
 		if (!isLoadRoot && !Directory.Exists(path)) {
@@ -592,7 +612,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 				}
 			}
 		} else if (Directory.Exists(path)) {
-			var p = new Win32Interop.POINT();
+			var p = new Win32Interop.Point();
 			Win32Interop.GetCursorPos(ref p);
 			var mousePoint = new Point(p.x, p.y);
 			switch (e.Content.Type) {

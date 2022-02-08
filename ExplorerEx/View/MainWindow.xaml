@@ -133,8 +133,7 @@
                                             </Menu.ItemsPanel>
                                             <Menu.Items>
                                                 <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
-                                                          CommandParameter="0" IsCheckable="True" IsChecked="True"
-                                                          Header="{u:Lang Big_icon}" FontSize="15"/>
+                                                          CommandParameter="0" Header="{u:Lang Big_icon}" FontSize="15"/>
                                                 <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
                                                           CommandParameter="1" Header="{u:Lang Small_icon}" FontSize="15"/>
                                                 <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"

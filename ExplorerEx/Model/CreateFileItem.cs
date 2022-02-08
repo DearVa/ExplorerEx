@@ -34,7 +34,7 @@ public class CreateFileItem : INotifyPropertyChanged {
 		Extension = extension;
 		if (createIcon) {
 			Task.Run(() => {
-				var task = GetPathIconAsync(extension, false, false, false);
+				var task = GetPathIconAsync(extension, false);
 				if (task.Wait(3000)) {  // 防止被shell卡死
 					Icon = task.Result;
 					Description = GetFileTypeDescription(extension);

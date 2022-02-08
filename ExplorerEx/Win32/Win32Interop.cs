@@ -24,7 +24,7 @@ internal static class Win32Interop {
 	public static extern IntPtr LoadCursor(IntPtr hInstance, long lpCursorName);
 
 	[DllImport("user32.dll")]
-	public static extern bool GetCursorPos(ref POINT point);
+	public static extern bool GetCursorPos(ref Point point);
 
 	[DllImport("shell32.dll", BestFitMapping = false, CharSet = CharSet.Unicode)]
 	public static extern IntPtr ExtractAssociatedIcon(ref IntPtr hInst, StringBuilder iconPath, ref int index);
@@ -53,8 +53,11 @@ internal static class Win32Interop {
 	[DllImport("gdi32.dll")]
 	public static extern int GetDIBits(ref IntPtr hdc, ref IntPtr hbm, uint start, uint cLines, IntPtr lpvBits, IntPtr lpbmi, uint usage);
 
+	[DllImport("gdi32.dll")]
+	public static extern bool DeleteObject(IntPtr hObject);
+
 	[StructLayout(LayoutKind.Sequential)]
-	public struct BITMAP {
+	public struct Bitmap {
 		public int bmType;
 		public int bmWidth;
 		public int bmHeight;
@@ -65,7 +68,7 @@ internal static class Win32Interop {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct BITMAPINFOHEADER {
+	public struct BitmapInfoHeader {
 		public int biSize;
 		public int biWidth;
 		public int biHeight;
@@ -80,13 +83,13 @@ internal static class Win32Interop {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct BITMAPINFO {
-		public BITMAPINFOHEADER bmiHeader;
+	public struct BitmapInfo {
+		public BitmapInfoHeader bmiHeader;
 		public IntPtr bmiColors;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct ICONINFO {
+	public struct IconInfo {
 		public bool fIcon;
 		public int xHotspot;
 		public int yHotspot;
@@ -95,7 +98,7 @@ internal static class Win32Interop {
 	}
 
 	// This structure will contain information about the file
-	public struct SHFILEINFO {
+	public struct ShFileInfo {
 		/// <summary>
 		/// Handle to the icon representing the file
 		/// </summary>
@@ -128,7 +131,7 @@ internal static class Win32Interop {
 	[return: MarshalAs(UnmanagedType.Bool)]
 	public static extern bool CloseHandle(IntPtr handle);
 
-	public struct IMAGELISTDRAWPARAMS {
+	public struct ImageListDrawParams {
 		public int cbSize;
 		public IntPtr himl;
 		public int i;
@@ -149,7 +152,7 @@ internal static class Win32Interop {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct RECT {
+	public struct Rect {
 		public int x;
 		public int y;
 		public int width;
@@ -157,21 +160,21 @@ internal static class Win32Interop {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct POINT {
+	public struct Point {
 		public int x;
 		public int y;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct IMAGEINFO {
+	public struct ImageInfo {
 		public IntPtr hbmImage;
 		public IntPtr hbmMask;
 		public int Unused1;
 		public int Unused2;
-		public RECT rcImage;
+		public Rect rcImage;
 	}
 
-	#region Private ImageList COM Interop (XP)
+	#region 获取Icon
 	[ComImport]
 	[Guid("46EB5926-582E-4017-9FDF-E8998DAA0950")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -192,7 +195,7 @@ internal static class Win32Interop {
 		int AddMasked(IntPtr hbmImage, int crMask, ref int pi);
 
 		[PreserveSig]
-		int Draw(ref IMAGELISTDRAWPARAMS pimldp);
+		int Draw(ref ImageListDrawParams pimldp);
 
 		[PreserveSig]
 		int Remove(int i);
@@ -201,7 +204,7 @@ internal static class Win32Interop {
 		int GetIcon(int i, int flags, ref IntPtr picon);
 
 		[PreserveSig]
-		int GetImageInfo(int i, ref IMAGEINFO pImageInfo);
+		int GetImageInfo(int i, ref ImageInfo pImageInfo);
 
 		[PreserveSig]
 		int Copy(int iDst, IImageList punkSrc, int iSrc, int uFlags);
@@ -213,7 +216,7 @@ internal static class Win32Interop {
 		int Clone(ref Guid riid, ref IntPtr ppv);
 
 		[PreserveSig]
-		int GetImageRect(int i, ref RECT prc);
+		int GetImageRect(int i, ref Rect prc);
 
 		[PreserveSig]
 		int GetIconSize(ref int cx, ref int cy);
@@ -255,7 +258,7 @@ internal static class Win32Interop {
 		int DragShowNolock(int fShow);
 
 		[PreserveSig]
-		int GetDragImage(ref POINT ppt, ref POINT pptHotspot, ref Guid riid, ref IntPtr ppv);
+		int GetDragImage(ref Point ppt, ref Point pptHotspot, ref Guid riid, ref IntPtr ppv);
 
 		[PreserveSig]
 		int GetItemFlags(int i, ref int dwFlags);
@@ -263,7 +266,6 @@ internal static class Win32Interop {
 		[PreserveSig]
 		int GetOverlayImage(int iOverlay, ref int piIndex);
 	};
-	#endregion
 
 	///
 	/// SHGetImageList is not exported correctly in XP.  See KB316931
@@ -274,10 +276,10 @@ internal static class Win32Interop {
 	public static extern int SHGetImageList(uint iImageList, ref Guid riid, out IImageList ppv);
 
 	[DllImport("Shell32.dll", CharSet = CharSet.Ansi)]
-	public static extern int SHGetFileInfo(string pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, int cbFileInfo, uint uFlags);
+	public static extern int SHGetFileInfo(string pszPath, uint dwFileAttributes, ref ShFileInfo psfi, int cbFileInfo, uint uFlags);
 
 	[DllImport("Shell32.dll")]
-	public static extern int SHGetFileInfo(IntPtr pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, int cbFileInfo, uint uFlags);
+	public static extern int SHGetFileInfo(IntPtr pszPath, uint dwFileAttributes, ref ShFileInfo psfi, int cbFileInfo, uint uFlags);
 
 	[DllImport("shell32.dll", SetLastError = true)]
 	public static extern int SHGetSpecialFolderLocation(IntPtr hwndOwner, int nFolder, ref IntPtr ppidl);
@@ -346,6 +348,69 @@ internal static class Win32Interop {
 		public IntPtr hIcon;
 		public IntPtr hProcess;
 	}
+
+	[ComImport]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	[Guid("43826d1e-e718-42ee-bc55-a1e261c37bfe")]
+	internal interface IShellItem {
+		void BindToHandler(IntPtr pbc, [MarshalAs(UnmanagedType.LPStruct)] Guid bhid, [MarshalAs(UnmanagedType.LPStruct)] Guid riid, out IntPtr ppv);
+		void GetParent(out IShellItem ppsi);
+		void GetDisplayName(SIGDN sigdnName, out IntPtr ppszName);
+		void GetAttributes(uint sfgaoMask, out uint psfgaoAttribs);
+		void Compare(IShellItem psi, uint hint, out int piOrder);
+	}
+
+	internal enum SIGDN : uint {
+		NORMALDISPLAY = 0,
+		PARENTRELATIVEPARSING = 0x80018001,
+		PARENTRELATIVEFORADDRESSBAR = 0x8001c001,
+		DESKTOPABSOLUTEPARSING = 0x80028000,
+		PARENTRELATIVEEDITING = 0x80031001,
+		DESKTOPABSOLUTEEDITING = 0x8004c000,
+		FILESYSPATH = 0x80058000,
+		URL = 0x80068000
+	}
+
+	[Flags]
+	public enum ThumbnailOptions {  // IShellItemImageFactory Flags: https://msdn.microsoft.com/en-us/library/windows/desktop/bb761082%28v=vs.85%29.aspx
+		None = 0x00,                // Shrink the bitmap as necessary to fit, preserving its aspect ratio. Returns thumbnail if available, else icon.
+		BiggerSizeOk = 0x01,        // Passed by callers if they want to stretch the returned image themselves. For example, if the caller passes an icon size of 80x80, a 96x96 thumbnail could be returned. This action can be used as a performance optimization if the caller expects that they will need to stretch the image. Note that the Shell implementation of IShellItemImageFactory performs a GDI stretch blit. If the caller wants a higher quality image stretch than provided through that mechanism, they should pass this flag and perform the stretch themselves.
+		InMemoryOnly = 0x02,        // Return the item only if it is already in memory. Do not access the disk even if the item is cached. Note that this only returns an already-cached icon and can fall back to a per-class icon if an item has a per-instance icon that has not been cached. Retrieving a thumbnail, even if it is cached, always requires the disk to be accessed, so GetImage should not be called from the UI thread without passing SIIGBF_MEMORYONLY.
+		IconOnly = 0x04,            // Return only the icon, never the thumbnail.
+		ThumbnailOnly = 0x08,       // Return only the thumbnail, never the icon. Note that not all items have thumbnails, so SIIGBF_THUMBNAILONLY will cause the method to fail in these cases.
+		InCacheOnly = 0x10,         // Allows access to the disk, but only to retrieve a cached item. This returns a cached thumbnail if it is available. If no cached thumbnail is available, it returns a cached per-instance icon but does not extract a thumbnail or icon.
+		Win8CropToSquare = 0x20,    // Introduced in Windows 8. If necessary, crop the bitmap to a square.
+		Win8WideThumbnails = 0x40,  // Introduced in Windows 8. Stretch and crop the bitmap to a 0.7 aspect ratio.
+		Win8IconBackground = 0x80,  // Introduced in Windows 8. If returning an icon, paint a background using the associated app's registered background color.
+		Win8ScaleUp = 0x100         // Introduced in Windows 8. If necessary, stretch the bitmap so that the height and width fit the given size.
+	}
+
+	[ComImport]
+	[Guid("bcc18b79-ba16-442f-80c4-8a59c30c463b")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	internal interface IShellItemImageFactory {
+		[PreserveSig]
+		int GetImage([In, MarshalAs(UnmanagedType.Struct)] Size size, [In] ThumbnailOptions flags, [Out] out IntPtr phbm);
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	internal struct Size {
+		public int width;
+		public int height;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct RGBQUAD {
+		public byte rgbBlue;
+		public byte rgbGreen;
+		public byte rgbRed;
+		public byte rgbReserved;
+	}
+
+	[DllImport("shell32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+	internal static extern int SHCreateItemFromParsingName([MarshalAs(UnmanagedType.LPWStr)] string path, IntPtr pbc, ref Guid riid, [MarshalAs(UnmanagedType.Interface)] out IShellItem shellItem);
+
+	#endregion
 
 	private const int SW_SHOW = 5;
 	private const uint SEE_MASK_INVOKEIDLIST = 12;
