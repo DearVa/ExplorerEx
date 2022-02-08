@@ -2,7 +2,7 @@
 
 ### ExplorerEx是一个响应快、多标签页、现代化界面且人性化的文件浏览器。
 
-![Preview](.\Images\preview.png)
+![Preview](https://github.com/DearVa/ExplorerEx/blob/master/Images/preview.png)
 
 由于不为人知的原因，Windows 11的文件管理器响应十分缓慢，特别是打开文件夹、框选文件、复制粘贴时，在低端机上甚至能够停止响应几秒钟。
 
