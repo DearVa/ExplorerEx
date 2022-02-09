@@ -85,7 +85,9 @@
                                            StackPanelTemplate="{StaticResource StackPanelTemplate}"
                                            WrapPanelTemplate="{StaticResource WrapPanelTemplate}"/>
 
-        <DataGridTemplateColumn x:Key="IconColumn" Width="160">
+        <!--DataGridTemplateColumn是一个虚拟容器，并不会出现在VisualTree里，所以这个不能Binding，添加Attach属性也没用-->
+        <!--只能将Width设为自动，然后在Cell里Binding到FileDataGrid-->
+        <DataGridTemplateColumn x:Key="IconColumn" Width="Auto">
             <DataGridTemplateColumn.CellStyle>
                 <Style TargetType="DataGridCell" BasedOn="{StaticResource DataGridCellStyle}">
                     <Setter Property="Padding" Value="0"/>
@@ -93,9 +95,11 @@
             </DataGridTemplateColumn.CellStyle>
             <DataGridTemplateColumn.CellTemplate>
                 <DataTemplate>
-                    <Grid Height="240" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
+                    <Grid Width="{Binding (ct:FileDataGrid.ItemSize).Width, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}"
+                          Height="{Binding (ct:FileDataGrid.ItemSize).Height, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}" 
+                          d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}"/>
+                            <RowDefinition Height="{Binding (ct:FileDataGrid.ItemSize).Width, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}"/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
                         <Image Grid.Row="0" HorizontalAlignment="Center"
@@ -148,9 +152,9 @@
                                          Foreground="{Binding ProgressBarBackground, Mode=OneWay}"
                                          Maximum="1" BorderThickness="1.5" Margin="0,5,0,5" 
                                          SnapsToDevicePixels="True" hc:ProgressBarAttach.AnimationDisabled="True"
-                                         Visibility="{Binding IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                                         Visibility="{Binding Driver.IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
                             <TextBlock Text="{Binding SpaceOverviewString, Mode=OneWay}"
-                                       Visibility="{Binding IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                                       Visibility="{Binding Driver.IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
@@ -196,7 +200,7 @@
             <DataGridTemplateColumn.CellTemplate>
                 <DataTemplate>
                     <TextBlock d:DataContext="{d:DesignInstance m:FileSystemItem}"
-                               Text="{Binding LastWriteTime}" 
+                               Text="{Binding LastWriteTime, Mode=OneWay}" 
                                VerticalAlignment="Center"
                                IsHitTestVisible="False"/>
                 </DataTemplate>
@@ -206,7 +210,7 @@
             <DataGridTemplateColumn.CellTemplate>
                 <DataTemplate>
                     <TextBlock d:DataContext="{d:DesignInstance m:FileViewBaseItem}"
-                               Text="{Binding Type}" 
+                               Text="{Binding Type, Mode=OneWay}" 
                                VerticalAlignment="Center"
                                IsHitTestVisible="False"/>
                 </DataTemplate>
@@ -216,7 +220,56 @@
             <DataGridTemplateColumn.CellTemplate>
                 <DataTemplate>
                     <TextBlock d:DataContext="{d:DesignInstance m:FileSystemItem}"
-                               Text="{Binding FileSizeString}" 
+                               Text="{Binding FileSizeString, Mode=OneWay}" 
+                               VerticalAlignment="Center"
+                               IsHitTestVisible="False"/>
+                </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTemplateColumn x:Key="AvailableSpaceColumn" Header="{u:Lang Available_space}" Width="100">
+            <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                    <TextBlock d:DataContext="{d:DesignInstance m:DiskDriveItem}"
+                               Text="{Binding FreeSpace, Mode=OneWay, Converter={StaticResource Long2FileSizeConverter}}" 
+                               VerticalAlignment="Center"
+                               IsHitTestVisible="False"/>
+                </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTemplateColumn x:Key="TotalSpaceColumn" Header="{u:Lang Total_space}" Width="100">
+            <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                    <TextBlock d:DataContext="{d:DesignInstance m:DiskDriveItem}"
+                               Text="{Binding TotalSpace, Mode=OneWay, Converter={StaticResource Long2FileSizeConverter}}" 
+                               VerticalAlignment="Center"
+                               IsHitTestVisible="False"/>
+                </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTemplateColumn x:Key="FillRatioColumn" Header="{u:Lang Fill_ratio}" Width="100">
+            <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                    <ProgressBar d:DataContext="{d:DesignInstance m:DiskDriveItem}"
+                                 Value="{Binding FreeSpaceRatio, Mode=OneWay}" 
+                                 Foreground="{Binding ProgressBarBackground, Mode=OneWay}"
+                                 Maximum="1" BorderThickness="1.5" Margin="0,2,0,2" 
+                                 VerticalAlignment="Center" SnapsToDevicePixels="True" hc:ProgressBarAttach.AnimationDisabled="True"
+                                 Visibility="{Binding Driver.IsReady, Converter={StaticResource Boolean2VisibilityConverter}}">
+                        <ProgressBar.ToolTip>
+                            <TextBlock>
+                                <Run Text="{Binding FreeSpaceRatio, Mode=OneWay, StringFormat=P}"/>
+                                <Run Text="%"/>
+                            </TextBlock>
+                        </ProgressBar.ToolTip>
+                    </ProgressBar>
+                </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTemplateColumn x:Key="FileSystemColumn" Header="{u:Lang File_system}" Width="100">
+            <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                    <TextBlock d:DataContext="{d:DesignInstance m:DiskDriveItem}"
+                               Text="{Binding Driver.DriveFormat, Mode=OneWay}" 
                                VerticalAlignment="Center"
                                IsHitTestVisible="False"/>
                 </DataTemplate>
@@ -228,7 +281,9 @@
         <c:FileDataGridColumnsConverter x:Key="ColumnsConverter"
                                         IconTemplate="{StaticResource IconColumn}" TileHomeTemplate="{StaticResource TileHomeTemplate}"
                                         Name="{StaticResource NameColumn}" ModificationDate="{StaticResource ModificationDateColumn}"
-                                        Type="{StaticResource TypeColumn}" FileSize="{StaticResource FileSizeColumn}"/>
+                                        Type="{StaticResource TypeColumn}" FileSize="{StaticResource FileSizeColumn}"
+                                        AvailableSpace="{StaticResource AvailableSpaceColumn}" TotalSpace="{StaticResource TotalSpaceColumn}"
+                                        FillRatio="{StaticResource FillRatioColumn}" FileSystem="{StaticResource FileSystemColumn}"/>
 
     </DataGrid.Resources>
 
@@ -299,7 +354,7 @@
                         <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                     </ScrollViewer>
                 </Border>
-                <Grid x:Name="ContentGrid" ClipToBounds="True" Margin="0,36,0,0">
+                <Grid x:Name="ContentGrid" ClipToBounds="True">
                     <Border x:Name="SelectionRect" CornerRadius="3" Background="#66326cf3" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1" Visibility="Collapsed" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 </Grid>
             </Grid>

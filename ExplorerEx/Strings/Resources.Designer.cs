@@ -117,6 +117,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 可用空间 的本地化字符串。
+        /// </summary>
+        internal static string Available_space {
+            get {
+                return ResourceManager.GetString("Available_space", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 回到首页 的本地化字符串。
         /// </summary>
         internal static string Back_to_home {
@@ -275,6 +284,24 @@ namespace ExplorerEx.Strings {
         internal static string File_size {
             get {
                 return ResourceManager.GetString("File_size", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 文件系统 的本地化字符串。
+        /// </summary>
+        internal static string File_system {
+            get {
+                return ResourceManager.GetString("File_system", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 填充占比 的本地化字符串。
+        /// </summary>
+        internal static string Fill_ratio {
+            get {
+                return ResourceManager.GetString("Fill_ratio", resourceCulture);
             }
         }
         
@@ -599,6 +626,15 @@ namespace ExplorerEx.Strings {
         internal static string Total__ {
             get {
                 return ResourceManager.GetString("Total: ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 总容量 的本地化字符串。
+        /// </summary>
+        internal static string Total_space {
+            get {
+                return ResourceManager.GetString("Total_space", resourceCulture);
             }
         }
         

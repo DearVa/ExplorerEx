@@ -205,4 +205,16 @@ Are you sure you want to change?</value>
   <data name="Content" xml:space="preserve">
     <value>Content</value>
   </data>
+  <data name="Available_space" xml:space="preserve">
+    <value>Available space</value>
+  </data>
+  <data name="Total_space" xml:space="preserve">
+    <value>Total space</value>
+  </data>
+  <data name="Fill_ratio" xml:space="preserve">
+    <value>Fill ratio</value>
+  </data>
+  <data name="File_system" xml:space="preserve">
+    <value>File system</value>
+  </data>
 </root>

@@ -12,7 +12,6 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using ExplorerEx.Converter;
 using ExplorerEx.Model;
-using ExplorerEx.Utils;
 using ExplorerEx.Win32;
 using HandyControl.Tools;
 using TextBox = HandyControl.Controls.TextBox;
@@ -56,19 +55,37 @@ public partial class FileDataGrid {
 		/// <summary>
 		/// 修改日期
 		/// </summary>
-		ModificationDate = 0b1,
+		ModificationDate = 1,
 		/// <summary>
 		/// 类型
 		/// </summary>
-		Type = 0b10,
+		Type = 2,
 		/// <summary>
 		/// 文件大小
 		/// </summary>
-		FileSize = 0b100,
+		FileSize = 4,
 		/// <summary>
 		/// 创建日期
 		/// </summary>
-		CreationDate = 0b1000,
+		CreationDate = 8,
+
+		// 以下为驱动器的列
+		/// <summary>
+		/// 可用空间
+		/// </summary>
+		AvailableSpace = 16,
+		/// <summary>
+		/// 总大小
+		/// </summary>
+		TotalSpace = 32,
+		/// <summary>
+		/// 文件系统（NTFS、FAT）
+		/// </summary>
+		FileSystem = 64,
+		/// <summary>
+		/// 填充的百分比
+		/// </summary>
+		FillRatio = 128,
 	}
 
 	/// <summary>
@@ -141,7 +158,17 @@ public partial class FileDataGrid {
 	}
 
 	public static readonly DependencyProperty PathTypeProperty = DependencyProperty.Register(
-		"PathType", typeof(PathTypes), typeof(FileDataGrid), new PropertyMetadata(PathTypes.Home));
+		"PathType", typeof(PathTypes), typeof(FileDataGrid), new PropertyMetadata(PathTypes.Home, PathType_OnChanged));
+
+	private static void PathType_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		var fileDataGrid = (FileDataGrid)d;
+		var type = (PathTypes)e.NewValue;
+		if (type == PathTypes.Home) {  // TODO
+			fileDataGrid.detailLists = Lists.Type | Lists.AvailableSpace | Lists.TotalSpace | Lists.FillRatio | Lists.FileSystem;
+		} else {
+			fileDataGrid.detailLists = Lists.ModificationDate | Lists.Type | Lists.FileSize;
+		}
+	}
 
 	public PathTypes PathType {
 		get => (PathTypes)GetValue(PathTypeProperty);
@@ -149,7 +176,7 @@ public partial class FileDataGrid {
 	}
 
 	public static readonly DependencyProperty ItemSizeProperty = DependencyProperty.Register(
-		"ItemSize", typeof(Size), typeof(FileDataGrid), new PropertyMetadata(new Size(0d, 70d)));
+		"ItemSize", typeof(Size), typeof(FileDataGrid), new PropertyMetadata(default(Size)));
 
 	/// <summary>
 	/// 项目大小
@@ -169,7 +196,7 @@ public partial class FileDataGrid {
 		}
 	}
 
-	private Lists detailLists = Lists.ModificationDate | Lists.Type | Lists.FileSize;
+	private Lists detailLists = Lists.Type | Lists.AvailableSpace | Lists.TotalSpace | Lists.FillRatio | Lists.FileSystem;
 
 	private readonly FileDataGridColumnsConverter columnsConverter;
 
@@ -177,7 +204,6 @@ public partial class FileDataGrid {
 		InitializeComponent();
 		EventManager.RegisterClassHandler(typeof(TextBox), GotFocusEvent, new RoutedEventHandler(OnRenameTextBoxGotFocus));
 		columnsConverter = (FileDataGridColumnsConverter)FindResource("ColumnsConverter");
-		UpdateColumns();
 	}
 
 	/// <summary>
@@ -187,8 +213,10 @@ public partial class FileDataGrid {
 		columnsConverter.Convert(Columns, PathType, ViewType, detailLists);
 		if (ViewType == ViewTypes.Detail) {
 			ColumnHeaderHeight = 20d;
+			contentGrid.Margin = new Thickness(Padding.Left, 20 + Padding.Top, Padding.Right, Padding.Bottom);
 		} else {
 			ColumnHeaderHeight = 0d;
+			contentGrid.Margin = new Thickness(Padding.Left, Padding.Top, Padding.Right, Padding.Bottom);
 		}
 	}
 
@@ -211,6 +239,7 @@ public partial class FileDataGrid {
 		scrollViewer = (ScrollViewer)GetTemplateChild("DG_ScrollViewer");
 		contentGrid = (Grid)GetTemplateChild("ContentGrid");
 		selectionRect = (Border)GetTemplateChild("SelectionRect");
+		UpdateColumns();
 	}
 
 	/// <summary>
@@ -424,6 +453,9 @@ public partial class FileDataGrid {
 
 	private int lastStartIndex, lastEndIndex;
 
+	/// <summary>
+	/// 计算框选的元素
+	/// </summary>
 	private void UpdateRectSelection() {
 		var point = Mouse.GetPosition(contentGrid);
 		var x = Math.Min(Math.Max(point.X, 0), contentGrid.ActualWidth) + scrollViewer.HorizontalOffset;
@@ -448,49 +480,50 @@ public partial class FileDataGrid {
 		selectionRect.Height = h;
 
 		if (Items.Count > 0) {
-			var point0 = new Point(Padding.Left, Padding.Top + RowHeight - 36);  // 第一项左上角的坐标
-			var dY = RowHeight + 4;
-			var firstIndex = (int)(scrollViewer.VerticalOffset / dY);
-			var row0 = (DataGridRow)ItemContainerGenerator.ContainerFromIndex(firstIndex);
-			// 0: 5-15 1: 20-30 2: 35-45
-			// dY: 15  ActualHeight: 10  point0.Y: 5
-			// 设 t = 14, h = 10
-			// 选区为0-1
-			// 设 t = 16, h = 10
-			// 选区为1-1
-			if (l < point0.X + row0.DesiredSize.Width) {  // 框的左边界在列内。每列Width都是一样的
-				var startIndex = Math.Max((int)((t - point0.Y + 4) / dY), 0);
-				var items = Items;
-				var endIndex = Math.Min((int)((h + t - point0.Y) / dY), items.Count - 1);
-				if (startIndex != lastStartIndex && startIndex < items.Count) {
-					for (var i = lastStartIndex; i < startIndex; i++) {
-						if (i < items.Count) {
+			var itemWidth = ItemSize.Width;
+			var itemHeight = ItemSize.Height;
+			var dY = itemHeight + 4;  // 上下两项的y值之差，4是两项之间的间距，是固定的值
+			if (itemWidth > 0) {
+				var hCount = (int)(contentGrid.ActualWidth / itemWidth);  // 横向能容纳多少个元素
+				
+			} else {  // 只计算纵向
+				var firstIndex = (int)(scrollViewer.VerticalOffset / dY);  // 视图中第一个元素的index，因为使用了虚拟化容器，所以不能找Items[0]，它可能不存在
+				var row0 = (DataGridRow)ItemContainerGenerator.ContainerFromIndex(firstIndex);
+				// l = 0, t = 0时，正好是第一个元素左上的坐标
+				if (l < row0.DesiredSize.Width) {  // 框的左边界在列内。每列Width都是一样的
+					var startIndex = Math.Max((int)((t + 4) / dY), 0);
+					var items = Items;
+					var endIndex = Math.Min((int)((h + t) / dY), items.Count - 1);
+					if (startIndex != lastStartIndex && startIndex < items.Count) {
+						for (var i = lastStartIndex; i < startIndex; i++) {
+							if (i < items.Count) {
+								items[i].IsSelected = false;
+							}
+						}
+						for (var i = startIndex; i <= lastStartIndex && i <= endIndex; i++) {
+							items[i].IsSelected = true;
+						}
+						// Trace.WriteLine($"S: {startIndex} Ls: {lastStartIndex}");
+						lastStartIndex = startIndex;
+					}
+					if (endIndex != lastEndIndex && endIndex >= 0) {
+						for (var i = endIndex + 1; i <= lastEndIndex; i++) {
 							items[i].IsSelected = false;
 						}
+						for (var i = Math.Max(lastEndIndex + 1, startIndex); i <= endIndex; i++) {
+							items[i].IsSelected = true;
+						}
+						// Trace.WriteLine($"E: {endIndex} Le: {lastEndIndex}");
+						lastEndIndex = endIndex;
 					}
-					for (var i = startIndex; i <= lastStartIndex && i <= endIndex; i++) {
-						items[i].IsSelected = true;
-					}
-					// Trace.WriteLine($"S: {startIndex} Ls: {lastStartIndex}");
-					lastStartIndex = startIndex;
-				}
-				if (endIndex != lastEndIndex && endIndex >= 0) {
-					for (var i = endIndex + 1; i <= lastEndIndex; i++) {
+				} else if (lastStartIndex <= lastEndIndex) {
+					var items = (ObservableCollection<FileViewBaseItem>)ItemsSource; // 这里不用Items索引，我看过源代码，复杂度比较高
+					for (var i = lastStartIndex; i <= lastEndIndex; i++) {
 						items[i].IsSelected = false;
 					}
-					for (var i = Math.Max(lastEndIndex + 1, startIndex); i <= endIndex; i++) {
-						items[i].IsSelected = true;
-					}
-					// Trace.WriteLine($"E: {endIndex} Le: {lastEndIndex}");
-					lastEndIndex = endIndex;
+					lastStartIndex = Items.Count;
+					lastEndIndex = -1;
 				}
-			} else if (lastStartIndex <= lastEndIndex) {
-				var items = (ObservableCollection<FileViewBaseItem>)ItemsSource;  // 这里不用Items索引，我看过源代码，复杂度比较高
-				for (var i = lastStartIndex; i <= lastEndIndex; i++) {
-					items[i].IsSelected = false;
-				}
-				lastStartIndex = Items.Count;
-				lastEndIndex = -1;
 			}
 		}
 	}

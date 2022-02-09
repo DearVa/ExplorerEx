@@ -292,4 +292,16 @@
   <data name="Content" xml:space="preserve">
     <value>内容</value>
   </data>
+  <data name="Available_space" xml:space="preserve">
+    <value>可用空间</value>
+  </data>
+  <data name="Total_space" xml:space="preserve">
+    <value>总容量</value>
+  </data>
+  <data name="Fill_ratio" xml:space="preserve">
+    <value>填充占比</value>
+  </data>
+  <data name="File_system" xml:space="preserve">
+    <value>文件系统</value>
+  </data>
 </root>

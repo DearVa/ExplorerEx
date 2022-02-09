@@ -16,8 +16,6 @@ namespace ExplorerEx.Model;
 public sealed class DiskDriveItem : FileViewBaseItem {
 	public DriveInfo Driver { get; }
 
-	public bool IsReady => Driver.IsReady;
-
 	public override string FullPath => Driver.Name;
 
 	public override string Type => Driver.DriveType switch {

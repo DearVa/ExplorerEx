@@ -201,13 +201,13 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		switch (type) {
 		case 0:  // 大图标
 			ViewType = FileDataGrid.ViewTypes.Icon;
-			ItemSize = new Size(160d, 210d);
+			ItemSize = new Size(120d, 160d);
 			break;
 		case 1:  // 小图标
 			ViewType = FileDataGrid.ViewTypes.Icon;
-			ItemSize = new Size(80d, 105d);
+			ItemSize = new Size(80d, 100d);
 			break;
-		case 2:  // 列表
+		case 2:  // 列表，size.Width为0代表横向填充
 			ViewType = FileDataGrid.ViewTypes.List;
 			ItemSize = new Size(0d, 30d);
 			break;
@@ -226,18 +226,20 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		}
 		OnPropertyChanged(nameof(ViewType));
 		OnPropertyChanged(nameof(ItemSize));
-		var useLargeIcon = type is 0 or 4 or 5;
-		if (useLargeIcon != isLastViewTypeUseLargeIcon) {
-			switchIconCts?.Cancel();
-			var list = Items.Where(item => item is FileSystemItem && !item.IsFolder).Cast<FileSystemItem>().Where(item => item.UseLargeIcon != useLargeIcon).ToArray();
-			switchIconCts = new CancellationTokenSource();
-			Task.Run(() => {
-				foreach (var item in list) {
-					item.UseLargeIcon = useLargeIcon;
-					item.LoadIconAsync().Wait();
-				}
-			}, switchIconCts.Token);
-			isLastViewTypeUseLargeIcon = useLargeIcon;
+		if (PathType == FileDataGrid.PathTypes.Normal) {
+			var useLargeIcon = type is 0 or 4 or 5;
+			if (useLargeIcon != isLastViewTypeUseLargeIcon) {
+				switchIconCts?.Cancel();
+				var list = Items.Where(item => item is FileSystemItem && !item.IsFolder).Cast<FileSystemItem>().Where(item => item.UseLargeIcon != useLargeIcon).ToArray();
+				switchIconCts = new CancellationTokenSource();
+				Task.Run(() => {
+					foreach (var item in list) {
+						item.UseLargeIcon = useLargeIcon;
+						item.LoadIconAsync().Wait();
+					}
+				}, switchIconCts.Token);
+				isLastViewTypeUseLargeIcon = useLargeIcon;
+			}
 		}
 	}
 
