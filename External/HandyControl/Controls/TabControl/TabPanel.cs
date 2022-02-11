@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using HandyControl.Tools;
 
 namespace HandyControl.Controls; 
 
@@ -33,11 +32,11 @@ public class TabPanel : Panel {
 	/// <summary>
 	///     是否已经加载
 	/// </summary>
-	private bool _isLoaded;
+	private bool isLoaded;
 
-	private int _itemCount;
+	private int itemCount;
 
-	private Size _oldSize;
+	private Size oldSize;
 
 	/// <summary>
 	///     是否可以更新
@@ -52,20 +51,20 @@ public class TabPanel : Panel {
 	/// <summary>
 	///     选项卡字典
 	/// </summary>
-	internal Dictionary<int, TabItem> ItemDic = new();
+	internal readonly Dictionary<int, TabItem> ItemDict = new();
 
 	public TabPanel() {
-		Loaded += (s, e) => {
-			if (_isLoaded) {
+		Loaded += (_, _) => {
+			if (isLoaded) {
 				return;
 			}
 			ForceUpdate = true;
 			Measure(new Size(DesiredSize.Width, ActualHeight));
 			ForceUpdate = false;
-			foreach (var item in ItemDic.Values) {
+			foreach (var item in ItemDict.Values) {
 				item.TabPanel = this;
 			}
-			_isLoaded = true;
+			isLoaded = true;
 		};
 	}
 
@@ -98,19 +97,19 @@ public class TabPanel : Panel {
 		//	return _oldSize;
 		//}
 		if (TemplatedParent is not TabControl tabControl) {
-			return _oldSize;
+			return oldSize;
 		}
 		constraint.Height = TabItemHeight;
-		_itemCount = InternalChildren.Count;
+		itemCount = InternalChildren.Count;
 
 		var size = new Size();
 
-		ItemDic.Clear();
+		ItemDict.Clear();
 
 		var count = InternalChildren.Count;
 		if (count == 0) {
-			_oldSize = new Size();
-			return _oldSize;
+			oldSize = new Size();
+			return oldSize;
 		}
 		constraint.Width += InternalChildren.Count;
 
@@ -136,12 +135,12 @@ public class TabPanel : Panel {
 				tabItem.ItemWidth = itemWidth - tabItem.BorderThickness.Left;
 				tabItem.CurrentIndex = index;
 				tabItem.TargetOffsetX = 0;
-				ItemDic[index] = tabItem;
+				ItemDict[index] = tabItem;
 				size.Width += tabItem.ItemWidth;
 			}
 		}
 		size.Height = constraint.Height;
-		_oldSize = size;
-		return _oldSize;
+		oldSize = size;
+		return oldSize;
 	}
 }

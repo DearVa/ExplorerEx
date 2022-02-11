@@ -2,14 +2,12 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media;
 using ExplorerEx.Annotations;
 using ExplorerEx.Utils;
 using ExplorerEx.View;
 using ExplorerEx.ViewModel;
 using ExplorerEx.Win32;
-using HandyControl.Controls;
 using HandyControl.Data;
 
 namespace ExplorerEx.Model; 

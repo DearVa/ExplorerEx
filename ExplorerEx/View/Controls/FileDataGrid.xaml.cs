@@ -12,8 +12,11 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using ExplorerEx.Converter;
 using ExplorerEx.Model;
+using ExplorerEx.Utils;
 using ExplorerEx.Win32;
+using HandyControl.Controls;
 using HandyControl.Tools;
+using ScrollViewer = System.Windows.Controls.ScrollViewer;
 using TextBox = HandyControl.Controls.TextBox;
 
 namespace ExplorerEx.View.Controls;
@@ -111,6 +114,14 @@ public partial class FileDataGrid {
 	private Border selectionRect;
 
 	/// <summary>
+	/// 如果不为null，说明正在Drag，可以修改Destination或者Effect
+	/// </summary>
+	public static DragFilesPreview DragFilesPreview { get; private set; }
+
+	private static DragDropWindow dragDropWindow;
+	private static FileViewBaseItem[] draggingItems;
+
+	/// <summary>
 	/// 自带的Items索引方法比较复杂，使用这个
 	/// </summary>
 	public new ObservableCollection<FileViewBaseItem> Items => (ObservableCollection<FileViewBaseItem>)ItemsSource;
@@ -190,6 +201,14 @@ public partial class FileDataGrid {
 		set => SetValue(DetailListsProperty, value);
 	}
 
+	public static readonly DependencyProperty FullPathProperty = DependencyProperty.Register(
+		"FullPath", typeof(string), typeof(FileDataGrid), new PropertyMetadata(default(string)));
+
+	public string FullPath {
+		get => (string)GetValue(FullPathProperty);
+		set => SetValue(FullPathProperty, value);
+	}
+	
 	private readonly FileDataGridColumnsConverter columnsConverter;
 
 	public FileDataGrid() {
@@ -301,7 +320,6 @@ public partial class FileDataGrid {
 	/// </summary>
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
-		Trace.WriteLine("MouseDown");
 		isDoubleClicked = false;
 		if (e.OriginalSource.FindParent<ScrollBar, FileDataGrid>() != null) {
 			base.OnPreviewMouseDown(e);
@@ -365,7 +383,6 @@ public partial class FileDataGrid {
 							row.IsSelected = true;
 						} else if (selectedItems.Count == 1 && e.ChangedButton == MouseButton.Left) {
 							isPreparedForRenaming = true;
-							Trace.WriteLine("isPreparedForRenaming");
 						}
 					}
 				}
@@ -403,9 +420,20 @@ public partial class FileDataGrid {
 			if (Math.Abs(point.X - startDragPosition.X) > SystemParameters.MinimumHorizontalDragDistance ||
 				Math.Abs(point.Y - startDragPosition.Y) > SystemParameters.MinimumVerticalDragDistance) {
 				if (mouseDownRowIndex != -1) {
-					var data = new DataObject(DataFormats.FileDrop, SelectedItems.Cast<FileViewBaseItem>().Select(item => item.FullPath).ToArray(), true);
+					draggingItems = SelectedItems.Cast<FileViewBaseItem>().ToArray();
+					var data = new DataObject(DataFormats.FileDrop, draggingItems.Select(item => item.FullPath).ToArray(), true);
+					var allowedEffects = draggingItems.Any(item => item is DiskDriveItem) ? DragDropEffects.Link : DragDropEffects.Copy | DragDropEffects.Link | DragDropEffects.Move;
+					DragFilesPreview = new DragFilesPreview(draggingItems.Select(item => item.Icon).ToArray());
+					dragDropWindow = new DragDropWindow(DragFilesPreview, new Point(50, 100), 0.8, false);
 					isDragDropping = true;
-					DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Link | DragDropEffects.Move);
+					DragDrop.DoDragDrop(this, data, allowedEffects);
+					draggingItems = null;
+					isDragDropping = false;
+					if (dragDropWindow != null) {
+						dragDropWindow.Close();
+						dragDropWindow = null;
+					}
+					DragFilesPreview = null;
 				} else {
 					if (!isRectSelecting) {
 						UnselectAll();
@@ -480,6 +508,7 @@ public partial class FileDataGrid {
 			var itemHeight = ItemSize.Height;
 			var dY = itemHeight + 4;  // 上下两项的y值之差，4是两项之间的间距，是固定的值
 			if (itemWidth > 0) {
+				return;  // 暂不支持Grid框选
 				var xCount = (int)(contentGrid.ActualWidth / itemWidth);  // 横向能容纳多少个元素
 				var yCount = (int)MathF.Ceiling((float)items.Count / xCount);  // 纵向有多少行
 				var dX = contentGrid.ActualWidth / xCount;
@@ -628,7 +657,6 @@ public partial class FileDataGrid {
 	}
 
 	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
-		Trace.WriteLine("MouseUp");
 		if (e.OriginalSource.FindParent<ScrollBar, FileDataGrid>() != null || isDoubleClicked) {
 			base.OnPreviewMouseUp(e);
 			return;
@@ -696,7 +724,6 @@ public partial class FileDataGrid {
 	/// </summary>
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseDoubleClick(MouseButtonEventArgs e) {
-		Trace.WriteLine("MouseDoubleClick");
 		if (mouseDownRowIndex >= 0 && mouseDownRowIndex < Items.Count && e.ChangedButton == MouseButton.Left) {
 			renameCts?.Cancel();
 			renameCts = null;
@@ -713,31 +740,30 @@ public partial class FileDataGrid {
 
 	protected override void OnDragEnter(DragEventArgs e) {
 		isDragDropping = true;
-		base.OnDragEnter(e);
+		if (PathType == PathTypes.Home) {
+			e.Effects = DragDropEffects.None;
+			e.Handled = true;
+			return;
+		}
+		if (DragFilesPreview != null) {
+			DragFilesPreview.Destination = FullPath;
+		}
 	}
 
 	protected override void OnDragLeave(DragEventArgs e) {
 		isDragDropping = false;
-		base.OnDragLeave(e);
+		if (DragFilesPreview != null) {
+			DragFilesPreview.Destination = null;
+		}
 	}
 
-	protected override void OnPreviewDrop(DragEventArgs e) {
-		isDragDropping = false;
-		base.OnPreviewDrop(e);
-	}
-
-	private void OnDragOver(object sender, DragEventArgs e) {
-		e.Effects = DragDropEffects.Copy;
-		//var data = new DataObjectContent(e.Data);
-		//bool isDirectory;
-		//if (ContainerFromElement(this, (DependencyObject)e.OriginalSource) is DataGridRow row) {
-		//	var item = row.Item;
-		//	if (item.IsDirectory) {
-		//	
-		//	}
-		//} else {
-		//
-		//}
+	protected override void OnDragOver(DragEventArgs e) {
+		isDragDropping = true;
+		if (PathType == PathTypes.Home) {
+			e.Effects = DragDropEffects.None;
+			e.Handled = true;
+			return;
+		}
 	}
 
 	protected override void OnDrop(DragEventArgs e) {
@@ -749,14 +775,32 @@ public partial class FileDataGrid {
 		} else {
 			path = null;
 		}
-		RaiseEvent(new FileDropEventArgs(FileDropEvent, new DataObjectContent(e.Data), path));
+		RaiseEvent(new FileDropEventArgs(FileDropEvent, e, path));
 	}
 
-	//protected override void OnPreviewGiveFeedback(GiveFeedbackEventArgs e) {
-	//	if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) {
-	//		e.Handled = true;
-	//	}
-	//}
+	protected override void OnPreviewGiveFeedback(GiveFeedbackEventArgs e) {
+		if (e.Effects == DragDropEffects.None) {
+			Mouse.SetCursor(Cursors.No);
+			e.UseDefaultCursors = false;
+			DragFilesPreview.Destination = null;
+			e.Handled = true;
+		} else if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) {
+			if (e.Effects.HasFlag(DragDropEffects.Move)) {
+				DragFilesPreview.DragDropEffect = DragDropEffects.Move;
+			}
+		} else if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) {
+			if (e.Effects.HasFlag(DragDropEffects.Copy)) {
+				DragFilesPreview.DragDropEffect = DragDropEffects.Copy;
+			}
+		} else if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt)) {
+			if (e.Effects.HasFlag(DragDropEffects.Link)) {
+				DragFilesPreview.DragDropEffect = DragDropEffects.Link;
+			}
+		} else {
+			DragFilesPreview.DragDropEffect = e.Effects.GetFirstEffect();
+		}
+		dragDropWindow.MoveWithCursor();
+	}
 
 	protected override void OnLostFocus(RoutedEventArgs e) {
 		renamingItem?.StopRename();
@@ -774,15 +818,17 @@ public partial class FileDataGrid {
 }
 
 public class FileDropEventArgs : RoutedEventArgs {
+	public DragEventArgs DragEventArgs { get; }
 	public DataObjectContent Content { get; }
 	/// <summary>
 	/// 拖动到的Path，可能是文件夹或者文件，为null表示当前路径
 	/// </summary>
 	public string Path { get; }
 
-	public FileDropEventArgs(RoutedEvent e, DataObjectContent content, string path) {
+	public FileDropEventArgs(RoutedEvent e, DragEventArgs args, string path) {
 		RoutedEvent = e;
-		Content = content;
+		DragEventArgs = args;
+		Content = new DataObjectContent(args.Data);
 		Path = path;
 	}
 }

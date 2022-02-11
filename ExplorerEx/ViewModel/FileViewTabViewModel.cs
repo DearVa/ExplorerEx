@@ -360,7 +360,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		sw.Restart();
 #endif
 
-		foreach (var fileViewBaseItem in list.Where(item => !item.IsFolder)) {
+		foreach (var fileViewBaseItem in list.Where(item => item is DiskDriveItem || !item.IsFolder)) {
 			await fileViewBaseItem.LoadIconAsync();
 		}
 
@@ -475,7 +475,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 			return;
 		}
 		if (recycle) {
-			if (!MessageBoxHelper.AskWithDefault("Recycle", "Are you sure to recycle these files?".L())) {
+			if (!MessageBoxHelper.AskWithDefault("Recycle", "Are_you_sure_to_recycle_these_files?".L())) {
 				return;
 			}
 			try {
@@ -485,7 +485,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 				Logger.Exception(e);
 			}
 		} else {
-			if (!MessageBoxHelper.AskWithDefault("Delete", "Are you sure to delete these files Permanently?".L())) {
+			if (!MessageBoxHelper.AskWithDefault("Delete", "Are_you_sure_to_delete_these_files_Permanently?".L())) {
 				return;
 			}
 			var failedFiles = new List<string>();
@@ -610,48 +610,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 
 	private void OnDrop(FileDropEventArgs e) {
 		var path = e.Path ?? FullPath;
-		if (path.Length > 4 && path[^4..] is ".exe" or ".lnk") {  // 拖文件运行
-			if (File.Exists(path) && e.Content.Type == DataObjectType.File) {
-				try {
-					Process.Start(new ProcessStartInfo {
-						FileName = path,
-						Arguments = string.Join(' ', e.Content.Data.GetFileDropList()),
-						UseShellExecute = true
-					});
-				} catch (Exception ex) {
-					Logger.Exception(ex);
-				}
-			}
-		} else if (Directory.Exists(path)) {
-			var p = new Win32Interop.Point();
-			Win32Interop.GetCursorPos(ref p);
-			var mousePoint = new Point(p.x, p.y);
-			switch (e.Content.Type) {
-			case DataObjectType.File:
-				var filePaths = (string[])e.Content.Data.GetData(DataFormats.FileDrop);
-				if (filePaths is { Length: > 0 }) {
-					var destPaths = filePaths.Select(p => Path.Combine(path, Path.GetFileName(p))).ToList();
-					try {
-						FileUtils.FileOperation((Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) ? 
-							Win32Interop.FileOpType.Move : Win32Interop.FileOpType.Copy, filePaths, destPaths);
-					} catch (Exception ex) {
-						Logger.Exception(ex);
-					}
-				}
-				break;
-			case DataObjectType.Bitmap:
-				break;
-			case DataObjectType.Html:
-				new SaveDataObjectWindow(path, e.Content.Data.GetData(DataFormats.Html)!.ToString(), mousePoint).Show();
-				break;
-			case DataObjectType.Text:
-				new SaveDataObjectWindow(path, e.Content.Data.GetData(DataFormats.Text)!.ToString(), mousePoint).Show();
-				break;
-			case DataObjectType.UnicodeText:
-				new SaveDataObjectWindow(path, e.Content.Data.GetData(DataFormats.UnicodeText)!.ToString(), mousePoint).Show();
-				break;
-			}
-		}
+		FileUtils.HandleDrop(e.Content, path, e.DragEventArgs.Effects.GetFirstEffect());
 	}
 
 	/// <summary>

@@ -155,7 +155,7 @@
   <data name="Remember_my_choice_and_dont_ask_again" xml:space="preserve">
     <value>记住我的选择，下次不再询问</value>
   </data>
-  <data name="Are you sure to recycle these files?" xml:space="preserve">
+  <data name="Are_you_sure_to_recycle_these_files?" xml:space="preserve">
     <value>您确定要将选择的文件移动到回收站吗？</value>
   </data>
   <data name="Check your input and try again." xml:space="preserve">
@@ -164,7 +164,7 @@
   <data name="Cannot open path" xml:space="preserve">
     <value>无法打开此路径</value>
   </data>
-  <data name="Are you sure to delete these files Permanently?" xml:space="preserve">
+  <data name="Are_you_sure_to_delete_these_files_Permanently?" xml:space="preserve">
     <value>您确定要永久删除选择的文件吗？</value>
   </data>
   <data name="Open_in_new_Window" xml:space="preserve">
@@ -303,5 +303,20 @@
   </data>
   <data name="File_system" xml:space="preserve">
     <value>文件系统</value>
+  </data>
+  <data name="You_have_opened_more_than_one_tab" xml:space="preserve">
+    <value>你打开了多个标签页，确定要关闭吗？</value>
+  </data>
+  <data name="Tip" xml:space="preserve">
+    <value>提示</value>
+  </data>
+  <data name="Copy_to" xml:space="preserve">
+    <value>复制到</value>
+  </data>
+  <data name="Move_to" xml:space="preserve">
+    <value>移动到</value>
+  </data>
+  <data name="Link_to" xml:space="preserve">
+    <value>创建链接</value>
   </data>
 </root>

@@ -1,9 +1,21 @@
-﻿using System;
+﻿using ExplorerEx.View;
+using ExplorerEx.Win32;
+using IWshRuntimeLibrary;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Input;
+using System.Windows.Shapes;
+using System.Windows;
+using ExplorerEx.View.Controls;
 using static ExplorerEx.Win32.Win32Interop;
+using File = System.IO.File;
+using Path = System.IO.Path;
+using Point = System.Windows.Point;
 
 namespace ExplorerEx.Utils;
 internal class FileUtils {
@@ -148,6 +160,80 @@ internal class FileUtils {
 		}
 	}
 
+	public static void CreateShortCut(string lnkPath, string targetPath, string description = null, string iconPath = null) {
+		var shell = new WshShell();
+		var shortcut = (IWshShortcut)shell.CreateShortcut(lnkPath);
+		shortcut.TargetPath = targetPath;
+		if (description != null) {
+			shortcut.Description = description;
+		}
+		if (iconPath != null) {
+			shortcut.IconLocation = iconPath;
+		}
+		shortcut.Save();
+	}
+
+	public static void HandleDrop(DataObjectContent content, string destPath, DragDropEffects type) {
+		Debug.Assert(type is DragDropEffects.Copy or DragDropEffects.Move or DragDropEffects.Link);
+		if (destPath.Length > 4 && destPath[^4..] is ".exe" or ".lnk") {  // 拖文件运行
+			if (File.Exists(destPath) && content.Type == DataObjectType.File) {
+				try {
+					Process.Start(new ProcessStartInfo {
+						FileName = destPath,
+						Arguments = string.Join(' ', content.Data.GetFileDropList()),
+						UseShellExecute = true
+					});
+				} catch (Exception ex) {
+					Logger.Exception(ex);
+				}
+			}
+		} else {
+			if (!Directory.Exists(destPath)) {
+				destPath = Path.GetDirectoryName(destPath);
+			}
+			if (Directory.Exists(destPath)) {
+				var p = new Win32Interop.Point();
+				GetCursorPos(ref p);
+				var mousePoint = new Point(p.x, p.y);
+				switch (content.Type) {
+				case DataObjectType.File:
+					var filePaths = (string[])content.Data.GetData(DataFormats.FileDrop);
+					if (filePaths is {Length: > 0}) {
+						var destPaths = filePaths.Select(p => {
+							if (p.Length == 3) {  // 处理驱动器号这种特殊情况
+								return p + p[0] + ".lnk";
+							}
+							return Path.Combine(destPath, Path.GetFileName(p));
+						}).ToList();
+						try {
+							if (type == DragDropEffects.Link) {
+								for (var i = 0; i < filePaths.Length; i++) {
+									CreateShortCut(Path.ChangeExtension(destPaths[i], ".lnk"), filePaths[i]);
+								}
+							} else {
+								FileOperation(type == DragDropEffects.Move ? FileOpType.Move : FileOpType.Copy, filePaths, destPaths);
+							}
+						} catch (Exception ex) {
+							Logger.Exception(ex);
+						}
+					}
+					break;
+				case DataObjectType.Bitmap:
+					break;
+				case DataObjectType.Html:
+					new SaveDataObjectWindow(destPath, content.Data.GetData(DataFormats.Html)!.ToString(), mousePoint).Show();
+					break;
+				case DataObjectType.Text:
+					new SaveDataObjectWindow(destPath, content.Data.GetData(DataFormats.Text)!.ToString(), mousePoint).Show();
+					break;
+				case DataObjectType.UnicodeText:
+					new SaveDataObjectWindow(destPath, content.Data.GetData(DataFormats.UnicodeText)!.ToString(), mousePoint).Show();
+					break;
+				}
+			}
+		}
+	}
+
 	private static string ParseFileList(IEnumerable<string> files) {
 		var sb = new StringBuilder();
 		foreach (var file in files) {
@@ -169,7 +255,7 @@ internal class FileUtils {
 			0x7C => "The path in the source or destination or both was invalid.",
 			0x10000 => "An unspecified error occurred on the destination.",
 			0x402 => "An unknown error occurred. This is typically due to an invalid path in the source or destination. This error does not occur on Windows Vista and later.",
-			_ => $"Unknown Error: {code}"
+			_ => Marshal.GetExceptionForHR(code)?.Message ?? $"Unknown error: {code}"
 		};
 	}
 }

@@ -73,6 +73,13 @@ public class TabItem : System.Windows.Controls.TabItem {
 
 	public static readonly RoutedEvent MovedEvent = EventManager.RegisterRoutedEvent("Moved", RoutingStrategy.Bubble, typeof(EventHandler), typeof(TabItem));
 
+	// DragEnter等方法找不出对应的TabItem是哪个，使用自定的方法（如果有更好的方法请帮我提个issue）
+	public static readonly RoutedEvent DragDropEnterEvent = EventManager.RegisterRoutedEvent("DragDropEnter", RoutingStrategy.Bubble, typeof(DragEventHandler), typeof(TabItem));
+
+	public static readonly RoutedEvent DragDropOverEvent = EventManager.RegisterRoutedEvent("DragDropOver", RoutingStrategy.Bubble, typeof(DragEventHandler), typeof(TabItem));
+
+	public static readonly RoutedEvent DragDropEvent = EventManager.RegisterRoutedEvent("DragDrop", RoutingStrategy.Bubble, typeof(DragEventHandler), typeof(TabItem));
+
 	public event EventHandler Closing {
 		add => AddHandler(ClosingEvent, value);
 		remove => RemoveHandler(ClosingEvent, value);
@@ -86,6 +93,21 @@ public class TabItem : System.Windows.Controls.TabItem {
 	public event EventHandler Moved {
 		add => AddHandler(MovedEvent, value);
 		remove => RemoveHandler(MovedEvent, value);
+	}
+
+	public event DragEventHandler DragDropEnter {
+		add => AddHandler(DragDropEnterEvent, value);
+		remove => RemoveHandler(DragDropEnterEvent, value);
+	}
+
+	public event DragEventHandler DragDropOver {
+		add => AddHandler(DragDropOverEvent, value);
+		remove => RemoveHandler(DragDropOverEvent, value);
+	}
+
+	public event DragEventHandler DragDrop {
+		add => AddHandler(DragDropEvent, value);
+		remove => RemoveHandler(DragDropEvent, value);
 	}
 
 	/// <summary>
@@ -140,10 +162,29 @@ public class TabItem : System.Windows.Controls.TabItem {
 
 	private TabPanel tabPanel;
 
+	private Grid templateRoot;
+
 	public TabItem() {
 		CommandBindings.Add(new CommandBinding(ControlCommands.Close, (_, _) => Close()));
 		CommandBindings.Add(new CommandBinding(ControlCommands.CloseOther, (_, _) => TabControlParent.CloseOtherItems(this)));
 		Loaded += (_, _) => OnMenuChanged(Menu);
+	}
+
+	public override void OnApplyTemplate() {
+		base.OnApplyTemplate();
+		templateRoot = (Grid)GetTemplateChild("templateRoot")!;
+		templateRoot.DragEnter += (_, args) => {
+			args.RoutedEvent = DragDropEnterEvent;
+			RaiseEvent(new TabItemDragEventArgs(args, this));
+		};
+		templateRoot.DragOver += (_, args) => {
+			args.RoutedEvent = DragDropOverEvent;
+			RaiseEvent(new TabItemDragEventArgs(args, this));
+		};
+		templateRoot.Drop += (_, args) => {
+			args.RoutedEvent = DragDropEvent;
+			RaiseEvent(new TabItemDragEventArgs(args, this));
+		};
 	}
 
 	/// <summary>
@@ -247,16 +288,16 @@ public class TabItem : System.Windows.Controls.TabItem {
 	/// </summary>
 	/// <param name="oldIndex"></param>
 	private void UpdateItemOffsetX(int oldIndex) {
-		if (!isDragging || CurrentIndex >= TabPanel.ItemDic.Count) {
+		if (!isDragging || CurrentIndex >= TabPanel.ItemDict.Count) {
 			return;
 		}
 
-		var moveItem = TabPanel.ItemDic[CurrentIndex];
+		var moveItem = TabPanel.ItemDict[CurrentIndex];
 		moveItem.CurrentIndex -= CurrentIndex - oldIndex;
 		var offsetX = moveItem.TargetOffsetX;
 		var resultX = offsetX + (oldIndex - CurrentIndex) * ItemWidth;
-		TabPanel.ItemDic[CurrentIndex] = this;
-		TabPanel.ItemDic[moveItem.CurrentIndex] = moveItem;
+		TabPanel.ItemDict[CurrentIndex] = this;
+		TabPanel.ItemDict[moveItem.CurrentIndex] = moveItem;
 		moveItem.CreateAnimation(offsetX, resultX);
 	}
 
@@ -373,10 +414,11 @@ public class TabItem : System.Windows.Controls.TabItem {
 			if (p.X < 0 || p.X > parent.ActualWidth || p.Y < 0 || p.Y > parent.ActualHeight) {
 				if (DraggingTab == null) {
 					DraggingTab = this;
-					DragDropWindow = new DragDropWindow((Grid)GetVisualChild(0));
+					var tab = (Grid)GetVisualChild(0)!;
+					DragDropWindow = new DragDropWindow(tab, new Point(tab.ActualWidth / 2, tab.ActualHeight / 2));
 					Visibility = Visibility.Hidden;
 					isItemDragging = isDragging = MoveAfterDrag = CancelDrag = false;
-					DragDrop.DoDragDrop(this, DragDropData, DragDropEffects.Move);
+					System.Windows.DragDrop.DoDragDrop(this, DragDropData, DragDropEffects.Move);
 					EndDragDrop();
 					DragEnd?.Invoke();
 					DragEnd = null;
@@ -513,5 +555,17 @@ public class TabItem : System.Windows.Controls.TabItem {
 		var result = rest / ItemWidth > .5 ? div + 1 : div;
 
 		return result > maxIndex ? maxIndex : result;
+	}
+}
+
+public class TabItemDragEventArgs : RoutedEventArgs {
+	public DragEventArgs DragEventArgs { get; }
+
+	public TabItem TabItem { get; }
+
+	public TabItemDragEventArgs(DragEventArgs args, TabItem tabItem) {
+		RoutedEvent = args.RoutedEvent;
+		DragEventArgs = args;
+		TabItem = tabItem;
 	}
 }

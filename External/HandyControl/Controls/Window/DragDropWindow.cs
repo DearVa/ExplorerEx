@@ -22,13 +22,17 @@ public sealed class DragDropWindow : Window {
 	[DllImport("user32")]
 	private static extern uint SetWindowLong(IntPtr hwnd, int nIndex, int newLong);
 
+	private Point cursorPoint;
+
 	/// <summary>
 	/// 创建一个DragDropWindow并显示
 	/// </summary>
-	/// <param name="element">要显示的元素</param>
+	/// <param name="visual">要显示的元素</param>
+	/// <param name="cursorPoint">鼠标所处的位置</param>
 	/// <param name="opacity"></param>
 	/// <param name="useVisualBrush">如果为true，那就使用VisualBrush，相当于显示element的副本；如果为false，那就是把element当做窗口的Content，此时要确保element没有父级</param>
-	public DragDropWindow(FrameworkElement element, double opacity = 1d, bool useVisualBrush = true) {
+	public DragDropWindow(Visual visual, Point cursorPoint, double opacity = 1d, bool useVisualBrush = true) {
+		this.cursorPoint = cursorPoint;
 		Topmost = true;
 		ShowInTaskbar = false;
 		IsHitTestVisible = false;
@@ -37,18 +41,18 @@ public sealed class DragDropWindow : Window {
 		ResizeMode = ResizeMode.NoResize;
 		Opacity = opacity;
 		AllowDrop = false;
-		Width = element.ActualWidth;
-		Height = element.ActualHeight;
+		SizeToContent = SizeToContent.WidthAndHeight;
 		if (useVisualBrush) {
-			Background = new VisualBrush(element);
+			Background = new VisualBrush(visual);
 		} else {
-			Content = element;
+			Background = null;
+			Content = visual;
 		}
 		BorderBrush = null;
 		var mousePos = new Win32Point();
 		GetCursorPos(ref mousePos);
-		Left = mousePos.X - Width / 2;
-		Top = mousePos.Y - Height / 2;
+		Left = mousePos.X - cursorPoint.X;
+		Top = mousePos.Y - cursorPoint.Y;
 		SetWindowLong(new WindowInteropHelper(this).EnsureHandle(), -20, 0x20);  // 设置鼠标穿透
 		Show();
 	}
@@ -56,7 +60,7 @@ public sealed class DragDropWindow : Window {
 	public void MoveWithCursor() {
 		var mousePos = new Win32Point();
 		GetCursorPos(ref mousePos);
-		Left = mousePos.X - Width / 2;
-		Top = mousePos.Y - Height / 2;
+		Left = mousePos.X - cursorPoint.X;
+		Top = mousePos.Y - cursorPoint.Y;
 	}
 }

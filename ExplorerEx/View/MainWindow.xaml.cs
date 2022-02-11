@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -27,11 +28,11 @@ public sealed partial class MainWindow {
 
 	public static DataObjectContent DataObjectContent { get; private set; }
 
+	private readonly SplitGrid splitGrid;
 	private readonly HwndSource hwnd;
 	private static bool isClipboardViewerSet;
 	private IntPtr nextClipboardViewer;
 
-	private readonly SplitGrid splitGrid;
 	private readonly string startupPath;
 
 	private static volatile uint globalEverythingQueryId;
@@ -172,6 +173,15 @@ public sealed partial class MainWindow {
 		} catch (Exception e) {
 			HandyControl.Controls.MessageBox.Error(e.ToString());
 		}
+	}
+
+	protected override void OnClosing(CancelEventArgs e) {
+		if (splitGrid.FileTabControl.TabItems.Count > 1 || splitGrid.AnyOtherTabs) {
+			if (!MessageBoxHelper.AskWithDefault("CloseMultiTabs", "You_have_opened_more_than_one_tab".L())) {
+				e.Cancel = true;
+			}
+		}
+		base.OnClosing(e);
 	}
 
 	protected override void OnClosed(EventArgs e) {

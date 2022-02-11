@@ -7,8 +7,10 @@ using ExplorerEx.ViewModel;
 using System.Runtime.CompilerServices;
 using System;
 using System.Diagnostics;
+using HandyControl.Controls;
+using IWshRuntimeLibrary;
 
-namespace ExplorerEx.Model; 
+namespace ExplorerEx.Model;
 
 /// <summary>
 /// 硬盘驱动器
@@ -41,6 +43,7 @@ public sealed class DiskDriveItem : FileViewBaseItem {
 
 	public DiskDriveItem(FileViewTabViewModel ownerViewModel, DriveInfo driver) : base(ownerViewModel) {
 		Driver = driver;
+		IsFolder = true;
 		if (driver.IsReady) {
 			Name = $"{(string.IsNullOrWhiteSpace(driver.VolumeLabel) ? Type : driver.VolumeLabel)} ({driver.Name[..1]})";
 			TotalSpace = driver.TotalSize;
@@ -71,7 +74,7 @@ public sealed class DiskDriveItem : FileViewBaseItem {
 		private readonly Color endColor;
 
 		public Gradient(params Color[] colors) {
-			Debug.Assert(colors is {Length: > 1});
+			Debug.Assert(colors is { Length: > 1 });
 			this.colors = new HSVColor[colors.Length];
 			for (var i = 0; i < colors.Length; i++) {
 				this.colors[i] = new HSVColor(colors[i]);

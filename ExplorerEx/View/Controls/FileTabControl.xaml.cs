@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System;
 using System.Windows.Input;
+using ExplorerEx.Win32;
 using HandyControl.Controls;
+using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
 using MessageBox = HandyControl.Controls.MessageBox;
 using TextBox = System.Windows.Controls.TextBox;
 
@@ -47,10 +49,13 @@ public partial class FileTabControl {
 	}
 
 	public SimpleCommand TabClosingCommand { get; }
-
 	public SimpleCommand TabMovedCommand { get; }
-
 	public SimpleCommand CreateNewTabCommand { get; }
+	/// <summary>
+	/// DragEnter、Over是一样的
+	/// </summary>
+	public SimpleCommand DragCommand { get; }
+	public SimpleCommand DropCommand { get; }
 
 	public MainWindow MainWindow { get; }
 
@@ -63,6 +68,8 @@ public partial class FileTabControl {
 		TabClosingCommand = new SimpleCommand(OnTabClosing);
 		TabMovedCommand = new SimpleCommand(OnTabMoved);
 		CreateNewTabCommand = new SimpleCommand(OnCreateNewTab);
+		DragCommand = new SimpleCommand(OnDrag);
+		DropCommand = new SimpleCommand(OnDrop);
 		InitializeComponent();
 
 		TabItems.Add(tab ?? new FileViewTabViewModel(this));
@@ -215,5 +222,26 @@ public partial class FileTabControl {
 		if (sizeInfo.WidthChanged) {
 			IsFileUtilsVisible = sizeInfo.NewSize.Width > 700d;
 		}
+	}
+
+	private static void OnDrag(object args) {
+		var e = (TabItemDragEventArgs)args;
+		var tab = (FileViewTabViewModel)e.TabItem.DataContext;
+		if (tab.PathType == FileDataGrid.PathTypes.Home) {
+			e.DragEventArgs.Effects = DragDropEffects.None;
+			return;
+		}
+		if (FileDataGrid.DragFilesPreview != null) {
+			FileDataGrid.DragFilesPreview.Destination = tab.FullPath;
+		}
+	}
+
+	private static void OnDrop(object args) {
+		var e = (TabItemDragEventArgs)args;
+		var tab = (FileViewTabViewModel)e.TabItem.DataContext;
+		if (tab.PathType == FileDataGrid.PathTypes.Home) {
+			return;
+		}
+		FileUtils.HandleDrop(new DataObjectContent(e.DragEventArgs.Data), tab.FullPath, e.DragEventArgs.Effects.GetFirstEffect());
 	}
 }

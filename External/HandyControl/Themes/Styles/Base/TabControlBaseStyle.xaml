@@ -210,7 +210,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="hc:TabItem">
-                    <Grid x:Name="templateRoot" SnapsToDevicePixels="true" ContextMenu="{TemplateBinding Menu}" Margin="0,0,0,-3">
+                    <Grid x:Name="templateRoot" AllowDrop="True" SnapsToDevicePixels="true" ContextMenu="{TemplateBinding Menu}" Margin="0,0,0,-3">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition/>

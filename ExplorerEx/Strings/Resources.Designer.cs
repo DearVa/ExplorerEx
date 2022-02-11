@@ -94,7 +94,7 @@ namespace ExplorerEx.Strings {
         /// </summary>
         internal static string Are_you_sure_to_delete_these_files_Permanently_ {
             get {
-                return ResourceManager.GetString("Are you sure to delete these files Permanently?", resourceCulture);
+                return ResourceManager.GetString("Are_you_sure_to_delete_these_files_Permanently?", resourceCulture);
             }
         }
         
@@ -103,7 +103,7 @@ namespace ExplorerEx.Strings {
         /// </summary>
         internal static string Are_you_sure_to_recycle_these_files_ {
             get {
-                return ResourceManager.GetString("Are you sure to recycle these files?", resourceCulture);
+                return ResourceManager.GetString("Are_you_sure_to_recycle_these_files?", resourceCulture);
             }
         }
         
@@ -203,6 +203,15 @@ namespace ExplorerEx.Strings {
         internal static string Copy {
             get {
                 return ResourceManager.GetString("Copy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 复制到 的本地化字符串。
+        /// </summary>
+        internal static string Copy_to {
+            get {
+                return ResourceManager.GetString("Copy_to", resourceCulture);
             }
         }
         
@@ -333,6 +342,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 创建链接 的本地化字符串。
+        /// </summary>
+        internal static string Link_to {
+            get {
+                return ResourceManager.GetString("Link_to", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 列表 的本地化字符串。
         /// </summary>
         internal static string List {
@@ -374,6 +392,15 @@ namespace ExplorerEx.Strings {
         internal static string More {
             get {
                 return ResourceManager.GetString("More", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 移动到 的本地化字符串。
+        /// </summary>
+        internal static string Move_to {
+            get {
+                return ResourceManager.GetString("Move_to", resourceCulture);
             }
         }
         
@@ -621,6 +648,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 提示 的本地化字符串。
+        /// </summary>
+        internal static string Tip {
+            get {
+                return ResourceManager.GetString("Tip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 共有： 的本地化字符串。
         /// </summary>
         internal static string Total__ {
@@ -671,6 +707,15 @@ namespace ExplorerEx.Strings {
         internal static string You_closed_the_last_tab_what_do_you_want_ {
             get {
                 return ResourceManager.GetString("You_closed_the_last_tab_what_do_you_want?", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 你打开了多个标签页，确定要关闭吗？ 的本地化字符串。
+        /// </summary>
+        internal static string You_have_opened_more_than_one_tab {
+            get {
+                return ResourceManager.GetString("You_have_opened_more_than_one_tab", resourceCulture);
             }
         }
     }

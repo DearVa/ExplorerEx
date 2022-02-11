@@ -65,7 +65,7 @@
   <data name="Remember_my_choice_and_dont_ask_again" xml:space="preserve">
     <value>Remember my choice and don't ask again</value>
   </data>
-  <data name="Are you sure to recycle these files?" xml:space="preserve">
+  <data name="Are_you_sure_to_recycle_these_files?" xml:space="preserve">
     <value>Are you sure to recycle these files?</value>
   </data>
   <data name="Fail to open file" xml:space="preserve">
@@ -77,7 +77,7 @@
   <data name="Cannot open path" xml:space="preserve">
     <value>Cannot open path</value>
   </data>
-  <data name="Are you sure to delete these files Permanently?" xml:space="preserve">
+  <data name="Are_you_sure_to_delete_these_files_Permanently?" xml:space="preserve">
     <value>Are you sure to delete these files Permanently?</value>
   </data>
   <data name="Open_in_new_Window" xml:space="preserve">
@@ -216,5 +216,20 @@ Are you sure you want to change?</value>
   </data>
   <data name="File_system" xml:space="preserve">
     <value>File system</value>
+  </data>
+  <data name="You_have_opened_more_than_one_tab" xml:space="preserve">
+    <value>You have opened more than one tab. Are you sure you want to close?</value>
+  </data>
+  <data name="Tip" xml:space="preserve">
+    <value>Tip</value>
+  </data>
+  <data name="Copy_to" xml:space="preserve">
+    <value>Copy to</value>
+  </data>
+  <data name="Move_to" xml:space="preserve">
+    <value>Move to</value>
+  </data>
+  <data name="Link_to" xml:space="preserve">
+    <value>Link to</value>
   </data>
 </root>
