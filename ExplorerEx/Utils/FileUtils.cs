@@ -199,16 +199,17 @@ internal class FileUtils {
 				case DataObjectType.File:
 					var filePaths = (string[])content.Data.GetData(DataFormats.FileDrop);
 					if (filePaths is {Length: > 0}) {
-						var destPaths = filePaths.Select(p => {
-							if (p.Length == 3) {  // 处理驱动器号这种特殊情况
-								return p + p[0] + ".lnk";
-							}
-							return Path.Combine(destPath, Path.GetFileName(p));
-						}).ToList();
+						var destPaths = filePaths.Select(p => Path.Combine(destPath, Path.GetFileName(p))).ToList();
 						try {
 							if (type == DragDropEffects.Link) {
 								for (var i = 0; i < filePaths.Length; i++) {
-									CreateShortCut(Path.ChangeExtension(destPaths[i], ".lnk"), filePaths[i]);
+									var path = destPaths[i];
+									if (path.Length == 3) {  // 处理驱动器号这种特殊情况
+										path = path + filePaths[i][0] + ".lnk";
+									} else {
+										path = Path.ChangeExtension(path, ".lnk");
+									}
+									CreateShortCut(path, filePaths[i]);
 								}
 							} else {
 								FileOperation(type == DragDropEffects.Move ? FileOpType.Move : FileOpType.Copy, filePaths, destPaths);
