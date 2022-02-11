@@ -9,7 +9,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using ExplorerEx.Model;
 using ExplorerEx.Utils;
-using ExplorerEx.ViewModel;
+using ExplorerEx.View.Controls;
 using ExplorerEx.Win32;
 using Microsoft.Win32;
 using static ExplorerEx.Win32.Win32Interop;
@@ -31,7 +31,7 @@ public sealed partial class MainWindow {
 	private static bool isClipboardViewerSet;
 	private IntPtr nextClipboardViewer;
 
-	private readonly MainWindowViewModel viewModel;
+	private readonly SplitGrid splitGrid;
 	private readonly string startupPath;
 
 	private static volatile uint globalEverythingQueryId;
@@ -53,7 +53,7 @@ public sealed partial class MainWindow {
 		Left = Math.Min(Math.Max(100 - Width, left), SystemParameters.PrimaryScreenWidth - 100);
 		Top = Math.Min(Math.Max(0, top), SystemParameters.PrimaryScreenHeight - 100);
 
-		DataContext = viewModel = new MainWindowViewModel(this);
+		DataContext = this;
 		InitializeComponent();
 
 		if (ConfigHelper.LoadBoolean("WindowMaximized")) {
@@ -72,11 +72,14 @@ public sealed partial class MainWindow {
 			OnClipboardChanged();
 		}
 		hwnd.AddHook(WndProc);
+
+		splitGrid = new SplitGrid(this, null);
+		RootGrid.Children.Add(splitGrid);
 	}
 
 	protected override async void OnContentRendered(EventArgs e) {
 		base.OnContentRendered(e);
-		await viewModel.StartUpLoad(startupPath);
+		await splitGrid.FileTabControl.StartUpLoad(startupPath);
 		ChangeThemeWithSystem();
 	}
 
@@ -173,25 +176,11 @@ public sealed partial class MainWindow {
 
 	protected override void OnClosed(EventArgs e) {
 		MainWindows.Remove(this);
-		foreach (var tab in viewModel.TabViewItems) {
-			tab.Dispose();
-		}
+		splitGrid.Close();
 		base.OnClosed(e);
 		if (nextClipboardViewer != IntPtr.Zero) {
 			ChangeClipboardChain(hwnd.Handle, nextClipboardViewer);
 		}
-	}
-
-	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
-		switch (e.ChangedButton) {
-		case MouseButton.XButton1:  // 鼠标侧键返回
-			viewModel.SelectedTab.GoBackAsync();
-			break;
-		case MouseButton.XButton2:
-			viewModel.SelectedTab.GoForwardAsync();
-			break;
-		}
-		base.OnPreviewMouseUp(e);
 	}
 
 	private void ChangeThemeWithSystem() {
@@ -222,59 +211,6 @@ public sealed partial class MainWindow {
 		});
 		
 		EnableMica(isDarkTheme);
-	}
-
-	protected override void OnPreviewKeyDown(KeyEventArgs e) {
-		if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
-			switch (e.Key) {
-			case Key.Z:
-				break;
-			case Key.X:
-				viewModel.SelectedTab.Copy(true);
-				break;
-			case Key.C:
-				viewModel.SelectedTab.Copy(false);
-				break;
-			case Key.V:
-				viewModel.SelectedTab.Paste();
-				break;
-			}
-		} else {
-			switch (e.Key) {
-			case Key.Delete:
-				viewModel.SelectedTab.Delete((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift);
-				break;
-			default:
-				base.OnPreviewKeyDown(e);
-				return;
-			}
-		}
-		e.Handled = true;
-	}
-
-	private async void AddressBar_OnKeyDown(object sender, KeyEventArgs e) {
-		switch (e.Key) {
-		case Key.Enter:
-			await viewModel.SelectedTab.LoadDirectoryAsync(((TextBox)sender).Text);
-			break;
-		}
-	}
-
-	private ListBoxItem lastClickItem;
-	private DateTimeOffset lastClickTime;
-
-	private async void HomeListBox_OnMouseUp(object sender, MouseButtonEventArgs e) {
-		if (e.ChangedButton == MouseButton.Left) {
-			if (ItemsControl.ContainerFromElement((ListBox)sender, (DependencyObject)e.OriginalSource) is ListBoxItem item) {
-				if (lastClickItem == item && DateTimeOffset.Now <= lastClickTime.AddMilliseconds(500)) {
-					await viewModel.SelectedTab.LoadDirectoryAsync(((DiskDriveItem)item.Content).Driver.Name);
-				}
-				lastClickItem = item;
-				lastClickTime = DateTimeOffset.Now;
-			} else {
-				viewModel.SelectedTab.ClearSelection();
-			}
-		}
 	}
 
 	private void DragArea_OnMouseDown(object sender, MouseButtonEventArgs e) {

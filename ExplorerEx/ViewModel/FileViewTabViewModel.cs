@@ -15,6 +15,7 @@ using ExplorerEx.Utils;
 using ExplorerEx.View;
 using ExplorerEx.View.Controls;
 using ExplorerEx.Win32;
+using static ExplorerEx.View.Controls.FileDataGrid;
 using hc = HandyControl.Controls;
 
 namespace ExplorerEx.ViewModel;
@@ -23,20 +24,22 @@ namespace ExplorerEx.ViewModel;
 /// 对应一个Tab
 /// </summary>
 public class FileViewTabViewModel : ViewModelBase, IDisposable {
-	public MainWindowViewModel OwnerViewModel { get; }
+	public FileTabControl OwnerTabControl { get; }
 
-	public MainWindow OwnerWindow => OwnerViewModel.MainWindow;
+	public MainWindow OwnerWindow => OwnerTabControl.MainWindow;
 
 	/// <summary>
 	/// 当前的路径，如果是首页，就是“此电脑”
 	/// </summary>
 	public string FullPath { get; private set; }
 
-	public string Header => PathType == FileDataGrid.PathTypes.Home ? FullPath : FullPath.Length <= 3 ? FullPath : Path.GetFileName(FullPath);
+	public string Header => PathType == PathTypes.Home ? FullPath : FullPath.Length <= 3 ? FullPath : Path.GetFileName(FullPath);
 
-	public FileDataGrid.PathTypes PathType { get; private set; } = FileDataGrid.PathTypes.Home;
+	public PathTypes PathType { get; private set; } = PathTypes.Home;
 
-	public FileDataGrid.ViewTypes ViewType { get; private set; } = FileDataGrid.ViewTypes.Tile;
+	public ViewTypes ViewType { get; private set; } = ViewTypes.Tile;
+
+	public Lists DetailLists { get; private set; } = Lists.Type | Lists.AvailableSpace | Lists.TotalSpace | Lists.FillRatio | Lists.FileSystem;
 
 	/// <summary>
 	/// 当前文件夹内的文件列表
@@ -57,7 +60,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 
 	public SimpleCommand GoForwardCommand { get; }
 
-	public bool CanGoToUpperLevel => PathType != FileDataGrid.PathTypes.Home;
+	public bool CanGoToUpperLevel => PathType != PathTypes.Home;
 
 	public SimpleCommand GoToUpperLevelCommand { get; }
 
@@ -83,7 +86,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	/// <summary>
 	/// 文件项的大小
 	/// </summary>
-	public Size ItemSize { get; private set; } = new Size(0d, 70d);
+	public Size ItemSize { get; private set; } = new(0d, 70d);
 
 	public SimpleCommand FileDropCommand { get; }
 
@@ -148,8 +151,8 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 
 	private CancellationTokenSource cts;
 
-	public FileViewTabViewModel(MainWindowViewModel ownerViewModel) {
-		OwnerViewModel = ownerViewModel;
+	public FileViewTabViewModel(FileTabControl ownerTabControl) {
+		OwnerTabControl = ownerTabControl;
 		OwnerWindow.EverythingQueryReplied += OnEverythingQueryReplied;
 
 		GoBackCommand = new SimpleCommand(_ => GoBackAsync());
@@ -168,7 +171,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 
 		FileDropCommand = new SimpleCommand(e => OnDrop((FileDropEventArgs)e));
 		// ReSharper disable once AsyncVoidLambda
-		ItemDoubleClickedCommand = new SimpleCommand(async e => await Item_OnDoubleClicked((FileDataGrid.ItemClickEventArgs)e));
+		ItemDoubleClickedCommand = new SimpleCommand(async e => await Item_OnDoubleClicked((ItemClickEventArgs)e));
 
 		dispatcher = Application.Current.Dispatcher;
 
@@ -200,33 +203,33 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	private void SwitchViewType(int type) {
 		switch (type) {
 		case 0:  // 大图标
-			ViewType = FileDataGrid.ViewTypes.Icon;
+			ViewType = ViewTypes.Icon;
 			ItemSize = new Size(120d, 160d);
 			break;
 		case 1:  // 小图标
-			ViewType = FileDataGrid.ViewTypes.Icon;
+			ViewType = ViewTypes.Icon;
 			ItemSize = new Size(80d, 100d);
 			break;
 		case 2:  // 列表，size.Width为0代表横向填充
-			ViewType = FileDataGrid.ViewTypes.List;
+			ViewType = ViewTypes.List;
 			ItemSize = new Size(0d, 30d);
 			break;
 		case 3:  // 详细信息
-			ViewType = FileDataGrid.ViewTypes.Detail;
+			ViewType = ViewTypes.Detail;
 			ItemSize = new Size(0d, 30d);
 			break;
 		case 4:  // 平铺
-			ViewType = FileDataGrid.ViewTypes.Tile;
+			ViewType = ViewTypes.Tile;
 			ItemSize = new Size(0d, 70d);
 			break;
 		case 5:  // 内容
-			ViewType = FileDataGrid.ViewTypes.Content;
+			ViewType = ViewTypes.Content;
 			ItemSize = new Size(0d, 70d);
 			break;
 		}
 		OnPropertyChanged(nameof(ViewType));
 		OnPropertyChanged(nameof(ItemSize));
-		if (PathType == FileDataGrid.PathTypes.Normal) {
+		if (PathType == PathTypes.Normal) {
 			var useLargeIcon = type is 0 or 4 or 5;
 			if (useLargeIcon != isLastViewTypeUseLargeIcon) {
 				switchIconCts?.Cancel();
@@ -330,9 +333,15 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 #endif
 
 		Items.Clear();
-		PathType = isLoadRoot ? FileDataGrid.PathTypes.Home : FileDataGrid.PathTypes.Normal;  // TODO: 网络驱动器、OneDrive等
-		// 一旦调用这个，模板就会改变，所以要在清空之后，不然会导致排版混乱和绑定失败
+		PathType = isLoadRoot ? PathTypes.Home : PathTypes.Normal;  // TODO: 网络驱动器、OneDrive等
+																	// 一旦调用这个，模板就会改变，所以要在清空之后，不然会导致排版混乱和绑定失败
 		OnPropertyChanged(nameof(PathType));
+		if (PathType == PathTypes.Home) {  // TODO
+			DetailLists = Lists.Type | Lists.AvailableSpace | Lists.TotalSpace | Lists.FillRatio | Lists.FileSystem;
+		} else {
+			DetailLists = Lists.ModificationDate | Lists.Type | Lists.FileSize;
+		}
+		OnPropertyChanged(nameof(DetailLists));
 		OnPropertyChanged(nameof(Header));
 		SwitchViewType(isLoadRoot ? 4 : 3);  // TODO: 此处暂时设为默认值，要根据文件夹记录在数据库里
 
@@ -412,7 +421,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	/// </summary>
 	/// <param name="isCut"></param>
 	public void Copy(bool isCut) {
-		if (PathType == FileDataGrid.PathTypes.Home || SelectedItems.Count == 0) {
+		if (PathType == PathTypes.Home || SelectedItems.Count == 0) {
 			return;
 		}
 		var data = new DataObject(DataFormats.FileDrop, SelectedItems.Where(item => item is FileSystemItem).Select(item => ((FileSystemItem)item).FullPath).ToArray());
@@ -424,7 +433,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	/// 粘贴剪贴板中的文件或者文本、图片
 	/// </summary>
 	public void Paste() {
-		if (PathType == FileDataGrid.PathTypes.Home) {
+		if (PathType == PathTypes.Home) {
 			return;
 		}
 		if (Clipboard.GetDataObject() is DataObject data) {
@@ -452,7 +461,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		if (SelectedItems.Count == 0) {
 			return;
 		}
-		if (PathType == FileDataGrid.PathTypes.Home) {
+		if (PathType == PathTypes.Home) {
 			SelectedItems.First().BeginRename();
 		} else if (SelectedItems.Count == 1) {
 			SelectedItems.First().BeginRename();
@@ -462,7 +471,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	}
 
 	public void Delete(bool recycle) {
-		if (PathType == FileDataGrid.PathTypes.Home || SelectedItems.Count == 0) {
+		if (PathType == PathTypes.Home || SelectedItems.Count == 0) {
 			return;
 		}
 		if (recycle) {
@@ -516,7 +525,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	/// 和文件相关的UI，选择更改时更新
 	/// </summary>
 	private void UpdateFileUI() {
-		if (PathType == FileDataGrid.PathTypes.Home) {
+		if (PathType == PathTypes.Home) {
 			SelectedFileItemsSizeVisibility = Visibility.Collapsed;
 		} else {
 			var size = SelectedFilesSize;
@@ -534,7 +543,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		OnPropertyChanged(nameof(SelectedFileItemsSizeText));
 	}
 
-	public async Task Item_OnDoubleClicked(FileDataGrid.ItemClickEventArgs e) {
+	public async Task Item_OnDoubleClicked(ItemClickEventArgs e) {
 		var isCtrlPressed = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
 		var isShiftPressed = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
 		var isAltPressed = Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt);
@@ -542,7 +551,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		// 双击事件
 		case DiskDriveItem ddi:
 			if (isCtrlPressed) {
-				await OwnerViewModel.OpenPathInNewTabAsync(ddi.Driver.Name);
+				await OwnerTabControl.OpenPathInNewTabAsync(ddi.Driver.Name);
 			} else if (isShiftPressed) {
 				new MainWindow(ddi.Driver.Name).Show();
 			} else if (isAltPressed) {
@@ -557,7 +566,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 			} else {
 				if (fsi.IsFolder) {
 					if (isCtrlPressed) {
-						await OwnerViewModel.OpenPathInNewTabAsync(fsi.FullPath);
+						await OwnerTabControl.OpenPathInNewTabAsync(fsi.FullPath);
 					} else if (isShiftPressed) {
 						new MainWindow(fsi.FullPath).Show();
 					} else {
@@ -619,6 +628,16 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 			var mousePoint = new Point(p.x, p.y);
 			switch (e.Content.Type) {
 			case DataObjectType.File:
+				var filePaths = (string[])e.Content.Data.GetData(DataFormats.FileDrop);
+				if (filePaths is { Length: > 0 }) {
+					var destPaths = filePaths.Select(p => Path.Combine(path, Path.GetFileName(p))).ToList();
+					try {
+						FileUtils.FileOperation((Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) ? 
+							Win32Interop.FileOpType.Move : Win32Interop.FileOpType.Copy, filePaths, destPaths);
+					} catch (Exception ex) {
+						Logger.Exception(ex);
+					}
+				}
 				break;
 			case DataObjectType.Bitmap:
 				break;
@@ -651,7 +670,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 				EverythingInterop.Max = 999;
 				// EverythingInterop.SetRequestFlags(EverythingInterop.RequestType.FullPathAndFileName | EverythingInterop.RequestType.DateModified | EverythingInterop.RequestType.Size);
 				// EverythingInterop.SetSort(EverythingInterop.SortMode.NameAscending);
-				OwnerViewModel.MainWindow.RegisterEverythingQuery();
+				OwnerTabControl.MainWindow.RegisterEverythingQuery();
 				EverythingInterop.Query(false);
 			} else {
 				hc.MessageBox.Error("Everything_is_not_available".L());
@@ -662,7 +681,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	private CancellationTokenSource everythingReplyCts;
 
 	private async void OnEverythingQueryReplied(uint id) {
-		PathType = FileDataGrid.PathTypes.Home;
+		PathType = PathTypes.Home;
 		everythingReplyCts?.Cancel();
 		everythingReplyCts = new CancellationTokenSource();
 		List<FileSystemItem> list = null;
@@ -702,14 +721,14 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	}
 
 	private void Watcher_OnError(object sender, ErrorEventArgs e) {
-		if (PathType == FileDataGrid.PathTypes.Home) {
+		if (PathType == PathTypes.Home) {
 			return;
 		}
 		throw new NotImplementedException();
 	}
 
 	private void Watcher_OnRenamed(object sender, RenamedEventArgs e) {
-		if (PathType == FileDataGrid.PathTypes.Home) {
+		if (PathType == PathTypes.Home) {
 			return;
 		}
 		dispatcher.Invoke(async () => {
@@ -729,7 +748,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	}
 
 	private void Watcher_OnDeleted(object sender, FileSystemEventArgs e) {
-		if (PathType == FileDataGrid.PathTypes.Home) {
+		if (PathType == PathTypes.Home) {
 			return;
 		}
 		dispatcher.Invoke(() => {
@@ -743,7 +762,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	}
 
 	private void Watcher_OnCreated(object sender, FileSystemEventArgs e) {
-		if (PathType == FileDataGrid.PathTypes.Home) {
+		if (PathType == PathTypes.Home) {
 			return;
 		}
 		dispatcher.Invoke(async () => {
@@ -763,7 +782,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	}
 
 	private void Watcher_OnChanged(object sender, FileSystemEventArgs e) {
-		if (PathType == FileDataGrid.PathTypes.Home) {
+		if (PathType == PathTypes.Home) {
 			return;
 		}
 		dispatcher.Invoke(async () => {

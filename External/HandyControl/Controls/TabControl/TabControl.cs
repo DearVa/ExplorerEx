@@ -134,10 +134,20 @@ public class TabControl : System.Windows.Controls.TabControl {
 
 	public override void OnApplyTemplate() {
 		base.OnApplyTemplate();
-		HeaderPanel = GetTemplateChild(HeaderPanelKey) as TabPanel;
-		TabBorder = GetTemplateChild(TabBorderKey) as Border;
-		headerBorder = GetTemplateChild(HeaderBorder) as Border;
-		NewTabButton = GetTemplateChild(NewTabButtonKey) as Button;
+		HeaderPanel = (TabPanel)GetTemplateChild(HeaderPanelKey);
+		TabBorder = (Border)GetTemplateChild(TabBorderKey)!;
+		TabBorder.DragEnter += TabBorder_OnDragEnter;
+		headerBorder = (Border)GetTemplateChild(HeaderBorder);
+		NewTabButton = (Button)GetTemplateChild(NewTabButtonKey);
+	}
+
+	private void TabBorder_OnDragEnter(object sender, DragEventArgs e) {
+		if (TabItem.DraggingTab != null) {
+			if (Items.Contains(TabItem.DraggingTab)) {  // 当前正是这里边的
+				TabItem.MoveAfterDrag = false;
+			}
+			TabItem.CancelDrag = true;
+		}
 	}
 
 	internal void CloseOtherItems(TabItem currentItem) {

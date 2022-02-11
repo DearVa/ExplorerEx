@@ -1,0 +1,7 @@
+﻿<Grid x:Class="ExplorerEx.View.Controls.SplitGrid"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" DragEnter="SplitGrid_OnDragEnter">
+    <Grid x:Name="DragArea" AllowDrop="true" IsHitTestVisible="False" Background="Transparent" Margin="0,50,0,0" DragEnter="DragArea_OnDragEnter" DragOver="DragArea_OnDragOver" DragLeave="DragArea_OnDragLeave" Drop="DragArea_OnDrop" MouseMove="DragArea_OnMouseMove">
+        <Rectangle x:Name="SplitPreviewRectangle" IsHitTestVisible="False" Fill="#66569cc6" Opacity="0"/>
+    </Grid>
+</Grid>

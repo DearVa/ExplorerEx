@@ -1,0 +1,254 @@
+﻿<hc:TabControl x:Class="ExplorerEx.View.Controls.FileTabControl"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+               xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+               xmlns:v="clr-namespace:ExplorerEx.View"
+               xmlns:u="clr-namespace:ExplorerEx.Utils"
+               xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
+               xmlns:hc="https://handyorg.github.io/handycontrol"
+               xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
+               mc:Ignorable="d" d:DataContext="{d:DesignInstance ct:FileTabControl}"
+               ItemsSource="{Binding TabItems}" Style="{StaticResource TabControlPlusBaseStyle}"
+               TabItemHeight="35" TabIndex="{Binding SelectedIndex, Mode=TwoWay}" 
+               SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
+               Background="{DynamicResource BackgroundBrush}" BorderBrush="{x:Null}" Margin="0,10,0,0">
+    <hc:Interaction.Triggers>
+        <hc:RoutedEventTrigger RoutedEvent="hc:TabItem.Closing">
+            <hc:EventToCommand Command="{Binding TabClosingCommand}" PassEventArgsToCommand="True"/>
+        </hc:RoutedEventTrigger>
+        <hc:RoutedEventTrigger RoutedEvent="hc:TabItem.Moved">
+            <hc:EventToCommand Command="{Binding TabMovedCommand}" PassEventArgsToCommand="False"/>
+        </hc:RoutedEventTrigger>
+        <hc:RoutedEventTrigger RoutedEvent="hc:TabControl.NewTab">
+            <hc:EventToCommand Command="{Binding CreateNewTabCommand}" PassEventArgsToCommand="True"/>
+        </hc:RoutedEventTrigger>
+    </hc:Interaction.Triggers>
+    <hc:TabControl.ItemTemplate>
+        <DataTemplate>
+            <TextBlock Width="200" d:DataContext="{d:DesignInstance vm:FileViewTabViewModel}" Text="{Binding Header}"/>
+        </DataTemplate>
+    </hc:TabControl.ItemTemplate>
+    <hc:TabControl.ItemContainerStyle>
+        <Style TargetType="hc:TabItem" BasedOn="{StaticResource TabItemPlusBaseStyle}">
+            <Setter Property="DragDropData" Value="{Binding Header}"/>
+        </Style>
+    </hc:TabControl.ItemContainerStyle>
+    <hc:TabControl.ContentTemplate>
+        <DataTemplate>
+            <Grid d:DataContext="{d:DesignInstance vm:FileViewTabViewModel}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="10, 15, 10, 10">
+                    <StackPanel x:Name="FileToolsStackPanel" Orientation="Horizontal">
+                        <hc:SplitButton Padding="0" Height="35" HitMode="None" IsEnabled="{Binding CanGoToUpperLevel}">
+                            <StackPanel Orientation="Horizontal" Margin="10,5,5,5">
+                                <Image VerticalAlignment="Center" Source="{StaticResource NewDrawingImage}" Width="20" Height="20" SnapsToDevicePixels="True"/>
+                                <TextBlock Text="{u:Lang New}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                            </StackPanel>
+                            <hc:SplitButton.DropDownContent>
+                                <Menu Margin="4,0,4,0" Width="Auto" BorderBrush="{x:Null}"
+                                      ItemsSource="{Binding CreateFileItems}">
+                                    <Menu.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Vertical"/>
+                                        </ItemsPanelTemplate>
+                                    </Menu.ItemsPanel>
+                                    <Menu.ItemTemplate>
+                                        <DataTemplate>
+                                            <MenuItem Height="30" Margin="-5,0,0,0" hc:IconElement.Height="18" hc:IconElement.Width="18"
+                                                      Command="{Binding CreateCommand}" 
+                                                      CommandParameter="{Binding DataContext.FullPath, RelativeSource={RelativeSource AncestorType=Menu}}"
+                                                      Icon="{Binding Icon}" Header="{Binding Description}" FontSize="15"/>
+                                        </DataTemplate>
+                                    </Menu.ItemTemplate>
+                                </Menu>
+                            </hc:SplitButton.DropDownContent>
+                        </hc:SplitButton>
+                        <GridSplitter Width="1" Height="30" Background="{DynamicResource SecondaryBorderBrush}" Margin="10,0,10,0"/>
+
+                        <StackPanel Orientation="Horizontal" Visibility="{Binding IsFileUtilsVisible, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}, RelativeSource={RelativeSource AncestorType=ct:FileTabControl}}">
+                            <Button VerticalAlignment="Stretch" Height="35" ToolTip="{u:Lang Cut}"
+                                IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
+                                Command="{Binding CutCommand}">
+                                <Image Width="20" Height="20" Source="{StaticResource CutDrawingImage}"/>
+                            </Button>
+                            <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Copy}"
+                                IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
+                                Command="{Binding CopyCommand}">
+                                <Image Width="20" Height="20" Source="{StaticResource CopyDrawingImage}"/>
+                            </Button>
+                            <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Paste}"
+                                IsEnabled="{Binding CanPaste, Mode=OneWay}"
+                                Command="{Binding PasteCommand}">
+                                <Image Width="20" Height="20" Source="{StaticResource PasteDrawingImage}"/>
+                            </Button>
+                            <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Rename}"
+                                IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
+                                Command="{Binding RenameCommand}">
+                                <Image Width="20" Height="20" Source="{StaticResource RenameDrawingImage}"/>
+                            </Button>
+                            <!--<Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Share}"
+                                        IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
+                                        Command="{Binding ShareCommand}">
+                                    <Image Width="20" Height="20" Source="{StaticResource ShareDrawingImage}"/>
+                                </Button>-->
+                            <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Delete}"
+                                IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
+                                Command="{Binding DeleteCommand}">
+                                <Image Width="20" Height="20" Source="{StaticResource DeleteDrawingImage}"/>
+                            </Button>
+                            <GridSplitter Width="1" Height="30" Background="{DynamicResource SecondaryBorderBrush}" Margin="10,0,10,0"/>
+                        </StackPanel>
+
+                        <hc:SplitButton Padding="0" Height="35" HitMode="None">
+                            <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
+                                <Image Margin="10,0,0,0" Width="20" Height="20" Source="{StaticResource SortDrawingImage}"/>
+                                <TextBlock Text="{u:Lang Sort}" VerticalAlignment="Center" Margin="7,0,5,0"/>
+                            </StackPanel>
+                        </hc:SplitButton>
+                        <hc:SplitButton Padding="0" Height="35" Margin="10,0,0,0" HitMode="None"
+                                        Command="{Binding SwitchViewCommand}">
+                            <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
+                                <Image Margin="10,0,0,0" Width="20" Height="20" Source="{StaticResource ListDrawingImage}"/>
+                                <TextBlock Text="{u:Lang View}" VerticalAlignment="Center" Margin="10,0,5,0"/>
+                            </StackPanel>
+                            <hc:SplitButton.DropDownContent>
+                                <Menu Margin="4,0,4,0" Width="Auto" BorderBrush="{x:Null}">
+                                    <Menu.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Vertical"/>
+                                        </ItemsPanelTemplate>
+                                    </Menu.ItemsPanel>
+                                    <Menu.Items>
+                                        <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
+                                                  CommandParameter="0" Header="{u:Lang Big_icon}" FontSize="15"/>
+                                        <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
+                                                  CommandParameter="1" Header="{u:Lang Small_icon}" FontSize="15"/>
+                                        <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
+                                                  CommandParameter="2" Header="{u:Lang List}" FontSize="15"/>
+                                        <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
+                                                  CommandParameter="3" Header="{u:Lang Detail}" FontSize="15"/>
+                                        <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
+                                                  CommandParameter="4" Header="{u:Lang Tile}" FontSize="15"/>
+                                        <MenuItem Height="30" hc:IconElement.Height="18" hc:IconElement.Width="18"
+                                                  CommandParameter="5" Header="{u:Lang Content}" FontSize="15"/>
+                                    </Menu.Items>
+                                </Menu>
+                            </hc:SplitButton.DropDownContent>
+                        </hc:SplitButton>
+                        <GridSplitter Width="1" Height="30" Background="{DynamicResource SecondaryBorderBrush}" Margin="10,0,10,0"/>
+
+                        <Button VerticalAlignment="Stretch" Width="45" Height="35" Padding="0" ToolTip="{u:Lang More}">
+                            <Image Width="24" Height="24" Source="{StaticResource MoreDrawingImage}"/>
+                        </Button>
+                    </StackPanel>
+
+                    <ToggleButton x:Name="PinToggleButton" VerticalAlignment="Stretch" HorizontalAlignment="Right" Width="45" Height="35" Padding="0">
+                        <Image Width="24" Height="24" Source="{StaticResource PinDrawingImage}"/>
+                    </ToggleButton>
+                </Grid>
+
+                <Border Grid.Row="1" BorderThickness="0,1,0,0" Padding="5,5,5,5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="300"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Margin="5" hc:IconElement.Geometry="{StaticResource LeftArrowGeometry}" 
+                                IsEnabled="{Binding CanGoBack, Mode=OneWay}" 
+                                Command="{Binding GoBackCommand}"/>
+                        <hc:SplitButton Grid.Column="1" Margin="5" hc:IconElement.Geometry="{StaticResource RightArrowGeometry}" 
+                                        IsEnabled="{Binding CanGoForward, Mode=OneWay}" 
+                                        Command="{Binding GoForwardCommand}" HitMode="Click"/>
+                        <Button Grid.Column="2" Margin="5" hc:IconElement.Geometry="{StaticResource UpArrowGeometry}"
+                                IsEnabled="{Binding CanGoToUpperLevel, Mode=OneWay}" 
+                                Command="{Binding GoToUpperLevelCommand}"/>
+
+                        <TextBox Grid.Column="3" DockPanel.Dock="Left" x:Name="AddressBar" BorderThickness="0,0,0,2" 
+                                 Margin="5" Text="{Binding FullPath, Mode=OneWay}" KeyDown="AddressBar_OnKeyDown"/>
+                        <hc:TextBox Grid.Column="4" DockPanel.Dock="Right" BorderThickness="0,0,0,2" ShowClearButton="True" 
+                                    Margin="5" hc:InfoElement.Placeholder="{Binding SearchPlaceholderText, Mode=OneWay}"
+                                    Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <ScrollViewer Grid.Column="1" Width="200" 
+                                  Visibility="{Binding IsChecked, ElementName=PinToggleButton, Converter={StaticResource Boolean2VisibilityConverter}}">
+                        <TreeView>
+                            <TreeView.ItemTemplate>
+                                <DataTemplate></DataTemplate>
+                            </TreeView.ItemTemplate>
+                        </TreeView>
+                    </ScrollViewer>
+
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <v:ClippingBorder Grid.Row="0" Margin="10,0,10,5" CornerRadius="8" 
+                                          BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
+                                          Background="{DynamicResource RegionBrush}">
+                            <ct:FileDataGrid x:Name="FileDataGrid" d:DataContext="{d:DesignInstance vm:FileViewTabViewModel}"
+                                             ItemsSource="{Binding Items}" 
+                                             ItemSize="{Binding ItemSize, Mode=OneWay}"
+                                             ViewType="{Binding ViewType, Mode=OneWay}"
+                                             PathType="{Binding PathType, Mode=OneWay}"
+                                             DetailLists="{Binding DetailLists, Mode=OneWay}"
+                                             Background="{DynamicResource RegionBrush}" 
+                                             Foreground="{DynamicResource PrimaryTextBrush}">
+                                <hc:Interaction.Triggers>
+                                    <hc:RoutedEventTrigger RoutedEvent="ListBox.SelectionChanged">
+                                        <hc:EventToCommand Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True"/>
+                                    </hc:RoutedEventTrigger>
+                                    <hc:RoutedEventTrigger RoutedEvent="ct:FileDataGrid.FileDrop">
+                                        <hc:EventToCommand Command="{Binding FileDropCommand}" PassEventArgsToCommand="True"/>
+                                    </hc:RoutedEventTrigger>
+                                    <hc:RoutedEventTrigger RoutedEvent="ct:FileDataGrid.ItemDoubleClicked">
+                                        <hc:EventToCommand Command="{Binding ItemDoubleClickedCommand}" PassEventArgsToCommand="True"/>
+                                    </hc:RoutedEventTrigger>
+                                </hc:Interaction.Triggers>
+                            </ct:FileDataGrid>
+                        </v:ClippingBorder>
+
+                        <Border Grid.Row="1" Padding="20,0,0,0">
+                            <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance vm:FileViewTabViewModel}">
+                                <TextBlock Foreground="{DynamicResource PrimaryTextBrush}">
+                                    <Run Text="{Binding FileItemsCount, Mode=OneWay}"/>
+                                    <Run Text="{u:Lang Run_ItemsCount}"/>
+                                </TextBlock>
+                                <GridSplitter Width="1" Height="25" Background="{DynamicResource SecondaryBorderBrush}" Margin="10,-5,10,0"/>
+
+                                <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" Visibility="{Binding SelectedFileItemsCountVisibility, Mode=OneWay}">
+                                    <Run Text="{u:Lang Run_SelectedItemsCount}"/>
+                                    <Run Text="{Binding SelectedFileItemsCount, Mode=OneWay}"/>
+                                    <Run Text="{u:Lang Run_ItemsCount}"/>
+                                </TextBlock>
+
+                                <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" Margin="10,0,0,0" 
+                                           Visibility="{Binding SelectedFileItemsSizeVisibility, Mode=OneWay}"
+                                           Text="{Binding SelectedFileItemsSizeText, Mode=OneWay}"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+    </hc:TabControl.ContentTemplate>
+</hc:TabControl>

@@ -70,15 +70,15 @@
         </ct:HoverContextMenu>
 
         <c:FileSystemItemContextMenuConverter x:Key="FileSystemItemContextMenuConverter"
-                                                  DirectoryContextMenu="{StaticResource FolderItemContextMenu}"
-                                                  FileContextMenu="{StaticResource FileItemContextMenu}"/>
+                                              DirectoryContextMenu="{StaticResource FolderItemContextMenu}"
+                                              FileContextMenu="{StaticResource FileItemContextMenu}"/>
 
         <ItemsPanelTemplate x:Key="StackPanelTemplate">
             <VirtualizingStackPanel/>
         </ItemsPanelTemplate>
 
         <ItemsPanelTemplate x:Key="WrapPanelTemplate">
-            <vw:VirtualizingWrapPanel/>
+            <vw:VirtualizingWrapPanel SpacingMode="BetweenItemsOnly" SnapsToDevicePixels="True"/>
         </ItemsPanelTemplate>
 
         <c:FileDataGridItemsPanelConverter x:Key="ItemsPanelConverter"
@@ -95,11 +95,13 @@
             </DataGridTemplateColumn.CellStyle>
             <DataGridTemplateColumn.CellTemplate>
                 <DataTemplate>
-                    <Grid Width="{Binding (ct:FileDataGrid.ItemSize).Width, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}"
-                          Height="{Binding (ct:FileDataGrid.ItemSize).Height, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}" 
+                    <!--https://www.cnblogs.com/wuty/p/15599045.html-->
+                    <!--此处必须写成Binding Path=xxx，如果省略Path=，语法上没有问题，也能正确绑定，但是会引发一次异常，导致加载速度变慢-->
+                    <Grid Width="{Binding Path=(ct:FileDataGrid.ItemSize).Width, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}"
+                          Height="{Binding Path=(ct:FileDataGrid.ItemSize).Height, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}" 
                           d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="{Binding (ct:FileDataGrid.ItemSize).Width, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}"/>
+                            <RowDefinition Height="{Binding Path=(ct:FileDataGrid.ItemSize).Width, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}"/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
                         <Image Grid.Row="0" HorizontalAlignment="Center"

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -14,6 +15,34 @@ using HandyControl.Tools.Extension;
 namespace HandyControl.Controls; 
 
 public class TabItem : System.Windows.Controls.TabItem {
+	/// <summary>
+	/// 当前正在Drag的tab
+	/// </summary>
+	public static TabItem DraggingTab { get; private set; }
+	/// <summary>
+	/// 这次Drag是否将标签页移走了，如果为false，说明是拖走又回来了。请在设置<see cref="CancelDrag"/>之前先设置这个的值
+	/// </summary>
+	public static bool MoveAfterDrag { get; set; }
+	/// <summary>
+	/// 设为true结束DragDrop
+	/// </summary>
+	public static bool CancelDrag { get; set; }
+	/// <summary>
+	/// Drag结束时触发
+	/// </summary>
+	public static event Action DragEnd;
+
+	public static DragDropWindow DragDropWindow { get; private set; }
+	/// <summary>
+	/// DoDragDrop时的Data
+	/// </summary>
+	public static readonly DependencyProperty DragDropDataProperty = DependencyProperty.Register(
+		"DragDropData", typeof(object), typeof(TabItem), new PropertyMetadata(default(object)));
+
+	public object DragDropData {
+		get => GetValue(DragDropDataProperty);
+		set => SetValue(DragDropDataProperty, value);
+	}
 	/// <summary>
 	///     动画速度
 	/// </summary>
@@ -41,6 +70,23 @@ public class TabItem : System.Windows.Controls.TabItem {
 	public static readonly RoutedEvent ClosingEvent = EventManager.RegisterRoutedEvent("Closing", RoutingStrategy.Bubble, typeof(EventHandler), typeof(TabItem));
 
 	public static readonly RoutedEvent ClosedEvent = EventManager.RegisterRoutedEvent("Closed", RoutingStrategy.Bubble, typeof(EventHandler), typeof(TabItem));
+
+	public static readonly RoutedEvent MovedEvent = EventManager.RegisterRoutedEvent("Moved", RoutingStrategy.Bubble, typeof(EventHandler), typeof(TabItem));
+
+	public event EventHandler Closing {
+		add => AddHandler(ClosingEvent, value);
+		remove => RemoveHandler(ClosingEvent, value);
+	}
+
+	public event EventHandler Closed {
+		add => AddHandler(ClosedEvent, value);
+		remove => RemoveHandler(ClosedEvent, value);
+	}
+
+	public event EventHandler Moved {
+		add => AddHandler(MovedEvent, value);
+		remove => RemoveHandler(MovedEvent, value);
+	}
 
 	/// <summary>
 	///     当前编号
@@ -154,8 +200,6 @@ public class TabItem : System.Windows.Controls.TabItem {
 
 	private TabControl TabControlParent => ItemsControl.ItemsControlFromItemContainer(this) as TabControl;
 
-	private Border TabBorder => TabControlParent.TabBorder;
-
 	private static void OnShowContextMenuChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		var ctl = (TabItem)d;
 		if (ctl.Menu != null) {
@@ -266,24 +310,24 @@ public class TabItem : System.Windows.Controls.TabItem {
 			return;
 		}
 		// 所有TabItem放在这个里边
-		var border = TabBorder;
-		if (border == null) {
+		if (TabControlParent == null) {
 			return;
 		}
 
+		var parent = TabControlParent.HeaderPanel;
 		if (!isItemDragging && !isDragging) {
 			TabPanel.SetValue(TabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromSeconds(0)));
 			mouseDownOffsetX = RenderTransform.Value.OffsetX;
-			var mx = TranslatePoint(new Point(), border).X;
+			var mx = TranslatePoint(new Point(), parent).X;
 			mouseDownIndex = CalLocationIndex(mx);
 			var subIndex = mouseDownIndex;
 			maxMoveLeft = -subIndex * ItemWidth;
-			maxMoveRight = border.ActualWidth - ActualWidth + maxMoveLeft;
+			maxMoveRight = parent.ActualWidth - ActualWidth + maxMoveLeft;
 
 			isDragging = true;
 			isItemDragging = true;
 			isWaiting = true;
-			dragPoint = e.GetPosition(border);
+			dragPoint = e.GetPosition(parent);
 			dragPoint = new Point(dragPoint.X, dragPoint.Y);
 			mouseDownPoint = dragPoint;
 			CaptureMouse();
@@ -294,20 +338,20 @@ public class TabItem : System.Windows.Controls.TabItem {
 		base.OnMouseMove(e);
 
 		if (isItemDragging && isDragging) {
-			var parent = TabControlParent;
-			if (parent == null) {
+			if (TabControlParent == null) {
 				return;
 			}
 
+			var parent = TabControlParent.TabBorder;
 			var subX = TranslatePoint(new Point(), parent).X;
 			CurrentIndex = CalLocationIndex(subX);
 
 			var p = e.GetPosition(parent);
 
 			var subLeft = p.X - dragPoint.X;
-			var totalLeft = p.X - mouseDownPoint.X;
+			var subTop = p.Y - dragPoint.Y;
 
-			if (Math.Abs(subLeft) <= WaitLength && isWaiting) {
+			if (Math.Abs(subLeft) <= WaitLength && Math.Abs(subTop) <= WaitLength && isWaiting) {
 				return;
 			}
 
@@ -315,6 +359,7 @@ public class TabItem : System.Windows.Controls.TabItem {
 			isDragged = true;
 
 			var left = subLeft + RenderTransform.Value.OffsetX;
+			var totalLeft = p.X - mouseDownPoint.X;
 			if (totalLeft < maxMoveLeft) {
 				left = maxMoveLeft + mouseDownOffsetX;
 			} else if (totalLeft > maxMoveRight) {
@@ -324,6 +369,47 @@ public class TabItem : System.Windows.Controls.TabItem {
 			var t = new TranslateTransform(left, 0);
 			RenderTransform = t;
 			dragPoint = p;
+
+			if (p.X < 0 || p.X > parent.ActualWidth || p.Y < 0 || p.Y > parent.ActualHeight) {
+				if (DraggingTab == null) {
+					DraggingTab = this;
+					DragDropWindow = new DragDropWindow((Grid)GetVisualChild(0));
+					Visibility = Visibility.Hidden;
+					isItemDragging = isDragging = MoveAfterDrag = CancelDrag = false;
+					DragDrop.DoDragDrop(this, DragDropData, DragDropEffects.Move);
+					EndDragDrop();
+					DragEnd?.Invoke();
+					DragEnd = null;
+					if (MoveAfterDrag) {
+						var tabControl = TabControlParent;
+						IEditableCollectionView items = tabControl.Items;
+						if (items.CanRemove) {
+							items.Remove(DataContext);
+						}
+						tabControl.RaiseEvent(new RoutedEventArgs(MovedEvent, this));
+					} else {
+						Visibility = Visibility.Visible;
+					}
+				}
+			}
+		}
+	}
+
+	protected override void OnPreviewGiveFeedback(GiveFeedbackEventArgs e) {
+		DragDropWindow?.MoveWithCursor();
+	}
+
+	protected override void OnPreviewQueryContinueDrag(QueryContinueDragEventArgs e) {
+		if (CancelDrag) {
+			e.Action = DragAction.Cancel;
+		}
+	}
+
+	private static void EndDragDrop() {
+		DraggingTab = null;
+		if (DragDropWindow != null) {
+			DragDropWindow.Close();
+			DragDropWindow = null;
 		}
 	}
 
@@ -427,15 +513,5 @@ public class TabItem : System.Windows.Controls.TabItem {
 		var result = rest / ItemWidth > .5 ? div + 1 : div;
 
 		return result > maxIndex ? maxIndex : result;
-	}
-
-	public event EventHandler Closing {
-		add => AddHandler(ClosingEvent, value);
-		remove => RemoveHandler(ClosingEvent, value);
-	}
-
-	public event EventHandler Closed {
-		add => AddHandler(ClosedEvent, value);
-		remove => RemoveHandler(ClosedEvent, value);
 	}
 }

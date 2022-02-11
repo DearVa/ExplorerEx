@@ -68,7 +68,7 @@ public abstract class FileViewBaseItem : INotifyPropertyChanged {
 		// ReSharper disable once AsyncVoidLambda
 		OpenInNewTabCommand = new SimpleCommand(async _ => {
 			if (IsFolder) {
-				await OwnerViewModel.OwnerViewModel.OpenPathInNewTabAsync(FullPath);
+				await OwnerViewModel.OwnerTabControl.OpenPathInNewTabAsync(FullPath);
 			}
 		});
 		OpenInNewWindowCommand = new SimpleCommand(_ => new MainWindow(FullPath).Show());

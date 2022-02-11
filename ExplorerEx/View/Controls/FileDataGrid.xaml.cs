@@ -158,17 +158,7 @@ public partial class FileDataGrid {
 	}
 
 	public static readonly DependencyProperty PathTypeProperty = DependencyProperty.Register(
-		"PathType", typeof(PathTypes), typeof(FileDataGrid), new PropertyMetadata(PathTypes.Home, PathType_OnChanged));
-
-	private static void PathType_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-		var fileDataGrid = (FileDataGrid)d;
-		var type = (PathTypes)e.NewValue;
-		if (type == PathTypes.Home) {  // TODO
-			fileDataGrid.detailLists = Lists.Type | Lists.AvailableSpace | Lists.TotalSpace | Lists.FillRatio | Lists.FileSystem;
-		} else {
-			fileDataGrid.detailLists = Lists.ModificationDate | Lists.Type | Lists.FileSize;
-		}
-	}
+		"PathType", typeof(PathTypes), typeof(FileDataGrid), new PropertyMetadata(PathTypes.Home));
 
 	public PathTypes PathType {
 		get => (PathTypes)GetValue(PathTypeProperty);
@@ -186,17 +176,19 @@ public partial class FileDataGrid {
 		set => SetValue(ItemSizeProperty, value);
 	}
 
-	public Lists DetailLists {
-		get => detailLists;
-		set {
-			if (detailLists != value) {
-				detailLists = value;
-				UpdateColumns();
-			}
+	public static readonly DependencyProperty DetailListsProperty = DependencyProperty.Register(
+		"DetailLists", typeof(Lists), typeof(FileDataGrid), new PropertyMetadata(default(Lists), DetailLists_OnChanged));
+
+	private static void DetailLists_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		if (e.NewValue != e.OldValue) {
+			((FileDataGrid)d).UpdateColumns();
 		}
 	}
 
-	private Lists detailLists = Lists.Type | Lists.AvailableSpace | Lists.TotalSpace | Lists.FillRatio | Lists.FileSystem;
+	public Lists DetailLists {
+		get => (Lists)GetValue(DetailListsProperty);
+		set => SetValue(DetailListsProperty, value);
+	}
 
 	private readonly FileDataGridColumnsConverter columnsConverter;
 
@@ -207,10 +199,13 @@ public partial class FileDataGrid {
 	}
 
 	/// <summary>
-	/// 根据<see cref="PathType"/>、<see cref="ViewType"/>和<see cref="detailLists"/>选择列，同时更新<see cref="DataGrid.ColumnHeaderHeight"/>
+	/// 根据<see cref="PathType"/>、<see cref="ViewType"/>和<see cref="DetailLists"/>选择列，同时更新<see cref="DataGrid.ColumnHeaderHeight"/>
 	/// </summary>
 	private void UpdateColumns() {
-		columnsConverter.Convert(Columns, PathType, ViewType, detailLists);
+		if (contentGrid == null) {
+			return;
+		}
+		columnsConverter.Convert(Columns, PathType, ViewType, DetailLists);
 		if (ViewType == ViewTypes.Detail) {
 			ColumnHeaderHeight = 20d;
 			contentGrid.Margin = new Thickness(Padding.Left, 20 + Padding.Top, Padding.Right, Padding.Bottom);
@@ -414,13 +409,13 @@ public partial class FileDataGrid {
 				} else {
 					if (!isRectSelecting) {
 						UnselectAll();
-						if (lastStartIndex <= lastEndIndex) {
+						if (lastTIndex <= lastBIndex) {
 							var items = Items;
-							for (var i = lastStartIndex; i <= lastEndIndex; i++) {
+							for (var i = lastTIndex; i <= lastBIndex; i++) {
 								items[i].IsSelected = false;
 							}
-							lastStartIndex = Items.Count;
-							lastEndIndex = -1;
+							lastTIndex = Items.Count;
+							lastBIndex = -1;
 						}
 						selectionRect.Visibility = Visibility.Visible;
 						Mouse.Capture(this);
@@ -451,7 +446,7 @@ public partial class FileDataGrid {
 		e.Handled = true;
 	}
 
-	private int lastStartIndex, lastEndIndex;
+	private int lastLIndex, lastRIndex, lastTIndex, lastBIndex;
 
 	/// <summary>
 	/// 计算框选的元素
@@ -480,49 +475,153 @@ public partial class FileDataGrid {
 		selectionRect.Height = h;
 
 		if (Items.Count > 0) {
+			var items = Items;
 			var itemWidth = ItemSize.Width;
 			var itemHeight = ItemSize.Height;
 			var dY = itemHeight + 4;  // 上下两项的y值之差，4是两项之间的间距，是固定的值
 			if (itemWidth > 0) {
-				var hCount = (int)(contentGrid.ActualWidth / itemWidth);  // 横向能容纳多少个元素
-				
+				var xCount = (int)(contentGrid.ActualWidth / itemWidth);  // 横向能容纳多少个元素
+				var yCount = (int)MathF.Ceiling((float)items.Count / xCount);  // 纵向有多少行
+				var dX = contentGrid.ActualWidth / xCount;
+				var lIndex = Math.Max((int)((l + 4) / dX), 0);
+				var rIndex = Math.Min((int)((l + w) / dX), xCount - 1);
+				var tIndex = Math.Max((int)((t + 4) / dY), 0);
+				var bIndex = Math.Min((int)((h + t) / dY), yCount - 1);
+				var selectedCount = 0;
+				if (lIndex != lastLIndex && lIndex < xCount) {
+					for (var yy = lastTIndex; yy <= lastBIndex; yy++) {
+						var i = yy * xCount;
+						for (var xx = lastLIndex; xx <= lIndex; xx++) {
+							var j = i + xx;
+							if (j < items.Count) {
+								items[j].IsSelected = false;
+							}
+						}
+					}
+					for (var yy = tIndex; yy <= bIndex; yy++) {
+						var i = yy * xCount;
+						for (var xx = lIndex; xx <= lastLIndex && yy <= rIndex; xx++) {
+							var j = i + xx;
+							if (j < items.Count) {
+								items[j].IsSelected = true;
+								selectedCount++;
+							}
+						}
+					}
+					lastLIndex = lIndex;
+				}
+				if (rIndex != lastRIndex && rIndex >= 0) {
+					for (var yy = lastTIndex; yy <= lastBIndex; yy++) {
+						var i = yy * xCount;
+						for (var xx = rIndex + 1; yy <= lastRIndex; xx++) {
+							var j = i + xx;
+							if (j < items.Count) {
+								items[j].IsSelected = false;
+							}
+						}
+					}
+					for (var yy = tIndex; yy <= bIndex; yy++) {
+						var i = yy * xCount;
+						for (var xx = Math.Max(lastRIndex + 1, lIndex); xx <= rIndex; xx++) {
+							var j = i + xx;
+							if (j < items.Count) {
+								items[j].IsSelected = true;
+								selectedCount++;
+							}
+						}
+					}
+					lastRIndex = rIndex;
+				}
+				if (tIndex != lastTIndex && tIndex < yCount) {
+					for (var yy = lastTIndex; yy <= tIndex; yy++) {
+						var i = yy * xCount;
+						for (var xx = lastLIndex; xx <= lastRIndex; xx++) {
+							var j = i + xx;
+							if (j < items.Count) {
+								items[j].IsSelected = false;
+							}
+						}
+					}
+					for (var yy = tIndex; yy <= lastTIndex && yy <= bIndex; yy++) {
+						var i = yy * xCount;
+						for (var xx = lIndex; xx <= rIndex; xx++) {
+							var j = i + xx;
+							if (j < items.Count) {
+								items[j].IsSelected = true;
+								selectedCount++;
+							}
+						}
+					}
+					lastTIndex = tIndex;
+				}
+				if (bIndex != lastBIndex && bIndex >= 0) {
+					for (var yy = bIndex + 1; yy <= lastBIndex; yy++) {
+						var i = yy * xCount;
+						for (var xx = lastLIndex; xx <= lastRIndex; xx++) {
+							var j = i + xx;
+							if (j < items.Count) {
+								items[j].IsSelected = false;
+							}
+						}
+					}
+					for (var yy = Math.Max(lastBIndex + 1, tIndex); yy <= bIndex; yy++) {
+						var i = yy * xCount;
+						for (var xx = lIndex; xx <= rIndex; xx++) {
+							var j = i + xx;
+							if (j < items.Count) {
+								items[j].IsSelected = true;
+								selectedCount++;
+							}
+						}
+					}
+					lastBIndex = bIndex;
+				}
+				if (selectedCount == 0 && lastLIndex <= lastRIndex && lastTIndex <= lastBIndex) {
+					for (var yy = lastTIndex; yy <= lastBIndex; yy++) {
+						var i = yy * xCount;
+						for (var xx = lastLIndex; xx <= lastRIndex; xx++) {
+							var j = i + xx;
+							if (j < items.Count) {
+								items[j].IsSelected = false;
+							}
+						}
+					}
+					lastLIndex = xCount;
+					lastRIndex = -1;
+					lastTIndex = yCount;
+					lastBIndex = -1;
+				}
 			} else {  // 只计算纵向
 				var firstIndex = (int)(scrollViewer.VerticalOffset / dY);  // 视图中第一个元素的index，因为使用了虚拟化容器，所以不能找Items[0]，它可能不存在
 				var row0 = (DataGridRow)ItemContainerGenerator.ContainerFromIndex(firstIndex);
 				// l = 0, t = 0时，正好是第一个元素左上的坐标
 				if (l < row0.DesiredSize.Width) {  // 框的左边界在列内。每列Width都是一样的
-					var startIndex = Math.Max((int)((t + 4) / dY), 0);
-					var items = Items;
-					var endIndex = Math.Min((int)((h + t) / dY), items.Count - 1);
-					if (startIndex != lastStartIndex && startIndex < items.Count) {
-						for (var i = lastStartIndex; i < startIndex; i++) {
-							if (i < items.Count) {
-								items[i].IsSelected = false;
-							}
-						}
-						for (var i = startIndex; i <= lastStartIndex && i <= endIndex; i++) {
-							items[i].IsSelected = true;
-						}
-						// Trace.WriteLine($"S: {startIndex} Ls: {lastStartIndex}");
-						lastStartIndex = startIndex;
-					}
-					if (endIndex != lastEndIndex && endIndex >= 0) {
-						for (var i = endIndex + 1; i <= lastEndIndex; i++) {
+					var tIndex = Math.Max((int)((t + 4) / dY), 0);
+					var bIndex = Math.Min((int)((h + t) / dY), items.Count - 1);
+					if (tIndex != lastTIndex && tIndex < items.Count) {
+						for (var i = lastTIndex; i < tIndex; i++) {
 							items[i].IsSelected = false;
 						}
-						for (var i = Math.Max(lastEndIndex + 1, startIndex); i <= endIndex; i++) {
+						for (var i = tIndex; i <= lastTIndex && i <= bIndex; i++) {
 							items[i].IsSelected = true;
 						}
-						// Trace.WriteLine($"E: {endIndex} Le: {lastEndIndex}");
-						lastEndIndex = endIndex;
+						lastTIndex = tIndex;
 					}
-				} else if (lastStartIndex <= lastEndIndex) {
-					var items = (ObservableCollection<FileViewBaseItem>)ItemsSource; // 这里不用Items索引，我看过源代码，复杂度比较高
-					for (var i = lastStartIndex; i <= lastEndIndex; i++) {
+					if (bIndex != lastBIndex && bIndex >= 0) {
+						for (var i = bIndex + 1; i <= lastBIndex; i++) {
+							items[i].IsSelected = false;
+						}
+						for (var i = Math.Max(lastBIndex + 1, tIndex); i <= bIndex; i++) {
+							items[i].IsSelected = true;
+						}
+						lastBIndex = bIndex;
+					}
+				} else if (lastTIndex <= lastBIndex) {
+					for (var i = lastTIndex; i <= lastBIndex; i++) {
 						items[i].IsSelected = false;
 					}
-					lastStartIndex = Items.Count;
-					lastEndIndex = -1;
+					lastTIndex = items.Count;
+					lastBIndex = -1;
 				}
 			}
 		}
