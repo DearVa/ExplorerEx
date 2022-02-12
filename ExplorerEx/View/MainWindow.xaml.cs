@@ -5,38 +5,38 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
-using ExplorerEx.Model;
 using ExplorerEx.Utils;
 using ExplorerEx.View.Controls;
 using ExplorerEx.Win32;
-using Microsoft.Win32;
 using static ExplorerEx.Win32.Win32Interop;
 
 namespace ExplorerEx.View;
 
 public sealed partial class MainWindow {
-	public static MainWindow Instance => MainWindows[0];
-	
-	private static readonly List<MainWindow> MainWindows = new();
-
+	/// <summary>
+	/// 当剪切板变化时触发，数据会放在<see cref="DataObjectContent"/>中
+	/// </summary>
 	public static event Action ClipboardChanged;
-
-	public event Action<uint> EverythingQueryReplied;
-
 	public static DataObjectContent DataObjectContent { get; private set; }
+	
+	public event Action<uint, EverythingInterop.QueryReply> EverythingQueryReplied;
+
+	private static readonly List<MainWindow> MainWindows = new();
 
 	private readonly SplitGrid splitGrid;
 	private readonly HwndSource hwnd;
-	private static bool isClipboardViewerSet;
 	private IntPtr nextClipboardViewer;
 
 	private readonly string startupPath;
 
+	/// <summary>
+	/// 每注册一个EverythingQuery就+1
+	/// </summary>
 	private static volatile uint globalEverythingQueryId;
-	private uint everythingQueryId;
+
+	private readonly HashSet<uint> everythingQueryIds = new();
 
 	public MainWindow() : this(null) { }
 
@@ -63,30 +63,33 @@ public sealed partial class MainWindow {
 		}
 
 		hwnd = HwndSource.FromHwnd(new WindowInteropHelper(this).EnsureHandle())!;
-		if (!isClipboardViewerSet) {
-			nextClipboardViewer = SetClipboardViewer(hwnd.Handle);
-			var error = Marshal.GetLastWin32Error();
-			if (error != 0) {
-				Logger.Error($"监控剪贴板失败，错误代码为：{error}");
-			}
-			isClipboardViewerSet = true;
-			OnClipboardChanged();
+		if (MainWindows.Count == 1) {  // 只在一个窗口上检测剪贴板变化事件
+			RegisterClipboard();
 		}
 		hwnd.AddHook(WndProc);
 
 		splitGrid = new SplitGrid(this, null);
 		RootGrid.Children.Add(splitGrid);
+		ChangeThemeWithSystem();
 	}
 
 	protected override async void OnContentRendered(EventArgs e) {
 		base.OnContentRendered(e);
 		await splitGrid.FileTabControl.StartUpLoad(startupPath);
-		ChangeThemeWithSystem();
+	}
+
+	private void RegisterClipboard() {
+		nextClipboardViewer = SetClipboardViewer(hwnd.Handle);
+		var error = Marshal.GetLastWin32Error();
+		if (error != 0) {
+			Marshal.ThrowExceptionForHR(error);
+		}
+		OnClipboardChanged();
 	}
 
 	private void EnableAcrylic() {
 		var accent = new AccentPolicy {
-			AccentState = AccentState.ACCENT_ENABLE_ACRYLICBLURBEHIND,
+			AccentState = AccentState.EnableAcrylicBlurBehind,
 			// 20: 透明度 第一个0xFFFFFF：背景色
 			GradientColor = (40 << 24) | (0xCCCCCC & 0xFFFFFF)
 		};
@@ -96,7 +99,7 @@ public sealed partial class MainWindow {
 		Marshal.StructureToPtr(accent, pAccent, true);
 
 		var data = new WindowCompositionAttributeData {
-			Attribute = WindowCompositionAttribute.WCA_ACCENT_POLICY,
+			Attribute = WindowCompositionAttribute.AccentPolicy,
 			SizeOfData = sizeOfAccent,
 			Data = pAccent
 		};
@@ -109,60 +112,75 @@ public sealed partial class MainWindow {
 	private void EnableMica(bool isDarkTheme) {
 		if (Environment.OSVersion.Version >= Version.Parse("10.0.22000.0")) {
 			var isDark = isDarkTheme ? 1 : 0;
-			DwmSetWindowAttribute(hwnd.Handle, DwmWindowAttribute.DWMWA_USE_IMMERSIVE_DARK_MODE, ref isDark, sizeof(uint));
+			DwmSetWindowAttribute(hwnd.Handle, DwmWindowAttribute.UseImmersiveDarkMode, ref isDark, sizeof(uint));
 			var trueValue = 1;
-			DwmSetWindowAttribute(hwnd.Handle, DwmWindowAttribute.DWMWA_MICA_EFFECT, ref trueValue, sizeof(uint));
+			DwmSetWindowAttribute(hwnd.Handle, DwmWindowAttribute.MicaEffect, ref trueValue, sizeof(uint));
 		}
 	}
 
 	private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
-		if (everythingQueryId != 0 && EverythingQueryReplied != null && EverythingInterop.IsQueryReply(msg, wParam, lParam, everythingQueryId)) {
-			EverythingQueryReplied.Invoke(everythingQueryId);
-		} else {
-			switch (msg) {
-			case WM_DRAWCLIPBOARD:
-				OnClipboardChanged();
-				SendMessage(nextClipboardViewer, msg, wParam, lParam);
-				break;
-			case WM_CHANGECBCHAIN:
-				if (wParam == nextClipboardViewer) {
-					nextClipboardViewer = lParam;
-				} else {
-					SendMessage(nextClipboardViewer, msg, wParam, lParam);
+		switch ((WinMessage)msg) {
+		case WinMessage.CopyData:
+			if (EverythingQueryReplied != null) {
+				var cd = Marshal.PtrToStructure<EverythingInterop.CopyDataStruct>(lParam);
+				var id = (uint)cd.dwData;
+				lock (everythingQueryIds) {
+					if (!everythingQueryIds.Contains(id)) {
+						break;
+					}
 				}
-				break;
-			case WM_THEMECHANGED:
-			case WM_DWMCOMPOSITIONCHANGED:
-			case WM_DWMCOLORIZATIONCOLORCHANGED:
-				ChangeThemeWithSystem();
-				break;
-			case 13288: // 启动了另一个实例
-				var pid = (int)wParam;
-				try {
-					var other = Process.GetProcessById(pid);
-					var args = other.GetCommandLine().Split(' ');
-					var path = args.Length > 1 ? args[1] : null;
-					new MainWindow(path).Show();
-				} catch (Exception e) {
-					Logger.Exception(e, false);
-				}
-				handled = true;
-				break;
+				EverythingQueryReplied.Invoke(id, EverythingInterop.ParseEverythingIpcResult(cd.lpData, cd.cbData));
 			}
+			break;
+		case WinMessage.DrawClipboard:
+			OnClipboardChanged();
+			if (nextClipboardViewer != IntPtr.Zero) {
+				SendMessage(nextClipboardViewer, msg, wParam, lParam);
+			}
+			break;
+		case WinMessage.ChangeCbChain:
+			if (wParam == nextClipboardViewer) {
+				nextClipboardViewer = lParam;
+			} else if (nextClipboardViewer != IntPtr.Zero) {
+				SendMessage(nextClipboardViewer, msg, wParam, lParam);
+			}
+			break;
+		case WinMessage.DwmColorizationCOlorChanged:
+			ChangeThemeWithSystem();
+			break;
+		case WinMessage.NewInstance: // 启动了另一个实例
+			var pid = (int)wParam;
+			try {
+				var other = Process.GetProcessById(pid);
+				var args = other.GetCommandLine().Split(' ');
+				var path = args.Length > 1 ? args[1] : null;
+				new MainWindow(path).Show();
+			} catch (Exception e) {
+				Logger.Exception(e, false);
+			}
+			handled = true;
+			break;
 		}
 		return IntPtr.Zero;
 	}
 
 	/// <summary>
-	/// 在调用Everything的Query之前，先调用这个方法注册，当查询返回，会触发<see cref="EverythingQueryReplied"/>
+	/// 在调用Everything的Query之前，先调用这个方法注册，当查询返回，会触发<see cref="EverythingQueryReplied"/>，如果id相同，就说明查询到了
 	/// </summary>
 	/// <returns>分配的查询ID</returns>
 	public uint RegisterEverythingQuery() {
-		lock (this) {
-			everythingQueryId = Interlocked.Increment(ref globalEverythingQueryId);
+		lock (everythingQueryIds) {
+			var id = Interlocked.Increment(ref globalEverythingQueryId);
+			everythingQueryIds.Add(id);
 			EverythingInterop.SetReplyWindow(hwnd.Handle);
-			EverythingInterop.SetReplyID(everythingQueryId);
-			return everythingQueryId;
+			EverythingInterop.SetReplyID(id);
+			return id;
+		}
+	}
+
+	public void UnRegisterEverythingQuery(uint id) {
+		lock (everythingQueryIds) {
+			everythingQueryIds.Remove(id);
 		}
 	}
 
@@ -187,20 +205,17 @@ public sealed partial class MainWindow {
 	protected override void OnClosed(EventArgs e) {
 		MainWindows.Remove(this);
 		splitGrid.Close();
-		base.OnClosed(e);
 		if (nextClipboardViewer != IntPtr.Zero) {
 			ChangeClipboardChain(hwnd.Handle, nextClipboardViewer);
 		}
+		if (MainWindows.Count > 0) {  // 通知下一个Window进行Hook
+			MainWindows[0].RegisterClipboard();
+		}
+		base.OnClosed(e);
 	}
 
 	private void ChangeThemeWithSystem() {
-		bool isDarkTheme;
-		try {
-			isDarkTheme = (int)Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize")!.GetValue("AppsUseLightTheme")! != 1;
-		} catch {
-			isDarkTheme = false;
-		}
-		ChangeTheme(isDarkTheme);
+		ChangeTheme(App.IsDarkTheme);
 	}
 
 	private void ChangeTheme(bool isDarkTheme, bool useBlur = true) {
@@ -213,13 +228,13 @@ public sealed partial class MainWindow {
 		} catch (Exception e) {
 			Logger.Exception(e);
 			dictionaries.Add(new ResourceDictionary {
-				Source = new Uri($"pack://application:,,,/HandyControl;component/Themes/Skin.xaml", UriKind.Absolute)
+				Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Skin.xaml", UriKind.Absolute)
 			});
 		}
 		dictionaries.Add(new ResourceDictionary {
 			Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Theme.xaml", UriKind.Absolute)
 		});
-		
+
 		EnableMica(isDarkTheme);
 	}
 

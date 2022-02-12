@@ -17,6 +17,7 @@ using ExplorerEx.Win32;
 using HandyControl.Controls;
 using HandyControl.Tools;
 using ScrollViewer = System.Windows.Controls.ScrollViewer;
+using TabItem = HandyControl.Controls.TabItem;
 using TextBox = HandyControl.Controls.TextBox;
 
 namespace ExplorerEx.View.Controls;
@@ -740,7 +741,7 @@ public partial class FileDataGrid {
 
 	protected override void OnDragEnter(DragEventArgs e) {
 		isDragDropping = true;
-		if (PathType == PathTypes.Home) {
+		if (PathType == PathTypes.Home && TabItem.DraggingTab == null) {
 			e.Effects = DragDropEffects.None;
 			e.Handled = true;
 			return;
@@ -759,7 +760,7 @@ public partial class FileDataGrid {
 
 	protected override void OnDragOver(DragEventArgs e) {
 		isDragDropping = true;
-		if (PathType == PathTypes.Home) {
+		if (PathType == PathTypes.Home && TabItem.DraggingTab == null) {
 			e.Effects = DragDropEffects.None;
 			e.Handled = true;
 			return;

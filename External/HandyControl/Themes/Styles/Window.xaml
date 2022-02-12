@@ -171,16 +171,6 @@
         </Setter>
     </Style>
 
-    <Style x:Key="WindowBlur" BasedOn="{StaticResource WindowWin10}" TargetType="hc:BlurWindow">
-        <Setter Property="Background" Value="Transparent"/>
-    </Style>
-
-    <Style x:Key="WindowGlow" BasedOn="{StaticResource WindowWin10}" TargetType="hc:GlowWindow">
-        <Setter Property="ActiveGlowColor" Value="#262e2f"/>
-        <Setter Property="InactiveGlowColor" Value="{DynamicResource BorderColor}"/>
-        <Setter Property="BorderThickness" Value="0"/>
-    </Style>
-
     <Style TargetType="hc:ImageBrowser">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="MinWidth" Value="400"/>

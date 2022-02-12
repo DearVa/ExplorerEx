@@ -613,6 +613,8 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		FileUtils.HandleDrop(e.Content, path, e.DragEventArgs.Effects.GetFirstEffect());
 	}
 
+	private uint everythingQueryId;
+
 	/// <summary>
 	/// 当用户更改SearchTextBox时触发
 	/// </summary>
@@ -629,7 +631,9 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 				EverythingInterop.Max = 999;
 				// EverythingInterop.SetRequestFlags(EverythingInterop.RequestType.FullPathAndFileName | EverythingInterop.RequestType.DateModified | EverythingInterop.RequestType.Size);
 				// EverythingInterop.SetSort(EverythingInterop.SortMode.NameAscending);
-				OwnerTabControl.MainWindow.RegisterEverythingQuery();
+				var mainWindow = OwnerTabControl.MainWindow;
+				mainWindow.UnRegisterEverythingQuery(everythingQueryId);
+				everythingQueryId = mainWindow.RegisterEverythingQuery();
 				EverythingInterop.Query(false);
 			} else {
 				hc.MessageBox.Error("Everything_is_not_available".L());
@@ -639,20 +643,18 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 
 	private CancellationTokenSource everythingReplyCts;
 
-	private async void OnEverythingQueryReplied(uint id) {
+	private async void OnEverythingQueryReplied(uint id, EverythingInterop.QueryReply reply) {
+		if (id != everythingQueryId) {
+			return;
+		}
 		PathType = PathTypes.Home;
 		everythingReplyCts?.Cancel();
 		everythingReplyCts = new CancellationTokenSource();
 		List<FileSystemItem> list = null;
 		await Task.Run(() => {
-			var resultCount = EverythingInterop.GetNumFileResults();
-			if (resultCount > 999) {
-				resultCount = 999;
-			}
-			list = new List<FileSystemItem>((int)resultCount);
-			for (var i = 0U; i < resultCount; i++) {
+			list = new List<FileSystemItem>(reply.FullPaths.Length);
+			foreach (var fullPath in reply.FullPaths) {
 				try {
-					var fullPath = EverythingInterop.GetResultFullPathName(i);
 					if (Directory.Exists(fullPath)) {
 						list.Add(new FileSystemItem(this, new DirectoryInfo(fullPath)));
 					} else if (File.Exists(fullPath)) {
@@ -760,5 +762,6 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		Items.Clear();
 		watcher?.Dispose();
 		cts?.Dispose();
+		everythingReplyCts?.Dispose();
 	}
 }

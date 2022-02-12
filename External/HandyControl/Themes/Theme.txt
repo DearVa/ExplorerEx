@@ -14,7 +14,6 @@ Styles\BlendEffectBox.xaml
 Styles\Border.xaml
 Styles\Col.xaml
 Styles\ContentControl.xaml
-Styles\FlipClock.xaml
 Styles\FloatingBlock.xaml
 Styles\GridSplitter.xaml
 Styles\Notification.xaml
@@ -104,7 +103,6 @@ Styles\Base\PropertyGridBaseStyle.xaml
 Styles\Base\RateBaseStyle.xaml
 Styles\Base\RunningBlockBaseStyle.xaml
 Styles\Base\SeparatorBaseStyle.xaml
-Styles\Base\ShieldBaseStyle.xaml
 Styles\Base\SideMenuBaseStyle.xaml
 Styles\Base\SplitButtonBaseStyle.xaml
 Styles\Base\StatusBarBaseStyle.xaml
@@ -139,7 +137,6 @@ Styles\Divider.xaml
 Styles\Drawer.xaml
 Styles\Empty.xaml
 Styles\Expander.xaml
-Styles\FlipClock.xaml
 Styles\FloatingBlock.xaml
 Styles\FlowDocument.xaml
 Styles\Frame.xaml
@@ -169,7 +166,6 @@ Styles\RichTextBox.xaml
 Styles\RunningBlock.xaml
 Styles\Screenshot.xaml
 Styles\Separator.xaml
-Styles\Shield.xaml
 Styles\SideMenu.xaml
 Styles\SimpleItemsControl.xaml
 Styles\SplitButton.xaml
@@ -177,7 +173,6 @@ Styles\Sprite.xaml
 Styles\StatusBar.xaml
 Styles\StepBar.xaml
 Styles\TabControl.xaml
-Styles\TimeBar.xaml
 Styles\TimePicker.xaml
 Styles\ToolBar.xaml
 Styles\ToolTip.xaml

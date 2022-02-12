@@ -8,7 +8,7 @@ public class EverythingException : Exception {
 	public EverythingException(string msg) : base(msg) { }
 }
 
-internal static class EverythingInterop {
+public static class EverythingInterop {
 	public enum ResultType {
 		Ok = 0,
 		ErrorMemory = 1,
@@ -300,4 +300,78 @@ internal static class EverythingInterop {
 	public static extern void SetReplyWindow(IntPtr hwnd);
 
 	public static bool IsAvailable => Everything_GetMajorVersion() != 0;
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct CopyDataStruct {
+		public IntPtr dwData;
+		public uint cbData;
+		public IntPtr lpData;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct EverythingIpcListw {
+		public uint totalFolders;
+		public uint totalFiles;
+		public uint totalItems;
+		public uint foldersCount;
+		public uint filesCount;
+		public uint itemsCount;
+		public uint offset;
+	}
+
+	public class QueryReply {
+		public uint TotalFolders { get; init; }
+		public uint TotalFiles { get; init; }
+		public uint TotalItems { get; init; }
+		public uint FoldersCount { get; init; }
+		public uint FilesCount { get; init; }
+		public uint ItemsCount { get; init; }
+		public string[] FullPaths { get; init; }
+	}
+
+	/// <summary>
+	/// 直接用指针，爽爽子
+	/// </summary>
+	/// <param name="lpData"></param>
+	/// <param name="cbData"></param>
+	/// <returns></returns>
+	public static unsafe QueryReply ParseEverythingIpcResult(IntPtr lpData, uint cbData) {
+		var eil = Marshal.PtrToStructure<EverythingIpcListw>(lpData);
+		var result = new string[eil.itemsCount];
+		var ptr = (byte*)lpData.ToPointer();
+		var uPtr = (uint*)ptr;
+		var buf = new char[260];
+		fixed (char* pBuf = buf) {
+			for (var i = 0; i < eil.itemsCount; i++) {
+				var filenameOffset = uPtr[8 + i * 3];
+				var pathOffset = uPtr[9 + i * 3];
+				var k = 0;
+				for (var j = pathOffset; j < cbData; j += 2) {
+					pBuf[k] = *(char*)(ptr + j);
+					if (pBuf[k] == '\0') {
+						pBuf[k++] = '\\';
+						break;
+					}
+					k++;
+				}
+				for (var j = filenameOffset; j < cbData; j += 2) {
+					pBuf[k] = *(char*)(ptr + j);
+					if (pBuf[k] == '\0') {
+						break;
+					}
+					k++;
+				}
+				result[i] = new string(pBuf, 0, k);
+			}
+		}
+		return new QueryReply {
+			TotalFolders = eil.totalFolders,
+			TotalFiles = eil.totalFiles,
+			TotalItems = eil.totalItems,
+			FoldersCount = eil.foldersCount,
+			FilesCount = eil.filesCount,
+			ItemsCount = eil.itemsCount,
+			FullPaths = result
+		};
+	}
 }

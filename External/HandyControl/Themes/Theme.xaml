@@ -158,23 +158,6 @@
 	<Style TargetType="ContentControl">
 		<Setter Property="Focusable" Value="False" />
 	</Style>
-	<Style TargetType="hc:FlipClock">
-		<Setter Property="Focusable" Value="False" />
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="hc:FlipClock">
-					<StackPanel Orientation="Horizontal">
-						<hc:FlipNumber Margin="-20" Number="{Binding NumberList[0],RelativeSource={RelativeSource TemplatedParent}}" />
-						<hc:FlipNumber Margin="-20" Number="{Binding NumberList[1],RelativeSource={RelativeSource TemplatedParent}}" />
-						<hc:FlipNumber Margin="0,-20,-20,-20" Number="{Binding NumberList[2],RelativeSource={RelativeSource TemplatedParent}}" />
-						<hc:FlipNumber Margin="-20" Number="{Binding NumberList[3],RelativeSource={RelativeSource TemplatedParent}}" />
-						<hc:FlipNumber Margin="0,-20,-20,-20" Number="{Binding NumberList[4],RelativeSource={RelativeSource TemplatedParent}}" />
-						<hc:FlipNumber Margin="-20" Number="{Binding NumberList[5],RelativeSource={RelativeSource TemplatedParent}}" />
-					</StackPanel>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
 	<Style TargetType="hc:FloatingBlock">
 		<Setter Property="HorizontalAlignment" Value="Left" />
 		<Setter Property="VerticalAlignment" Value="Top" />
@@ -1007,18 +990,6 @@
 					<Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}" />
 					<Binding Path="CornerRadius" RelativeSource="{RelativeSource Self}" />
 				</MultiBinding>
-			</Setter.Value>
-		</Setter>
-	</Style>
-	<Style TargetType="hc:FlipNumber">
-		<Setter Property="FontSize" Value="70" />
-		<Setter Property="Foreground" Value="{DynamicResource TextIconBrush}" />
-		<Setter Property="Background" Value="{DynamicResource TitleBrush}" />
-		<Setter Property="Width" Value="120" />
-		<Setter Property="Height" Value="180" />
-		<Setter Property="Camera">
-			<Setter.Value>
-				<PerspectiveCamera Position="0 0 120" LookDirection="0 0 -1" />
 			</Setter.Value>
 		</Setter>
 	</Style>
@@ -4637,14 +4608,6 @@
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>
-	</Style>
-	<Style x:Key="WindowBlur" BasedOn="{StaticResource WindowWin10}" TargetType="hc:BlurWindow">
-		<Setter Property="Background" Value="Transparent" />
-	</Style>
-	<Style x:Key="WindowGlow" BasedOn="{StaticResource WindowWin10}" TargetType="hc:GlowWindow">
-		<Setter Property="ActiveGlowColor" Value="#262e2f" />
-		<Setter Property="InactiveGlowColor" Value="{DynamicResource BorderColor}" />
-		<Setter Property="BorderThickness" Value="0" />
 	</Style>
 	<Style TargetType="hc:ImageBrowser">
 		<Setter Property="Background" Value="Transparent" />
@@ -10153,32 +10116,6 @@
 	<Style x:Key="SeparatorBaseStyle" TargetType="Separator">
 		<Setter Property="Background" Value="{DynamicResource BorderBrush}" />
 	</Style>
-	<Style x:Key="ShieldBaseStyle" BasedOn="{StaticResource BaseStyle}" TargetType="hc:Shield">
-		<Setter Property="Height" Value="20" />
-		<Setter Property="Foreground" Value="{DynamicResource TextIconBrush}" />
-		<Setter Property="hc:BorderElement.CornerRadius" Value="3" />
-		<Setter Property="BorderThickness" Value="0" />
-		<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
-		<Setter Property="Color" Value="{DynamicResource PrimaryBrush}" />
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="hc:Shield">
-					<Grid>
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="Auto" />
-							<ColumnDefinition Width="Auto" />
-						</Grid.ColumnDefinitions>
-						<Border Grid.Column="0" Background="#555" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource CornerRadiusSplitConverter},ConverterParameter='1,0,0,1'}">
-							<TextBlock Text="{TemplateBinding Subject}" VerticalAlignment="Center" Margin="4,0" />
-						</Border>
-						<Border Grid.Column="1" Background="{TemplateBinding Color}" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource CornerRadiusSplitConverter},ConverterParameter='0,1,1,0'}">
-							<ContentPresenter ContentSource="Status" VerticalAlignment="Center" Margin="4,0" TextElement.Foreground="{TemplateBinding Foreground}" ContentStringFormat="{TemplateBinding ContentStringFormat}" />
-						</Border>
-					</Grid>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
 	<Style x:Key="SideMenuItemBaseStyle" BasedOn="{StaticResource BaseStyle}" TargetType="hc:SideMenuItem">
 		<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisualRadius0Margin0}" />
 		<Setter Property="Role" Value="Item" />
@@ -12972,7 +12909,6 @@
 	<Style BasedOn="{StaticResource RateBaseStyle}" TargetType="hc:Rate" />
 	<Style BasedOn="{StaticResource RunningBlockBaseStyle}" TargetType="hc:RunningBlock" />
 	<Style BasedOn="{StaticResource SeparatorBaseStyle}" TargetType="Separator" />
-	<Style BasedOn="{StaticResource ShieldBaseStyle}" TargetType="hc:Shield" />
 	<Style BasedOn="{StaticResource SideMenuBaseStyle}" TargetType="hc:SideMenu" />
 	<Style x:Key="SideMenuAccordion" BasedOn="{StaticResource SideMenuBaseStyle}" TargetType="hc:SideMenu">
 		<Setter Property="ExpandMode" Value="Accordion" />
@@ -13170,55 +13106,6 @@
 		<Setter Property="hc:TitleElement.BorderBrush" Value="{DynamicResource TitleBrush}" />
 		<Setter Property="hc:TitleElement.Background" Value="{DynamicResource TitleBrush}" />
 		<Setter Property="hc:TitleElement.Foreground" Value="{DynamicResource TextIconBrush}" />
-	</Style>
-	<Style TargetType="hc:TimeBar">
-		<Setter Property="HotspotsBrush" Value="{DynamicResource AccentBrush}" />
-		<Setter Property="Focusable" Value="False" />
-		<Setter Property="UseLayoutRounding" Value="True" />
-		<Setter Property="BorderThickness" Value="0,1,0,0" />
-		<Setter Property="Foreground" Value="White" />
-		<Setter Property="Background" Value="{DynamicResource TitleBrush}" />
-		<Setter Property="Height" Value="60" />
-		<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="hc:TimeBar">
-					<ControlTemplate.Triggers>
-						<EventTrigger RoutedEvent="FrameworkElement.MouseEnter">
-							<BeginStoryboard>
-								<Storyboard>
-									<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="PART_TextBlockMove">
-										<DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}" />
-									</ObjectAnimationUsingKeyFrames>
-								</Storyboard>
-							</BeginStoryboard>
-						</EventTrigger>
-						<EventTrigger RoutedEvent="FrameworkElement.MouseLeave">
-							<BeginStoryboard>
-								<Storyboard>
-									<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="PART_TextBlockMove">
-										<DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Collapsed}" />
-									</ObjectAnimationUsingKeyFrames>
-								</Storyboard>
-							</BeginStoryboard>
-						</EventTrigger>
-					</ControlTemplate.Triggers>
-					<Border Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
-						<hc:SimplePanel ClipToBounds="True">
-							<Border BorderThickness="0,0,0,4" BorderBrush="White" VerticalAlignment="Top" Height="52">
-								<TextBlock FontSize="16" Name="PART_TextBlockSelected" VerticalAlignment="Top" Margin="0,14,0,0" HorizontalAlignment="Center" />
-							</Border>
-							<TextBlock Visibility="{TemplateBinding ShowSpeStr,Converter={StaticResource Boolean2VisibilityConverter}}" Text="{TemplateBinding SpeStr}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,14,10,0" />
-							<TextBlock Visibility="Collapsed" Name="PART_TextBlockMove" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,2,0,0" />
-							<Canvas Name="PART_CanvasSpe" VerticalAlignment="Bottom" Height="28" />
-							<hc:SimplePanel x:Name="PART_Hotspots" Margin="0,48,0,0" VerticalAlignment="Top" Visibility="{Binding Hotspots,RelativeSource={RelativeSource TemplatedParent},Converter={StaticResource Object2VisibilityConverter}}" />
-							<Border Width="1" Background="{DynamicResource DangerBrush}" />
-							<Border Name="PART_BorderTop" Background="Transparent" Cursor="Hand" />
-						</hc:SimplePanel>
-					</Border>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
 	</Style>
 	<Style BasedOn="{StaticResource TimePickerBaseStyle}" TargetType="hc:TimePicker" />
 	<Style x:Key="TimePickerExtend" BasedOn="{StaticResource TimePickerExtendBaseStyle}" TargetType="hc:TimePicker" />

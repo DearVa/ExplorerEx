@@ -3,10 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:u="clr-namespace:ExplorerEx.Utils"
+        xmlns:v="clr-namespace:ExplorerEx.View"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
         xmlns:hc="https://handyorg.github.io/handycontrol"
-        mc:Ignorable="d" d:DataContext="{d:DesignInstance vm:SaveDataObjectViewModel}" 
+        mc:Ignorable="d" d:DataContext="{d:DesignInstance v:SaveDataObjectWindow}" 
         Topmost="True" Title="{u:Lang Save_as_file}" Height="600" Width="500" WindowStartupLocation="Manual">
     <Grid Margin="10">
         <Grid.RowDefinitions>

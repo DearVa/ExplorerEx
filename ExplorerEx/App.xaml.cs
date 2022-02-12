@@ -4,10 +4,25 @@ using System.Threading;
 using System.Windows;
 using ExplorerEx.Utils;
 using ExplorerEx.Win32;
+using Microsoft.Win32;
 
-namespace ExplorerEx; 
+namespace ExplorerEx;
 
 public partial class App {
+	/// <summary>
+	/// 通过注册表获取系统是否为深色模式
+	/// </summary>
+	public static bool IsDarkTheme {
+		get {
+			try {
+				using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+				return key?.GetValue("AppsUseLightTheme") is 0;
+			} catch {
+				return false;
+			}
+		}
+	}
+
 	private Mutex mutex;
 
 	protected override void OnStartup(StartupEventArgs e) {

@@ -3,9 +3,12 @@
 namespace ExplorerEx.Win32;
 
 public enum DataObjectType {
-	Unknown, File, Bitmap, Text, UnicodeText, Html
+	Unknown, FileDrop, Bitmap, Text, UnicodeText, Html
 }
 
+/// <summary>
+/// 解析一个DataObject的数据类型
+/// </summary>
 public class DataObjectContent {
 	public DataObjectType Type { get; }
 
@@ -19,7 +22,7 @@ public class DataObjectContent {
 				foreach (var format in formats) {
 					switch (format) {
 					case "FileDrop":
-						Type = DataObjectType.File;
+						Type = DataObjectType.FileDrop;
 						return;  // 拿到一种就返回
 					case "Bitmap":
 						Type = DataObjectType.Bitmap;

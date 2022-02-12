@@ -176,7 +176,7 @@ internal class FileUtils {
 	public static void HandleDrop(DataObjectContent content, string destPath, DragDropEffects type) {
 		Debug.Assert(type is DragDropEffects.Copy or DragDropEffects.Move or DragDropEffects.Link);
 		if (destPath.Length > 4 && destPath[^4..] is ".exe" or ".lnk") {  // 拖文件运行
-			if (File.Exists(destPath) && content.Type == DataObjectType.File) {
+			if (File.Exists(destPath) && content.Type == DataObjectType.FileDrop) {
 				try {
 					Process.Start(new ProcessStartInfo {
 						FileName = destPath,
@@ -192,11 +192,8 @@ internal class FileUtils {
 				destPath = Path.GetDirectoryName(destPath);
 			}
 			if (Directory.Exists(destPath)) {
-				var p = new Win32Interop.Point();
-				GetCursorPos(ref p);
-				var mousePoint = new Point(p.x, p.y);
 				switch (content.Type) {
-				case DataObjectType.File:
+				case DataObjectType.FileDrop:
 					var filePaths = (string[])content.Data.GetData(DataFormats.FileDrop);
 					if (filePaths is {Length: > 0}) {
 						var destPaths = filePaths.Select(p => Path.Combine(destPath, Path.GetFileName(p))).ToList();
@@ -222,13 +219,13 @@ internal class FileUtils {
 				case DataObjectType.Bitmap:
 					break;
 				case DataObjectType.Html:
-					new SaveDataObjectWindow(destPath, content.Data.GetData(DataFormats.Html)!.ToString(), mousePoint).Show();
+					new SaveDataObjectWindow(destPath, content.Data.GetData(DataFormats.Html)!.ToString()).Show();
 					break;
 				case DataObjectType.Text:
-					new SaveDataObjectWindow(destPath, content.Data.GetData(DataFormats.Text)!.ToString(), mousePoint).Show();
+					new SaveDataObjectWindow(destPath, content.Data.GetData(DataFormats.Text)!.ToString()).Show();
 					break;
 				case DataObjectType.UnicodeText:
-					new SaveDataObjectWindow(destPath, content.Data.GetData(DataFormats.UnicodeText)!.ToString(), mousePoint).Show();
+					new SaveDataObjectWindow(destPath, content.Data.GetData(DataFormats.UnicodeText)!.ToString()).Show();
 					break;
 				}
 			}

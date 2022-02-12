@@ -400,11 +400,11 @@ internal static class Win32Interop {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct RGBQUAD {
-		public byte rgbBlue;
-		public byte rgbGreen;
-		public byte rgbRed;
-		public byte rgbReserved;
+	public struct RgbQuad {
+		public byte b;
+		public byte g;
+		public byte r;
+		public byte reserved;
 	}
 
 	[DllImport("shell32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
@@ -439,20 +439,25 @@ internal static class Win32Interop {
 	[DllImport("user32.dll", CharSet = CharSet.Auto)]
 	public static extern int SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, IntPtr lParam);
 
-	public const int WM_DRAWCLIPBOARD = 0x308;
-	public const int WM_CHANGECBCHAIN = 0x030D;
-	public const int WM_THEMECHANGED = 0x031A;
-	public const int WM_DWMCOMPOSITIONCHANGED = 0x31E;
-	public const int WM_DWMCOLORIZATIONCOLORCHANGED = 0x320;
+	public enum WinMessage {
+		CopyData = 0x004A,
+		DrawClipboard = 0x0308,
+		ChangeCbChain = 0x030D,
+		/// <summary>
+		/// 系统主题色改变
+		/// </summary>
+		DwmColorizationCOlorChanged = 0x0320,
+		NewInstance = 13288
+	}
 
 	#region 亚克力效果
 	public enum AccentState {
-		ACCENT_DISABLED = 0,
-		ACCENT_ENABLE_GRADIENT = 1,
-		ACCENT_ENABLE_TRANSPARENTGRADIENT = 2,
-		ACCENT_ENABLE_BLURBEHIND = 3,
-		ACCENT_ENABLE_ACRYLICBLURBEHIND = 4,
-		ACCENT_INVALID_STATE = 5
+		Disabled = 0,
+		EnableGradient = 1,
+		EnableTransparentGradient = 2,
+		EnableBlurBehind = 3,
+		EnableAcrylicBlurBehind = 4,
+		InvalidState = 5
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -471,25 +476,16 @@ internal static class Win32Interop {
 	}
 
 	public enum WindowCompositionAttribute {
-		WCA_ACCENT_POLICY = 19
+		AccentPolicy = 19
 	}
 
 	[DllImport("user32.dll")]
 	public static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
 
 	public enum DwmWindowAttribute {
-		DWMWA_WINDOW_CORNER_PREFERENCE = 33,
-		DWMWA_USE_IMMERSIVE_DARK_MODE = 20,
-		DWMWA_MICA_EFFECT = 1029
-	}
-
-	// The DWM_WINDOW_CORNER_PREFERENCE enum for DwmSetWindowAttribute's third parameter, which tells the function
-	// what value of the enum to set.
-	public enum DWM_WINDOW_CORNER_PREFERENCE {
-		DWMWCP_DEFAULT = 0,
-		DWMWCP_DONOTROUND = 1,
-		DWMWCP_ROUND = 2,
-		DWMWCP_ROUNDSMALL = 3
+		WindowCornerPreference = 33,
+		UseImmersiveDarkMode = 20,
+		MicaEffect = 1029
 	}
 
 	[DllImport("dwmapi.dll", CharSet = CharSet.Unicode, SetLastError = true)]
@@ -536,7 +532,6 @@ internal static class Win32Interop {
 		/// </summary>
 		public string lpszProgressTitle;
 	}
-
 
 	/// <summary>
 	/// 文件操作方式
@@ -700,7 +695,6 @@ internal static class Win32Interop {
 	public static extern IntPtr OpenProcess(OpenProcessDesiredAccessFlags dwDesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, uint dwProcessId);
 
 	[DllImport("kernel32.dll")]
-	[return: MarshalAs(UnmanagedType.Bool)]
 	public static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, IntPtr lpBuffer, uint nSize, out uint lpNumberOfBytesRead);
 
 
