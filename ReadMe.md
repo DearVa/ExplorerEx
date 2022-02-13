@@ -14,7 +14,9 @@
 
 * **响应快**。我的标准是，中端机型（如i5系列CPU或同等性能AMD CPU）可以在500ms内打开一个文件夹，即便是类似C:\Windows\System32这种有大量文件（我刚看了一下，我这里有4,778个文件）的文件夹依旧要很快打开。
 
-* **多标签页**。支持将文件拖到标签页上复制、移动、创建快捷方式等。
+* **多标签页**。支持将文件拖到标签页上复制、移动、创建快捷方式等。你还可以直接拖动标签页来分屏，就像VS Code那样简单。
+
+![SplitScreen](https://github.com/DearVa/ExplorerEx/blob/master/Images/SplitScreen.png)
 
 * **现代化界面**。目前使用HandyControl: [欢迎使用HandyControl | HandyOrg](https://handyorg.github.io/handycontrol/)，我会对其进行一定的修改，使其倾向于Windows 11的Fluent UI风格，还会添加一些~~徒增功耗~~好看的动画（在响应快的前提下）。
 
@@ -35,7 +37,7 @@
 ✓ 文件重命名  
 → 文件视图切换  
 → 文件拖放  
-→ 多标签页  
+→ 自由分屏  
 → zip支持  
 → bitlocker支持  
 
