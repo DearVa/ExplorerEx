@@ -238,22 +238,22 @@ public class FileViewGridViewModel : ViewModelBase, IDisposable {
 		OnPropertyChanged(nameof(ViewType));
 		OnPropertyChanged(nameof(ItemSize));
 		OnPropertyChanged(nameof(ViewTypeIndex));
-		//if (PathType == PathTypes.Normal) {
-		//	var useLargeIcon = type is 0 or 1 or 4 or 5;
-		//	if (useLargeIcon != isLastViewTypeUseLargeIcon) {
-		//		switchIconCts?.Cancel();
-		//		var list = Items.Where(item => item is FileSystemItem && !item.IsFolder).Cast<FileSystemItem>().Where(item => item.UseLargeIcon != useLargeIcon).ToArray();
-		//		var cts = switchIconCts = new CancellationTokenSource();
-		//		foreach (var item in list) {
-		//			if (cts.IsCancellationRequested) {
-		//				return;
-		//			}
-		//			item.UseLargeIcon = useLargeIcon;
-		//			await item.LoadIconAsync();
-		//		}
-		//		isLastViewTypeUseLargeIcon = useLargeIcon;
-		//	}
-		//}
+		if (PathType == PathTypes.Normal) {
+			var useLargeIcon = type is 0 or 1 or 4 or 5;
+			if (useLargeIcon != isLastViewTypeUseLargeIcon) {
+				switchIconCts?.Cancel();
+				var list = Items.Where(item => item is FileSystemItem && !item.IsFolder).Cast<FileSystemItem>().Where(item => item.UseLargeIcon != useLargeIcon).ToArray();
+				var cts = switchIconCts = new CancellationTokenSource();
+				foreach (var item in list) {
+					if (cts.IsCancellationRequested) {
+						return;
+					}
+					item.UseLargeIcon = useLargeIcon;
+					await item.LoadIconAsync();
+				}
+				isLastViewTypeUseLargeIcon = useLargeIcon;
+			}
+		}
 	}
 
 	private void OnClipboardChanged() {
