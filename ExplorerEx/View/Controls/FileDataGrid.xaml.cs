@@ -105,9 +105,13 @@ public partial class FileDataGrid {
 		/// </summary>
 		Normal,
 		/// <summary>
+		/// 搜索文件的结果
+		/// </summary>
+		Search,
+		/// <summary>
 		/// 网络驱动器
 		/// </summary>
-		NetworkDisk
+		NetworkDisk,
 	}
 
 	private ScrollViewer scrollViewer;
@@ -210,11 +214,23 @@ public partial class FileDataGrid {
 		set => SetValue(FullPathProperty, value);
 	}
 	
+	/// <summary>
+	/// 选择一个文件，参数为string文件名，不含路径
+	/// </summary>
+	public SimpleCommand SelectCommand { get; }
+
+	/// <summary>
+	/// 选择并重命名一个文件，参数为string文件名，不含路径
+	/// </summary>
+	public SimpleCommand StartRenameCommand { get; }
+
 	private readonly FileDataGridColumnsConverter columnsConverter;
 
 	public FileDataGrid() {
 		InitializeComponent();
 		EventManager.RegisterClassHandler(typeof(TextBox), GotFocusEvent, new RoutedEventHandler(OnRenameTextBoxGotFocus));
+		SelectCommand = new SimpleCommand(Select);
+		StartRenameCommand = new SimpleCommand(StartRename);
 		columnsConverter = (FileDataGridColumnsConverter)FindResource("ColumnsConverter");
 	}
 
@@ -232,6 +248,23 @@ public partial class FileDataGrid {
 		} else {
 			ColumnHeaderHeight = 0d;
 			contentGrid.Margin = new Thickness(Padding.Left, Padding.Top, Padding.Right, Padding.Bottom);
+		}
+	}
+
+	public void Select(object fileName) {
+		var item = Items.FirstOrDefault(item => item.Name == (string)fileName);
+		if (item != null) {
+			ScrollIntoView(item);
+			item.IsSelected = true;
+		}
+	}
+
+	public void StartRename(object fileName) {
+		var item = Items.FirstOrDefault(item => item.Name == (string)fileName);
+		if (item != null) {
+			ScrollIntoView(item);
+			item.IsSelected = true;
+			item.BeginRename();
 		}
 	}
 

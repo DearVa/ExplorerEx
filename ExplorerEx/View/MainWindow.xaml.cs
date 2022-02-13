@@ -270,4 +270,12 @@ public sealed partial class MainWindow {
 			ConfigHelper.Save("WindowHeight", (int)sizeInfo.NewSize.Height);
 		}
 	}
+
+#if DEBUG
+	protected override void OnKeyDown(KeyEventArgs e) {
+		if (e.Key == Key.Pause) {
+			Debugger.Break();
+		}
+	}
+#endif
 }

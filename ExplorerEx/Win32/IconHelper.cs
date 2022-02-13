@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -34,6 +33,8 @@ internal static class IconHelper {
 
 	private static readonly Dictionary<string, string> CachedDescriptions = new();
 
+	private static readonly object ShellLock = new();
+
 	public static void InitializeDefaultIcons(ResourceDictionary resources) {
 		FolderDrawingImage = (DrawingImage)resources["FolderDrawingImage"];
 		EmptyFolderDrawingImage = (DrawingImage)resources["EmptyFolderDrawingImage"];
@@ -58,47 +59,45 @@ internal static class IconHelper {
 	/// <param name="path">文件路径</param>
 	/// <param name="useFileAttr">如果为true，那就去找文件本身并生成缩略图（比如exe这种）；如果为false，那就只根据拓展名生成缩略图</param>
 	/// <returns></returns>
-	public static Task<ImageSource> GetPathIconAsync(string path, bool useFileAttr) {
+	public static ImageSource GetPathIconAsync(string path, bool useFileAttr) {
 		var extension = Path.GetExtension(path);
 		if (string.IsNullOrEmpty(extension)) {
-			return Task.FromResult((ImageSource)UnknownTypeFileDrawingImage);
+			return UnknownTypeFileDrawingImage;
 		}
 		var isLnk = extension == ".lnk";
 		var useCache = extension != ".exe" && !isLnk;
-		if (Monitor.TryEnter(CachedIcons)) {
+		lock (CachedIcons) {
 			if (useCache && CachedIcons.TryGetValue(extension, out var icon)) {
-				Monitor.Exit(CachedIcons);
-				return Task.FromResult(icon);
+				return icon;
 			}
-			Monitor.Exit(CachedIcons);
 		}
 
-		return Task.Run(() => {
-			var shFileInfo = new ShFileInfo();
-			var flags = SHGFI_ICON | SHGFI_LARGEICON;
-			if (!useFileAttr) {
-				flags |= SHGFI_USEFILEATTRIBUTES;
-			}
-			if (isLnk) {
-				flags |= SHGFI_LINKOVERLAY;
-			}
+		var dwFa = useFileAttr ? FILE_ATTRIBUTE_NORMAL : 0;
+		var flags = SHGFI_ICON | SHGFI_LARGEICON;
+		if (useFileAttr) {
+			flags |= SHGFI_USEFILEATTRIBUTES;
+		} else if (isLnk) {
+			flags |= SHGFI_LINKOVERLAY;
+		}
 
-			var res = SHGetFileInfo(path, 0, ref shFileInfo, Marshal.SizeOf(shFileInfo), flags);
-			if (res == 0) {
-				Trace.WriteLine($"无法获取 {path} 的图标，Res: {res}");
-				return UnknownTypeFileDrawingImage;
-			}
+		var shFileInfo = new ShFileInfo();
+		Monitor.Enter(ShellLock);
+		var res = SHGetFileInfo(path, dwFa, ref shFileInfo, Marshal.SizeOf(shFileInfo), flags);
+		Monitor.Exit(ShellLock);
+		if (res == 0 || shFileInfo.hIcon == IntPtr.Zero) {
+			Trace.WriteLine($"无法获取 {path} 的图标，Res: {res}");
+			return UnknownTypeFileDrawingImage;
+		}
 
-			var icon = (ImageSource)HIcon2BitmapSource(shFileInfo.hIcon);
-			DestroyIcon(shFileInfo.hIcon);
+		var result = (ImageSource)HIcon2BitmapSource(shFileInfo.hIcon);
+		DestroyIcon(shFileInfo.hIcon);
 
-			if (useCache) {
-				lock (CachedIcons) {
-					CachedIcons.TryAdd(extension, icon);
-				}
+		if (useCache) {
+			lock (CachedIcons) {
+				CachedIcons.TryAdd(extension, result);
 			}
-			return icon;
-		});
+		}
+		return result;
 	}
 
 	public static string GetFileTypeDescription(string extension) {
@@ -107,10 +106,12 @@ internal static class IconHelper {
 		}
 
 		var shFileInfo = new ShFileInfo();
+		Monitor.Enter(ShellLock);
 		var res = SHGetFileInfo(extension, FILE_ATTRIBUTE_NORMAL, ref shFileInfo, Marshal.SizeOf(shFileInfo), SHGFI_USEFILEATTRIBUTES | SHGFI_TYPENAME);
-		if (res == 0) {
+		Monitor.Exit(ShellLock);
+		if (res == 0 || shFileInfo.szTypeName == null) {
 			Trace.WriteLine($"无法获取 {extension} 的描述，Res: {res}");
-			return null;
+			return string.Empty;
 		}
 		
 		CachedDescriptions.Add(extension, shFileInfo.szTypeName);
@@ -124,51 +125,47 @@ internal static class IconHelper {
 	/// <returns></returns>
 	/// <exception cref="FileNotFoundException"></exception>
 	/// <exception cref="Exception"></exception>
-	public static Task<ImageSource> GetPathThumbnailAsync(string path) {
+	public static ImageSource GetPathThumbnailAsync(string path) {
 		Trace.WriteLine($"加载缩略图：{path}");
 		string extension = null;
 		if (path.Length > 3) {  // 说明不是驱动器
 			extension = Path.GetExtension(path);
 			if (string.IsNullOrEmpty(extension)) {
-				return Task.FromResult((ImageSource)UnknownTypeFileDrawingImage);
+				return UnknownTypeFileDrawingImage;
 			}
 			if (ExtensionsWithThumbnail.Contains(extension)) {
 				Trace.WriteLine($"文件有缩略图，加载：{path}");
-				return Task.Run(() => {
-					var shellItem2Guid = new Guid("7E9FB0D3-919F-4307-AB2E-9B1860310C93");
-					var retCode = SHCreateItemFromParsingName(path, IntPtr.Zero, ref shellItem2Guid, out var nativeShellItem);
-					if (retCode != 0) {
-						// 发生错误，fallback to加载大图标
-						Trace.WriteLine($"加载缩略图出错：{path}");
-						return LoadLargeIcon(path, extension);
-					}
-					var size = new Win32Interop.Size {
-						width = 128,
-						height = 128
-					};
-					// ReSharper disable once SuspiciousTypeConversion.Global
-					var hr = ((IShellItemImageFactory)nativeShellItem).GetImage(size, ThumbnailOptions.ThumbnailOnly, out var hBitmap);
-					Marshal.ReleaseComObject(nativeShellItem);
-					if (hr != 0) {
-						// 发生错误，fallback to加载大图标
-						Trace.WriteLine($"加载缩略图出错：{path}");
-						return LoadLargeIcon(path, extension);
-					}
-					var bs = (ImageSource)HBitmap2BitmapSource(hBitmap);
-					DeleteObject(hBitmap);
-					return bs;
-				});
+				var shellItem2Guid = new Guid("7E9FB0D3-919F-4307-AB2E-9B1860310C93");
+				var retCode = SHCreateItemFromParsingName(path, IntPtr.Zero, ref shellItem2Guid, out var nativeShellItem);
+				if (retCode != 0) {
+					// 发生错误，fallback to加载大图标
+					Trace.WriteLine($"加载缩略图出错：{path}");
+					return LoadLargeIcon(path, extension);
+				}
+				var size = new Win32Interop.Size {
+					width = 128,
+					height = 128
+				};
+				// ReSharper disable once SuspiciousTypeConversion.Global
+				var hr = ((IShellItemImageFactory)nativeShellItem).GetImage(size, ThumbnailOptions.ThumbnailOnly, out var hBitmap);
+				Marshal.ReleaseComObject(nativeShellItem);
+				if (hr != 0 || hBitmap == IntPtr.Zero) {
+					// 发生错误，fallback to加载大图标
+					Trace.WriteLine($"加载缩略图出错：{path}");
+					return LoadLargeIcon(path, extension);
+				}
+				var bs = (ImageSource)HBitmap2BitmapSource(hBitmap);
+				DeleteObject(hBitmap);
+				return bs;
 			}
-			if (Monitor.TryEnter(CachedLargeIcons)) {
+			lock (CachedLargeIcons) {
 				if (CachedLargeIcons.TryGetValue(extension, out var image)) {
 					Trace.WriteLine($"使用已缓存的大图标：{path}");
-					Monitor.Exit(CachedLargeIcons);
-					return Task.FromResult(image);
+					return image;
 				}
-				Monitor.Exit(CachedLargeIcons);
 			}
 		}
-		return Task.Run(() => LoadLargeIcon(path, extension));
+		return LoadLargeIcon(path, extension);
 	}
 
 	private static ImageSource LoadLargeIcon(string path, string extension) {
@@ -188,7 +185,7 @@ internal static class IconHelper {
 
 		var hIcon = IntPtr.Zero;
 		hr = iml.GetIcon(iconIndex, ILD_TRANSPARENT, ref hIcon);
-		if (hr != 0) {
+		if (hr != 0 || hIcon == IntPtr.Zero) {
 			return UnknownTypeFileDrawingImage;
 		}
 

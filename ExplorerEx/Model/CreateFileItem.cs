@@ -9,8 +9,6 @@ using System.Windows.Media;
 using ExplorerEx.Annotations;
 using ExplorerEx.Utils;
 using static ExplorerEx.Win32.IconHelper;
-using System;
-using System.Windows.Input;
 
 namespace ExplorerEx.Model;
 
@@ -27,20 +25,14 @@ public class CreateFileItem : INotifyPropertyChanged {
 	/// </summary>
 	public string Extension { get; }
 
-	public Command CreateCommand { get; }
-
 	protected CreateFileItem(string extension, bool createIcon = true) {
-		CreateCommand = new Command(this);
 		Extension = extension;
 		if (createIcon) {
 			Task.Run(() => {
-				var task = GetPathIconAsync(extension, false);
-				if (task.Wait(3000)) {  // 防止被shell卡死
-					Icon = task.Result;
-					Description = GetFileTypeDescription(extension);
-					OnPropertyChanged(nameof(Icon));
-					OnPropertyChanged(nameof(Description));
-				}
+				Icon = GetPathIconAsync(extension, true);
+				OnPropertyChanged(nameof(Icon));
+				Description = GetFileTypeDescription(extension);
+				OnPropertyChanged(nameof(Description));
 			});
 		}
 	}
@@ -49,7 +41,8 @@ public class CreateFileItem : INotifyPropertyChanged {
 	/// 创建该文件，方法会自动枚举文件，防止重名
 	/// </summary>
 	/// <param name="path">文件夹路径</param>
-	protected virtual void Create(string path) {
+	/// <returns>创建的文件名</returns>
+	public virtual string Create(string path) {
 		var newFileNameBase = $"{"New".L()} {Description}";
 		var newFileName = newFileNameBase + Extension;
 		var sameNameCount = 0;
@@ -58,7 +51,9 @@ public class CreateFileItem : INotifyPropertyChanged {
 		while (list.Contains(newFileName)) {
 			newFileName = $"{newFileNameBase} ({++sameNameCount}){Extension}";
 		}
-		File.Create(Path.Combine(path, newFileName)).Dispose();
+		var fileName = Path.Combine(path, newFileName);
+		File.Create(fileName).Dispose();
+		return fileName;
 	}
 
 	public static ObservableCollection<CreateFileItem> Items {
@@ -70,30 +65,24 @@ public class CreateFileItem : INotifyPropertyChanged {
 
 	// ReSharper disable once InconsistentNaming
 	private static readonly ObservableCollection<CreateFileItem> items = new();
-	
+
 	public static void UpdateItems() {
-		var newItems = (string[])Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\Discardable\PostSetup\ShellNew")!.GetValue("Classes");
+		var newItems = (string[])Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\Discardable\PostSetup\ShellNew")!.GetValue("Classes")!;
 		items.Clear();
-		var folderAdded = false;
-		foreach (var item in newItems!) {
+		items.Add(new CreateFileDirectoryItem());
+		items.Add(new CreateFileLinkItem());
+		items.Add(new CreateFileItem(".txt"));
+		foreach (var item in newItems) {
 			if (item[0] == '.') {
 				switch (item) {
+				case ".txt":
+				case ".lnk":
 				case ".library-ms":
 					continue;
-				case ".lnk":
-					if (items.Count == 0) {
-						items.Add(new CreateFileLinkItem());
-					} else {
-						items.Insert(folderAdded ? 1 : 0, new CreateFileLinkItem());
-					}
-					break;
 				default:
 					items.Add(new CreateFileItem(item));
 					break;
 				}
-			} else if (item.ToLower() == "folder") {
-				items.Insert(0, new CreateFileDirectoryItem());
-				folderAdded = true;
 			}
 		}
 	}
@@ -103,26 +92,6 @@ public class CreateFileItem : INotifyPropertyChanged {
 	[NotifyPropertyChangedInvocator]
 	protected void OnPropertyChanged([CallerMemberName] string propertyName = null) {
 		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-	}
-
-	public class Command : ICommand {
-		private readonly CreateFileItem item;
-
-		public Command(CreateFileItem item) {
-			this.item = item;
-		}
-
-		public bool CanExecute(object parameter) => true;
-
-		public void Execute(object parameter) {
-			try {
-				item.Create((string)parameter);
-			} catch (Exception e) {
-				HandyControl.Controls.MessageBox.Error(e.Message, "Cannot_create".L());
-			}
-		}
-
-		public event EventHandler CanExecuteChanged;
 	}
 }
 
@@ -135,7 +104,7 @@ internal class CreateFileDirectoryItem : CreateFileItem {
 		Description = "Folder".L();
 	}
 
-	protected override void Create(string path) {
+	public override string Create(string path) {
 		var newFolderNameBase = "New_folder".L();
 		var newFolderName = newFolderNameBase;
 		var sameNameCount = 0;
@@ -144,7 +113,9 @@ internal class CreateFileDirectoryItem : CreateFileItem {
 		while (list.Contains(newFolderName)) {
 			newFolderName = $"{newFolderNameBase} ({++sameNameCount})";
 		}
-		Directory.CreateDirectory(Path.Combine(path, newFolderName));
+		var folderName = Path.Combine(path, newFolderName);
+		Directory.CreateDirectory(folderName);
+		return folderName;
 	}
 }
 

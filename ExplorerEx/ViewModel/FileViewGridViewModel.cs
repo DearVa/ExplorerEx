@@ -23,7 +23,7 @@ namespace ExplorerEx.ViewModel;
 /// <summary>
 /// 对应一个Tab
 /// </summary>
-public class FileViewTabViewModel : ViewModelBase, IDisposable {
+public class FileViewGridViewModel : ViewModelBase, IDisposable {
 	public FileTabControl OwnerTabControl { get; }
 
 	public MainWindow OwnerWindow => OwnerTabControl.MainWindow;
@@ -39,14 +39,22 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 
 	public ViewTypes ViewType { get; private set; } = ViewTypes.Tile;
 
+	public int ViewTypeIndex => ViewType switch {
+		ViewTypes.Icon when ItemSize.Width > 100d && ItemSize.Height > 130d => 0,
+		ViewTypes.Icon => 1,
+		ViewTypes.List => 2,
+		ViewTypes.Detail => 3,
+		ViewTypes.Tile => 4,
+		ViewTypes.Content => 5,
+		_ => -1
+	};
+
 	public Lists DetailLists { get; private set; } = Lists.Type | Lists.AvailableSpace | Lists.TotalSpace | Lists.FillRatio | Lists.FileSystem;
 
 	/// <summary>
 	/// 当前文件夹内的文件列表
 	/// </summary>
 	public ObservableCollection<FileViewBaseItem> Items { get; } = new();
-
-	public ObservableCollection<CreateFileItem> CreateFileItems => CreateFileItem.Items;
 
 	public ObservableHashSet<FileViewBaseItem> SelectedItems { get; } = new();
 
@@ -151,7 +159,7 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 
 	private CancellationTokenSource cts;
 
-	public FileViewTabViewModel(FileTabControl ownerTabControl) {
+	public FileViewGridViewModel(FileTabControl ownerTabControl) {
 		OwnerTabControl = ownerTabControl;
 		OwnerWindow.EverythingQueryReplied += OnEverythingQueryReplied;
 
@@ -200,15 +208,15 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 	/// </summary>
 	private CancellationTokenSource switchIconCts;
 
-	private void SwitchViewType(int type) {
+	private async void SwitchViewType(int type) {
 		switch (type) {
 		case 0:  // 大图标
 			ViewType = ViewTypes.Icon;
-			ItemSize = new Size(120d, 160d);
+			ItemSize = new Size(120d, 170d);
 			break;
 		case 1:  // 小图标
 			ViewType = ViewTypes.Icon;
-			ItemSize = new Size(80d, 100d);
+			ItemSize = new Size(80d, 170d);
 			break;
 		case 2:  // 列表，size.Width为0代表横向填充
 			ViewType = ViewTypes.List;
@@ -229,21 +237,23 @@ public class FileViewTabViewModel : ViewModelBase, IDisposable {
 		}
 		OnPropertyChanged(nameof(ViewType));
 		OnPropertyChanged(nameof(ItemSize));
-		if (PathType == PathTypes.Normal) {
-			var useLargeIcon = type is 0 or 4 or 5;
-			if (useLargeIcon != isLastViewTypeUseLargeIcon) {
-				switchIconCts?.Cancel();
-				var list = Items.Where(item => item is FileSystemItem && !item.IsFolder).Cast<FileSystemItem>().Where(item => item.UseLargeIcon != useLargeIcon).ToArray();
-				switchIconCts = new CancellationTokenSource();
-				Task.Run(() => {
-					foreach (var item in list) {
-						item.UseLargeIcon = useLargeIcon;
-						item.LoadIconAsync().Wait();
-					}
-				}, switchIconCts.Token);
-				isLastViewTypeUseLargeIcon = useLargeIcon;
-			}
-		}
+		OnPropertyChanged(nameof(ViewTypeIndex));
+		//if (PathType == PathTypes.Normal) {
+		//	var useLargeIcon = type is 0 or 1 or 4 or 5;
+		//	if (useLargeIcon != isLastViewTypeUseLargeIcon) {
+		//		switchIconCts?.Cancel();
+		//		var list = Items.Where(item => item is FileSystemItem && !item.IsFolder).Cast<FileSystemItem>().Where(item => item.UseLargeIcon != useLargeIcon).ToArray();
+		//		var cts = switchIconCts = new CancellationTokenSource();
+		//		foreach (var item in list) {
+		//			if (cts.IsCancellationRequested) {
+		//				return;
+		//			}
+		//			item.UseLargeIcon = useLargeIcon;
+		//			await item.LoadIconAsync();
+		//		}
+		//		isLastViewTypeUseLargeIcon = useLargeIcon;
+		//	}
+		//}
 	}
 
 	private void OnClipboardChanged() {

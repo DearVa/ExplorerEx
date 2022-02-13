@@ -30,7 +30,7 @@ public class FileSystemItem : FileViewBaseItem {
 
 	private bool isEmptyFolder;
 
-	public FileSystemItem(FileViewTabViewModel ownerViewModel, FileSystemInfo fileSystemInfo) : base(ownerViewModel) {
+	public FileSystemItem(FileViewGridViewModel ownerViewModel, FileSystemInfo fileSystemInfo) : base(ownerViewModel) {
 		FileSystemInfo = fileSystemInfo;
 		Name = FileSystemInfo.Name;
 		if (fileSystemInfo is FileInfo fi) {
@@ -86,9 +86,9 @@ public class FileSystemItem : FileViewBaseItem {
 	public override async Task LoadIconAsync() {
 		Debug.Assert(!IsFolder);
 		if (UseLargeIcon) {
-			Icon = await GetPathThumbnailAsync(FullPath);
+			Icon = await Task.Run(() => GetPathThumbnailAsync(FullPath));
 		} else {
-			Icon = await GetPathIconAsync(FullPath, true);
+			Icon = await Task.Run(() => GetPathIconAsync(FullPath, false));
 		}
 	}
 
@@ -103,7 +103,7 @@ public class FileSystemItem : FileViewBaseItem {
 			}
 		}
 		try {
-			FileUtils.FileOperation(Win32Interop.FileOpType.Rename, FullPath, Path.Combine(basePath!, EditingName));
+			FileUtils.FileOperation(Win32Interop.FileOpType.Rename, FullPath, Path.Combine(basePath!, EditingName!));
 			return true;
 		} catch (Exception e) {
 			Logger.Exception(e);

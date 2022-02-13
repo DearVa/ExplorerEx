@@ -18,7 +18,7 @@ public partial class FileTabControl {
 	/// <summary>
 	/// 标签页
 	/// </summary>
-	public ObservableCollection<FileViewTabViewModel> TabItems { get; } = new();
+	public ObservableCollection<FileViewGridViewModel> TabItems { get; } = new();
 
 	public new static readonly DependencyProperty SelectedIndexProperty = DependencyProperty.Register(
 		"SelectedIndex", typeof(int), typeof(FileTabControl), new PropertyMetadata(default(int)));
@@ -38,7 +38,7 @@ public partial class FileTabControl {
 		}
 	}
 
-	public FileViewTabViewModel SelectedTab => TabItems[SelectedIndex];
+	public FileViewGridViewModel SelectedGrid => TabItems[SelectedIndex];
 
 	public static readonly DependencyProperty IsFileUtilsVisibleProperty = DependencyProperty.Register(
 		"IsFileUtilsVisible", typeof(bool), typeof(FileTabControl), new PropertyMetadata(default(bool)));
@@ -61,7 +61,7 @@ public partial class FileTabControl {
 
 	public SplitGrid OwnerSplitGrid { get; set; }
 
-	public FileTabControl(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileViewTabViewModel tab) {
+	public FileTabControl(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileViewGridViewModel grid) {
 		MainWindow = mainWindow;
 		OwnerSplitGrid = ownerSplitGrid;
 		DataContext = this;
@@ -72,11 +72,11 @@ public partial class FileTabControl {
 		DropCommand = new SimpleCommand(OnDrop);
 		InitializeComponent();
 
-		TabItems.Add(tab ?? new FileViewTabViewModel(this));
+		TabItems.Add(grid ?? new FileViewGridViewModel(this));
 	}
 
 	public async Task StartUpLoad(string path) {
-		if (!await SelectedTab.LoadDirectoryAsync(path)) {
+		if (!await SelectedGrid.LoadDirectoryAsync(path)) {
 			MainWindow.Close();
 		}
 	}
@@ -89,10 +89,10 @@ public partial class FileTabControl {
 
 	public async Task OpenPathInNewTabAsync(string path) {
 		var newTabIndex = SelectedIndex + 1;
-		var item = new FileViewTabViewModel(this);
+		var item = new FileViewGridViewModel(this);
 		TabItems.Insert(newTabIndex, item);
 		SelectedIndex = newTabIndex;
-		if (!await SelectedTab.LoadDirectoryAsync(path)) {
+		if (!await SelectedGrid.LoadDirectoryAsync(path)) {
 			if (TabItems.Count > 1) {
 				TabItems.Remove(item);
 			} else {
@@ -104,10 +104,10 @@ public partial class FileTabControl {
 	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
 		switch (e.ChangedButton) {
 		case MouseButton.XButton1:  // 鼠标侧键返回
-			SelectedTab.GoBackAsync();
+			SelectedGrid.GoBackAsync();
 			break;
 		case MouseButton.XButton2:
-			SelectedTab.GoForwardAsync();
+			SelectedGrid.GoForwardAsync();
 			break;
 		}
 		base.OnPreviewMouseUp(e);
@@ -119,19 +119,19 @@ public partial class FileTabControl {
 			case Key.Z:
 				break;
 			case Key.X:
-				SelectedTab.Copy(true);
+				SelectedGrid.Copy(true);
 				break;
 			case Key.C:
-				SelectedTab.Copy(false);
+				SelectedGrid.Copy(false);
 				break;
 			case Key.V:
-				SelectedTab.Paste();
+				SelectedGrid.Paste();
 				break;
 			}
 		} else {
 			switch (e.Key) {
 			case Key.Delete:
-				SelectedTab.Delete((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift);
+				SelectedGrid.Delete((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift);
 				break;
 			default:
 				base.OnPreviewKeyDown(e);
@@ -170,7 +170,7 @@ public partial class FileTabControl {
 					Application.Current.Shutdown();
 					break;
 				case 2:
-					await SelectedTab.LoadDirectoryAsync(null);
+					await SelectedGrid.LoadDirectoryAsync(null);
 					break;
 				default:
 					var msi = new MessageBoxInfo {
@@ -189,13 +189,13 @@ public partial class FileTabControl {
 					if (result == MessageBoxResult.OK) {
 						Application.Current.Shutdown();
 					} else {
-						await SelectedTab.LoadDirectoryAsync(null);
+						await SelectedGrid.LoadDirectoryAsync(null);
 					}
 					break;
 				}
 			}
 		} else {
-			SelectedTab.Dispose();
+			SelectedGrid.Dispose();
 			if (SelectedIndex == 0) {
 				SelectedIndex++;
 			} else {
@@ -209,14 +209,6 @@ public partial class FileTabControl {
 		await OpenPathInNewTabAsync(null);
 	}
 
-	private async void AddressBar_OnKeyDown(object sender, KeyEventArgs e) {
-		switch (e.Key) {
-		case Key.Enter:
-			await SelectedTab.LoadDirectoryAsync(((TextBox)sender).Text);
-			break;
-		}
-	}
-
 	protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
 		base.OnRenderSizeChanged(sizeInfo);
 		if (sizeInfo.WidthChanged) {
@@ -226,7 +218,7 @@ public partial class FileTabControl {
 
 	private static void OnDrag(object args) {
 		var e = (TabItemDragEventArgs)args;
-		var tab = (FileViewTabViewModel)e.TabItem.DataContext;
+		var tab = (FileViewGridViewModel)e.TabItem.DataContext;
 		if (tab.PathType == FileDataGrid.PathTypes.Home) {
 			e.DragEventArgs.Effects = DragDropEffects.None;
 			return;
@@ -238,7 +230,7 @@ public partial class FileTabControl {
 
 	private static void OnDrop(object args) {
 		var e = (TabItemDragEventArgs)args;
-		var tab = (FileViewTabViewModel)e.TabItem.DataContext;
+		var tab = (FileViewGridViewModel)e.TabItem.DataContext;
 		if (tab.PathType == FileDataGrid.PathTypes.Home) {
 			return;
 		}

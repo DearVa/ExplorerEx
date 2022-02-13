@@ -8,7 +8,6 @@ using System.Runtime.CompilerServices;
 using System;
 using System.Diagnostics;
 using HandyControl.Controls;
-using IWshRuntimeLibrary;
 
 namespace ExplorerEx.Model;
 
@@ -41,7 +40,7 @@ public sealed class DiskDriveItem : FileViewBaseItem {
 
 	private static readonly Gradient GradientColor = new(Colors.ForestGreen, Colors.Orange, Colors.Red);
 
-	public DiskDriveItem(FileViewTabViewModel ownerViewModel, DriveInfo driver) : base(ownerViewModel) {
+	public DiskDriveItem(FileViewGridViewModel ownerViewModel, DriveInfo driver) : base(ownerViewModel) {
 		Driver = driver;
 		IsFolder = true;
 		if (driver.IsReady) {
@@ -56,7 +55,7 @@ public sealed class DiskDriveItem : FileViewBaseItem {
 	}
 
 	public override async Task LoadIconAsync() {
-		Icon = await IconHelper.GetPathThumbnailAsync(Driver.Name);
+		Icon = await Task.Run(() => IconHelper.GetPathThumbnailAsync(Driver.Name));
 	}
 
 	protected override bool Rename() {

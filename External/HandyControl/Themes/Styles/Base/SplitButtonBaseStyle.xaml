@@ -51,7 +51,7 @@
                                 </ToggleButton>
                             </Grid>
                         </Border>
-                        <Popup x:Name="Popup" AllowsTransparency="true" StaysOpen="False" IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Margin="1" PopupAnimation="Slide" Placement="Bottom">
+                        <Popup x:Name="Popup" AllowsTransparency="true" StaysOpen="False" IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Margin="0,15,0,0" PopupAnimation="Slide" Placement="Bottom">
                             <Border CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" x:Name="dropDownBorder" MaxHeight="{TemplateBinding MaxDropDownHeight}" MinWidth="{Binding ActualWidth, ElementName=templateRoot}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Background="{DynamicResource RegionBrush}" Margin="10" Effect="{StaticResource EffectShadow3}">
                                 <ScrollViewer Margin="0,4" x:Name="DropDownScrollViewer">
                                     <hc:SimplePanel RenderOptions.ClearTypeHint="Enabled">

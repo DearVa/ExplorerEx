@@ -59,8 +59,8 @@ public partial class SplitGrid {
 		ColumnDefinitions.Add(new ColumnDefinition());
 	}
 
-	public SplitGrid(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileViewTabViewModel tab = null) : this(mainWindow, ownerSplitGrid) {
-		FileTabControl = new FileTabControl(mainWindow, this, tab);
+	public SplitGrid(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileViewGridViewModel grid = null) : this(mainWindow, ownerSplitGrid) {
+		FileTabControl = new FileTabControl(mainWindow, this, grid);
 		Children.Insert(0, FileTabControl);
 	}
 
@@ -84,16 +84,16 @@ public partial class SplitGrid {
 	/// <summary>
 	/// 分屏，将一个TabItem加入
 	/// </summary>
-	public void Split(FileViewTabViewModel tab, SplitOrientation orientation) {
+	public void Split(FileViewGridViewModel grid, SplitOrientation orientation) {
 		if (otherSplitGrid != null) {  // 已经分屏了，就直接返回
 			return;
 		}
-		var contains = FileTabControl.TabItems.Contains(tab);  // 要分屏的tab是否包含在了当前TabControl中
+		var contains = FileTabControl.TabItems.Contains(grid);  // 要分屏的tab是否包含在了当前TabControl中
 		var moreThan1 = FileTabControl.TabItems.Count > 1;
 		switch (orientation) {
 		case SplitOrientation.None:
 			if (!contains) {  // 这种就是将tab加入到当前TabControl中，只有不包括的时候才加入
-				FileTabControl.TabItems.Add(tab);
+				FileTabControl.TabItems.Add(grid);
 				FileTabControl.SelectedIndex = FileTabControl.TabItems.Count - 1;
 				TabItem.MoveAfterDrag = true;
 			}
@@ -102,7 +102,7 @@ public partial class SplitGrid {
 				ColumnDefinitions.Add(new ColumnDefinition());
 				FirstSplit();
 				thisSplitGrid.SetValue(ColumnProperty, 1);
-				otherSplitGrid = new SplitGrid(MainWindow, this, tab);
+				otherSplitGrid = new SplitGrid(MainWindow, this, grid);
 				otherSplitGrid.SetValue(ColumnProperty, 0);
 				Children.Insert(0, otherSplitGrid);
 				TabItem.MoveAfterDrag = true;
@@ -111,7 +111,7 @@ public partial class SplitGrid {
 		case SplitOrientation.Bottom when !contains || moreThan1: {
 				RowDefinitions.Add(new RowDefinition());
 				FirstSplit();
-				otherSplitGrid = new SplitGrid(MainWindow, this, tab);
+				otherSplitGrid = new SplitGrid(MainWindow, this, grid);
 				otherSplitGrid.SetValue(RowProperty, 1);
 				Children.Insert(0, otherSplitGrid);
 				TabItem.MoveAfterDrag = true;
@@ -120,7 +120,7 @@ public partial class SplitGrid {
 		case SplitOrientation.Right when !contains || moreThan1: {
 				ColumnDefinitions.Add(new ColumnDefinition());
 				FirstSplit();
-				otherSplitGrid = new SplitGrid(MainWindow, this, tab);
+				otherSplitGrid = new SplitGrid(MainWindow, this, grid);
 				otherSplitGrid.SetValue(ColumnProperty, 1);
 				Children.Insert(0, otherSplitGrid);
 				TabItem.MoveAfterDrag = true;
@@ -216,7 +216,7 @@ public partial class SplitGrid {
 	private void DragArea_OnDrop(object s, DragEventArgs e) {
 		if (TabItem.DraggingTab != null) {
 			HidePreview();
-			Split((FileViewTabViewModel)TabItem.DraggingTab.DataContext, orientation);
+			Split((FileViewGridViewModel)TabItem.DraggingTab.DataContext, orientation);
 		}
 	}
 

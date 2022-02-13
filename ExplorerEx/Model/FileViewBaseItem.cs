@@ -13,7 +13,7 @@ using HandyControl.Data;
 namespace ExplorerEx.Model; 
 
 public abstract class FileViewBaseItem : INotifyPropertyChanged {
-	protected FileViewTabViewModel OwnerViewModel { get; }
+	protected FileViewGridViewModel OwnerViewModel { get; }
 
 	public ImageSource Icon {
 		get => icon;
@@ -60,7 +60,7 @@ public abstract class FileViewBaseItem : INotifyPropertyChanged {
 
 	public SimpleCommand ShowPropertiesCommand { get; }
 
-	protected FileViewBaseItem(FileViewTabViewModel ownerViewModel) {
+	protected FileViewBaseItem(FileViewGridViewModel ownerViewModel) {
 		OwnerViewModel = ownerViewModel;
 		LostFocusCommand = new SimpleCommand(OnLostFocus);
 		// ReSharper disable once AsyncVoidLambda
