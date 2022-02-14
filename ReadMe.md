@@ -16,7 +16,13 @@
 
 * **多标签页**。支持将文件拖到标签页上复制、移动、创建快捷方式等。你还可以直接拖动标签页来分屏，就像VS Code那样简单。
 
-![SplitScreen](https://github.com/DearVa/ExplorerEx/blob/master/Images/SplitScreen.png)
+  ![SplitScreen](https://github.com/DearVa/ExplorerEx/blob/master/Images/SplitScreen.png)
+
+* **超级收藏夹**。Windows自带文件管理器的不仅无法备注、无法添加文件，还只有一个“快捷访问”栏，无法进行分类。ExplorerEx可以直接收藏文件夹甚至是文件！还可添加备注、归类，方便查找，就像浏览器那样！
+
+  ![Explorer不能做到](https://github.com/DearVa/ExplorerEx/blob/master/Images/ExplorerCantAddFile.jpg)
+
+  ![ExplorerEx可以做到](https://github.com/DearVa/ExplorerEx/blob/master/Images/SuperBookmarks.png)
 
 * **现代化界面**。目前使用HandyControl: [欢迎使用HandyControl | HandyOrg](https://handyorg.github.io/handycontrol/)，我会对其进行一定的修改，使其倾向于Windows 11的Fluent UI风格，还会添加一些~~徒增功耗~~好看的动画（在响应快的前提下）。
 
