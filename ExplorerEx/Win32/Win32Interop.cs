@@ -14,9 +14,6 @@ internal static class Win32Interop {
 	// ReSharper disable UnusedMember.Global
 	// ReSharper disable FieldCanBeMadeReadOnly.Global
 	// ReSharper disable UnusedType.Global
-	[DllImport("shlwapi.dll", CharSet = CharSet.Unicode)]
-	public static extern bool PathIsDirectoryEmpty(string path);
-
 	[DllImport("user32.dll")]
 	public static extern IntPtr SetCursor(IntPtr hCursor);
 

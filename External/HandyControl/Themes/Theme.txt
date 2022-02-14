@@ -158,7 +158,6 @@ Styles\Pagination.xaml
 Styles\PasswordBox.xaml
 Styles\PinBox.xaml
 Styles\Poptip.xaml
-Styles\PopupWindow.xaml
 Styles\ProgressButton.xaml
 Styles\PropertyGrid.xaml
 Styles\Rate.xaml

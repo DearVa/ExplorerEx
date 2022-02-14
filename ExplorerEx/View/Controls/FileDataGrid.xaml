@@ -17,56 +17,6 @@
              VirtualizingStackPanel.ScrollUnit="Pixel"
              mc:Ignorable="d" AllowDrop="True">
     <DataGrid.Resources>
-        <ControlTemplate x:Key="FileOperationsTemplate">
-            <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
-                <Button Height="35" ToolTip="{u:Lang Cut}" 
-                        Command="{Binding DataContext.CutCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid, AncestorLevel=2}}">
-                    <Image Width="20" Height="20" Source="{StaticResource CutDrawingImage}"/>
-                </Button>
-                <Button Height="35" Margin="6,0,0,0" ToolTip="{u:Lang Copy}"
-                        Command="{Binding DataContext.CopyCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid, AncestorLevel=2}}">
-                    <Image Width="20" Height="20" Source="{StaticResource CopyDrawingImage}"/>
-                </Button>
-                <Button Height="35" Margin="6,0,0,0" ToolTip="{u:Lang Rename}"
-                        Command="{Binding DataContext.RenameCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid, AncestorLevel=2}}">
-                    <Image Width="20" Height="20" Source="{StaticResource RenameDrawingImage}"/>
-                </Button>
-                <!--<Button Height="35" Margin="6,0,6,0" ToolTip="{u:Lang Share}"
-                        Command="{Binding DataContext.ShareCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid, AncestorLevel=2}}">
-                    <Image Width="20" Height="20" Source="{StaticResource ShareDrawingImage}"/>
-                </Button>-->
-                <Button Height="35" ToolTip="{u:Lang Delete}"
-                        Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid, AncestorLevel=2}}">
-                    <Image Width="20" Height="20" Source="{StaticResource DeleteDrawingImage}"/>
-                </Button>
-            </StackPanel>
-        </ControlTemplate>
-
-        <ct:HoverContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
-            <MenuItem Command="{Binding OpenCommand}"
-                      Icon="{Binding Icon}" Header="{u:Lang Open}"/>
-            <MenuItem Command="{Binding OpenInNewTabCommand}"
-                      Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Tab}"/>
-            <MenuItem Command="{Binding OpenInNewWindowCommand}"
-                      Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Window}"/>
-            <MenuItem Command="{Binding ShowPropertiesCommand}"
-                      Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
-        </ct:HoverContextMenu>
-
-        <ct:HoverContextMenu x:Key="FileItemContextMenu" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
-            <MenuItem Height="35" Template="{StaticResource FileOperationsTemplate}"/>
-            <Separator/>
-
-            <MenuItem Command="{Binding OpenCommand}"
-                      Icon="{Binding Icon}" Header="{u:Lang Open}"/>
-            <MenuItem Command="{Binding ShowPropertiesCommand}"
-                      Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
-        </ct:HoverContextMenu>
-
-        <c:FileSystemItemContextMenuConverter x:Key="FileSystemItemContextMenuConverter"
-                                              DirectoryContextMenu="{StaticResource FolderItemContextMenu}"
-                                              FileContextMenu="{StaticResource FileItemContextMenu}"/>
-
         <ItemsPanelTemplate x:Key="StackPanelTemplate">
             <VirtualizingStackPanel/>
         </ItemsPanelTemplate>

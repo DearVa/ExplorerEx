@@ -79,6 +79,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 添加到收藏夹 的本地化字符串。
+        /// </summary>
+        internal static string Add_to_bookmarks {
+            get {
+                return ResourceManager.GetString("Add_to_bookmarks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 如果改变文件拓展名，则可能导致文件不可用。
         ///
         ///确定要更改吗？ 的本地化字符串。
@@ -144,6 +153,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 收藏夹 的本地化字符串。
+        /// </summary>
+        internal static string Bookmarks {
+            get {
+                return ResourceManager.GetString("Bookmarks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 无法访问文件夹 的本地化字符串。
         /// </summary>
         internal static string Cannot_access_directory {
@@ -167,6 +185,15 @@ namespace ExplorerEx.Strings {
         internal static string Cannot_open_path {
             get {
                 return ResourceManager.GetString("Cannot open path", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 类别 的本地化字符串。
+        /// </summary>
+        internal static string Category {
+            get {
+                return ResourceManager.GetString("Category", resourceCulture);
             }
         }
         
@@ -225,6 +252,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 默认收藏夹 的本地化字符串。
+        /// </summary>
+        internal static string Default_bookmark {
+            get {
+                return ResourceManager.GetString("Default_bookmark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 删除 的本地化字符串。
         /// </summary>
         internal static string Delete {
@@ -248,6 +284,15 @@ namespace ExplorerEx.Strings {
         internal static string Dont_show_this_message_again {
             get {
                 return ResourceManager.GetString("Dont_show_this_message_again", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 编辑 的本地化字符串。
+        /// </summary>
+        internal static string Edit {
+            get {
+                return ResourceManager.GetString("Edit", resourceCulture);
             }
         }
         
@@ -432,6 +477,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 确定 的本地化字符串。
+        /// </summary>
+        internal static string Ok {
+            get {
+                return ResourceManager.GetString("Ok", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 打开 的本地化字符串。
         /// </summary>
         internal static string Open {
@@ -486,6 +540,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 快速访问 的本地化字符串。
+        /// </summary>
+        internal static string Quick_access {
+            get {
+                return ResourceManager.GetString("Quick_access", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 记住我的选择，下次不再询问 的本地化字符串。
         /// </summary>
         internal static string Remember_my_choice_and_dont_ask_again {
@@ -504,11 +567,38 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 从收藏夹移除 的本地化字符串。
+        /// </summary>
+        internal static string Remove_from_bookmarks {
+            get {
+                return ResourceManager.GetString("Remove_from_bookmarks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 重命名 的本地化字符串。
         /// </summary>
         internal static string Rename {
             get {
                 return ResourceManager.GetString("Rename", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 运行 的本地化字符串。
+        /// </summary>
+        internal static string Run {
+            get {
+                return ResourceManager.GetString("Run", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 以管理员身份运行 的本地化字符串。
+        /// </summary>
+        internal static string Run_as_admin {
+            get {
+                return ResourceManager.GetString("Run_as_admin", resourceCulture);
             }
         }
         
@@ -572,6 +662,15 @@ namespace ExplorerEx.Strings {
         internal static string Search {
             get {
                 return ResourceManager.GetString("Search", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 设置 的本地化字符串。
+        /// </summary>
+        internal static string Settings {
+            get {
+                return ResourceManager.GetString("Settings", resourceCulture);
             }
         }
         

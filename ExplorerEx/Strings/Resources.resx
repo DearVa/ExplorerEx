@@ -319,4 +319,37 @@
   <data name="Link_to" xml:space="preserve">
     <value>创建链接</value>
   </data>
+  <data name="Bookmarks" xml:space="preserve">
+    <value>收藏夹</value>
+  </data>
+  <data name="Quick_access" xml:space="preserve">
+    <value>快速访问</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="Add_to_bookmarks" xml:space="preserve">
+    <value>添加到收藏夹</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>类别</value>
+  </data>
+  <data name="Default_bookmark" xml:space="preserve">
+    <value>默认收藏夹</value>
+  </data>
+  <data name="Run_as_admin" xml:space="preserve">
+    <value>以管理员身份运行</value>
+  </data>
+  <data name="Run" xml:space="preserve">
+    <value>运行</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>编辑</value>
+  </data>
+  <data name="Ok" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="Remove_from_bookmarks" xml:space="preserve">
+    <value>从收藏夹移除</value>
+  </data>
 </root>

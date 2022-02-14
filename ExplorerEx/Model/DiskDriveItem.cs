@@ -3,11 +3,9 @@ using ExplorerEx.Utils;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using ExplorerEx.Win32;
-using ExplorerEx.ViewModel;
 using System.Runtime.CompilerServices;
 using System;
 using System.Diagnostics;
-using HandyControl.Controls;
 
 namespace ExplorerEx.Model;
 
@@ -15,9 +13,12 @@ namespace ExplorerEx.Model;
 /// 硬盘驱动器
 /// </summary>
 public sealed class DiskDriveItem : FileViewBaseItem {
-	public DriveInfo Driver { get; }
+	public DriveInfo Driver { get; private set; }
 
-	public override string FullPath => Driver.Name;
+	public override string FullPath {
+		get => Driver.Name;
+		protected set => Driver = new DriveInfo(value);
+	}
 
 	public override string Type => Driver.DriveType switch {
 		DriveType.Removable => "Removable_disk".L(),
@@ -40,7 +41,7 @@ public sealed class DiskDriveItem : FileViewBaseItem {
 
 	private static readonly Gradient GradientColor = new(Colors.ForestGreen, Colors.Orange, Colors.Red);
 
-	public DiskDriveItem(FileViewGridViewModel ownerViewModel, DriveInfo driver) : base(ownerViewModel) {
+	public DiskDriveItem(DriveInfo driver) {
 		Driver = driver;
 		IsFolder = true;
 		if (driver.IsReady) {
@@ -50,8 +51,6 @@ public sealed class DiskDriveItem : FileViewBaseItem {
 		} else {
 			Name = $"{Type} ({driver.Name[..1]})";
 		}
-		// ReSharper disable once AsyncVoidLambda
-		OpenCommand = new SimpleCommand(async _ => await OwnerViewModel.LoadDirectoryAsync(FullPath));
 	}
 
 	public override async Task LoadIconAsync() {
@@ -64,7 +63,7 @@ public sealed class DiskDriveItem : FileViewBaseItem {
 
 	public async Task RefreshAsync() {
 		await LoadIconAsync();
-		OnPropertyChanged(nameof(Icon));
+		PropertyUpdateUI(nameof(Icon));
 	}
 
 	private class Gradient {

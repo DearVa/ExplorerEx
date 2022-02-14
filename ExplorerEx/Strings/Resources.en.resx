@@ -232,4 +232,37 @@ Are you sure you want to change?</value>
   <data name="Link_to" xml:space="preserve">
     <value>Link to</value>
   </data>
+  <data name="Bookmarks" xml:space="preserve">
+    <value>Bookmarks</value>
+  </data>
+  <data name="Quick_access" xml:space="preserve">
+    <value>Quick access</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Add_to_bookmarks" xml:space="preserve">
+    <value>Add to bookmarks</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="Default_bookmark" xml:space="preserve">
+    <value>Default bookmark</value>
+  </data>
+  <data name="Run_as_admin" xml:space="preserve">
+    <value>Run as admin</value>
+  </data>
+  <data name="Run" xml:space="preserve">
+    <value>Run</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Remove_from_bookmarks" xml:space="preserve">
+    <value>Remove from bookmarks</value>
+  </data>
 </root>

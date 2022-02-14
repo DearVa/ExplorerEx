@@ -1,33 +1,32 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
-using ExplorerEx.Annotations;
 using ExplorerEx.Utils;
 using ExplorerEx.View;
-using ExplorerEx.ViewModel;
+using ExplorerEx.View.Controls;
 using ExplorerEx.Win32;
 using HandyControl.Data;
 
 namespace ExplorerEx.Model; 
 
-public abstract class FileViewBaseItem : INotifyPropertyChanged {
-	protected FileViewGridViewModel OwnerViewModel { get; }
-
+public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
+	[NotMapped]
 	public ImageSource Icon {
 		get => icon;
 		protected set {
 			if (icon != value) {
 				icon = value;
-				OnPropertyChanged();
+				PropertyUpdateUI();
 			}
 		}
 	}
 
 	private ImageSource icon;
 
-	public abstract string FullPath { get; }
+	public abstract string FullPath { get; protected set; }
 
 	public string Name { get; protected set; }
 
@@ -36,53 +35,112 @@ public abstract class FileViewBaseItem : INotifyPropertyChanged {
 	/// </summary>
 	public abstract string Type { get; }
 
+	[NotMapped]
 	public long FileSize { get; protected init; }
 
-	public bool IsFolder { get; protected init; }
+	[NotMapped]
+	public bool IsFolder { get; protected set; }
 
+	/// <summary>
+	/// 是否是可执行文件
+	/// </summary>
+	public bool IsRunnable => !IsFolder && Name[..^4] is ".exe" or ".cmd" or ".bat";
+
+	public bool IsEditable => !IsFolder && Name[..^4] is ".txt" or ".log" or ".ini" or ".inf" or ".cmd" or ".bat" or ".ps1";
+
+	public bool IsBookmarked => BookmarkDbContext.Instance.BookmarkDbSet.Any(b => b.FullPath == FullPath);
+
+	[NotMapped]
 	public bool IsSelected {
 		get => isSelected;
 		set {
 			if (isSelected != value) {
 				isSelected = value;
-				OnPropertyChanged();
+				PropertyUpdateUI();
 			}
 		}
 	}
 
 	private bool isSelected;
-
-	public SimpleCommand OpenCommand { get; protected init; }
+	
+	public SimpleCommand OpenCommand { get; }
 
 	public SimpleCommand OpenInNewTabCommand { get; }
 
 	public SimpleCommand OpenInNewWindowCommand { get; }
+	
+	public SimpleCommand EditCommand { get; }
+
+	public SimpleCommand AddToBookmarksCommand { get; }
+
+	public SimpleCommand RemoveFromBookmarksCommand { get; }
 
 	public SimpleCommand ShowPropertiesCommand { get; }
 
-	protected FileViewBaseItem(FileViewGridViewModel ownerViewModel) {
-		OwnerViewModel = ownerViewModel;
+	protected FileViewBaseItem() {
 		LostFocusCommand = new SimpleCommand(OnLostFocus);
+		// ReSharper disable once AsyncVoidLambda
+		OpenCommand = new SimpleCommand(async e => await OpenAsync((string)e != string.Empty));
 		// ReSharper disable once AsyncVoidLambda
 		OpenInNewTabCommand = new SimpleCommand(async _ => {
 			if (IsFolder) {
-				await OwnerViewModel.OwnerTabControl.OpenPathInNewTabAsync(FullPath);
+				await FileTabControl.FocusedTabControl.OpenPathInNewTabAsync(FullPath);
 			}
 		});
 		OpenInNewWindowCommand = new SimpleCommand(_ => new MainWindow(FullPath).Show());
+
+		EditCommand = new SimpleCommand(_ => OpenWith("notepad.exe"));
+
+		AddToBookmarksCommand = new SimpleCommand(_ => FileTabControl.FocusedTabControl.MainWindow.AddToBookmark(this));
+		RemoveFromBookmarksCommand = new SimpleCommand(_ => MainWindow.RemoveFromBookmark(this));
+
 		ShowPropertiesCommand = new SimpleCommand(_ => Win32Interop.ShowFileProperties(FullPath));
 	}
 
 	public abstract Task LoadIconAsync();
 
-	public event PropertyChangedEventHandler PropertyChanged;
+	/// <summary>
+	/// 打开该文件或者文件夹
+	/// </summary>
+	/// <param name="runAs">以管理员身份运行，只对文件有效</param>
+	/// <returns></returns>
+	public async Task OpenAsync(bool runAs = false) {
+		if (IsFolder) {
+			await FileTabControl.FocusedTabControl.SelectedTab.LoadDirectoryAsync(FullPath);
+		} else {
+			try {
+				var psi = new ProcessStartInfo {
+					FileName = FullPath,
+					UseShellExecute = true
+				};
+				if (runAs) {
+					psi.Verb = "runas";
+				}
+				Process.Start(psi);
+			} catch (Exception e) {
+				HandyControl.Controls.MessageBox.Error(e.Message, "Fail to open file".L());
+			}
+		}
+	}
 
-	[NotifyPropertyChangedInvocator]
-	protected void OnPropertyChanged([CallerMemberName] string propertyName = null) {
-		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+	/// <summary>
+	/// 用某应用打开此文件
+	/// </summary>
+	/// <param name="app"></param>
+	public void OpenWith(string app) {
+		try {
+			Process.Start(new ProcessStartInfo {
+				FileName = app,
+				Arguments = FullPath,
+				UseShellExecute = true
+			});
+		} catch (Exception e) {
+			HandyControl.Controls.MessageBox.Error(e.Message, "Fail to open file".L());
+		}
 	}
 
 	#region 文件重命名
+	[NotMapped]
 	public string EditingName { get; set; }
 
 	/// <summary>
@@ -92,6 +150,7 @@ public abstract class FileViewBaseItem : INotifyPropertyChanged {
 		Data = !FileUtils.IsProhibitedFileName(fn)
 	};
 
+	[NotMapped]
 	public bool IsErrorFileName { get; set; }
 
 	public SimpleCommand LostFocusCommand { get; }
@@ -101,18 +160,18 @@ public abstract class FileViewBaseItem : INotifyPropertyChanged {
 	/// </summary>
 	public void BeginRename() {
 		EditingName = Name;
-		OnPropertyChanged(nameof(EditingName));
+		PropertyUpdateUI(nameof(EditingName));
 	}
 
 	public void StopRename() {
 		if (!IsErrorFileName && EditingName != Name) {
 			if (Rename()) {
 				Name = EditingName;
-				OnPropertyChanged(nameof(Name));
+				PropertyUpdateUI(nameof(Name));
 			}
 		}
 		EditingName = null;
-		OnPropertyChanged(nameof(EditingName));
+		PropertyUpdateUI(nameof(EditingName));
 	}
 
 	public void OnLostFocus(object args) {

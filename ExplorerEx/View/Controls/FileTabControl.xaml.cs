@@ -5,16 +5,26 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Input;
 using ExplorerEx.Win32;
 using HandyControl.Controls;
 using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
 using MessageBox = HandyControl.Controls.MessageBox;
-using TextBox = System.Windows.Controls.TextBox;
 
 namespace ExplorerEx.View.Controls;
 
 public partial class FileTabControl {
+	/// <summary>
+	/// 获取当前被聚焦的TabControl
+	/// </summary>
+	public static FileTabControl FocusedTabControl { get; private set; }
+	/// <summary>
+	/// 所有的TabControl
+	/// </summary>
+	private static readonly List<FileTabControl> TabControls = new();
+
 	/// <summary>
 	/// 标签页
 	/// </summary>
@@ -38,7 +48,7 @@ public partial class FileTabControl {
 		}
 	}
 
-	public FileViewGridViewModel SelectedGrid => TabItems[SelectedIndex];
+	public FileViewGridViewModel SelectedTab => TabItems[SelectedIndex];
 
 	public static readonly DependencyProperty IsFileUtilsVisibleProperty = DependencyProperty.Register(
 		"IsFileUtilsVisible", typeof(bool), typeof(FileTabControl), new PropertyMetadata(default(bool)));
@@ -70,13 +80,15 @@ public partial class FileTabControl {
 		CreateNewTabCommand = new SimpleCommand(OnCreateNewTab);
 		DragCommand = new SimpleCommand(OnDrag);
 		DropCommand = new SimpleCommand(OnDrop);
+		TabControls.Add(this);
+		FocusedTabControl ??= this;
 		InitializeComponent();
 
 		TabItems.Add(grid ?? new FileViewGridViewModel(this));
 	}
 
 	public async Task StartUpLoad(string path) {
-		if (!await SelectedGrid.LoadDirectoryAsync(path)) {
+		if (!await SelectedTab.LoadDirectoryAsync(path)) {
 			MainWindow.Close();
 		}
 	}
@@ -92,7 +104,7 @@ public partial class FileTabControl {
 		var item = new FileViewGridViewModel(this);
 		TabItems.Insert(newTabIndex, item);
 		SelectedIndex = newTabIndex;
-		if (!await SelectedGrid.LoadDirectoryAsync(path)) {
+		if (!await SelectedTab.LoadDirectoryAsync(path)) {
 			if (TabItems.Count > 1) {
 				TabItems.Remove(item);
 			} else {
@@ -104,10 +116,10 @@ public partial class FileTabControl {
 	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
 		switch (e.ChangedButton) {
 		case MouseButton.XButton1:  // 鼠标侧键返回
-			SelectedGrid.GoBackAsync();
+			SelectedTab.GoBackAsync();
 			break;
 		case MouseButton.XButton2:
-			SelectedGrid.GoForwardAsync();
+			SelectedTab.GoForwardAsync();
 			break;
 		}
 		base.OnPreviewMouseUp(e);
@@ -119,19 +131,19 @@ public partial class FileTabControl {
 			case Key.Z:
 				break;
 			case Key.X:
-				SelectedGrid.Copy(true);
+				SelectedTab.Copy(true);
 				break;
 			case Key.C:
-				SelectedGrid.Copy(false);
+				SelectedTab.Copy(false);
 				break;
 			case Key.V:
-				SelectedGrid.Paste();
+				SelectedTab.Paste();
 				break;
 			}
 		} else {
 			switch (e.Key) {
 			case Key.Delete:
-				SelectedGrid.Delete((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift);
+				SelectedTab.Delete((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift);
 				break;
 			default:
 				base.OnPreviewKeyDown(e);
@@ -141,13 +153,33 @@ public partial class FileTabControl {
 		e.Handled = true;
 	}
 
+	/// <summary>
+	/// 当前TabControl被关闭时，寻找下一个聚焦的TabControl
+	/// </summary>
+	private static void UpdateFocusedTabControl() {
+		if (TabControls.Count == 0) {
+			FocusedTabControl = null;
+			return;
+		}
+		var focused = TabControls.FirstOrDefault(tc => tc.IsFocused);
+		if (focused != null) {
+			FocusedTabControl = focused;
+		} else {
+			focused = TabControls.FirstOrDefault(tc => tc.MainWindow.IsFocused);
+			FocusedTabControl = focused ?? TabControls[0];
+		}
+	}
+
 	private void OnTabMoved(object args) {
 		if (TabItems.Count == 0) {
 			if (OwnerSplitGrid.AnyOtherTabs) {
+				TabControls.Remove(this);
 				OwnerSplitGrid.CancelSplit();
 			} else {  // 说明就剩这一个Tab了
+				TabControls.Remove(this);
 				MainWindow.Close();
 			}
+			UpdateFocusedTabControl();
 		} else {
 			if (SelectedIndex == 0) {
 				SelectedIndex++;
@@ -161,16 +193,18 @@ public partial class FileTabControl {
 		var e = (CancelRoutedEventArgs)args;
 		if (TabItems.Count <= 1) {
 			if (OwnerSplitGrid.AnyOtherTabs) {
+				TabControls.Remove(this);
 				OwnerSplitGrid.CancelSplit();
+				UpdateFocusedTabControl();
 			} else {  // 说明就剩这一个Tab了
 				e.Cancel = true;
 				e.Handled = true;
 				switch (ConfigHelper.LoadInt("LastTabClosed")) {
 				case 1:
-					Application.Current.Shutdown();
+					MainWindow.Close();
 					break;
 				case 2:
-					await SelectedGrid.LoadDirectoryAsync(null);
+					await SelectedTab.LoadDirectoryAsync(null);
 					break;
 				default:
 					var msi = new MessageBoxInfo {
@@ -189,13 +223,13 @@ public partial class FileTabControl {
 					if (result == MessageBoxResult.OK) {
 						Application.Current.Shutdown();
 					} else {
-						await SelectedGrid.LoadDirectoryAsync(null);
+						await SelectedTab.LoadDirectoryAsync(null);
 					}
 					break;
 				}
 			}
 		} else {
-			SelectedGrid.Dispose();
+			SelectedTab.Dispose();
 			if (SelectedIndex == 0) {
 				SelectedIndex++;
 			} else {
@@ -212,7 +246,7 @@ public partial class FileTabControl {
 	protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
 		base.OnRenderSizeChanged(sizeInfo);
 		if (sizeInfo.WidthChanged) {
-			IsFileUtilsVisible = sizeInfo.NewSize.Width > 700d;
+			IsFileUtilsVisible = sizeInfo.NewSize.Width > 640d;
 		}
 	}
 

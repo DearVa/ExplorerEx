@@ -1,12 +1,9 @@
 ﻿using Microsoft.Win32;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Media;
-using ExplorerEx.Annotations;
 using ExplorerEx.Utils;
 using static ExplorerEx.Win32.IconHelper;
 
@@ -15,7 +12,7 @@ namespace ExplorerEx.Model;
 /// <summary>
 /// 新建 一个文件
 /// </summary>
-public class CreateFileItem : INotifyPropertyChanged {
+public class CreateFileItem : SimpleNotifyPropertyChanged {
 	public ImageSource Icon { get; protected set; }
 
 	public string Description { get; protected set; }
@@ -30,9 +27,9 @@ public class CreateFileItem : INotifyPropertyChanged {
 		if (createIcon) {
 			Task.Run(() => {
 				Icon = GetPathIconAsync(extension, true);
-				OnPropertyChanged(nameof(Icon));
+				PropertyUpdateUI(nameof(Icon));
 				Description = GetFileTypeDescription(extension);
-				OnPropertyChanged(nameof(Description));
+				PropertyUpdateUI(nameof(Description));
 			});
 		}
 	}
@@ -85,13 +82,6 @@ public class CreateFileItem : INotifyPropertyChanged {
 				}
 			}
 		}
-	}
-
-	public event PropertyChangedEventHandler PropertyChanged;
-
-	[NotifyPropertyChangedInvocator]
-	protected void OnPropertyChanged([CallerMemberName] string propertyName = null) {
-		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 	}
 }
 

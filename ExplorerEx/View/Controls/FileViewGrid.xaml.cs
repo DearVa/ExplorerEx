@@ -8,15 +8,18 @@ using static ExplorerEx.View.Controls.FileDataGrid;
 using hc = HandyControl.Controls;
 using TextBox = HandyControl.Controls.TextBox;
 
-namespace ExplorerEx.View.Controls; 
+namespace ExplorerEx.View.Controls;
 
+/// <summary>
+/// 对应一个Tab，但是VisualTree中，这个Grid只有一个，切换Tab的时候ViewModel会随之切换
+/// </summary>
 public partial class FileViewGrid {
 	/// <summary>
 	/// 创建文件或文件夹
 	/// </summary>
 	public SimpleCommand CreateCommand { get; }
 
-	private FileViewGridViewModel ViewModel => (FileViewGridViewModel)DataContext;
+	public FileViewGridViewModel ViewModel => (FileViewGridViewModel)DataContext;
 
 	public FileViewGrid() {
 		CreateCommand = new SimpleCommand(e => {

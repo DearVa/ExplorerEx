@@ -15,6 +15,7 @@ using ExplorerEx.Utils;
 using ExplorerEx.View;
 using ExplorerEx.View.Controls;
 using ExplorerEx.Win32;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using static ExplorerEx.View.Controls.FileDataGrid;
 using hc = HandyControl.Controls;
 
@@ -23,7 +24,7 @@ namespace ExplorerEx.ViewModel;
 /// <summary>
 /// 对应一个Tab
 /// </summary>
-public class FileViewGridViewModel : ViewModelBase, IDisposable {
+public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	public FileTabControl OwnerTabControl { get; }
 
 	public MainWindow OwnerWindow => OwnerTabControl.MainWindow;
@@ -235,9 +236,9 @@ public class FileViewGridViewModel : ViewModelBase, IDisposable {
 			ItemSize = new Size(0d, 70d);
 			break;
 		}
-		OnPropertyChanged(nameof(ViewType));
-		OnPropertyChanged(nameof(ItemSize));
-		OnPropertyChanged(nameof(ViewTypeIndex));
+		PropertyUpdateUI(nameof(ViewType));
+		PropertyUpdateUI(nameof(ItemSize));
+		PropertyUpdateUI(nameof(ViewTypeIndex));
 		if (PathType == PathTypes.Normal) {
 			var useLargeIcon = type is 0 or 1 or 4 or 5;
 			if (useLargeIcon != isLastViewTypeUseLargeIcon) {
@@ -258,7 +259,7 @@ public class FileViewGridViewModel : ViewModelBase, IDisposable {
 
 	private void OnClipboardChanged() {
 		CanPaste = MainWindow.DataObjectContent.Type != DataObjectType.Unknown;
-		OnPropertyChanged(nameof(CanPaste));
+		PropertyUpdateUI(nameof(CanPaste));
 	}
 
 	private void AddHistory(string path) {
@@ -300,10 +301,10 @@ public class FileViewGridViewModel : ViewModelBase, IDisposable {
 		if (isLoadRoot) {
 			watcher.EnableRaisingEvents = false;
 			FullPath = "This_computer".L();
-			OnPropertyChanged(nameof(FullPath));
+			PropertyUpdateUI(nameof(FullPath));
 
 			await Task.Run(() => {
-				list.AddRange(DriveInfo.GetDrives().Select(drive => new DiskDriveItem(this, drive)));
+				list.AddRange(DriveInfo.GetDrives().Select(drive => new DiskDriveItem(drive)));
 			}, cts.Token);
 
 		} else {
@@ -312,7 +313,7 @@ public class FileViewGridViewModel : ViewModelBase, IDisposable {
 			} else {
 				FullPath = path;
 			}
-			OnPropertyChanged(nameof(FullPath));
+			PropertyUpdateUI(nameof(FullPath));
 
 			try {
 				watcher.Path = FullPath;
@@ -326,14 +327,14 @@ public class FileViewGridViewModel : ViewModelBase, IDisposable {
 			}
 			await Task.Run(() => {
 				foreach (var directory in Directory.EnumerateDirectories(path)) {
-					var item = new FileSystemItem(this, new DirectoryInfo(directory));
+					var item = new FileSystemItem(new DirectoryInfo(directory));
 					list.Add(item);
 					if (directory == selectedPath) {
 						item.IsSelected = true;
 						SelectedItems.Add(item);
 					}
 				}
-				list.AddRange(Directory.EnumerateFiles(path).Select(filePath => new FileSystemItem(this, new FileInfo(filePath))));
+				list.AddRange(Directory.EnumerateFiles(path).Select(filePath => new FileSystemItem(new FileInfo(filePath))));
 			}, cts.Token);
 		}
 
@@ -345,14 +346,14 @@ public class FileViewGridViewModel : ViewModelBase, IDisposable {
 		Items.Clear();
 		PathType = isLoadRoot ? PathTypes.Home : PathTypes.Normal;  // TODO: 网络驱动器、OneDrive等
 																	// 一旦调用这个，模板就会改变，所以要在清空之后，不然会导致排版混乱和绑定失败
-		OnPropertyChanged(nameof(PathType));
+		PropertyUpdateUI(nameof(PathType));
 		if (PathType == PathTypes.Home) {  // TODO
 			DetailLists = Lists.Type | Lists.AvailableSpace | Lists.TotalSpace | Lists.FillRatio | Lists.FileSystem;
 		} else {
 			DetailLists = Lists.ModificationDate | Lists.Type | Lists.FileSize;
 		}
-		OnPropertyChanged(nameof(DetailLists));
-		OnPropertyChanged(nameof(Header));
+		PropertyUpdateUI(nameof(DetailLists));
+		PropertyUpdateUI(nameof(Header));
 		SwitchViewType(isLoadRoot ? 4 : 3);  // TODO: 此处暂时设为默认值，要根据文件夹记录在数据库里
 
 		foreach (var fileViewBaseItem in list) {
@@ -523,12 +524,12 @@ public class FileViewGridViewModel : ViewModelBase, IDisposable {
 	/// 和文件夹相关的UI，和是否选中文件无关
 	/// </summary>
 	private void UpdateFolderUI() {
-		OnPropertyChanged(nameof(CanPaste));
-		OnPropertyChanged(nameof(CanGoBack));
-		OnPropertyChanged(nameof(CanGoForward));
-		OnPropertyChanged(nameof(CanGoToUpperLevel));
-		OnPropertyChanged(nameof(FileItemsCount));
-		OnPropertyChanged(nameof(SearchPlaceholderText));
+		PropertyUpdateUI(nameof(CanPaste));
+		PropertyUpdateUI(nameof(CanGoBack));
+		PropertyUpdateUI(nameof(CanGoForward));
+		PropertyUpdateUI(nameof(CanGoToUpperLevel));
+		PropertyUpdateUI(nameof(FileItemsCount));
+		PropertyUpdateUI(nameof(SearchPlaceholderText));
 	}
 
 	/// <summary>
@@ -546,11 +547,11 @@ public class FileViewGridViewModel : ViewModelBase, IDisposable {
 				SelectedFileItemsSizeVisibility = Visibility.Visible;
 			}
 		}
-		OnPropertyChanged(nameof(IsItemSelected));
-		OnPropertyChanged(nameof(SelectedFileItemsCountVisibility));
-		OnPropertyChanged(nameof(SelectedFileItemsCount));
-		OnPropertyChanged(nameof(SelectedFileItemsSizeVisibility));
-		OnPropertyChanged(nameof(SelectedFileItemsSizeText));
+		PropertyUpdateUI(nameof(IsItemSelected));
+		PropertyUpdateUI(nameof(SelectedFileItemsCountVisibility));
+		PropertyUpdateUI(nameof(SelectedFileItemsCount));
+		PropertyUpdateUI(nameof(SelectedFileItemsSizeVisibility));
+		PropertyUpdateUI(nameof(SelectedFileItemsSizeText));
 	}
 
 	public async Task Item_OnDoubleClicked(ItemClickEventArgs e) {
@@ -590,22 +591,7 @@ public class FileViewGridViewModel : ViewModelBase, IDisposable {
 		}
 	}
 
-	private bool isClearingSelection;
-
-	public void ClearSelection() {
-		isClearingSelection = true;
-		foreach (var item in SelectedItems) {
-			item.IsSelected = false;
-		}
-		SelectedItems.Clear();
-		UpdateFileUI();
-		isClearingSelection = false;
-	}
-
 	private void OnSelectionChanged(SelectionChangedEventArgs e) {
-		if (isClearingSelection) {
-			return;
-		}
 		foreach (FileViewBaseItem addedItem in e.AddedItems) {
 			SelectedItems.Add(addedItem);
 			addedItem.IsSelected = true;
@@ -666,9 +652,9 @@ public class FileViewGridViewModel : ViewModelBase, IDisposable {
 			foreach (var fullPath in reply.FullPaths) {
 				try {
 					if (Directory.Exists(fullPath)) {
-						list.Add(new FileSystemItem(this, new DirectoryInfo(fullPath)));
+						list.Add(new FileSystemItem(new DirectoryInfo(fullPath)));
 					} else if (File.Exists(fullPath)) {
-						list.Add(new FileSystemItem(this, new FileInfo(fullPath)));
+						list.Add(new FileSystemItem(new FileInfo(fullPath)));
 					}
 				} catch (Exception e) {
 					Logger.Exception(e, false);
@@ -706,9 +692,9 @@ public class FileViewGridViewModel : ViewModelBase, IDisposable {
 			for (var i = 0; i < Items.Count; i++) {
 				if (((FileSystemItem)Items[i]).FullPath == e.OldFullPath) {
 					if (Directory.Exists(e.FullPath)) {
-						Items[i] = new FileSystemItem(this, new DirectoryInfo(e.FullPath));
+						Items[i] = new FileSystemItem(new DirectoryInfo(e.FullPath));
 					} else if (File.Exists(e.FullPath)) {
-						var item = new FileSystemItem(this, new FileInfo(e.FullPath));
+						var item = new FileSystemItem(new FileInfo(e.FullPath));
 						Items[i] = item;
 						await item.LoadIconAsync();
 					}
@@ -739,9 +725,9 @@ public class FileViewGridViewModel : ViewModelBase, IDisposable {
 		dispatcher.Invoke(async () => {
 			FileSystemItem item;
 			if (Directory.Exists(e.FullPath)) {
-				item = new FileSystemItem(this, new DirectoryInfo(e.FullPath));
+				item = new FileSystemItem(new DirectoryInfo(e.FullPath));
 			} else if (File.Exists(e.FullPath)) {
-				item = new FileSystemItem(this, new FileInfo(e.FullPath));
+				item = new FileSystemItem(new FileInfo(e.FullPath));
 			} else {
 				return;
 			}

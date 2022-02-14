@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Windows;
+using ExplorerEx.Model;
 using ExplorerEx.Utils;
 using ExplorerEx.Win32;
 using Microsoft.Win32;
@@ -25,7 +26,7 @@ public partial class App {
 
 	private Mutex mutex;
 
-	protected override void OnStartup(StartupEventArgs e) {
+	protected override async void OnStartup(StartupEventArgs e) {
 		mutex = new Mutex(true, "ExplorerEx", out var createdNew);
 		if (!createdNew) {
 			var current = Process.GetCurrentProcess();
@@ -38,12 +39,14 @@ public partial class App {
 			Current.Shutdown();
 			return;
 		}
-		base.OnStartup(e);
 		Logger.Initialize();
 		IconHelper.InitializeDefaultIcons(Resources);
+		await BookmarkDbContext.LoadOrMigrateAsync();
+		base.OnStartup(e);
 	}
 
 	protected override void OnExit(ExitEventArgs e) {
+		BookmarkDbContext.SaveChanges();
 		mutex.Dispose();
 		base.OnExit(e);
 	}

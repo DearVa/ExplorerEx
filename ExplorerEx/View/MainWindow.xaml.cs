@@ -1,15 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
+using ExplorerEx.Model;
 using ExplorerEx.Utils;
 using ExplorerEx.View.Controls;
 using ExplorerEx.Win32;
+using HandyControl.Controls;
+using Microsoft.EntityFrameworkCore;
 using static ExplorerEx.Win32.Win32Interop;
 
 namespace ExplorerEx.View;
@@ -184,6 +190,87 @@ public sealed partial class MainWindow {
 		}
 	}
 
+	#region 收藏夹
+	public static readonly DependencyProperty IsAddToBookmarkShowProperty = DependencyProperty.Register(
+		"IsAddToBookmarkShow", typeof(bool), typeof(MainWindow), new PropertyMetadata(false, IsAddToBookmarkShow_OnChanged));
+
+	public bool IsAddToBookmarkShow {
+		get => (bool)GetValue(IsAddToBookmarkShowProperty);
+		set => SetValue(IsAddToBookmarkShowProperty, value);
+	}
+
+	public static readonly DependencyProperty BookmarkNameProperty = DependencyProperty.Register(
+		"BookmarkName", typeof(string), typeof(MainWindow), new PropertyMetadata(default(string)));
+
+	public string BookmarkName {
+		get => (string)GetValue(BookmarkNameProperty);
+		set => SetValue(BookmarkNameProperty, value);
+	}
+
+	private void BookmarkNameTextBox_OnGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) {
+		((TextBox)sender).SelectAll();
+	}
+
+	private FileViewBaseItem bookmarkItem;
+	public string BookmarkCategory { get; set; }
+	private bool isDeleteBookmark;
+
+	public void AddToBookmark(FileViewBaseItem bookmarkItem) {
+		this.bookmarkItem = bookmarkItem;
+		var fullPath = bookmarkItem.FullPath;
+		BookmarkName = fullPath.Length == 3 ? fullPath : Path.GetFileName(fullPath);
+		BookmarkCategoryComboBox.SelectedIndex = 0;
+		IsAddToBookmarkShow = true;
+	}
+
+	private void AddToBookmarkConfirm_OnClick(object sender, RoutedEventArgs e) {
+		isDeleteBookmark = false;
+		IsAddToBookmarkShow = false;
+	}
+
+	private void AddToBookmarkDelete_OnClick(object sender, RoutedEventArgs e) {
+		isDeleteBookmark = true;
+		IsAddToBookmarkShow = false;
+	}
+
+	private static async void IsAddToBookmarkShow_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		if (!(bool)e.NewValue) {
+			var window = (MainWindow)d;
+			if (window.bookmarkItem != null) {
+				if (!window.isDeleteBookmark) {
+					var category = window.BookmarkCategory.Trim();
+					if (category == string.Empty) {
+						category = "Default_bookmarks".L();
+					}
+					var bookmarkDb = BookmarkDbContext.Instance;
+					var categoryItem = await bookmarkDb.BookmarkCategoryDbSet.FirstOrDefaultAsync(bc => bc.Name == category);
+					if (categoryItem == null) {
+						categoryItem = new BookmarkCategory(category);
+						await bookmarkDb.BookmarkCategoryDbSet.AddAsync(categoryItem);
+					}
+					var item = new BookmarkItem(window.bookmarkItem.FullPath, window.BookmarkName, categoryItem);
+					await bookmarkDb.BookmarkDbSet.AddAsync(item);
+					await bookmarkDb.SaveChangesAsync();
+					await item.LoadIconAsync();
+					window.bookmarkItem.PropertyUpdateUI(nameof(window.bookmarkItem.IsBookmarked));
+				}
+				window.bookmarkItem = null;
+			}
+		}
+	}
+
+	public static async void RemoveFromBookmark(FileViewBaseItem bookmarkItem) {
+		var bookmarkDb = BookmarkDbContext.Instance;
+		var fullPath = bookmarkItem.FullPath;
+		var item = await bookmarkDb.BookmarkDbSet.FirstOrDefaultAsync(b => b.FullPath == fullPath);
+		if (item != null) {
+			bookmarkDb.BookmarkDbSet.Remove(item);
+			await bookmarkDb.SaveChangesAsync();
+			bookmarkItem.PropertyUpdateUI(nameof(bookmarkItem.IsBookmarked));
+		}
+	}
+	#endregion
+
 	private static void OnClipboardChanged() {
 		try {
 			DataObjectContent = new DataObjectContent(Clipboard.GetDataObject());
@@ -238,10 +325,8 @@ public sealed partial class MainWindow {
 		EnableMica(isDarkTheme);
 	}
 
-	private void DragArea_OnMouseDown(object sender, MouseButtonEventArgs e) {
-		if (e.ChangedButton == MouseButton.Left) {
-			DragMove();
-		}
+	private void DragArea_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+		DragMove();
 	}
 
 	protected override void OnStateChanged(EventArgs e) {

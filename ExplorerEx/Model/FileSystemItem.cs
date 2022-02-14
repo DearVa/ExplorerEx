@@ -3,14 +3,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using ExplorerEx.Utils;
-using ExplorerEx.ViewModel;
+using ExplorerEx.View.Controls;
 using ExplorerEx.Win32;
 using static ExplorerEx.Win32.IconHelper;
 
 namespace ExplorerEx.Model;
 
 public class FileSystemItem : FileViewBaseItem {
-	public FileSystemInfo FileSystemInfo { get; }
+	public FileSystemInfo FileSystemInfo { get; private set; }
 
 	public DateTime LastWriteTime => FileSystemInfo.LastWriteTime;
 
@@ -21,7 +21,18 @@ public class FileSystemItem : FileViewBaseItem {
 
 	public string FileSizeString => FileUtils.FormatByteSize(FileSize);
 
-	public override string FullPath => FileSystemInfo.FullName;
+	public override string FullPath {
+		get => FileSystemInfo.FullName;
+		protected set {
+			if (Directory.Exists(value)) {
+				FileSystemInfo = new DirectoryInfo(value);
+			} else if (File.Exists(value)) {
+				FileSystemInfo = new FileInfo(value);
+			} else {
+				throw new FileNotFoundException(value);
+			}
+		}
+	}
 
 	/// <summary>
 	/// 是否使用大图标
@@ -30,7 +41,7 @@ public class FileSystemItem : FileViewBaseItem {
 
 	private bool isEmptyFolder;
 
-	public FileSystemItem(FileViewGridViewModel ownerViewModel, FileSystemInfo fileSystemInfo) : base(ownerViewModel) {
+	public FileSystemItem(FileSystemInfo fileSystemInfo) {
 		FileSystemInfo = fileSystemInfo;
 		Name = FileSystemInfo.Name;
 		if (fileSystemInfo is FileInfo fi) {
@@ -42,37 +53,11 @@ public class FileSystemItem : FileViewBaseItem {
 			IsFolder = true;
 			LoadDirectoryIcon();
 		}
-		// ReSharper disable once AsyncVoidLambda
-		OpenCommand = new SimpleCommand(async _ => await OpenAsync());
-	}
-
-	/// <summary>
-	/// 打开该文件或者文件夹
-	/// </summary>
-	/// <param name="runAs">以管理员身份运行，只对文件有效</param>
-	/// <returns></returns>
-	public async Task OpenAsync(bool runAs = false) {
-		if (IsFolder) {
-			await OwnerViewModel.LoadDirectoryAsync(FullPath);
-		} else {
-			try {
-				var psi = new ProcessStartInfo {
-					FileName = FullPath,
-					UseShellExecute = true
-				};
-				if (runAs) {
-					psi.Verb = "runas";
-				}
-				Process.Start(psi);
-			} catch (Exception e) {
-				HandyControl.Controls.MessageBox.Error(e.Message, "Fail to open file".L());
-			}
-		}
 	}
 
 	private void LoadDirectoryIcon() {
 		try {
-			isEmptyFolder = Win32Interop.PathIsDirectoryEmpty(FileSystemInfo.FullName);
+			isEmptyFolder = FolderUtils.IsEmptyFolder(FileSystemInfo.FullName);
 			if (isEmptyFolder) {
 				Icon = EmptyFolderDrawingImage;
 			} else {
@@ -116,8 +101,8 @@ public class FileSystemItem : FileViewBaseItem {
 			LoadDirectoryIcon();
 		} else {
 			await LoadIconAsync();
-			OnPropertyChanged(nameof(FileSize));
+			PropertyUpdateUI(nameof(FileSize));
 		}
-		OnPropertyChanged(nameof(Icon));
+		PropertyUpdateUI(nameof(Icon));
 	}
 }
