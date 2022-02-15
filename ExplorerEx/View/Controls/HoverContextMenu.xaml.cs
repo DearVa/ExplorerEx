@@ -16,7 +16,6 @@ public partial class HoverContextMenu {
 	private AxisAngleRotation3D axisAngleRotation3D;
 	private Viewport2DVisual3D visual3D;
 	private Border border;
-	private double whRatio;  // 长宽比
 
 	public HoverContextMenu() {
 		InitializeComponent();
@@ -45,11 +44,20 @@ public partial class HoverContextMenu {
 				new(-width, height, 0), new(-width, -height, 0), new(width, -height, 0), new(width, height, 0)
 			}
 		};
-		whRatio = width / height;
 	}
 
 	private void OnMouseMove(object sender, MouseEventArgs e) {
-		CalculateAnimation(e, 25);
+		var pos = e.GetPosition(border);
+		var x = pos.X / border.ActualWidth - 0.5;
+		var y = pos.Y / border.ActualHeight - 0.5;
+		
+		var da = new DoubleAnimation {
+			Duration = new Duration(TimeSpan.FromSeconds(0.5d)),
+			To = Math.Sqrt(x * x + y * y) * 10
+		};
+		var axis = new Vector3D(y * 25, x * 25, 0);
+		axisAngleRotation3D.Axis = axis;
+		axisAngleRotation3D.BeginAnimation(AxisAngleRotation3D.AngleProperty, da);
 	}
 
 	private void OnMouseLeave(object sender, MouseEventArgs e) {
@@ -60,28 +68,10 @@ public partial class HoverContextMenu {
 		axisAngleRotation3D.BeginAnimation(AxisAngleRotation3D.AngleProperty, da);
 	}
 
-	protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
-		CalculateAnimation(e, 50);
-		base.OnPreviewMouseLeftButtonDown(e);
-	}
-
 	protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e) {
 		base.OnPreviewMouseLeftButtonUp(e);
 		if (e.OriginalSource.FindParent<Button, HoverContextMenu>() != null) {
 			IsOpen = false;
 		}
-	}
-
-	private void CalculateAnimation(MouseEventArgs e, double pressForce) {
-		var moveX = -(e.GetPosition(border).Y / border.ActualWidth - 0.5) * pressForce * whRatio;
-		var moveY = (e.GetPosition(border).X / border.ActualHeight - 0.5) * pressForce;
-
-		var da = new DoubleAnimation {
-			Duration = new Duration(TimeSpan.FromSeconds(0.5d)),
-			To = 10d
-		};
-		var axis = new Vector3D(moveX, moveY, 0);
-		axisAngleRotation3D.Axis = axis;
-		axisAngleRotation3D.BeginAnimation(AxisAngleRotation3D.AngleProperty, da);
 	}
 }
