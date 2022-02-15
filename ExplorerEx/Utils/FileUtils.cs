@@ -121,7 +121,7 @@ internal class FileUtils {
 			fo.pTo = ParseFileList(destinationFiles);
 		}
 		var result = SHFileOperation(fo);
-		if (result != 0) {
+		if (result != 0 && result != 1223) {
 			throw new IOException(GetErrorString(result));
 		}
 	}
