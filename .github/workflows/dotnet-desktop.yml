@@ -107,13 +107,9 @@ jobs:
     #- name: Remove the pfx
     #  run: Remove-Item -path $env:Wap_Project_Directory\$env:Signing_Certificate
 
-    # Pack Everything
-    - name: Pack Everything
-      run: 7z a D:\out\artifact.7z D:\a\ExplorerEx\ExplorerEx\ExplorerEx\bin\Release\net6.0-windows10.0.22000.0
-
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
     - name: Upload build artifacts
       uses: actions/upload-artifact@main
       with:
         name: artifact
-        path: D:\out
+        path: D:\a\ExplorerEx\ExplorerEx\ExplorerEx\bin\Release\net6.0-windows10.0.22000.0
