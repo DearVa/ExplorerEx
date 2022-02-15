@@ -4,8 +4,8 @@
 # documentation.
 
 # This workflow will build, test, sign and package a WPF or Windows Forms desktop application
-# built on .NET Core.
-# To learn how to migrate your existing application to .NET Core,
+# built on .NET.
+# To learn how to migrate your existing application to .NET,
 # refer to https://docs.microsoft.com/en-us/dotnet/desktop-wpf/migration/convert-project-from-net-framework
 #
 # To configure this workflow:
@@ -67,7 +67,7 @@ jobs:
       with:
         fetch-depth: 0
 
-    # Install the .NET Core workload
+    # Install the .NET workload
     - name: Install .NET
       uses: actions/setup-dotnet@main
       with:
@@ -111,5 +111,5 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@main
       with:
-        name: MSIX Package
-        path: ${{ env.Wap_Project_Directory }}\AppPackages
+        name: artifact
+        path: D:\a\ExplorerEx\ExplorerEx\ExplorerEx\bin\Release\net6.0-windows10.0.22000.0
