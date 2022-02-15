@@ -27,6 +27,7 @@ public partial class App {
 	private Mutex mutex;
 
 	protected override async void OnStartup(StartupEventArgs e) {
+		Trace.WriteLine("Startup: " + DateTime.Now);
 		mutex = new Mutex(true, "ExplorerEx", out var createdNew);
 		if (!createdNew) {
 			var current = Process.GetCurrentProcess();

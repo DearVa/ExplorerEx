@@ -8,6 +8,8 @@
     xmlns:u="clr-namespace:ExplorerEx.Utils"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:hc="https://handyorg.github.io/handycontrol"
+    xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
+    xmlns:c="clr-namespace:ExplorerEx.Converter"
     mc:Ignorable="d" d:DataContext="{d:DesignInstance v:MainWindow}" Title="ExplorerEx"
     Background="Transparent" WindowStartupLocation="Manual" 
     Foreground="{DynamicResource PrimaryTextBrush}" BorderThickness="0">
@@ -33,11 +35,11 @@
                     <Image Width="24" Height="24" Source="{StaticResource StarDrawingImage}"/>
                 </ToggleButton>
                 <Popup IsOpen="{Binding IsAddToBookmarkShow, Mode=TwoWay}" PopupAnimation="Fade" AllowsTransparency="True" 
-                       PlacementTarget="{Binding ElementName=StarToggleButton}" Placement="Right" StaysOpen="False">
+                       PlacementTarget="{Binding ElementName=StarToggleButton}" Placement="Right">
                     <Border CornerRadius="5" Background="{DynamicResource RegionBrush}" BorderBrush="{DynamicResource BorderBrush}" 
                             BorderThickness="2" Margin="10" Effect="{StaticResource EffectShadow3}">
                         <StackPanel Orientation="Vertical" Width="300" Margin="10">
-                            <TextBlock Text="{u:Lang Add_to_bookmarks}" FontSize="16" FontWeight="Bold"/>
+                            <TextBlock x:Name="AddToBookmarkTipTextBlock" FontSize="16" FontWeight="Bold"/>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition/>
@@ -55,7 +57,7 @@
                                             GotKeyboardFocus="BookmarkNameTextBox_OnGotKeyboardFocus"/>
 
                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="{u:Lang Category}" VerticalAlignment="Center"/>
-                                <hc:ComboBox x:Name="BookmarkCategoryComboBox" Grid.Row="1" Grid.Column="1" ShowClearButton="True" AutoComplete="True" IsEditable="True" 
+                                <hc:ComboBox x:Name="BookmarkCategoryComboBox" Grid.Row="1" Grid.Column="1" ShowClearButton="True" IsEditable="True" 
                                              ItemsSource="{Binding Source={x:Static m:BookmarkDbContext.BookmarkCategories}}"
                                              Text="{Binding BookmarkCategory, Mode=OneWayToSource}" Margin="5,0,0,0" SelectedIndex="0"/>
                             </Grid>
@@ -90,20 +92,65 @@
                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" Text="{u:Lang Bookmarks}" FontSize="14"/>
             </Grid>
             <Grid Grid.Row="1" Background="{DynamicResource SecondaryRegionBrush}">
+                <Grid.Resources>
+                    <ct:HoverContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
+                        <MenuItem Command="{Binding OpenCommand}" 
+                                  Icon="{Binding Icon}" Header="{u:Lang Open}"/>
+                        <MenuItem Command="{Binding OpenInNewTabCommand}" 
+                                  Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Tab}"/>
+                        <MenuItem Command="{Binding OpenInNewWindowCommand}" 
+                                  Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Window}"/>
+                        <Separator/>
+
+                        <MenuItem Command="{Binding RemoveFromBookmarksCommand}"
+                                  Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang Remove_from_bookmarks}"/>
+                        <Separator/>
+                        <MenuItem Command="{Binding AddToBookmarksCommand}"
+                                  Icon="{StaticResource EditDrawingImage}" Header="{u:Lang Edit_bookmark}"/>
+                        <Separator/>
+
+                        <MenuItem Command="{Binding ShowPropertiesCommand}"
+                                  Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
+                    </ct:HoverContextMenu>
+
+                    <ct:HoverContextMenu x:Key="FileItemContextMenu" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
+                        <MenuItem Command="{Binding OpenCommand}"
+                                  Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                  Icon="{Binding Icon}" Header="{u:Lang Open}"/>
+                        <MenuItem Command="{Binding OpenCommand}"
+                                  Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                  Icon="{Binding Icon}" Header="{u:Lang Run}"/>
+                        <MenuItem Command="{Binding OpenCommand}" CommandParameter="1"
+                                  Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                  Icon="{StaticResource UacDrawingImage}" Header="{u:Lang Run_as_admin}"/>
+                        <MenuItem Command="{Binding EditCommand}"
+                                  Visibility="{Binding IsEditable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                  Icon="{StaticResource EditDrawingImage}" Header="{u:Lang Edit}"/>
+                        <Separator/>
+
+                        <MenuItem Command="{Binding RemoveFromBookmarksCommand}"
+                                  Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang Remove_from_bookmarks}"/>
+                        <Separator/>
+
+                        <MenuItem Command="{Binding ShowPropertiesCommand}"
+                                  Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
+                    </ct:HoverContextMenu>
+
+                    <c:FileSystemItemContextMenuConverter x:Key="FileSystemItemContextMenuConverter"
+                                                          DirectoryContextMenu="{StaticResource FolderItemContextMenu}"
+                                                          FileContextMenu="{StaticResource FileItemContextMenu}"/>
+                </Grid.Resources>
+
                 <ScrollViewer>
                     <TreeView ItemsSource="{Binding Source={x:Static m:BookmarkDbContext.BookmarkCategories}}">
                         <TreeView.ItemContainerStyle>
                             <Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemBaseStyle}">
                                 <Setter Property="Focusable" Value="False"/>
+                                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
                             </Style>
                         </TreeView.ItemContainerStyle>
                         <TreeView.Resources>
                             <HierarchicalDataTemplate ItemsSource="{Binding Children}" DataType="{x:Type m:BookmarkCategory}">
-                                <HierarchicalDataTemplate.ItemContainerStyle>
-                                    <Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemBaseStyle}">
-                                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
-                                    </Style>
-                                </HierarchicalDataTemplate.ItemContainerStyle>
                                 <Grid Height="30">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="30"/>

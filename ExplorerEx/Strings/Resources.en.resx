@@ -265,4 +265,13 @@ Are you sure you want to change?</value>
   <data name="Remove_from_bookmarks" xml:space="preserve">
     <value>Remove from bookmarks</value>
   </data>
+  <data name="Edit_bookmark" xml:space="preserve">
+    <value>Edit bookmark</value>
+  </data>
+  <data name="Documents" xml:space="preserve">
+    <value>Documents</value>
+  </data>
+  <data name="Desktop" xml:space="preserve">
+    <value>Desktop</value>
+  </data>
 </root>

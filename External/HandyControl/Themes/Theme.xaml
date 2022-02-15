@@ -10715,6 +10715,7 @@
 		<Setter Property="Padding" Value="10,0,0,0" />
 		<Setter Property="HorizontalContentAlignment" Value="Stretch" />
 		<Setter Property="VerticalContentAlignment" Value="Stretch" />
+		<Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
 		<Setter Property="Menu" Value="{StaticResource TabItemMenu}" />
 		<Setter Property="Template">
 			<Setter.Value>
@@ -10751,7 +10752,7 @@
 		</Setter>
 	</Style>
 	<ControlTemplate x:Key="TabControlPlusTemplate" TargetType="hc:TabControl">
-		<Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{x:Null}">
+		<Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{x:Null}" WindowChrome.IsHitTestVisibleInChrome="True">
 			<Grid x:Name="templateRoot" ClipToBounds="true" SnapsToDevicePixels="true" KeyboardNavigation.TabNavigation="Local">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition x:Name="ColumnDefinition0" />

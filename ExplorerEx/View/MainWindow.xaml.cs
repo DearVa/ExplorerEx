@@ -26,7 +26,7 @@ public sealed partial class MainWindow {
 	/// </summary>
 	public static event Action ClipboardChanged;
 	public static DataObjectContent DataObjectContent { get; private set; }
-	
+
 	public event Action<uint, EverythingInterop.QueryReply> EverythingQueryReplied;
 
 	private static readonly List<MainWindow> MainWindows = new();
@@ -34,6 +34,7 @@ public sealed partial class MainWindow {
 	private readonly SplitGrid splitGrid;
 	private readonly HwndSource hwnd;
 	private IntPtr nextClipboardViewer;
+	private bool isClipboardViewerSet;
 
 	private readonly string startupPath;
 
@@ -81,7 +82,9 @@ public sealed partial class MainWindow {
 
 	protected override async void OnContentRendered(EventArgs e) {
 		base.OnContentRendered(e);
+		Trace.WriteLine("Content shown: " + DateTime.Now);
 		await splitGrid.FileTabControl.StartUpLoad(startupPath);
+		Trace.WriteLine("Startup Finished: " + DateTime.Now);
 	}
 
 	private void RegisterClipboard() {
@@ -90,6 +93,7 @@ public sealed partial class MainWindow {
 		if (error != 0) {
 			Marshal.ThrowExceptionForHR(error);
 		}
+		isClipboardViewerSet = true;
 		OnClipboardChanged();
 	}
 
@@ -140,14 +144,14 @@ public sealed partial class MainWindow {
 			break;
 		case WinMessage.DrawClipboard:
 			OnClipboardChanged();
-			if (nextClipboardViewer != IntPtr.Zero) {
+			if (nextClipboardViewer != IntPtr.Zero && nextClipboardViewer != hwnd) {
 				SendMessage(nextClipboardViewer, msg, wParam, lParam);
 			}
 			break;
 		case WinMessage.ChangeCbChain:
 			if (wParam == nextClipboardViewer) {
-				nextClipboardViewer = lParam;
-			} else if (nextClipboardViewer != IntPtr.Zero) {
+				nextClipboardViewer = lParam == hwnd ? IntPtr.Zero : lParam;
+			} else if (nextClipboardViewer != IntPtr.Zero && nextClipboardViewer != hwnd) {
 				SendMessage(nextClipboardViewer, msg, wParam, lParam);
 			}
 			break;
@@ -215,11 +219,23 @@ public sealed partial class MainWindow {
 	public string BookmarkCategory { get; set; }
 	private bool isDeleteBookmark;
 
+	/// <summary>
+	/// 添加到书签，如果已添加，则会提示编辑
+	/// </summary>
+	/// <param name="bookmarkItem"></param>
 	public void AddToBookmark(FileViewBaseItem bookmarkItem) {
 		this.bookmarkItem = bookmarkItem;
-		var fullPath = bookmarkItem.FullPath;
-		BookmarkName = fullPath.Length == 3 ? fullPath : Path.GetFileName(fullPath);
-		BookmarkCategoryComboBox.SelectedIndex = 0;
+		var fullPath = Path.GetFullPath(bookmarkItem.FullPath);
+		var dbBookmark = BookmarkDbContext.Instance.BookmarkDbSet.Local.FirstOrDefault(b => b.FullPath == fullPath);
+		if (dbBookmark != null) {
+			AddToBookmarkTipTextBlock.Text = "Edit_bookmark".L();
+			BookmarkName = dbBookmark.Name;
+			BookmarkCategoryComboBox.SelectedItem = dbBookmark.Category;
+		} else {
+			AddToBookmarkTipTextBlock.Text = "Add_to_bookmarks".L();
+			BookmarkName = fullPath.Length == 3 ? fullPath : Path.GetFileName(fullPath);
+			BookmarkCategoryComboBox.SelectedIndex = 0;
+		}
 		IsAddToBookmarkShow = true;
 	}
 
@@ -239,8 +255,8 @@ public sealed partial class MainWindow {
 			if (window.bookmarkItem != null) {
 				if (!window.isDeleteBookmark) {
 					var category = window.BookmarkCategory.Trim();
-					if (category == string.Empty) {
-						category = "Default_bookmarks".L();
+					if (string.IsNullOrWhiteSpace(category)) {
+						category = "Default_bookmark".L();
 					}
 					var bookmarkDb = BookmarkDbContext.Instance;
 					var categoryItem = await bookmarkDb.BookmarkCategoryDbSet.FirstOrDefaultAsync(bc => bc.Name == category);
@@ -248,10 +264,19 @@ public sealed partial class MainWindow {
 						categoryItem = new BookmarkCategory(category);
 						await bookmarkDb.BookmarkCategoryDbSet.AddAsync(categoryItem);
 					}
-					var item = new BookmarkItem(window.bookmarkItem.FullPath, window.BookmarkName, categoryItem);
-					await bookmarkDb.BookmarkDbSet.AddAsync(item);
-					await bookmarkDb.SaveChangesAsync();
-					await item.LoadIconAsync();
+					var fullPath = window.bookmarkItem.FullPath;
+					var dbBookmark = await BookmarkDbContext.Instance.BookmarkDbSet.FirstOrDefaultAsync(b => b.FullPath == fullPath);
+					if (dbBookmark != null) {
+						dbBookmark.Name = window.BookmarkName;
+						dbBookmark.PropertyUpdateUI(nameof(dbBookmark.Name));
+						dbBookmark.Category = categoryItem;
+						await bookmarkDb.SaveChangesAsync();
+					} else {
+						var item = new BookmarkItem(window.bookmarkItem.FullPath, window.BookmarkName, categoryItem);
+						await bookmarkDb.BookmarkDbSet.AddAsync(item);
+						await bookmarkDb.SaveChangesAsync();
+						await item.LoadIconAsync();
+					}
 					window.bookmarkItem.PropertyUpdateUI(nameof(window.bookmarkItem.IsBookmarked));
 				}
 				window.bookmarkItem = null;
@@ -292,11 +317,13 @@ public sealed partial class MainWindow {
 	protected override void OnClosed(EventArgs e) {
 		MainWindows.Remove(this);
 		splitGrid.Close();
-		if (nextClipboardViewer != IntPtr.Zero) {
-			ChangeClipboardChain(hwnd.Handle, nextClipboardViewer);
-		}
-		if (MainWindows.Count > 0) {  // 通知下一个Window进行Hook
-			MainWindows[0].RegisterClipboard();
+		if (isClipboardViewerSet) {
+			if (nextClipboardViewer != IntPtr.Zero) {
+				ChangeClipboardChain(hwnd.Handle, nextClipboardViewer);
+			}
+			if (MainWindows.Count > 0) { // 通知下一个Window进行Hook
+				MainWindows[0].RegisterClipboard();
+			}
 		}
 		base.OnClosed(e);
 	}

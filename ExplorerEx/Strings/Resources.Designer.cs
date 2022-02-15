@@ -270,11 +270,29 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 桌面 的本地化字符串。
+        /// </summary>
+        internal static string Desktop {
+            get {
+                return ResourceManager.GetString("Desktop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 详细信息 的本地化字符串。
         /// </summary>
         internal static string Detail {
             get {
                 return ResourceManager.GetString("Detail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 文档 的本地化字符串。
+        /// </summary>
+        internal static string Documents {
+            get {
+                return ResourceManager.GetString("Documents", resourceCulture);
             }
         }
         
@@ -293,6 +311,15 @@ namespace ExplorerEx.Strings {
         internal static string Edit {
             get {
                 return ResourceManager.GetString("Edit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 编辑收藏项 的本地化字符串。
+        /// </summary>
+        internal static string Edit_bookmark {
+            get {
+                return ResourceManager.GetString("Edit_bookmark", resourceCulture);
             }
         }
         

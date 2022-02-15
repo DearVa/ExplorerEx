@@ -444,7 +444,7 @@ public partial class FileDataGrid {
 	/// </summary>
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseMove(MouseEventArgs e) {
-		if (e.OriginalSource.FindParent<ScrollBar, FileDataGrid>() != null || isDoubleClicked) {
+		if (e.OriginalSource.FindParent<ScrollBar, FileDataGrid>() != null || isDoubleClicked || isMenuOpen) {
 			base.OnPreviewMouseMove(e);
 			return;
 		}
@@ -690,6 +690,8 @@ public partial class FileDataGrid {
 		}
 	}
 
+	private bool isMenuOpen;
+
 	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
 		if (e.OriginalSource.FindParent<ScrollBar, FileDataGrid>() != null || isDoubleClicked) {
 			base.OnPreviewMouseUp(e);
@@ -745,6 +747,7 @@ public partial class FileDataGrid {
 					} else {
 						// ContextMenu!.IsOpen = true;
 					}
+					isMenuOpen = true;
 					break;
 				}
 			}

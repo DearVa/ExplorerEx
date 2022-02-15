@@ -20,7 +20,17 @@ public class BookmarkCategory : SimpleNotifyPropertyChanged {
 	[Key]
 	public string Name { get; set; }
 
-	public bool IsExpanded { get; set; }
+	public bool IsExpanded {
+		get => isExpanded;
+		set {
+			if (isExpanded != value) {
+				isExpanded = value;
+				PropertyUpdateUI();
+			}
+		}
+	}
+
+	private bool isExpanded;
 
 	public ImageSource Icon => Children is { Count: > 0 } ? FolderDrawingImage : EmptyFolderDrawingImage;
 
@@ -36,6 +46,7 @@ public class BookmarkCategory : SimpleNotifyPropertyChanged {
 		Children ??= new ObservableCollection<BookmarkItem>();
 		Children.Add(item);
 		PropertyUpdateUI(nameof(Children));
+		PropertyUpdateUI(nameof(Icon));
 	}
 
 	public override string ToString() {
@@ -48,8 +59,7 @@ public class BookmarkCategory : SimpleNotifyPropertyChanged {
 /// </summary>
 [Serializable]
 public class BookmarkItem : FileViewBaseItem {
-	public int Id { get; set; }
-
+	[Key]
 	public override string FullPath { get; protected set; }
 
 	public override string Type => throw new NotImplementedException();
@@ -78,7 +88,7 @@ public class BookmarkItem : FileViewBaseItem {
 
 	public BookmarkItem(string fullPath, string name, BookmarkCategory category) : this() {
 		// ReSharper disable once VirtualMemberCallInConstructor
-		FullPath = fullPath;
+		FullPath = Path.GetFullPath(fullPath);
 		Name = name;
 		Category = category;
 		category.AddBookmark(this);
@@ -130,7 +140,11 @@ public class BookmarkDbContext : DbContext {
 		} finally {
 			BookmarkCategories = Instance.BookmarkCategoryDbSet.Local.ToObservableCollection();
 			if (BookmarkCategories.Count == 0) {
-				BookmarkCategories.Add(new BookmarkCategory("Default_bookmark".L()));
+				var defaultCategory = new BookmarkCategory("Default_bookmark".L());
+				await Instance.BookmarkCategoryDbSet.AddAsync(defaultCategory);
+				await Instance.BookmarkDbSet.AddRangeAsync(
+					new BookmarkItem(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Documents".L(), defaultCategory),
+					new BookmarkItem(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Desktop".L(), defaultCategory));
 				SaveChanges();
 			}
 			foreach (var item in Instance.BookmarkDbSet.Local) {

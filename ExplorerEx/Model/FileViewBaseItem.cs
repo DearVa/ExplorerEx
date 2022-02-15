@@ -28,7 +28,7 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 
 	public abstract string FullPath { get; protected set; }
 
-	public string Name { get; protected set; }
+	public string Name { get; set; }
 
 	/// <summary>
 	/// 类型描述

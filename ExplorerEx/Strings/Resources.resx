@@ -352,4 +352,13 @@
   <data name="Remove_from_bookmarks" xml:space="preserve">
     <value>从收藏夹移除</value>
   </data>
+  <data name="Edit_bookmark" xml:space="preserve">
+    <value>编辑收藏项</value>
+  </data>
+  <data name="Documents" xml:space="preserve">
+    <value>文档</value>
+  </data>
+  <data name="Desktop" xml:space="preserve">
+    <value>桌面</value>
+  </data>
 </root>
