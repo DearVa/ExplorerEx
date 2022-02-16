@@ -132,7 +132,7 @@ public class TabPanel : Panel {
 					Height = TabItemHeight
 				};
 				tabItem.Arrange(rect);
-				tabItem.ItemWidth = itemWidth - tabItem.BorderThickness.Left;
+				tabItem.ItemWidth = Math.Max(itemWidth - tabItem.BorderThickness.Left, 1);
 				tabItem.CurrentIndex = index;
 				tabItem.TargetOffsetX = 0;
 				ItemDict[index] = tabItem;

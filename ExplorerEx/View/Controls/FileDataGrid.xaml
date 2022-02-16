@@ -245,7 +245,7 @@
                         Command="{Binding DataContext.RenameCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid, AncestorLevel=2}}">
                     <Image Width="20" Height="20" Source="{StaticResource RenameDrawingImage}"/>
                 </Button>
-                <Button Height="35" ToolTip="{u:Lang Delete}"
+                <Button Height="35" Margin="6,0,0,0" ToolTip="{u:Lang Delete}"
                         Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid, AncestorLevel=2}}">
                     <Image Width="20" Height="20" Source="{StaticResource DeleteDrawingImage}"/>
                 </Button>
