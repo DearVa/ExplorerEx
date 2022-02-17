@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using ExplorerEx.Utils;
@@ -20,6 +21,10 @@ public class BookmarkCategory : SimpleNotifyPropertyChanged {
 	[Key]
 	public string Name { get; set; }
 
+	/// <summary>
+	/// 在Binding里使用
+	/// </summary>
+	// ReSharper disable once UnusedMember.Global
 	public bool IsExpanded {
 		get => isExpanded;
 		set {
@@ -62,7 +67,7 @@ public class BookmarkItem : FileViewBaseItem {
 	[Key]
 	public override string FullPath { get; protected set; }
 
-	public override string Type => throw new NotImplementedException();
+	public override string Type => throw new InvalidOperationException();
 
 	[NotMapped]
 	public bool IsExpanded { get; set; }
@@ -113,48 +118,52 @@ public class BookmarkItem : FileViewBaseItem {
 }
 
 public class BookmarkDbContext : DbContext {
+#pragma warning disable CS0612
 	public static BookmarkDbContext Instance { get; } = new();
+#pragma warning restore CS0612
 	public static ObservableCollection<BookmarkCategory> BookmarkCategories { get; set; }
 	public DbSet<BookmarkCategory> BookmarkCategoryDbSet { get; set; }
 	public DbSet<BookmarkItem> BookmarkDbSet { get; set; }
 
 	private readonly string dbPath;
 
-	private BookmarkDbContext() {
-		var path = Path.Combine(Environment.CurrentDirectory, "Data");
+	/// <summary>
+	/// 之所以用public是因为需要迁移，但是*请勿*使用该构造方法，应该使用Instance
+	/// </summary>
+#pragma warning disable CA1041
+	[Obsolete]
+#pragma warning restore CA1041
+	public BookmarkDbContext() {
+		var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Data");
 		if (!Directory.Exists(path)) {
 			Directory.CreateDirectory(path);
 		}
 		dbPath = Path.Combine(path, "BookMarks.db");
 	}
 
-	public static async Task LoadOrMigrateAsync() {
+	public async Task LoadOrMigrateAsync() {
 		try {
-			await Instance.Database.EnsureCreatedAsync();
-			await Instance.BookmarkCategoryDbSet.LoadAsync();
-			await Instance.BookmarkDbSet.LoadAsync();
+			await Database.EnsureCreatedAsync();
+			await BookmarkCategoryDbSet.LoadAsync();
+			await BookmarkDbSet.LoadAsync();
 		} catch {
-			await Instance.Database.MigrateAsync();
-			await Instance.BookmarkCategoryDbSet.LoadAsync();
-			await Instance.BookmarkDbSet.LoadAsync();
+			await Database.MigrateAsync();
+			await BookmarkCategoryDbSet.LoadAsync();
+			await BookmarkDbSet.LoadAsync();
 		} finally {
-			BookmarkCategories = Instance.BookmarkCategoryDbSet.Local.ToObservableCollection();
+			BookmarkCategories = BookmarkCategoryDbSet.Local.ToObservableCollection();
 			if (BookmarkCategories.Count == 0) {
 				var defaultCategory = new BookmarkCategory("Default_bookmark".L());
-				await Instance.BookmarkCategoryDbSet.AddAsync(defaultCategory);
-				await Instance.BookmarkDbSet.AddRangeAsync(
+				await BookmarkCategoryDbSet.AddAsync(defaultCategory);
+				await BookmarkDbSet.AddRangeAsync(
 					new BookmarkItem(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Documents".L(), defaultCategory),
 					new BookmarkItem(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Desktop".L(), defaultCategory));
-				SaveChanges();
+				await SaveChangesAsync();
 			}
-			foreach (var item in Instance.BookmarkDbSet.Local) {
+			foreach (var item in BookmarkDbSet.Local) {
 				await item.LoadIconAsync();
 			}
 		}
-	}
-
-	public new static void SaveChanges() {
-		((DbContext)Instance).SaveChanges();
 	}
 
 	protected override void OnConfiguring(DbContextOptionsBuilder ob) {

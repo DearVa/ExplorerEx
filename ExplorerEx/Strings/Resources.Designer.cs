@@ -180,6 +180,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 无法打开 的本地化字符串。
+        /// </summary>
+        internal static string Cannot_open {
+            get {
+                return ResourceManager.GetString("Cannot_open", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 无法打开此路径 的本地化字符串。
         /// </summary>
         internal static string Cannot_open_path {
@@ -209,9 +218,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 请检查您的输入后再试。 的本地化字符串。
         /// </summary>
-        internal static string Check_your_input_and_try_again_ {
+        internal static string Check_your_input_and_try_again {
             get {
-                return ResourceManager.GetString("Check your input and try again.", resourceCulture);
+                return ResourceManager.GetString("Check_your_input_and_try_again", resourceCulture);
             }
         }
         
@@ -329,6 +338,15 @@ namespace ExplorerEx.Strings {
         internal static string Empty_folder {
             get {
                 return ResourceManager.GetString("Empty_folder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 错误 的本地化字符串。
+        /// </summary>
+        internal static string Error {
+            get {
+                return ResourceManager.GetString("Error", resourceCulture);
             }
         }
         

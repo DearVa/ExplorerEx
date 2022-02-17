@@ -799,7 +799,6 @@ public partial class FileDataGrid {
 		if (PathType == PathTypes.Home && TabItem.DraggingTab == null) {
 			e.Effects = DragDropEffects.None;
 			e.Handled = true;
-			return;
 		}
 	}
 

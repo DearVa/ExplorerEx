@@ -27,6 +27,7 @@ public partial class App {
 	private Mutex mutex;
 
 	protected override async void OnStartup(StartupEventArgs e) {
+		// Debugger.Launch();
 		Trace.WriteLine("Startup: " + DateTime.Now);
 		mutex = new Mutex(true, "ExplorerEx", out var createdNew);
 		if (!createdNew) {
@@ -42,12 +43,12 @@ public partial class App {
 		}
 		Logger.Initialize();
 		IconHelper.InitializeDefaultIcons(Resources);
-		await BookmarkDbContext.LoadOrMigrateAsync();
+		await BookmarkDbContext.Instance.LoadOrMigrateAsync();
 		base.OnStartup(e);
 	}
 
 	protected override void OnExit(ExitEventArgs e) {
-		BookmarkDbContext.SaveChanges();
+		BookmarkDbContext.Instance.SaveChanges();
 		mutex.Dispose();
 		base.OnExit(e);
 	}

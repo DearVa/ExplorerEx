@@ -45,7 +45,12 @@ public sealed partial class MainWindow {
 
 	private readonly HashSet<uint> everythingQueryIds = new();
 
-	public MainWindow() : this(null) { }
+	public MainWindow() : this(null) {
+		var args = Environment.GetCommandLineArgs();
+		if (args.Length > 1) {
+			startupPath = args[1];
+		}
+	}
 
 	public MainWindow(string path) {
 		startupPath = path;
@@ -383,11 +388,34 @@ public sealed partial class MainWindow {
 		}
 	}
 
-#if DEBUG
 	protected override void OnKeyDown(KeyEventArgs e) {
+#if DEBUG
 		if (e.Key == Key.Pause) {
 			Debugger.Break();
 		}
-	}
 #endif
+		var mouseOverTab = FileTabControl.MouseOverTabControl.SelectedTab;
+		if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
+			switch (e.Key) {
+			case Key.Z:
+				break;
+			case Key.X:
+				mouseOverTab?.Copy(true);
+				break;
+			case Key.C:
+				mouseOverTab?.Copy(false);
+				break;
+			case Key.V:
+				mouseOverTab?.Paste();
+				break;
+			}
+		} else {
+			switch (e.Key) {
+			case Key.Delete:
+				mouseOverTab?.Delete((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift);
+				break;
+			}
+		}
+		base.OnKeyDown(e);
+	}
 }

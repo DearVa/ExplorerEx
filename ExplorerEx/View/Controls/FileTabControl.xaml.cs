@@ -21,6 +21,10 @@ public partial class FileTabControl {
 	/// </summary>
 	public static FileTabControl FocusedTabControl { get; private set; }
 	/// <summary>
+	/// 当前鼠标正在其上的FileTabControl
+	/// </summary>
+	public static FileTabControl MouseOverTabControl { get; private set; }
+	/// <summary>
 	/// 所有的TabControl
 	/// </summary>
 	private static readonly List<FileTabControl> TabControls = new();
@@ -81,14 +85,14 @@ public partial class FileTabControl {
 		DragCommand = new SimpleCommand(OnDrag);
 		DropCommand = new SimpleCommand(OnDrop);
 		TabControls.Add(this);
-		FocusedTabControl ??= this;
+
 		InitializeComponent();
 
 		TabItems.Add(grid ?? new FileViewGridViewModel(this));
 	}
 
 	public async Task StartUpLoad(string path) {
-		if (!await SelectedTab.LoadDirectoryAsync(path)) {
+		if (!await SelectedTab.LoadDirectoryAsync(path) && !await SelectedTab.LoadDirectoryAsync(null)) {
 			MainWindow.Close();
 		}
 	}
@@ -125,34 +129,6 @@ public partial class FileTabControl {
 		base.OnPreviewMouseUp(e);
 	}
 
-	protected override void OnPreviewKeyDown(KeyEventArgs e) {
-		if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
-			switch (e.Key) {
-			case Key.Z:
-				break;
-			case Key.X:
-				SelectedTab.Copy(true);
-				break;
-			case Key.C:
-				SelectedTab.Copy(false);
-				break;
-			case Key.V:
-				SelectedTab.Paste();
-				break;
-			}
-		} else {
-			switch (e.Key) {
-			case Key.Delete:
-				SelectedTab.Delete((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift);
-				break;
-			default:
-				base.OnPreviewKeyDown(e);
-				return;
-			}
-		}
-		e.Handled = true;
-	}
-
 	/// <summary>
 	/// 当前TabControl被关闭时，寻找下一个聚焦的TabControl
 	/// </summary>
@@ -179,6 +155,7 @@ public partial class FileTabControl {
 				TabControls.Remove(this);
 				MainWindow.Close();
 			}
+			MouseOverTabControl = null;
 			UpdateFocusedTabControl();
 		} else {
 			if (SelectedIndex == 0) {
@@ -195,12 +172,14 @@ public partial class FileTabControl {
 			if (OwnerSplitGrid.AnyOtherTabs) {
 				TabControls.Remove(this);
 				OwnerSplitGrid.CancelSplit();
+				MouseOverTabControl = null;
 				UpdateFocusedTabControl();
 			} else {  // 说明就剩这一个Tab了
 				e.Cancel = true;
 				e.Handled = true;
 				switch (ConfigHelper.LoadInt("LastTabClosed")) {
 				case 1:
+					MouseOverTabControl = null;
 					MainWindow.Close();
 					break;
 				case 2:
@@ -269,5 +248,10 @@ public partial class FileTabControl {
 			return;
 		}
 		FileUtils.HandleDrop(new DataObjectContent(e.DragEventArgs.Data), tab.FullPath, e.DragEventArgs.Effects.GetFirstEffect());
+	}
+
+	protected override void OnMouseEnter(MouseEventArgs e) {
+		MouseOverTabControl = this;
+		base.OnMouseEnter(e);
 	}
 }

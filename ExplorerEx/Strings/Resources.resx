@@ -158,7 +158,7 @@
   <data name="Are_you_sure_to_recycle_these_files?" xml:space="preserve">
     <value>您确定要将选择的文件移动到回收站吗？</value>
   </data>
-  <data name="Check your input and try again." xml:space="preserve">
+  <data name="Check_your_input_and_try_again" xml:space="preserve">
     <value>请检查您的输入后再试。</value>
   </data>
   <data name="Cannot open path" xml:space="preserve">
@@ -360,5 +360,11 @@
   </data>
   <data name="Desktop" xml:space="preserve">
     <value>桌面</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="Cannot_open" xml:space="preserve">
+    <value>无法打开</value>
   </data>
 </root>

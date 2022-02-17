@@ -71,7 +71,7 @@
   <data name="Fail to open file" xml:space="preserve">
     <value>Filed to open file</value>
   </data>
-  <data name="Check your input and try again." xml:space="preserve">
+  <data name="Check_your_input_and_try_again" xml:space="preserve">
     <value>Check your input and try again.</value>
   </data>
   <data name="Cannot open path" xml:space="preserve">
@@ -273,5 +273,11 @@ Are you sure you want to change?</value>
   </data>
   <data name="Desktop" xml:space="preserve">
     <value>Desktop</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Cannot_open" xml:space="preserve">
+    <value>Cannot open</value>
   </data>
 </root>

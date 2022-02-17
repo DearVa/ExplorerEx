@@ -44,7 +44,7 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 	/// <summary>
 	/// 是否是可执行文件
 	/// </summary>
-	public bool IsRunnable => !IsFolder && Name[..^4] is ".exe" or ".cmd" or ".bat";
+	public bool IsRunnable => !IsFolder && Name[..^4] is ".exe" or ".com" or ".cmd" or ".bat";
 
 	public bool IsEditable => !IsFolder && Name[..^4] is ".txt" or ".log" or ".ini" or ".inf" or ".cmd" or ".bat" or ".ps1";
 

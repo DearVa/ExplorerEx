@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -283,10 +284,12 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// <returns></returns>
 	public async Task<bool> LoadDirectoryAsync(string path, bool recordHistory = true, string selectedPath = null) {
 		switchIconCts?.Cancel();
-		var isLoadRoot = string.IsNullOrWhiteSpace(path) || path == "This_computer".L();  // 加载“此电脑”
+		var isLoadRoot = string.IsNullOrWhiteSpace(path) || path == "This_computer".L() || path.ToLower() == "::{52205fd8-5dfb-447d-801a-d0b52f2e83e1}";  // 加载“此电脑”
 
 		if (!isLoadRoot && !Directory.Exists(path)) {
-			hc.MessageBox.Error("Check your input and try again.", "Cannot open path");
+			var err = new StringBuilder();
+			err.Append("Cannot_open".L()).Append(' ').Append(path).Append('\n').Append("Check_your_input_and_try_again".L());
+			hc.MessageBox.Error(err.ToString(), "Error");
 			return false;
 		}
 
