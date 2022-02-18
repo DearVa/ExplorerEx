@@ -44,6 +44,7 @@ public partial class App {
 		Logger.Initialize();
 		IconHelper.InitializeDefaultIcons(Resources);
 		await BookmarkDbContext.Instance.LoadOrMigrateAsync();
+		await FileViewDbContext.Instance.LoadOrMigrateAsync();
 		base.OnStartup(e);
 	}
 

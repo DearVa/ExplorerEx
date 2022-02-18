@@ -183,5 +183,9 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 	/// </summary>
 	protected abstract bool Rename();
 
+	public override string ToString() {
+		return FullPath;
+	}
+
 	#endregion
 }

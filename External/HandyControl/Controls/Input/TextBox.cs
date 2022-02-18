@@ -6,133 +6,112 @@ using HandyControl.Data;
 using HandyControl.Interactivity;
 using HandyControl.Tools;
 
-namespace HandyControl.Controls
-{
-    public class TextBox : System.Windows.Controls.TextBox, IDataInput
-    {
-        public TextBox()
-        {
-            CommandBindings.Add(new CommandBinding(ControlCommands.Clear, (s, e) =>
-            {
-                SetCurrentValue(TextProperty, "");
-            }));
-        }
+namespace HandyControl.Controls; 
 
-        protected override void OnTextChanged(TextChangedEventArgs e)
-        {
-            base.OnTextChanged(e);
-            VerifyData();
-        }
+public class TextBox : System.Windows.Controls.TextBox, IDataInput {
+	public TextBox() {
+		CommandBindings.Add(new CommandBinding(ControlCommands.Clear, (s, e) => {
+			SetCurrentValue(TextProperty, "");
+		}));
+	}
 
-        public Func<string, OperationResult<bool>> VerifyFunc { get; set; }
+	protected override void OnTextChanged(TextChangedEventArgs e) {
+		base.OnTextChanged(e);
+		VerifyData();
+	}
 
-        /// <summary>
-        ///     数据是否错误
-        /// </summary>
-        public static readonly DependencyProperty IsErrorProperty = DependencyProperty.Register(
-            "IsError", typeof(bool), typeof(TextBox), new PropertyMetadata(ValueBoxes.FalseBox));
+	public static readonly DependencyProperty VerifyFuncProperty = DependencyProperty.Register(
+		"VerifyFunc", typeof(Func<string, OperationResult<bool>>), typeof(TextBox), new PropertyMetadata(default(Func<string, OperationResult<bool>>)));
 
-        public bool IsError
-        {
-            get => (bool) GetValue(IsErrorProperty);
-            set => SetValue(IsErrorProperty, ValueBoxes.BooleanBox(value));
-        }
+	public Func<string, OperationResult<bool>> VerifyFunc {
+		get => (Func<string, OperationResult<bool>>)GetValue(VerifyFuncProperty);
+		set => SetValue(VerifyFuncProperty, value);
+	}
 
-        /// <summary>
-        ///     错误提示
-        /// </summary>
-        public static readonly DependencyProperty ErrorStrProperty = DependencyProperty.Register(
-            "ErrorStr", typeof(string), typeof(TextBox), new PropertyMetadata(default(string)));
+	/// <summary>
+	///     数据是否错误
+	/// </summary>
+	public static readonly DependencyProperty IsErrorProperty = DependencyProperty.Register(
+		"IsError", typeof(bool), typeof(TextBox), new PropertyMetadata(ValueBoxes.FalseBox));
 
-        public string ErrorStr
-        {
-            get => (string) GetValue(ErrorStrProperty);
-            set => SetValue(ErrorStrProperty, value);
-        }
+	public bool IsError {
+		get => (bool)GetValue(IsErrorProperty);
+		set => SetValue(IsErrorProperty, ValueBoxes.BooleanBox(value));
+	}
 
-        /// <summary>
-        ///     文本类型
-        /// </summary>
-        public static readonly DependencyProperty TextTypeProperty = DependencyProperty.Register(
-            "TextType", typeof(TextType), typeof(TextBox), new PropertyMetadata(default(TextType)));
+	/// <summary>
+	///     错误提示
+	/// </summary>
+	public static readonly DependencyProperty ErrorStrProperty = DependencyProperty.Register(
+		"ErrorStr", typeof(string), typeof(TextBox), new PropertyMetadata(default(string)));
 
-        public TextType TextType
-        {
-            get => (TextType) GetValue(TextTypeProperty);
-            set => SetValue(TextTypeProperty, value);
-        }
+	public string ErrorStr {
+		get => (string)GetValue(ErrorStrProperty);
+		set => SetValue(ErrorStrProperty, value);
+	}
 
-        /// <summary>
-        ///     是否显示清除按钮
-        /// </summary>
-        public static readonly DependencyProperty ShowClearButtonProperty = DependencyProperty.Register(
-            "ShowClearButton", typeof(bool), typeof(TextBox), new PropertyMetadata(ValueBoxes.FalseBox));
+	/// <summary>
+	///     文本类型
+	/// </summary>
+	public static readonly DependencyProperty TextTypeProperty = DependencyProperty.Register(
+		"TextType", typeof(TextType), typeof(TextBox), new PropertyMetadata(default(TextType)));
 
-        public bool ShowClearButton
-        {
-            get => (bool) GetValue(ShowClearButtonProperty);
-            set => SetValue(ShowClearButtonProperty, ValueBoxes.BooleanBox(value));
-        }
+	public TextType TextType {
+		get => (TextType)GetValue(TextTypeProperty);
+		set => SetValue(TextTypeProperty, value);
+	}
 
-        public virtual bool VerifyData()
-        {
-            OperationResult<bool> result;
+	/// <summary>
+	///     是否显示清除按钮
+	/// </summary>
+	public static readonly DependencyProperty ShowClearButtonProperty = DependencyProperty.Register(
+		"ShowClearButton", typeof(bool), typeof(TextBox), new PropertyMetadata(ValueBoxes.FalseBox));
 
-            if (VerifyFunc != null)
-            {
-                result = VerifyFunc.Invoke(Text);
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(Text))
-                {
-                    if (TextType != TextType.Common)
-                    {
-                        var regexPattern = InfoElement.GetRegexPattern(this);
-                        result = string.IsNullOrEmpty(regexPattern)
-                            ? Text.IsKindOf(TextType)
-                                ? OperationResult.Success()
-                                : OperationResult.Failed(Properties.Langs.Lang.FormatError)
-                            : Text.IsKindOf(regexPattern)
-                                ? OperationResult.Success()
-                                : OperationResult.Failed(Properties.Langs.Lang.FormatError);
-                    }
-                    else
-                    {
-                        result = OperationResult.Success();
-                    }
-                }
-                else if (InfoElement.GetNecessary(this))
-                {
-                    result = OperationResult.Failed(Properties.Langs.Lang.IsNecessary);
-                }
-                else
-                {
-                    result = OperationResult.Success();
-                }
-            }
+	public bool ShowClearButton {
+		get => (bool)GetValue(ShowClearButtonProperty);
+		set => SetValue(ShowClearButtonProperty, ValueBoxes.BooleanBox(value));
+	}
 
-            var isError = !result.Data;
-            if (isError)
-            {
-                SetCurrentValue(IsErrorProperty, ValueBoxes.TrueBox);
-                SetCurrentValue(ErrorStrProperty, result.Message);
-            }
-            else
-            {
-                isError = Validation.GetHasError(this);
-                if (isError)
-                {
-                    SetCurrentValue(ErrorStrProperty, Validation.GetErrors(this)[0].ErrorContent?.ToString());
-                }
-                else
-                {
-                    SetCurrentValue(IsErrorProperty, ValueBoxes.FalseBox);
-                    SetCurrentValue(ErrorStrProperty, default(string));
-                }
-            }
+	public virtual bool VerifyData() {
+		OperationResult<bool> result;
 
-            return !isError;
-        }
-    }
+		if (VerifyFunc != null) {
+			result = VerifyFunc.Invoke(Text);
+		} else {
+			if (!string.IsNullOrEmpty(Text)) {
+				if (TextType != TextType.Common) {
+					var regexPattern = InfoElement.GetRegexPattern(this);
+					result = string.IsNullOrEmpty(regexPattern)
+						? Text.IsKindOf(TextType)
+							? OperationResult.Success()
+							: OperationResult.Failed(Properties.Langs.Lang.FormatError)
+						: Text.IsKindOf(regexPattern)
+							? OperationResult.Success()
+							: OperationResult.Failed(Properties.Langs.Lang.FormatError);
+				} else {
+					result = OperationResult.Success();
+				}
+			} else if (InfoElement.GetNecessary(this)) {
+				result = OperationResult.Failed(Properties.Langs.Lang.IsNecessary);
+			} else {
+				result = OperationResult.Success();
+			}
+		}
+
+		var isError = !result.Data;
+		if (isError) {
+			SetCurrentValue(IsErrorProperty, ValueBoxes.TrueBox);
+			SetCurrentValue(ErrorStrProperty, result.Message);
+		} else {
+			isError = Validation.GetHasError(this);
+			if (isError) {
+				SetCurrentValue(ErrorStrProperty, Validation.GetErrors(this)[0].ErrorContent?.ToString());
+			} else {
+				SetCurrentValue(IsErrorProperty, ValueBoxes.FalseBox);
+				SetCurrentValue(ErrorStrProperty, default(string));
+			}
+		}
+
+		return !isError;
+	}
 }

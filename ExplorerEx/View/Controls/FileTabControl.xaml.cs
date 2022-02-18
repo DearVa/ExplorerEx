@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
+using ExplorerEx.Model;
 using ExplorerEx.Win32;
 using HandyControl.Controls;
 using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
@@ -85,6 +86,7 @@ public partial class FileTabControl {
 		DragCommand = new SimpleCommand(OnDrag);
 		DropCommand = new SimpleCommand(OnDrop);
 		TabControls.Add(this);
+		FocusedTabControl ??= this;
 
 		InitializeComponent();
 
@@ -127,6 +129,11 @@ public partial class FileTabControl {
 			break;
 		}
 		base.OnPreviewMouseUp(e);
+	}
+
+	protected override void OnGotFocus(RoutedEventArgs e) {
+		FocusedTabControl = this;
+		base.OnGotFocus(e);
 	}
 
 	/// <summary>
@@ -232,7 +239,7 @@ public partial class FileTabControl {
 	private static void OnDrag(object args) {
 		var e = (TabItemDragEventArgs)args;
 		var tab = (FileViewGridViewModel)e.TabItem.DataContext;
-		if (tab.PathType == FileDataGrid.PathTypes.Home) {
+		if (tab.PathType == PathType.Home) {
 			e.DragEventArgs.Effects = DragDropEffects.None;
 			return;
 		}
@@ -244,7 +251,7 @@ public partial class FileTabControl {
 	private static void OnDrop(object args) {
 		var e = (TabItemDragEventArgs)args;
 		var tab = (FileViewGridViewModel)e.TabItem.DataContext;
-		if (tab.PathType == FileDataGrid.PathTypes.Home) {
+		if (tab.PathType == PathType.Home) {
 			return;
 		}
 		FileUtils.HandleDrop(new DataObjectContent(e.DragEventArgs.Data), tab.FullPath, e.DragEventArgs.Effects.GetFirstEffect());

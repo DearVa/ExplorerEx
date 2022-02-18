@@ -21,8 +21,11 @@ internal static class IconHelper {
 	/// 可以获取缩略图的文件格式
 	/// </summary>
 	private static readonly HashSet<string> ExtensionsWithThumbnail = new() {
+		".exe", ".lnk",
 		".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".gif", ".svg",
-		".mp3", ".flac", ".mp4", ".wmv", ".avi", ".docx", ".pptx", ".pdf"
+		".mp3", ".flac", 
+		".mp4", ".wmv", ".avi", 
+		".docx", ".pptx", ".pdf"
 	};
 
 	/// <summary>

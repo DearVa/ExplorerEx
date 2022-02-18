@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using ExplorerEx.Utils;
-using ExplorerEx.View.Controls;
 using ExplorerEx.Win32;
 using static ExplorerEx.Win32.IconHelper;
 

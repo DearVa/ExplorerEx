@@ -34,7 +34,7 @@
                 </ItemsControl>
             </hc:SplitButton.DropDownContent>
         </hc:SplitButton>
-        <GridSplitter Width="1" Height="30" Background="{DynamicResource SecondaryBorderBrush}" Margin="10,0,10,0"/>
+        <Rectangle Width="1" Height="30" Stroke="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
 
         <StackPanel Orientation="Horizontal" Visibility="{Binding IsFileUtilsVisible, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}, RelativeSource={RelativeSource AncestorType=ct:FileTabControl}}">
             <Button VerticalAlignment="Stretch" Height="35" ToolTip="{u:Lang Cut}"
@@ -67,7 +67,7 @@
                     Command="{Binding DeleteCommand}">
                 <Image Width="20" Height="20" Source="{StaticResource DeleteDrawingImage}"/>
             </Button>
-            <GridSplitter Width="1" Height="30" Background="{DynamicResource SecondaryBorderBrush}" Margin="10,0,10,0"/>
+            <Rectangle Width="1" Height="30" Stroke="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
         </StackPanel>
 
         <hc:SplitButton Padding="0" Height="35" HitMode="None">
@@ -106,7 +106,7 @@
                 </Menu>
             </hc:SplitButton.DropDownContent>
         </hc:SplitButton>
-        <GridSplitter Width="1" Height="30" Background="{DynamicResource SecondaryBorderBrush}" Margin="10,0,10,0"/>
+        <Rectangle Width="1" Height="30" Stroke="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
 
         <Button VerticalAlignment="Stretch" Width="45" Height="35" Padding="0" ToolTip="{u:Lang More}">
             <Image Width="24" Height="24" Source="{StaticResource MoreDrawingImage}"/>
@@ -152,10 +152,11 @@
             <ct:FileDataGrid x:Name="FileDataGrid" d:DataContext="{d:DesignInstance vm:FileViewGridViewModel}"
                              ItemsSource="{Binding Items}" 
                              ItemSize="{Binding ItemSize, Mode=OneWay}"
-                             ViewType="{Binding ViewType, Mode=OneWay}"
+                             FileViewType="{Binding FileViewType, Mode=OneWay}"
                              PathType="{Binding PathType, Mode=OneWay}"
                              FullPath="{Binding FullPath, Mode=OneWay}"
                              DetailLists="{Binding DetailLists, Mode=OneWay}"
+                             ScrollIntoViewItem="{Binding ScrollIntoViewItem, Mode=OneWay}"
                              Background="{DynamicResource RegionBrush}" 
                              Foreground="{DynamicResource PrimaryTextBrush}">
                 <hc:Interaction.Triggers>
@@ -178,7 +179,7 @@
                     <Run Text="{Binding FileItemsCount, Mode=OneWay}"/>
                     <Run Text="{u:Lang Run_ItemsCount}"/>
                 </TextBlock>
-                <GridSplitter Width="1" Height="25" Background="{DynamicResource SecondaryBorderBrush}" Margin="10,-5,10,0"/>
+                <Rectangle Width="1" Height="18" Stroke="{DynamicResource ThirdlyTextBrush}" Margin="10,-2,10,3"/>
 
                 <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" Visibility="{Binding SelectedFileItemsCountVisibility, Mode=OneWay}">
                     <Run Text="{u:Lang Run_SelectedItemsCount}"/>

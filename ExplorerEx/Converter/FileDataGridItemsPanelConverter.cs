@@ -2,21 +2,21 @@
 using System.Globalization;
 using System.Windows.Controls;
 using System.Windows.Data;
-using ExplorerEx.View.Controls;
+using ExplorerEx.Model;
 
 namespace ExplorerEx.Converter;
 
 /// <summary>
-/// 根据<see cref="FileDataGrid.ViewTypes"/>来转换ItemsPanel
+/// 根据<see cref="FileViewType"/>来转换ItemsPanel
 /// </summary>
 internal class FileDataGridItemsPanelConverter : IValueConverter {
 	public ItemsPanelTemplate StackPanelTemplate { get; set; }
 	public ItemsPanelTemplate WrapPanelTemplate { get; set; }
 
 	public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-		return (FileDataGrid.ViewTypes)value! switch {
-			FileDataGrid.ViewTypes.Detail => StackPanelTemplate,
-			FileDataGrid.ViewTypes.Content => StackPanelTemplate,
+		return (FileViewType)value! switch {
+			FileViewType.Detail => StackPanelTemplate,
+			FileViewType.Content => StackPanelTemplate,
 			_ => WrapPanelTemplate
 		};
 	}

@@ -4,7 +4,6 @@ using System.Windows.Input;
 using ExplorerEx.Model;
 using ExplorerEx.Utils;
 using ExplorerEx.ViewModel;
-using static ExplorerEx.View.Controls.FileDataGrid;
 using hc = HandyControl.Controls;
 using TextBox = HandyControl.Controls.TextBox;
 
@@ -36,7 +35,7 @@ public partial class FileViewGrid {
 	/// </summary>
 	public void Create(CreateFileItem item) {
 		var viewModel = ViewModel;
-		if (viewModel.PathType == PathTypes.Home) {
+		if (viewModel.PathType == PathType.Home) {
 			return;
 		}
 		try {
