@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -36,24 +35,18 @@ public sealed partial class MainWindow {
 	private IntPtr nextClipboardViewer;
 	private bool isClipboardViewerSet;
 
-	private readonly string startupPath;
-
 	/// <summary>
 	/// 每注册一个EverythingQuery就+1
 	/// </summary>
 	private static volatile uint globalEverythingQueryId;
-
 	private readonly HashSet<uint> everythingQueryIds = new();
 
-	public MainWindow() : this(null) {
-		var args = Environment.GetCommandLineArgs();
-		if (args.Length > 1) {
-			startupPath = args[1];
-		}
-	}
+	private readonly string startupPath;
+	
+	public MainWindow() : this(null) { }
 
-	public MainWindow(string path) {
-		startupPath = path;
+	public MainWindow(string startupPath) {
+		this.startupPath = startupPath;
 		MainWindows.Add(this);
 		Width = ConfigHelper.LoadInt("WindowWidth", 1200);
 		Height = ConfigHelper.LoadInt("WindowHeight", 800);
@@ -71,7 +64,7 @@ public sealed partial class MainWindow {
 
 		if (ConfigHelper.LoadBoolean("WindowMaximized")) {
 			WindowState = WindowState.Maximized;
-			RootGrid.Margin = new Thickness(8);
+			RootGrid.Margin = new Thickness(6);
 		}
 
 		hwnd = HwndSource.FromHwnd(new WindowInteropHelper(this).EnsureHandle())!;
@@ -81,14 +74,19 @@ public sealed partial class MainWindow {
 		hwnd.AddHook(WndProc);
 
 		splitGrid = new SplitGrid(this, null);
-		RootGrid.Children.Add(splitGrid);
+		ContentGrid.Children.Add(splitGrid);
 		ChangeThemeWithSystem();
+
+		StartupLoad();
 	}
 
-	protected override async void OnContentRendered(EventArgs e) {
-		base.OnContentRendered(e);
-		Trace.WriteLine("Content shown: " + DateTime.Now);
-		await splitGrid.FileTabControl.StartUpLoad(startupPath);
+	private async void StartupLoad() {
+		Trace.WriteLine("StartupLoad: " + DateTime.Now);
+		if (startupPath == null) {
+			await splitGrid.FileTabControl.StartUpLoad(App.Args.Paths.ToArray());
+		} else {
+			await splitGrid.FileTabControl.StartUpLoad(startupPath);
+		}
 		Trace.WriteLine("Startup Finished: " + DateTime.Now);
 	}
 
@@ -163,20 +161,28 @@ public sealed partial class MainWindow {
 		case WinMessage.DwmColorizationCOlorChanged:
 			ChangeThemeWithSystem();
 			break;
-		case WinMessage.NewInstance: // 启动了另一个实例
-			var pid = (int)wParam;
-			try {
-				var other = Process.GetProcessById(pid);
-				var args = other.GetCommandLine().Split(' ');
-				var path = args.Length > 1 ? args[1] : null;
-				new MainWindow(path).Show();
-			} catch (Exception e) {
-				Logger.Exception(e, false);
-			}
-			handled = true;
-			break;
 		}
 		return IntPtr.Zero;
+	}
+
+	/// <summary>
+	/// 打开给定的路径，如果窗口隐藏就会显示并打开，如果有窗口就会在FocusedTabControl打开新标签页。使用了Dispatcher，可以跨线程安全调用
+	/// </summary>
+	/// <param name="path"></param>
+	public static void OpenPath(string path) {
+		FileTabControl fileTabControl;
+		if (MainWindows.Count == 1) {
+			var window = MainWindows[0];
+			Application.Current.Dispatcher.Invoke(() => {
+				if (window.Visibility != Visibility.Visible) {
+					window.Visibility = Visibility.Visible;
+				}
+			});
+			fileTabControl = window.splitGrid.FileTabControl;
+		} else {
+			fileTabControl = FileTabControl.FocusedTabControl;
+		}
+		Application.Current.Dispatcher.Invoke(() => fileTabControl.OpenPathInNewTabAsync(path));
 	}
 
 	/// <summary>
@@ -316,6 +322,13 @@ public sealed partial class MainWindow {
 				e.Cancel = true;
 			}
 		}
+		if (MainWindows.Count == 1) {  // 如果只剩这一个窗口
+			Visibility = Visibility.Collapsed;
+			splitGrid.CancelSubSplit();
+			splitGrid.FileTabControl.CloseAllTabs();
+			e.Cancel = true;
+			GC.Collect();
+		}
 		base.OnClosing(e);
 	}
 
@@ -366,9 +379,9 @@ public sealed partial class MainWindow {
 		var isMaximized = WindowState == WindowState.Maximized;
 		ConfigHelper.Save("WindowMaximized", isMaximized);
 		if (isMaximized) {
-			RootGrid.Margin = new Thickness(8);
+			RootGrid.Margin = new Thickness(6);
 		} else {
-			RootGrid.Margin = new Thickness();
+			RootGrid.Margin = new Thickness(0, 3, 3, 3);
 		}
 	}
 

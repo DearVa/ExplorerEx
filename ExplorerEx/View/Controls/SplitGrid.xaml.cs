@@ -180,7 +180,7 @@ public partial class SplitGrid {
 	/// <summary>
 	/// 关闭子分屏
 	/// </summary>
-	private void CancelSubSplit() {
+	public void CancelSubSplit() {
 		if (thisSplitGrid != null) {
 			otherSplitGrid.Close();
 			Children.RemoveRange(0, 2);

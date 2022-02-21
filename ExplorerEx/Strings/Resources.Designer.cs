@@ -70,6 +70,16 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 使用说明：
+        ///ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requireDebugger] Path1, Path2, ... 的本地化字符串。
+        /// </summary>
+        internal static string _App_help {
+            get {
+                return ResourceManager.GetString("#App_help", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 拒绝访问 的本地化字符串。
         /// </summary>
         internal static string Access_denied {
@@ -356,6 +366,15 @@ namespace ExplorerEx.Strings {
         internal static string Everything_is_not_available {
             get {
                 return ResourceManager.GetString("Everything_is_not_available", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 退出 的本地化字符串。
+        /// </summary>
+        internal static string Exit {
+            get {
+                return ResourceManager.GetString("Exit", resourceCulture);
             }
         }
         
@@ -824,6 +843,15 @@ namespace ExplorerEx.Strings {
         internal static string Type {
             get {
                 return ResourceManager.GetString("Type", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 未知的参数： 的本地化字符串。
+        /// </summary>
+        internal static string Unknown_argument {
+            get {
+                return ResourceManager.GetString("Unknown_argument", resourceCulture);
             }
         }
         

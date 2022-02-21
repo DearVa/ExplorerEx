@@ -1,10 +1,10 @@
-﻿using ExplorerEx.Utils;
+﻿using System;
+using ExplorerEx.Utils;
 using ExplorerEx.ViewModel;
 using HandyControl.Data;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
@@ -90,12 +90,18 @@ public partial class FileTabControl {
 
 		InitializeComponent();
 
-		TabItems.Add(grid ?? new FileViewGridViewModel(this));
+		if (grid != null) {
+			TabItems.Add(grid);
+		}
 	}
 
-	public async Task StartUpLoad(string path) {
-		if (!await SelectedTab.LoadDirectoryAsync(path) && !await SelectedTab.LoadDirectoryAsync(null)) {
-			MainWindow.Close();
+	public async Task StartUpLoad(params string[] startupPaths) {
+		if (startupPaths == null || startupPaths.Length == 0) {
+			await OpenPathInNewTabAsync(null);
+		} else {
+			foreach (var path in startupPaths) {
+				await OpenPathInNewTabAsync(path);
+			}
 		}
 	}
 
@@ -103,10 +109,11 @@ public partial class FileTabControl {
 		foreach (var tab in TabItems) {
 			tab.Dispose();
 		}
+		TabItems.Clear();
 	}
 
 	public async Task OpenPathInNewTabAsync(string path) {
-		var newTabIndex = SelectedIndex + 1;
+		var newTabIndex = Math.Max(Math.Min(SelectedIndex + 1, TabItems.Count), 0);
 		var item = new FileViewGridViewModel(this);
 		TabItems.Insert(newTabIndex, item);
 		SelectedIndex = newTabIndex;
@@ -222,7 +229,6 @@ public partial class FileTabControl {
 				SelectedIndex--;
 			}
 		}
-		GC.Collect();
 	}
 
 	private async void OnCreateNewTab(object args) {

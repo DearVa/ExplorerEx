@@ -15,20 +15,20 @@
     Foreground="{DynamicResource PrimaryTextBrush}" BorderThickness="0">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome GlassFrameThickness="-1"/>
+        <WindowChrome GlassFrameThickness="-1" ResizeBorderThickness="1" UseAeroCaptionButtons="True"/>
     </WindowChrome.WindowChrome>
 
-    <Grid>
+    <Grid x:Name="RootGrid" Margin="0,3,3,3">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="46"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0" Background="{DynamicResource RegionBrush}" Margin="1,0,0,0" MouseLeftButtonDown="DragArea_OnMouseLeftButtonDown">
+        <Grid Grid.Column="0" Background="{DynamicResource RegionBrush}" MouseLeftButtonDown="DragArea_OnMouseLeftButtonDown">
             <Image HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="34" Margin="6,14,6,0" 
                    Stretch="Uniform" Source="../Assets/Picture/Logo.png" ToolTip="ExplorerEx"/>
 
-            <StackPanel VerticalAlignment="Center" Orientation="Vertical">
+            <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="1,0,0,0">
                 <ToggleButton x:Name="StarToggleButton" HorizontalAlignment="Stretch" BorderBrush="{x:Null}"
                               Height="40" Margin="3,0,3,0" Padding="0" 
                               ToolTip="{u:Lang Bookmarks}" ToolTipService.InitialShowDelay="300">
@@ -185,7 +185,7 @@
             </Grid>
         </Grid>
 
-        <Grid x:Name="RootGrid" Grid.Column="2">
+        <Grid x:Name="ContentGrid" Grid.Column="2">
             <Border MouseDown="DragArea_OnMouseLeftButtonDown" Background="#22FFFFFF"/>
         </Grid>
     </Grid>

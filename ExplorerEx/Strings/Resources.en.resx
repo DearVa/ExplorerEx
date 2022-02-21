@@ -280,4 +280,14 @@ Are you sure you want to change?</value>
   <data name="Cannot_open" xml:space="preserve">
     <value>Cannot open</value>
   </data>
+  <data name="Unknown_argument" xml:space="preserve">
+    <value>Unknown argument: </value>
+  </data>
+  <data name="#App_help" xml:space="preserve">
+    <value>How to use: 
+ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requireDebugger] Path1, Path2, ...</value>
+  </data>
+  <data name="Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
 </root>

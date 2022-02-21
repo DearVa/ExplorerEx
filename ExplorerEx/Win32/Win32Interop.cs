@@ -446,7 +446,6 @@ internal static class Win32Interop {
 		/// 系统主题色改变
 		/// </summary>
 		DwmColorizationCOlorChanged = 0x0320,
-		NewInstance = 13288
 	}
 
 	#region 亚克力效果
@@ -759,7 +758,23 @@ internal static class Win32Interop {
 	}
 
 	#endregion
+
+	#region 控制台
+
+	[DllImport("kernel32.dll", SetLastError = true)]
+	internal static extern int AllocConsole();
 	
+	[DllImport("kernel32.dll", SetLastError = true)]
+	internal static extern int FreeConsole();
+
+	[DllImport("kernel32.dll", SetLastError = true)]
+	internal static extern IntPtr GetConsoleWindow();
+
+	[DllImport("kernel32.dll", SetLastError = true)]
+	internal static extern bool AttachConsole(int dwProcessId);
+
+	#endregion
+
 	// ReSharper restore InconsistentNaming
 	// ReSharper restore IdentifierTypo
 	// ReSharper restore StringLiteralTypo

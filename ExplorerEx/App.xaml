@@ -4,10 +4,7 @@
              xmlns:c="clr-namespace:ExplorerEx.Converter"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:u="clr-namespace:ExplorerEx.Utils"
-             xmlns:m="clr-namespace:ExplorerEx.Model"
-             mc:Ignorable="d"
-             StartupUri="View/MainWindow.xaml">
+             mc:Ignorable="d">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

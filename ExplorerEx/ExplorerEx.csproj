@@ -7,18 +7,20 @@
     <UseWPF>true</UseWPF>
     <Platforms>x64</Platforms>
     <SupportedOSPlatformVersion>10.0.18362.0</SupportedOSPlatformVersion>
-    <ApplicationIcon>Assets\ExplorerEx.ico</ApplicationIcon>
     <DebugType>embedded</DebugType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationIcon>Assets\ExplorerEx.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Assets\LogConfig.xml" />
+    <None Remove="Assets\Picture\Logo.ico" />
     <None Remove="Assets\Picture\Logo.png" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\ExplorerEx.ico" />
+    <Resource Include="Assets\Picture\Logo.ico" />
     <Resource Include="Assets\Picture\Logo.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
