@@ -67,12 +67,12 @@ public class FileSystemItem : FileViewBaseItem {
 		}
 	}
 
-	public override async Task LoadIconAsync() {
+	public override void LoadIcon() {
 		Debug.Assert(!IsFolder);
 		if (UseLargeIcon) {
-			Icon = await Task.Run(() => GetPathThumbnailAsync(FullPath));
+			Icon = GetPathThumbnail(FullPath);
 		} else {
-			Icon = await Task.Run(() => GetPathIconAsync(FullPath, false));
+			Icon = GetPathIcon(FullPath, false);
 		}
 	}
 
@@ -95,11 +95,11 @@ public class FileSystemItem : FileViewBaseItem {
 		return false;
 	}
 
-	public async Task RefreshAsync() {
+	public void Refresh() {
 		if (IsFolder) {
 			LoadDirectoryIcon();
 		} else {
-			await LoadIconAsync();
+			LoadIcon();
 			PropertyUpdateUI(nameof(FileSize));
 		}
 		PropertyUpdateUI(nameof(Icon));

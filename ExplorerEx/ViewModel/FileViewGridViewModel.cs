@@ -36,7 +36,7 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// </summary>
 	public string FullPath { get; private set; }
 
-	public string Header => PathType == Model.PathType.Home ? FullPath : FullPath.Length <= 3 ? FullPath : Path.GetFileName(FullPath);
+	public string Header => PathType == PathType.Home ? FullPath : FullPath.Length <= 3 ? FullPath : Path.GetFileName(FullPath);
 
 	public PathType PathType { get; private set; } = PathType.Home;
 
@@ -61,6 +61,9 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	public ObservableHashSet<FileViewBaseItem> SelectedItems { get; } = new();
 
+	/// <summary>
+	/// 设置要把某一项Scroll到视野中
+	/// </summary>
 	public FileViewBaseItem ScrollIntoViewItem { get; private set; }
 
 	public SimpleCommand SelectionChangedCommand { get; }
@@ -259,13 +262,12 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 				switchIconCts?.Cancel();
 				var list = Items.Where(item => item is FileSystemItem && !item.IsFolder).Cast<FileSystemItem>().Where(item => item.UseLargeIcon != useLargeIcon).ToArray();
 				var cts = switchIconCts = new CancellationTokenSource();
-				foreach (var item in list) {
-					if (cts.IsCancellationRequested) {
-						return;
+				await Task.Run((() => {
+					foreach (var item in list) {
+						item.UseLargeIcon = useLargeIcon;
+						item.LoadIcon();
 					}
-					item.UseLargeIcon = useLargeIcon;
-					await item.LoadIconAsync();
-				}
+				}), cts.Token);
 				isLastViewTypeUseLargeIcon = useLargeIcon;
 			}
 		}
@@ -313,11 +315,16 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	}
 
 	/// <summary>
+	/// 每次遍历文件夹都存在这个list里，就避免每次new带来的GC压力
+	/// </summary>
+	private readonly List<FileViewBaseItem> fileListBuffer = new(128);
+
+	/// <summary>
 	/// 加载一个文件夹路径
 	/// </summary>
 	/// <param name="path">如果为null或者WhiteSpace，就加载“此电脑”</param>
-	/// <param name="recordHistory"></param>
-	/// <param name="selectedPath"></param>
+	/// <param name="recordHistory">是否记录历史，返回、前进就为false</param>
+	/// <param name="selectedPath">如果是返回，那就把这个设为返回前选中的那一项</param>
 	/// <returns></returns>
 	public async Task<bool> LoadDirectoryAsync(string path, bool recordHistory = true, string selectedPath = null) {
 		switchIconCts?.Cancel();
@@ -333,6 +340,7 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 		cts?.Cancel();
 		cts = new CancellationTokenSource();
+		var token = cts.Token;
 
 #if DEBUG
 		var sw = Stopwatch.StartNew();
@@ -348,13 +356,22 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			}
 		}
 		PropertyUpdateUI(nameof(FullPath));
+		if (token.IsCancellationRequested) {
+			return false;
+		}
+
+#if DEBUG
+		Trace.WriteLine($"PropertyUpdateUI costs: {sw.ElapsedMilliseconds}ms");
+		sw.Restart();
+#endif
 
 		// 查找数据库看有没有存储当前目录
-		var savedView = await FileViewDbContext.Instance.FolderViewDbSet.FirstOrDefaultAsync(v => v.FullPath == FullPath);
+		var savedView = await FileViewDbContext.Instance.FolderViewDbSet.FirstOrDefaultAsync(v => v.FullPath == FullPath, token);
 		if (savedView != null) {  // 如果存储了，那就获取用户定义的视图模式
 			FileViewType = savedView.FileViewType;
 			if (FileViewType == FileViewType.Detail) {
 				DetailLists = savedView.DetailLists;
+				ItemSize = new Size(0d, 30d);
 			} else {
 				ItemSize = savedView.ItemSize;
 			}
@@ -363,22 +380,33 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			DetailLists = null;
 			ItemSize = new Size(0d, 30d);
 		}
+		if (token.IsCancellationRequested) {
+			return false;
+		}
 
-		var list = new List<FileViewBaseItem>();
+#if DEBUG
+		Trace.WriteLine($"Query Database costs: {sw.ElapsedMilliseconds}ms");
+		sw.Restart();
+#endif
+
+		fileListBuffer.Clear();
 		if (isLoadHome) {
 			watcher.EnableRaisingEvents = false;
 
 			await Task.Run(() => {
 				foreach (var drive in DriveInfo.GetDrives()) {
+					if (token.IsCancellationRequested) {
+						return;
+					}
 					var item = new DiskDriveItem(drive);
-					list.Add(item);
+					fileListBuffer.Add(item);
 					if (drive.Name == selectedPath) {
 						item.IsSelected = true;
 						SelectedItems.Add(item);
 						ScrollIntoViewItem = item;
 					}
 				}
-			}, cts.Token);
+			}, token);
 		} else {
 			try {
 				watcher.Path = FullPath;
@@ -394,8 +422,11 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			var useLargeIcon = FileViewType is FileViewType.Icon or FileViewType.Tile or FileViewType.Content;
 			await Task.Run(() => {
 				foreach (var directory in Directory.EnumerateDirectories(path)) {
+					if (token.IsCancellationRequested) {
+						return;
+					}
 					var item = new FileSystemItem(new DirectoryInfo(directory));
-					list.Add(item);
+					fileListBuffer.Add(item);
 					if (directory == selectedPath) {
 						item.IsSelected = true;
 						SelectedItems.Add(item);
@@ -403,17 +434,23 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 					}
 				}
 				foreach (var filePath in Directory.EnumerateFiles(path)) {
+					if (token.IsCancellationRequested) {
+						return;
+					}
 					var item = new FileSystemItem(new FileInfo(filePath)) {
 						UseLargeIcon = useLargeIcon
 					};
-					list.Add(item);
+					fileListBuffer.Add(item);
 					if (filePath == selectedPath) {
 						item.IsSelected = true;
 						SelectedItems.Add(item);
 						ScrollIntoViewItem = item;
 					}
 				}
-			}, cts.Token);
+			}, token);
+		}
+		if (token.IsCancellationRequested) {
+			return false;
 		}
 
 #if DEBUG
@@ -424,38 +461,52 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 		Items.Clear();
 		PathType = isLoadHome ? PathType.Home : PathType.Normal;  // TODO: 网络驱动器、OneDrive等
-																  // 一旦调用这个，模板就会改变，所以要在清空之后，不然会导致排版混乱和绑定失败
-		PropertyUpdateUI(nameof(PathType));
+		PropertyUpdateUI(nameof(PathType));  // 一旦调用这个，模板就会改变，所以要在清空之后，不然会导致排版混乱和绑定失败
 		PropertyUpdateUI(nameof(DetailLists));
 		PropertyUpdateUI(nameof(FileViewType));
 		PropertyUpdateUI(nameof(ItemSize));
 		PropertyUpdateUI(nameof(ViewTypeIndex));
 
-		foreach (var fileViewBaseItem in list) {
-			Items.Add(fileViewBaseItem);
+		if (fileListBuffer.Count > 0) {
+			foreach (var fileViewBaseItem in fileListBuffer) {
+				Items.Add(fileViewBaseItem);
+			}
+			if (selectedPath == null) {
+				ScrollIntoViewItem = fileListBuffer[0];
+			}
+			PropertyUpdateUI(nameof(ScrollIntoViewItem));
 		}
-		PropertyUpdateUI(nameof(ScrollIntoViewItem));
 
 		if (recordHistory) {
 			AddHistory(path);
 		}
 		UpdateFolderUI();
 		UpdateFileUI();
+		if (token.IsCancellationRequested) {
+			return false;
+		}
 
 #if DEBUG
 		Trace.WriteLine($"Update UI costs: {sw.ElapsedMilliseconds}ms");
 		sw.Restart();
 #endif
 
-		foreach (var fileViewBaseItem in list.Where(item => item is DiskDriveItem || !item.IsFolder)) {
-			await fileViewBaseItem.LoadIconAsync();
+		if (fileListBuffer.Count > 0) {
+			await Task.Run(() => {
+				foreach (var fileViewBaseItem in fileListBuffer.Where(item => item is DiskDriveItem || !item.IsFolder)) {
+					if (token.IsCancellationRequested) {
+						return;
+					}
+					fileViewBaseItem.LoadIcon();
+				}
+			}, token);
 		}
 
 #if DEBUG
 		Trace.WriteLine($"Async load Icon costs: {sw.ElapsedMilliseconds}ms");
 		sw.Stop();
 #endif
-		return true;
+		return !token.IsCancellationRequested;
 	}
 
 	/// <summary>
@@ -722,10 +773,14 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		PathType = PathType.Home;
 		everythingReplyCts?.Cancel();
 		everythingReplyCts = new CancellationTokenSource();
+		var token = everythingReplyCts.Token;
 		List<FileSystemItem> list = null;
 		await Task.Run(() => {
 			list = new List<FileSystemItem>(reply.FullPaths.Length);
 			foreach (var fullPath in reply.FullPaths) {
+				if (token.IsCancellationRequested) {
+					return;
+				}
 				try {
 					if (Directory.Exists(fullPath)) {
 						list.Add(new FileSystemItem(new DirectoryInfo(fullPath)));
@@ -737,7 +792,10 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 					break;
 				}
 			}
-		}, everythingReplyCts.Token);
+		}, token);
+		if (token.IsCancellationRequested) {
+			return;
+		}
 
 		Items.Clear();
 
@@ -748,9 +806,14 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		UpdateFolderUI();
 		UpdateFileUI();
 
-		foreach (var fileViewBaseItem in list.Where(item => !item.IsFolder)) {
-			await fileViewBaseItem.LoadIconAsync();
-		}
+		await Task.Run(() => {
+			foreach (var fileViewBaseItem in list.Where(item => !item.IsFolder)) {
+				if (token.IsCancellationRequested) {
+					return;
+				}
+				fileViewBaseItem.LoadIcon();
+			}
+		}, token);
 	}
 
 	private void Watcher_OnError(object sender, ErrorEventArgs e) {
@@ -772,7 +835,7 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 					} else if (File.Exists(e.FullPath)) {
 						var item = new FileSystemItem(new FileInfo(e.FullPath));
 						Items[i] = item;
-						await item.LoadIconAsync();
+						await Task.Run(item.LoadIcon);
 					}
 					return;
 				}
@@ -809,7 +872,7 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			}
 			Items.Add(item);
 			if (!item.IsFolder) {
-				await item.LoadIconAsync();
+				await Task.Run(item.LoadIcon);
 			}
 		});
 	}
@@ -822,7 +885,7 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			// ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
 			foreach (FileSystemItem item in Items) {
 				if (item.FullPath == e.FullPath) {
-					await item.RefreshAsync();
+					await Task.Run(item.Refresh);
 					return;
 				}
 			}

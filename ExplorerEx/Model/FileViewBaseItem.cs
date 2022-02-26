@@ -97,7 +97,10 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 		ShowPropertiesCommand = new SimpleCommand(_ => Win32Interop.ShowFileProperties(FullPath));
 	}
 
-	public abstract Task LoadIconAsync();
+	/// <summary>
+	/// LoadIcon用到了shell，那并不是一个可以多线程的方法，所以与其每次都Task.Run，不如提高粗粒度
+	/// </summary>
+	public abstract void LoadIcon();
 
 	/// <summary>
 	/// 打开该文件或者文件夹

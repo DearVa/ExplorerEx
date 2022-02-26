@@ -62,7 +62,7 @@ internal static class IconHelper {
 	/// <param name="path">文件路径</param>
 	/// <param name="useFileAttr">如果为true，那就去找文件本身并生成缩略图（比如exe这种）；如果为false，那就只根据拓展名生成缩略图</param>
 	/// <returns></returns>
-	public static ImageSource GetPathIconAsync(string path, bool useFileAttr) {
+	public static ImageSource GetPathIcon(string path, bool useFileAttr) {
 		var extension = Path.GetExtension(path);
 		if (string.IsNullOrEmpty(extension)) {
 			return UnknownTypeFileDrawingImage;
@@ -128,7 +128,7 @@ internal static class IconHelper {
 	/// <returns></returns>
 	/// <exception cref="FileNotFoundException"></exception>
 	/// <exception cref="Exception"></exception>
-	public static ImageSource GetPathThumbnailAsync(string path) {
+	public static ImageSource GetPathThumbnail(string path) {
 		Trace.WriteLine($"加载缩略图：{path}");
 		string extension = null;
 		if (path.Length > 3) {  // 说明不是驱动器

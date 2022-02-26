@@ -53,16 +53,16 @@ public sealed class DiskDriveItem : FileViewBaseItem {
 		}
 	}
 
-	public override async Task LoadIconAsync() {
-		Icon = await Task.Run(() => IconHelper.GetPathThumbnailAsync(Driver.Name));
+	public override void LoadIcon() {
+		Icon = IconHelper.GetPathThumbnail(Driver.Name);
 	}
 
 	protected override bool Rename() {
 		throw new NotImplementedException();
 	}
 
-	public async Task RefreshAsync() {
-		await LoadIconAsync();
+	public void Refresh() {
+		LoadIcon();
 		PropertyUpdateUI(nameof(Icon));
 	}
 

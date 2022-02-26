@@ -286,7 +286,7 @@ public sealed partial class MainWindow {
 						var item = new BookmarkItem(window.bookmarkItem.FullPath, window.BookmarkName, categoryItem);
 						await bookmarkDb.BookmarkDbSet.AddAsync(item);
 						await bookmarkDb.SaveChangesAsync();
-						await item.LoadIconAsync();
+						item.LoadIcon();
 					}
 					window.bookmarkItem.PropertyUpdateUI(nameof(window.bookmarkItem.IsBookmarked));
 				}

@@ -99,16 +99,16 @@ public class BookmarkItem : FileViewBaseItem {
 		category.AddBookmark(this);
 	}
 
-	public override async Task LoadIconAsync() {
+	public override void LoadIcon() {
 		if (FullPath.Length == 3) {
 			IsFolder = true;
-			Icon = await Task.Run(() => GetPathThumbnailAsync(FullPath));
+			Icon = GetPathThumbnail(FullPath);
 		} else if (Directory.Exists(FullPath)) {
 			IsFolder = true;
 			Icon = FolderUtils.IsEmptyFolder(FullPath) ? EmptyFolderDrawingImage : FolderDrawingImage;
 		} else if (File.Exists(FullPath)) {
 			IsFolder = false;
-			Icon = await Task.Run(() => GetPathIconAsync(FullPath, false));
+			Icon = GetPathIcon(FullPath, false);
 		}
 	}
 
@@ -160,9 +160,11 @@ public class BookmarkDbContext : DbContext {
 					new BookmarkItem(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Desktop".L(), defaultCategory));
 				await SaveChangesAsync();
 			}
-			foreach (var item in BookmarkDbSet.Local) {
-				await item.LoadIconAsync();
-			}
+			await Task.Run(() => {
+				foreach (var item in BookmarkDbSet.Local) {
+					item.LoadIcon();
+				}
+			});
 		}
 	}
 

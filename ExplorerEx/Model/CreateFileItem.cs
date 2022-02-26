@@ -26,7 +26,7 @@ public class CreateFileItem : SimpleNotifyPropertyChanged {
 		Extension = extension;
 		if (createIcon) {
 			Task.Run(() => {
-				Icon = GetPathIconAsync(extension, true);
+				Icon = GetPathIcon(extension, true);
 				PropertyUpdateUI(nameof(Icon));
 				Description = GetFileTypeDescription(extension);
 				PropertyUpdateUI(nameof(Description));
