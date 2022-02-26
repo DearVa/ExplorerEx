@@ -10,8 +10,8 @@
         Visibility="Hidden" ShowInTaskbar="False">
     <hc:NotifyIcon x:Name="NotifyIconContextContent" Visibility="Visible" Text="ExplorerEx" Icon="/ExplorerEx;component/Assets/Picture/Logo.ico">
         <hc:NotifyIcon.ContextContent>
-            <Border CornerRadius="4" Margin="10" Background="{DynamicResource SecondaryRegionBrush}" Effect="{StaticResource EffectShadow2}">
-                <StackPanel VerticalAlignment="Center" Margin="4" Width="80">
+            <Border Background="{DynamicResource BackgroundBrush}">
+                <StackPanel VerticalAlignment="Center" Margin="5" Width="80">
                     <Button Content="{u:Lang Open}" Click="OpenButton_OnClick" HorizontalAlignment="Stretch" Margin="0,0,0,5"/>
                     <Button Content="{u:Lang Exit}" Style="{StaticResource ButtonDanger}" HorizontalAlignment="Stretch" Click="ExitButton_OnClick"/>
                 </StackPanel>

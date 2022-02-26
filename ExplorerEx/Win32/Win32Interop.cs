@@ -1,8 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -448,7 +446,7 @@ internal static class Win32Interop {
 		DwmColorizationCOlorChanged = 0x0320,
 	}
 
-	#region 亚克力效果
+	#region 亚克力/云母效果
 	public enum AccentState {
 		Disabled = 0,
 		EnableGradient = 1,

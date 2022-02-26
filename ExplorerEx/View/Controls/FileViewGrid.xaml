@@ -83,7 +83,7 @@
                 <TextBlock Text="{u:Lang View}" VerticalAlignment="Center" Margin="10,0,5,0"/>
             </StackPanel>
             <hc:SplitButton.DropDownContent>
-                <Menu Margin="4,0,4,0" Width="Auto" BorderBrush="{x:Null}">
+                <Menu Margin="4,0,4,0" Width="Auto" BorderBrush="{x:Null}" Background="Transparent">
                     <Menu.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Vertical"/>
