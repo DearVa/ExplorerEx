@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -26,7 +25,7 @@ public sealed partial class MainWindow {
 	/// </summary>
 	public static event Action ClipboardChanged;
 	public static DataObjectContent DataObjectContent { get; private set; }
-	
+
 	public event Action<uint, EverythingInterop.QueryReply> EverythingQueryReplied;
 
 	private static readonly List<MainWindow> MainWindows = new();
@@ -34,20 +33,20 @@ public sealed partial class MainWindow {
 	private readonly SplitGrid splitGrid;
 	private readonly HwndSource hwnd;
 	private IntPtr nextClipboardViewer;
-
-	private readonly string startupPath;
+	private bool isClipboardViewerSet;
 
 	/// <summary>
 	/// 每注册一个EverythingQuery就+1
 	/// </summary>
 	private static volatile uint globalEverythingQueryId;
-
 	private readonly HashSet<uint> everythingQueryIds = new();
 
+	private readonly string startupPath;
+	
 	public MainWindow() : this(null) { }
 
-	public MainWindow(string path) {
-		startupPath = path;
+	public MainWindow(string startupPath) {
+		this.startupPath = startupPath;
 		MainWindows.Add(this);
 		Width = ConfigHelper.LoadInt("WindowWidth", 1200);
 		Height = ConfigHelper.LoadInt("WindowHeight", 800);
@@ -65,7 +64,7 @@ public sealed partial class MainWindow {
 
 		if (ConfigHelper.LoadBoolean("WindowMaximized")) {
 			WindowState = WindowState.Maximized;
-			RootGrid.Margin = new Thickness(8);
+			RootGrid.Margin = new Thickness(6);
 		}
 
 		hwnd = HwndSource.FromHwnd(new WindowInteropHelper(this).EnsureHandle())!;
@@ -75,13 +74,20 @@ public sealed partial class MainWindow {
 		hwnd.AddHook(WndProc);
 
 		splitGrid = new SplitGrid(this, null);
-		RootGrid.Children.Add(splitGrid);
+		ContentGrid.Children.Add(splitGrid);
 		ChangeThemeWithSystem();
+
+		StartupLoad();
 	}
 
-	protected override async void OnContentRendered(EventArgs e) {
-		base.OnContentRendered(e);
-		await splitGrid.FileTabControl.StartUpLoad(startupPath);
+	private async void StartupLoad() {
+		Trace.WriteLine("StartupLoad: " + DateTime.Now);
+		if (startupPath == null) {
+			await splitGrid.FileTabControl.StartUpLoad(App.Args.Paths.ToArray());
+		} else {
+			await splitGrid.FileTabControl.StartUpLoad(startupPath);
+		}
+		Trace.WriteLine("Startup Finished: " + DateTime.Now);
 	}
 
 	private void RegisterClipboard() {
@@ -90,6 +96,7 @@ public sealed partial class MainWindow {
 		if (error != 0) {
 			Marshal.ThrowExceptionForHR(error);
 		}
+		isClipboardViewerSet = true;
 		OnClipboardChanged();
 	}
 
@@ -140,34 +147,42 @@ public sealed partial class MainWindow {
 			break;
 		case WinMessage.DrawClipboard:
 			OnClipboardChanged();
-			if (nextClipboardViewer != IntPtr.Zero) {
+			if (nextClipboardViewer != IntPtr.Zero && nextClipboardViewer != hwnd) {
 				SendMessage(nextClipboardViewer, msg, wParam, lParam);
 			}
 			break;
 		case WinMessage.ChangeCbChain:
 			if (wParam == nextClipboardViewer) {
-				nextClipboardViewer = lParam;
-			} else if (nextClipboardViewer != IntPtr.Zero) {
+				nextClipboardViewer = lParam == hwnd ? IntPtr.Zero : lParam;
+			} else if (nextClipboardViewer != IntPtr.Zero && nextClipboardViewer != hwnd) {
 				SendMessage(nextClipboardViewer, msg, wParam, lParam);
 			}
 			break;
 		case WinMessage.DwmColorizationCOlorChanged:
 			ChangeThemeWithSystem();
 			break;
-		case WinMessage.NewInstance: // 启动了另一个实例
-			var pid = (int)wParam;
-			try {
-				var other = Process.GetProcessById(pid);
-				var args = other.GetCommandLine().Split(' ');
-				var path = args.Length > 1 ? args[1] : null;
-				new MainWindow(path).Show();
-			} catch (Exception e) {
-				Logger.Exception(e, false);
-			}
-			handled = true;
-			break;
 		}
 		return IntPtr.Zero;
+	}
+
+	/// <summary>
+	/// 打开给定的路径，如果窗口隐藏就会显示并打开，如果有窗口就会在FocusedTabControl打开新标签页。使用了Dispatcher，可以跨线程安全调用
+	/// </summary>
+	/// <param name="path"></param>
+	public static void OpenPath(string path) {
+		FileTabControl fileTabControl;
+		if (MainWindows.Count == 1) {
+			var window = MainWindows[0];
+			Application.Current.Dispatcher.Invoke(() => {
+				if (window.Visibility != Visibility.Visible) {
+					window.Visibility = Visibility.Visible;
+				}
+			});
+			fileTabControl = window.splitGrid.FileTabControl;
+		} else {
+			fileTabControl = FileTabControl.FocusedTabControl;
+		}
+		Application.Current.Dispatcher.Invoke(() => fileTabControl.OpenPathInNewTabAsync(path));
 	}
 
 	/// <summary>
@@ -215,11 +230,23 @@ public sealed partial class MainWindow {
 	public string BookmarkCategory { get; set; }
 	private bool isDeleteBookmark;
 
+	/// <summary>
+	/// 添加到书签，如果已添加，则会提示编辑
+	/// </summary>
+	/// <param name="bookmarkItem"></param>
 	public void AddToBookmark(FileViewBaseItem bookmarkItem) {
 		this.bookmarkItem = bookmarkItem;
-		var fullPath = bookmarkItem.FullPath;
-		BookmarkName = fullPath.Length == 3 ? fullPath : Path.GetFileName(fullPath);
-		BookmarkCategoryComboBox.SelectedIndex = 0;
+		var fullPath = Path.GetFullPath(bookmarkItem.FullPath);
+		var dbBookmark = BookmarkDbContext.Instance.BookmarkDbSet.Local.FirstOrDefault(b => b.FullPath == fullPath);
+		if (dbBookmark != null) {
+			AddToBookmarkTipTextBlock.Text = "Edit_bookmark".L();
+			BookmarkName = dbBookmark.Name;
+			BookmarkCategoryComboBox.SelectedItem = dbBookmark.Category;
+		} else {
+			AddToBookmarkTipTextBlock.Text = "Add_to_bookmarks".L();
+			BookmarkName = fullPath.Length == 3 ? fullPath : Path.GetFileName(fullPath);
+			BookmarkCategoryComboBox.SelectedIndex = 0;
+		}
 		IsAddToBookmarkShow = true;
 	}
 
@@ -239,8 +266,8 @@ public sealed partial class MainWindow {
 			if (window.bookmarkItem != null) {
 				if (!window.isDeleteBookmark) {
 					var category = window.BookmarkCategory.Trim();
-					if (category == string.Empty) {
-						category = "Default_bookmarks".L();
+					if (string.IsNullOrWhiteSpace(category)) {
+						category = "Default_bookmark".L();
 					}
 					var bookmarkDb = BookmarkDbContext.Instance;
 					var categoryItem = await bookmarkDb.BookmarkCategoryDbSet.FirstOrDefaultAsync(bc => bc.Name == category);
@@ -248,10 +275,19 @@ public sealed partial class MainWindow {
 						categoryItem = new BookmarkCategory(category);
 						await bookmarkDb.BookmarkCategoryDbSet.AddAsync(categoryItem);
 					}
-					var item = new BookmarkItem(window.bookmarkItem.FullPath, window.BookmarkName, categoryItem);
-					await bookmarkDb.BookmarkDbSet.AddAsync(item);
-					await bookmarkDb.SaveChangesAsync();
-					await item.LoadIconAsync();
+					var fullPath = window.bookmarkItem.FullPath;
+					var dbBookmark = await BookmarkDbContext.Instance.BookmarkDbSet.FirstOrDefaultAsync(b => b.FullPath == fullPath);
+					if (dbBookmark != null) {
+						dbBookmark.Name = window.BookmarkName;
+						dbBookmark.PropertyUpdateUI(nameof(dbBookmark.Name));
+						dbBookmark.Category = categoryItem;
+						await bookmarkDb.SaveChangesAsync();
+					} else {
+						var item = new BookmarkItem(window.bookmarkItem.FullPath, window.BookmarkName, categoryItem);
+						await bookmarkDb.BookmarkDbSet.AddAsync(item);
+						await bookmarkDb.SaveChangesAsync();
+						await item.LoadIconAsync();
+					}
 					window.bookmarkItem.PropertyUpdateUI(nameof(window.bookmarkItem.IsBookmarked));
 				}
 				window.bookmarkItem = null;
@@ -286,17 +322,26 @@ public sealed partial class MainWindow {
 				e.Cancel = true;
 			}
 		}
+		if (MainWindows.Count == 1) {  // 如果只剩这一个窗口
+			Visibility = Visibility.Collapsed;
+			splitGrid.CancelSubSplit();
+			splitGrid.FileTabControl.CloseAllTabs();
+			e.Cancel = true;
+			GC.Collect();
+		}
 		base.OnClosing(e);
 	}
 
 	protected override void OnClosed(EventArgs e) {
 		MainWindows.Remove(this);
 		splitGrid.Close();
-		if (nextClipboardViewer != IntPtr.Zero) {
-			ChangeClipboardChain(hwnd.Handle, nextClipboardViewer);
-		}
-		if (MainWindows.Count > 0) {  // 通知下一个Window进行Hook
-			MainWindows[0].RegisterClipboard();
+		if (isClipboardViewerSet) {
+			if (nextClipboardViewer != IntPtr.Zero) {
+				ChangeClipboardChain(hwnd.Handle, nextClipboardViewer);
+			}
+			if (MainWindows.Count > 0) { // 通知下一个Window进行Hook
+				MainWindows[0].RegisterClipboard();
+			}
 		}
 		base.OnClosed(e);
 	}
@@ -334,9 +379,9 @@ public sealed partial class MainWindow {
 		var isMaximized = WindowState == WindowState.Maximized;
 		ConfigHelper.Save("WindowMaximized", isMaximized);
 		if (isMaximized) {
-			RootGrid.Margin = new Thickness(8);
+			RootGrid.Margin = new Thickness(6);
 		} else {
-			RootGrid.Margin = new Thickness();
+			RootGrid.Margin = new Thickness(0, 3, 3, 3);
 		}
 	}
 
@@ -356,11 +401,34 @@ public sealed partial class MainWindow {
 		}
 	}
 
-#if DEBUG
 	protected override void OnKeyDown(KeyEventArgs e) {
+#if DEBUG
 		if (e.Key == Key.Pause) {
 			Debugger.Break();
 		}
-	}
 #endif
+		var mouseOverTab = FileTabControl.MouseOverTabControl.SelectedTab;
+		if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
+			switch (e.Key) {
+			case Key.Z:
+				break;
+			case Key.X:
+				mouseOverTab?.Copy(true);
+				break;
+			case Key.C:
+				mouseOverTab?.Copy(false);
+				break;
+			case Key.V:
+				mouseOverTab?.Paste();
+				break;
+			}
+		} else {
+			switch (e.Key) {
+			case Key.Delete:
+				mouseOverTab?.Delete((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift);
+				break;
+			}
+		}
+		base.OnKeyDown(e);
+	}
 }

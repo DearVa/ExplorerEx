@@ -12,9 +12,9 @@ internal static class LangHelper {
 	/// <returns></returns>
 	public static string L(this string key) {
 		try {
-			return Resources.ResourceManager.GetString(key);
+			return Resources.ResourceManager.GetString(key) ?? "锟斤拷" + key;
 		} catch {
-			return "锟斤拷" + key + "烫烫烫";
+			return "烫烫烫" + key;
 		}
 	}
 }

@@ -444,10 +444,9 @@ internal static class Win32Interop {
 		/// 系统主题色改变
 		/// </summary>
 		DwmColorizationCOlorChanged = 0x0320,
-		NewInstance = 13288
 	}
 
-	#region 亚克力效果
+	#region 亚克力/云母效果
 	public enum AccentState {
 		Disabled = 0,
 		EnableGradient = 1,
@@ -492,13 +491,13 @@ internal static class Win32Interop {
 	#region 文件操作
 
 	[DllImport("shell32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-	public static extern int SHFileOperation(SHFILEOPSTRUCT lpFileOp);
+	public static extern int SHFileOperation(ShFileOpStruct lpFileOp);
 
 	/// <summary>
 	/// Shell文件操作数据类型
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-	public class SHFILEOPSTRUCT {
+	public class ShFileOpStruct {
 		public IntPtr hwnd;
 		/// <summary>
 		/// 设置操作方式
@@ -515,7 +514,7 @@ internal static class Win32Interop {
 		/// <summary>
 		/// 允许恢复
 		/// </summary>
-		public FILEOP_FLAGS fFlags;
+		public FileOpFlags fFlags;
 		/// <summary>
 		/// 监测有无中止
 		/// </summary>
@@ -556,7 +555,7 @@ internal static class Win32Interop {
 	/// 参见：http://msdn.microsoft.com/zh-cn/library/bb759795(v=vs.85).aspx
 	/// </summary>
 	[Flags]
-	public enum FILEOP_FLAGS {
+	public enum FileOpFlags {
 		/// <summary>
 		/// pTo 指定了多个目标文件，而不是单个目录
 		/// The pTo member specifies multiple destination files (one for each source file) rather than one directory where all source files are to be deposited.
@@ -639,8 +638,6 @@ internal static class Win32Interop {
 
 	#region 获取进程命令行
 
-	public const uint PROCESS_BASIC_INFORMATION = 0;
-
 	[Flags]
 	public enum OpenProcessDesiredAccessFlags : uint {
 		PROCESS_VM_READ = 0x0010,
@@ -704,9 +701,7 @@ internal static class Win32Interop {
 		var structSize = Marshal.SizeOf<TStruct>();
 		var mem = Marshal.AllocHGlobal(structSize);
 		try {
-			if (ReadProcessMemory(
-				hProcess, lpBaseAddress, mem, (uint)structSize, out var len) &&
-				(len == structSize)) {
+			if (ReadProcessMemory(hProcess, lpBaseAddress, mem, (uint)structSize, out var len) && len == structSize) {
 				val = Marshal.PtrToStructure<TStruct>(mem);
 				return true;
 			}
@@ -727,7 +722,7 @@ internal static class Win32Interop {
 			var sizePBI = Marshal.SizeOf<ProcessBasicInformation>();
 			var memPBI = Marshal.AllocHGlobal(sizePBI);
 			try {
-				var ret = NtQueryInformationProcess(hProcess, PROCESS_BASIC_INFORMATION, memPBI, (uint)sizePBI, out _);
+				var ret = NtQueryInformationProcess(hProcess, 0, memPBI, (uint)sizePBI, out _);
 				if (ret != 0) {
 					throw new ApplicationException("NtQueryInformationProcess failed");
 				}
@@ -761,6 +756,23 @@ internal static class Win32Interop {
 	}
 
 	#endregion
+
+	#region 控制台
+
+	[DllImport("kernel32.dll", SetLastError = true)]
+	internal static extern int AllocConsole();
+	
+	[DllImport("kernel32.dll", SetLastError = true)]
+	internal static extern int FreeConsole();
+
+	[DllImport("kernel32.dll", SetLastError = true)]
+	internal static extern IntPtr GetConsoleWindow();
+
+	[DllImport("kernel32.dll", SetLastError = true)]
+	internal static extern bool AttachConsole(int dwProcessId);
+
+	#endregion
+
 	// ReSharper restore InconsistentNaming
 	// ReSharper restore IdentifierTypo
 	// ReSharper restore StringLiteralTypo

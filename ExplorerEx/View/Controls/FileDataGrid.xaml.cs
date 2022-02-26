@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -26,94 +27,6 @@ namespace ExplorerEx.View.Controls;
 /// 要能够响应鼠标事件，处理点选、框选、拖放、重命名和双击
 /// </summary>
 public partial class FileDataGrid {
-	public enum ViewTypes {
-		/// <summary>
-		/// 图标，表现为WarpPanel，每个小格上边是缩略图下边是文件名
-		/// </summary>
-		Icon,
-		/// <summary>
-		/// 列表，表现为WarpPanel，每个小格左边是缩略图右边是文件名
-		/// </summary>
-		List,
-		/// <summary>
-		/// 详细信息，表现为DataGrid，上面有Header，一列一列的
-		/// </summary>
-		Detail,
-		/// <summary>
-		/// 平铺，表现为WarpPanel，每个小格左边是缩略图右边从上到下依次是文件名、文件类型描述、文件大小
-		/// </summary>
-		Tile,
-		/// <summary>
-		/// 内容，表现为DataGrid，但Header不可见，左边是图标、文件名、大小，右边是详细信息
-		/// </summary>
-		Content
-	}
-
-	/// <summary>
-	/// 选择详细信息中的显示列
-	/// </summary>
-	[Flags]
-	public enum Lists {
-		// Name必选，忽略
-
-		/// <summary>
-		/// 修改日期
-		/// </summary>
-		ModificationDate = 1,
-		/// <summary>
-		/// 类型
-		/// </summary>
-		Type = 2,
-		/// <summary>
-		/// 文件大小
-		/// </summary>
-		FileSize = 4,
-		/// <summary>
-		/// 创建日期
-		/// </summary>
-		CreationDate = 8,
-
-		// 以下为驱动器的列
-		/// <summary>
-		/// 可用空间
-		/// </summary>
-		AvailableSpace = 16,
-		/// <summary>
-		/// 总大小
-		/// </summary>
-		TotalSpace = 32,
-		/// <summary>
-		/// 文件系统（NTFS、FAT）
-		/// </summary>
-		FileSystem = 64,
-		/// <summary>
-		/// 填充的百分比
-		/// </summary>
-		FillRatio = 128,
-	}
-
-	/// <summary>
-	/// 当前路径的类型
-	/// </summary>
-	public enum PathTypes {
-		/// <summary>
-		/// 首页，“此电脑”
-		/// </summary>
-		Home,
-		/// <summary>
-		/// 普通，即浏览正常文件
-		/// </summary>
-		Normal,
-		/// <summary>
-		/// 搜索文件的结果
-		/// </summary>
-		Search,
-		/// <summary>
-		/// 网络驱动器
-		/// </summary>
-		NetworkDisk,
-	}
-
 	private ScrollViewer scrollViewer;
 	private Grid contentGrid;
 	private Border selectionRect;
@@ -159,30 +72,24 @@ public partial class FileDataGrid {
 		remove => RemoveHandler(ItemDoubleClickedEvent, value);
 	}
 
-	public static readonly DependencyProperty ViewTypeProperty = DependencyProperty.Register(
-		"ViewType", typeof(ViewTypes), typeof(FileDataGrid), new PropertyMetadata(ViewTypes.Tile, ViewType_OnChanged));
+	public static readonly DependencyProperty FileViewTypeProperty = DependencyProperty.Register(
+		"FileViewType", typeof(FileViewType), typeof(FileDataGrid), new PropertyMetadata(FileViewType.Tile, OnViewChanged));
 
-	private static void ViewType_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-		if (e.NewValue != e.OldValue) {
-			((FileDataGrid)d).UpdateColumns();
-		}
-	}
-
-	public ViewTypes ViewType {
-		get => (ViewTypes)GetValue(ViewTypeProperty);
-		set => SetValue(ViewTypeProperty, value);
+	public FileViewType FileViewType {
+		get => (FileViewType)GetValue(FileViewTypeProperty);
+		set => SetValue(FileViewTypeProperty, value);
 	}
 
 	public static readonly DependencyProperty PathTypeProperty = DependencyProperty.Register(
-		"PathType", typeof(PathTypes), typeof(FileDataGrid), new PropertyMetadata(PathTypes.Home));
+		"PathType", typeof(PathType), typeof(FileDataGrid), new PropertyMetadata(PathType.Home, OnViewChanged));
 
-	public PathTypes PathType {
-		get => (PathTypes)GetValue(PathTypeProperty);
+	public PathType PathType {
+		get => (PathType)GetValue(PathTypeProperty);
 		set => SetValue(PathTypeProperty, value);
 	}
 
 	public static readonly DependencyProperty ItemSizeProperty = DependencyProperty.Register(
-		"ItemSize", typeof(Size), typeof(FileDataGrid), new PropertyMetadata(default(Size)));
+		"ItemSize", typeof(Size), typeof(FileDataGrid), new PropertyMetadata(default(Size), OnViewChanged));
 
 	/// <summary>
 	/// 项目大小
@@ -193,17 +100,17 @@ public partial class FileDataGrid {
 	}
 
 	public static readonly DependencyProperty DetailListsProperty = DependencyProperty.Register(
-		"DetailLists", typeof(Lists), typeof(FileDataGrid), new PropertyMetadata(default(Lists), DetailLists_OnChanged));
+		"DetailLists", typeof(List<DetailList>), typeof(FileDataGrid), new PropertyMetadata(null, OnViewChanged));
 
-	private static void DetailLists_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+	public List<DetailList> DetailLists {
+		get => (List<DetailList>)GetValue(DetailListsProperty);
+		set => SetValue(DetailListsProperty, value);
+	}
+
+	private static void OnViewChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		if (e.NewValue != e.OldValue) {
 			((FileDataGrid)d).UpdateColumns();
 		}
-	}
-
-	public Lists DetailLists {
-		get => (Lists)GetValue(DetailListsProperty);
-		set => SetValue(DetailListsProperty, value);
 	}
 
 	public static readonly DependencyProperty FullPathProperty = DependencyProperty.Register(
@@ -213,7 +120,24 @@ public partial class FileDataGrid {
 		get => (string)GetValue(FullPathProperty);
 		set => SetValue(FullPathProperty, value);
 	}
-	
+
+	public static readonly DependencyProperty ScrollIntoViewItemProperty = DependencyProperty.Register(
+		"ScrollIntoViewItem", typeof(FileViewBaseItem), typeof(FileDataGrid), new PropertyMetadata(null, ScrollIntoView_OnChanged));
+
+	private static void ScrollIntoView_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		if (e.NewValue != e.OldValue && e.NewValue != null) {
+			var fileDataGrid = (FileDataGrid)d;
+			if (!fileDataGrid.isRectSelecting && !fileDataGrid.isDragDropping) {
+				fileDataGrid.ScrollIntoView(e.NewValue);
+			}
+		}
+	}
+
+	public FileViewBaseItem ScrollIntoViewItem {
+		get => (FileViewBaseItem)GetValue(ScrollIntoViewItemProperty);
+		set => SetValue(ScrollIntoViewItemProperty, value);
+	}
+
 	/// <summary>
 	/// 选择一个文件，参数为string文件名，不含路径
 	/// </summary>
@@ -235,14 +159,14 @@ public partial class FileDataGrid {
 	}
 
 	/// <summary>
-	/// 根据<see cref="PathType"/>、<see cref="ViewType"/>和<see cref="DetailLists"/>选择列，同时更新<see cref="DataGrid.ColumnHeaderHeight"/>
+	/// 根据<see cref="PathType"/>、<see cref="FileViewType"/>和<see cref="DetailLists"/>选择列，同时更新<see cref="DataGrid.ColumnHeaderHeight"/>
 	/// </summary>
 	private void UpdateColumns() {
 		if (contentGrid == null) {
 			return;
 		}
-		columnsConverter.Convert(Columns, PathType, ViewType, DetailLists);
-		if (ViewType == ViewTypes.Detail) {
+		columnsConverter.Convert(Columns, PathType, FileViewType, DetailLists);
+		if (FileViewType == FileViewType.Detail) {
 			ColumnHeaderHeight = 20d;
 			contentGrid.Margin = new Thickness(Padding.Left, 20 + Padding.Top, Padding.Right, Padding.Bottom);
 		} else {
@@ -444,7 +368,7 @@ public partial class FileDataGrid {
 	/// </summary>
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseMove(MouseEventArgs e) {
-		if (e.OriginalSource.FindParent<ScrollBar, FileDataGrid>() != null || isDoubleClicked) {
+		if (e.OriginalSource.FindParent<ScrollBar, FileDataGrid>() != null || isDoubleClicked || isMenuOpen) {
 			base.OnPreviewMouseMove(e);
 			return;
 		}
@@ -690,6 +614,8 @@ public partial class FileDataGrid {
 		}
 	}
 
+	private bool isMenuOpen;
+
 	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
 		if (e.OriginalSource.FindParent<ScrollBar, FileDataGrid>() != null || isDoubleClicked) {
 			base.OnPreviewMouseUp(e);
@@ -745,6 +671,7 @@ public partial class FileDataGrid {
 					} else {
 						// ContextMenu!.IsOpen = true;
 					}
+					isMenuOpen = true;
 					break;
 				}
 			}
@@ -774,7 +701,7 @@ public partial class FileDataGrid {
 
 	protected override void OnDragEnter(DragEventArgs e) {
 		isDragDropping = true;
-		if (PathType == PathTypes.Home && TabItem.DraggingTab == null) {
+		if (PathType == PathType.Home && TabItem.DraggingTab == null) {
 			e.Effects = DragDropEffects.None;
 			e.Handled = true;
 			return;
@@ -793,10 +720,9 @@ public partial class FileDataGrid {
 
 	protected override void OnDragOver(DragEventArgs e) {
 		isDragDropping = true;
-		if (PathType == PathTypes.Home && TabItem.DraggingTab == null) {
+		if (PathType == PathType.Home && TabItem.DraggingTab == null) {
 			e.Effects = DragDropEffects.None;
 			e.Handled = true;
-			return;
 		}
 	}
 

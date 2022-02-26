@@ -1,24 +1,21 @@
 ﻿using ExplorerEx.View;
 using ExplorerEx.Win32;
-using IWshRuntimeLibrary;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Windows.Input;
-using System.Windows.Shapes;
 using System.Windows;
-using ExplorerEx.View.Controls;
+using IWshRuntimeLibrary;
 using static ExplorerEx.Win32.Win32Interop;
 using File = System.IO.File;
 using Path = System.IO.Path;
-using Point = System.Windows.Point;
 
 namespace ExplorerEx.Utils;
-internal class FileUtils {
+internal static class FileUtils {
 	private static readonly HashSet<string> ProhibitedFileNames = new() {
 		"con",
 		"prn",
@@ -72,6 +69,8 @@ internal class FileUtils {
 			return string.Empty;
 		case 0:
 			return "0 byte";
+		case 1:
+			return "1 byte";
 		default:
 			var mag = (int)Math.Log(sizeInBytes, 1024);
 
@@ -105,14 +104,14 @@ internal class FileUtils {
 		if (type != FileOpType.Delete && (destinationFiles == null || sourceFiles.Count != destinationFiles.Count)) {
 			throw new ArgumentException("原文件与目标文件个数不匹配");
 		}
-		var fFlags = FILEOP_FLAGS.FOF_NOCONFIRMMKDIR | FILEOP_FLAGS.FOF_ALLOWUNDO;
+		var fFlags = FileOpFlags.FOF_NOCONFIRMMKDIR | FileOpFlags.FOF_ALLOWUNDO;
 		if (sourceFiles.Count > 1) {
-			fFlags |= FILEOP_FLAGS.FOF_MULTIDESTFILES;
+			fFlags |= FileOpFlags.FOF_MULTIDESTFILES;
 		}
 		if (type == FileOpType.Delete) {
-			fFlags |= FILEOP_FLAGS.FOF_NOCONFIRMATION;
+			fFlags |= FileOpFlags.FOF_NOCONFIRMATION;
 		}
-		var fo = new SHFILEOPSTRUCT {
+		var fo = new ShFileOpStruct {
 			fileOpType = type,
 			pFrom = ParseFileList(sourceFiles),
 			fFlags = fFlags
@@ -142,11 +141,11 @@ internal class FileUtils {
 		if (type != FileOpType.Delete && destinationFile == null) {
 			throw new ArgumentNullException(nameof(destinationFile), "必须指定目标文件名");
 		}
-		var fFlags = FILEOP_FLAGS.FOF_NOCONFIRMMKDIR | FILEOP_FLAGS.FOF_ALLOWUNDO;
+		var fFlags = FileOpFlags.FOF_NOCONFIRMMKDIR | FileOpFlags.FOF_ALLOWUNDO;
 		if (type == FileOpType.Delete) {
-			fFlags |= FILEOP_FLAGS.FOF_NOCONFIRMATION;
+			fFlags |= FileOpFlags.FOF_NOCONFIRMATION;
 		}
-		var fo = new SHFILEOPSTRUCT {
+		var fo = new ShFileOpStruct {
 			fileOpType = type,
 			pFrom = sourceFile + '\0',
 			fFlags = fFlags
@@ -160,7 +159,7 @@ internal class FileUtils {
 		}
 	}
 
-	public static void CreateShortCut(string lnkPath, string targetPath, string description = null, string iconPath = null) {
+	public static void CreateShortcut(string lnkPath, string targetPath, string description = null, string iconPath = null) {
 		var shell = new WshShell();
 		var shortcut = (IWshShortcut)shell.CreateShortcut(lnkPath);
 		shortcut.TargetPath = targetPath;
@@ -195,7 +194,7 @@ internal class FileUtils {
 				switch (content.Type) {
 				case DataObjectType.FileDrop:
 					var filePaths = (string[])content.Data.GetData(DataFormats.FileDrop);
-					if (filePaths is {Length: > 0}) {
+					if (filePaths is { Length: > 0 }) {
 						var destPaths = filePaths.Select(p => Path.Combine(destPath, Path.GetFileName(p))).ToList();
 						try {
 							if (type == DragDropEffects.Link) {
@@ -206,7 +205,7 @@ internal class FileUtils {
 									} else {
 										path = Path.ChangeExtension(path, ".lnk");
 									}
-									CreateShortCut(path, filePaths[i]);
+									CreateShortcut(path, filePaths[i]);
 								}
 							} else {
 								FileOperation(type == DragDropEffects.Move ? FileOpType.Move : FileOpType.Copy, filePaths, destPaths);
@@ -257,5 +256,3 @@ internal class FileUtils {
 		};
 	}
 }
-
-class FileUtilsImpl : FileUtils { }

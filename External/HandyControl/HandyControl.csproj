@@ -33,7 +33,6 @@
     <Page Remove="Themes\Styles\Base\CheckBoxBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\CheckComboBoxBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\ColorPickerBaseStyle.xaml" />
-    <Page Remove="Themes\Styles\Base\ComboBoxBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\ContextMenuBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\CoverFlowBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\CoverViewBaseStyle.xaml" />
@@ -223,7 +222,6 @@
     <None Include="Themes\Styles\Base\CheckBoxBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\CheckComboBoxBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\ColorPickerBaseStyle.xaml" />
-    <None Include="Themes\Styles\Base\ComboBoxBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\ContextMenuBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\CoverFlowBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\CoverViewBaseStyle.xaml" />

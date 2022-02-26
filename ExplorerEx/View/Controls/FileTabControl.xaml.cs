@@ -1,13 +1,14 @@
-﻿using ExplorerEx.Utils;
+﻿using System;
+using ExplorerEx.Utils;
 using ExplorerEx.ViewModel;
 using HandyControl.Data;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
+using ExplorerEx.Model;
 using ExplorerEx.Win32;
 using HandyControl.Controls;
 using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
@@ -20,6 +21,10 @@ public partial class FileTabControl {
 	/// 获取当前被聚焦的TabControl
 	/// </summary>
 	public static FileTabControl FocusedTabControl { get; private set; }
+	/// <summary>
+	/// 当前鼠标正在其上的FileTabControl
+	/// </summary>
+	public static FileTabControl MouseOverTabControl { get; private set; }
 	/// <summary>
 	/// 所有的TabControl
 	/// </summary>
@@ -82,14 +87,21 @@ public partial class FileTabControl {
 		DropCommand = new SimpleCommand(OnDrop);
 		TabControls.Add(this);
 		FocusedTabControl ??= this;
+
 		InitializeComponent();
 
-		TabItems.Add(grid ?? new FileViewGridViewModel(this));
+		if (grid != null) {
+			TabItems.Add(grid);
+		}
 	}
 
-	public async Task StartUpLoad(string path) {
-		if (!await SelectedTab.LoadDirectoryAsync(path)) {
-			MainWindow.Close();
+	public async Task StartUpLoad(params string[] startupPaths) {
+		if (startupPaths == null || startupPaths.Length == 0) {
+			await OpenPathInNewTabAsync(null);
+		} else {
+			foreach (var path in startupPaths) {
+				await OpenPathInNewTabAsync(path);
+			}
 		}
 	}
 
@@ -97,10 +109,11 @@ public partial class FileTabControl {
 		foreach (var tab in TabItems) {
 			tab.Dispose();
 		}
+		TabItems.Clear();
 	}
 
 	public async Task OpenPathInNewTabAsync(string path) {
-		var newTabIndex = SelectedIndex + 1;
+		var newTabIndex = Math.Max(Math.Min(SelectedIndex + 1, TabItems.Count), 0);
 		var item = new FileViewGridViewModel(this);
 		TabItems.Insert(newTabIndex, item);
 		SelectedIndex = newTabIndex;
@@ -125,32 +138,9 @@ public partial class FileTabControl {
 		base.OnPreviewMouseUp(e);
 	}
 
-	protected override void OnPreviewKeyDown(KeyEventArgs e) {
-		if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
-			switch (e.Key) {
-			case Key.Z:
-				break;
-			case Key.X:
-				SelectedTab.Copy(true);
-				break;
-			case Key.C:
-				SelectedTab.Copy(false);
-				break;
-			case Key.V:
-				SelectedTab.Paste();
-				break;
-			}
-		} else {
-			switch (e.Key) {
-			case Key.Delete:
-				SelectedTab.Delete((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift);
-				break;
-			default:
-				base.OnPreviewKeyDown(e);
-				return;
-			}
-		}
-		e.Handled = true;
+	protected override void OnGotFocus(RoutedEventArgs e) {
+		FocusedTabControl = this;
+		base.OnGotFocus(e);
 	}
 
 	/// <summary>
@@ -179,6 +169,7 @@ public partial class FileTabControl {
 				TabControls.Remove(this);
 				MainWindow.Close();
 			}
+			MouseOverTabControl = null;
 			UpdateFocusedTabControl();
 		} else {
 			if (SelectedIndex == 0) {
@@ -195,12 +186,14 @@ public partial class FileTabControl {
 			if (OwnerSplitGrid.AnyOtherTabs) {
 				TabControls.Remove(this);
 				OwnerSplitGrid.CancelSplit();
+				MouseOverTabControl = null;
 				UpdateFocusedTabControl();
 			} else {  // 说明就剩这一个Tab了
 				e.Cancel = true;
 				e.Handled = true;
 				switch (ConfigHelper.LoadInt("LastTabClosed")) {
 				case 1:
+					MouseOverTabControl = null;
 					MainWindow.Close();
 					break;
 				case 2:
@@ -236,7 +229,6 @@ public partial class FileTabControl {
 				SelectedIndex--;
 			}
 		}
-		GC.Collect();
 	}
 
 	private async void OnCreateNewTab(object args) {
@@ -253,7 +245,7 @@ public partial class FileTabControl {
 	private static void OnDrag(object args) {
 		var e = (TabItemDragEventArgs)args;
 		var tab = (FileViewGridViewModel)e.TabItem.DataContext;
-		if (tab.PathType == FileDataGrid.PathTypes.Home) {
+		if (tab.PathType == PathType.Home) {
 			e.DragEventArgs.Effects = DragDropEffects.None;
 			return;
 		}
@@ -265,9 +257,14 @@ public partial class FileTabControl {
 	private static void OnDrop(object args) {
 		var e = (TabItemDragEventArgs)args;
 		var tab = (FileViewGridViewModel)e.TabItem.DataContext;
-		if (tab.PathType == FileDataGrid.PathTypes.Home) {
+		if (tab.PathType == PathType.Home) {
 			return;
 		}
 		FileUtils.HandleDrop(new DataObjectContent(e.DragEventArgs.Data), tab.FullPath, e.DragEventArgs.Effects.GetFirstEffect());
+	}
+
+	protected override void OnMouseEnter(MouseEventArgs e) {
+		MouseOverTabControl = this;
+		base.OnMouseEnter(e);
 	}
 }

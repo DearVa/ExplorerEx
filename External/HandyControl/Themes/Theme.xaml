@@ -169,9 +169,6 @@
 			</Setter.Value>
 		</Setter>
 	</Style>
-	<Style TargetType="GridSplitter">
-		<Setter Property="Focusable" Value="False" />
-	</Style>
 	<Style TargetType="hc:Notification">
 		<Setter Property="hc:WindowAttach.IgnoreAltF4" Value="True" />
 		<Setter Property="hc:WindowAttach.ShowInTaskManager" Value="False" />
@@ -992,6 +989,27 @@
 				</MultiBinding>
 			</Setter.Value>
 		</Setter>
+	</Style>
+	<Style TargetType="GridSplitter">
+		<Setter Property="Focusable" Value="False" />
+		<Style.Triggers>
+			<Trigger Property="IsMouseOver" Value="True">
+				<Trigger.EnterActions>
+					<BeginStoryboard>
+						<Storyboard>
+							<ColorAnimation Storyboard.TargetProperty="Background.(SolidColorBrush.Color)" To="{StaticResource PrimaryColor}" Duration="0:0:0.2" />
+						</Storyboard>
+					</BeginStoryboard>
+				</Trigger.EnterActions>
+				<Trigger.ExitActions>
+					<BeginStoryboard>
+						<Storyboard>
+							<ColorAnimation Storyboard.TargetProperty="Background.(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0.2" />
+						</Storyboard>
+					</BeginStoryboard>
+				</Trigger.ExitActions>
+			</Trigger>
+		</Style.Triggers>
 	</Style>
 	<Style x:Key="RectangleFocusVisual" TargetType="Rectangle">
 		<Setter Property="Margin" Value="-2" />
@@ -6157,7 +6175,7 @@
 										<ColumnDefinition />
 									</Grid.ColumnDefinitions>
 									<ContentPresenter Margin="0,0,10,0" x:Name="Icon" HorizontalAlignment="Left" ContentSource="Icon" Height="16" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" Width="16" />
-									<Border Margin="0,0,10,0" IsHitTestVisible="False" Grid.Column="0" x:Name="GlyphPanel" CornerRadius="2" Background="{DynamicResource PrimaryBrush}" ClipToBounds="False" HorizontalAlignment="Right" Height="16" Visibility="Collapsed" VerticalAlignment="Center" Width="16">
+									<Border Margin="0,0,10,0" IsHitTestVisible="False" Grid.Column="0" x:Name="GlyphPanel" CornerRadius="2" Background="{DynamicResource PrimaryBrush}" ClipToBounds="False" HorizontalAlignment="Right" Height="16" Visibility="Hidden" VerticalAlignment="Center" Width="16">
 										<Path UseLayoutRounding="True" Width="12" Height="12" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource TextIconBrush}" />
 									</Border>
 									<ContentPresenter x:Name="menuHeaderContainer" ContentTemplate="{TemplateBinding HeaderTemplate}" Grid.Column="1" ContentStringFormat="{TemplateBinding HeaderStringFormat}" ContentSource="Header" HorizontalAlignment="Left" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" />
@@ -10363,18 +10381,18 @@
 								</ToggleButton>
 							</Grid>
 						</Border>
-						<Popup x:Name="Popup" AllowsTransparency="true" StaysOpen="False" IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Margin="0,15,0,0" PopupAnimation="Slide" Placement="Bottom">
-							<Border CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" x:Name="dropDownBorder" MaxHeight="{TemplateBinding MaxDropDownHeight}" MinWidth="{Binding ActualWidth, ElementName=templateRoot}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Background="{DynamicResource RegionBrush}" Margin="10" Effect="{StaticResource EffectShadow3}">
+						<hc:BlurPopup x:Name="Popup" AllowsTransparency="true" StaysOpen="False" IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Margin="0,15,0,0" PopupAnimation="Fade" Placement="Bottom">
+							<Border x:Name="dropDownBorder" MaxHeight="{TemplateBinding MaxDropDownHeight}" MinWidth="{Binding ActualWidth, ElementName=templateRoot}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Background="{DynamicResource BackgroundBrush}">
 								<ScrollViewer Margin="0,4" x:Name="DropDownScrollViewer">
 									<hc:SimplePanel RenderOptions.ClearTypeHint="Enabled">
 										<Canvas HorizontalAlignment="Left" Height="0" VerticalAlignment="Top" Width="0">
-											<Rectangle x:Name="opaqueRect" Fill="{Binding Background, ElementName=dropDownBorder}" Height="{Binding ActualHeight, ElementName=dropDownBorder}" Width="{Binding ActualWidth, ElementName=dropDownBorder}" />
+											<Rectangle x:Name="opaqueRect" Height="{Binding ActualHeight, ElementName=dropDownBorder}" Width="{Binding ActualWidth, ElementName=dropDownBorder}" />
 										</Canvas>
 										<ContentPresenter ContentSource="DropDownContent" />
 									</hc:SimplePanel>
 								</ScrollViewer>
 							</Border>
-						</Popup>
+						</hc:BlurPopup>
 					</hc:SimplePanel>
 					<ControlTemplate.Triggers>
 						<Trigger Property="Content" Value="{x:Null}">
@@ -10715,6 +10733,7 @@
 		<Setter Property="Padding" Value="10,0,0,0" />
 		<Setter Property="HorizontalContentAlignment" Value="Stretch" />
 		<Setter Property="VerticalContentAlignment" Value="Stretch" />
+		<Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
 		<Setter Property="Menu" Value="{StaticResource TabItemMenu}" />
 		<Setter Property="Template">
 			<Setter.Value>
@@ -10751,7 +10770,7 @@
 		</Setter>
 	</Style>
 	<ControlTemplate x:Key="TabControlPlusTemplate" TargetType="hc:TabControl">
-		<Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{x:Null}">
+		<Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{x:Null}" WindowChrome.IsHitTestVisibleInChrome="True">
 			<Grid x:Name="templateRoot" ClipToBounds="true" SnapsToDevicePixels="true" KeyboardNavigation.TabNavigation="Local">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition x:Name="ColumnDefinition0" />
