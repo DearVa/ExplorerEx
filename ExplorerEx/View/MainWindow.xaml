@@ -10,8 +10,8 @@
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
     xmlns:c="clr-namespace:ExplorerEx.Converter"
-    mc:Ignorable="d" d:DataContext="{d:DesignInstance v:MainWindow}" Title="ExplorerEx"
-    Background="Transparent" WindowStartupLocation="Manual" 
+    mc:Ignorable="d" d:DataContext="{d:DesignInstance v:MainWindow}" d:DesignWidth="1920" d:DesignHeight="1080"
+    Title="ExplorerEx" Background="Transparent" WindowStartupLocation="Manual" 
     Foreground="{DynamicResource PrimaryTextBrush}" BorderThickness="0">
 
     <WindowChrome.WindowChrome>
@@ -20,169 +20,246 @@
 
     <Grid x:Name="RootGrid" Margin="0,3,3,3">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="46"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition x:Name="SidebarColumnDefinition" Width="Auto"/>
+            <ColumnDefinition Width="1"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0" Background="{DynamicResource RegionBrush}" MouseLeftButtonDown="DragArea_OnMouseLeftButtonDown">
-            <Image HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="34" Margin="6,14,6,0" 
+        <Grid Grid.Column="0" Background="{DynamicResource RegionBrush}" 
+              MouseLeftButtonDown="DragArea_OnMouseLeftButtonDown" SizeChanged="Sidebar_OnSizeChanged">
+            <TabControl x:Name="SidebarTabControl" TabStripPlacement="Left" Focusable="False"
+                        SelectionChanged="Sidebar_OnSelectionChanged" PreviewMouseLeftButtonDown="Sidebar_OnPreviewMouseLeftButtonDown">
+                <TabItem Margin="0,50,0,-50" Width="50" Padding="0">
+                    <TabItem.Header>
+                        <Grid x:Name="StarTabItemGrid" Height="40" ToolTip="{u:Lang Bookmarks}" ToolTipService.InitialShowDelay="300">
+                            <Image Width="24" Height="24" Source="{StaticResource StarDrawingImage}"/>
+                        </Grid>
+                    </TabItem.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,10,0,0" Background="{DynamicResource PrimaryBrush}">
+                            <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" Text="{u:Lang Bookmarks}" FontSize="14"/>
+                        </Grid>
+                        <Grid Grid.Row="1" Background="{DynamicResource SecondaryRegionBrush}">
+                            <Grid.Resources>
+                                <ct:HoverContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
+                                    <MenuItem Command="{Binding OpenCommand}" 
+                                              Icon="{Binding Icon}" Header="{u:Lang Open}"/>
+                                    <MenuItem Command="{Binding OpenInNewTabCommand}" 
+                                              Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Tab}"/>
+                                    <MenuItem Command="{Binding OpenInNewWindowCommand}" 
+                                              Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Window}"/>
+                                    <Separator/>
+
+                                    <MenuItem Command="{Binding RemoveFromBookmarksCommand}"
+                                              Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang Remove_from_bookmarks}"/>
+                                    <Separator/>
+                                    <MenuItem Command="{Binding AddToBookmarksCommand}"
+                                              Icon="{StaticResource EditDrawingImage}" Header="{u:Lang Edit_bookmark}"/>
+                                    <Separator/>
+
+                                    <MenuItem Command="{Binding ShowPropertiesCommand}"
+                                              Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
+                                </ct:HoverContextMenu>
+
+                                <ct:HoverContextMenu x:Key="FileItemContextMenu" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
+                                    <MenuItem Command="{Binding OpenCommand}"
+                                              Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                              Icon="{Binding Icon}" Header="{u:Lang Open}"/>
+                                    <MenuItem Command="{Binding OpenCommand}"
+                                              Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                              Icon="{Binding Icon}" Header="{u:Lang Run}"/>
+                                    <MenuItem Command="{Binding OpenCommand}" CommandParameter="1"
+                                              Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                              Icon="{StaticResource UacDrawingImage}" Header="{u:Lang Run_as_admin}"/>
+                                    <MenuItem Command="{Binding EditCommand}"
+                                              Visibility="{Binding IsEditable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                              Icon="{StaticResource EditDrawingImage}" Header="{u:Lang Edit}"/>
+                                    <Separator/>
+
+                                    <MenuItem Command="{Binding RemoveFromBookmarksCommand}"
+                                              Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang Remove_from_bookmarks}"/>
+                                    <Separator/>
+
+                                    <MenuItem Command="{Binding ShowPropertiesCommand}"
+                                              Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
+                                </ct:HoverContextMenu>
+
+                                <c:FileSystemItemContextMenuConverter x:Key="FileSystemItemContextMenuConverter"
+                                                          DirectoryContextMenu="{StaticResource FolderItemContextMenu}"
+                                                          FileContextMenu="{StaticResource FileItemContextMenu}"/>
+                            </Grid.Resources>
+
+                            <ScrollViewer>
+                                <TreeView BorderThickness="0" ItemsSource="{Binding Source={x:Static m:BookmarkDbContext.BookmarkCategories}}">
+                                    <TreeView.ItemContainerStyle>
+                                        <Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemBaseStyle}">
+                                            <Setter Property="Focusable" Value="False"/>
+                                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                                        </Style>
+                                    </TreeView.ItemContainerStyle>
+                                    <TreeView.Resources>
+                                        <HierarchicalDataTemplate ItemsSource="{Binding Children}" DataType="{x:Type m:BookmarkCategory}">
+                                            <Grid Height="30">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Image Grid.Column="0" Margin="5" Stretch="Uniform" Source="{Binding Icon}"/>
+                                                <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" FontSize="13"/>
+                                            </Grid>
+                                        </HierarchicalDataTemplate>
+                                        <DataTemplate DataType="{x:Type m:BookmarkItem}">
+                                            <Grid Height="30" ToolTip="{Binding FullPath, Mode=OneWay}" ToolTipService.InitialShowDelay="300"
+                                                  ContextMenu="{Binding IsFolder, Converter={StaticResource FileSystemItemContextMenuConverter}}">
+                                                <hc:Interaction.Triggers>
+                                                    <hc:RoutedEventTrigger RoutedEvent="Grid.MouseLeftButtonDown">
+                                                        <hc:EventToCommand Command="{Binding MouseLeftButtonDownCommand}"/>
+                                                    </hc:RoutedEventTrigger>
+                                                </hc:Interaction.Triggers>
+
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Image Grid.Column="0" Margin="5" Stretch="Uniform" Source="{Binding Icon}"/>
+                                                <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" FontSize="13"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </TreeView.Resources>
+                                </TreeView>
+                            </ScrollViewer>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <TabItem Width="50" Margin="0,50,0,-50" Padding="0">
+                    <TabItem.Header>
+                        <Grid Height="40" ToolTip="{u:Lang This_computer}" ToolTipService.InitialShowDelay="300">
+                            <Image Width="24" Height="24" Source="../Assets/Picture/Computer.png"/>
+                        </Grid>
+                    </TabItem.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,10,0,0" Background="{DynamicResource PrimaryBrush}">
+                            <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" Text="{u:Lang This_computer}" FontSize="14"/>
+                        </Grid>
+                        <Grid Grid.Row="1" Background="{DynamicResource SecondaryRegionBrush}">
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <TabItem Width="50" Margin="0,50,0,-50" Padding="0">
+                    <TabItem.Header>
+                        <Grid Height="40" ToolTip="{u:Lang Network}" ToolTipService.InitialShowDelay="300">
+                            <Image Width="24" Height="24" Source="../Assets/Picture/Network.png"/>
+                        </Grid>
+                    </TabItem.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,10,0,0" Background="{DynamicResource PrimaryBrush}">
+                            <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" Text="{u:Lang Network}" FontSize="14"/>
+                        </Grid>
+                        <Grid Grid.Row="1" Background="{DynamicResource SecondaryRegionBrush}">
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <TabItem Width="50" Margin="0,50,0,-50" Padding="0">
+                    <TabItem.Header>
+                        <Grid Height="40" ToolTip="{u:Lang Recycle_bin}" ToolTipService.InitialShowDelay="300">
+                            <Image Width="24" Height="24" Source="../Assets/Picture/RecycleBin.png"/>
+                        </Grid>
+                    </TabItem.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,10,0,0" Background="{DynamicResource PrimaryBrush}">
+                            <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" Text="{u:Lang Recycle_bin}" FontSize="14"/>
+                        </Grid>
+                        <Grid Grid.Row="1" Background="{DynamicResource SecondaryRegionBrush}">
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <TabItem Width="50" Margin="0,50,0,-50" Padding="0">
+                    <TabItem.Header>
+                        <Grid Height="40" ToolTip="OneDrive" ToolTipService.InitialShowDelay="300">
+                            <Image Width="24" Height="24" Source="{StaticResource OneDriveDrawingImage}"/>
+                        </Grid>
+                    </TabItem.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,10,0,0" Background="{DynamicResource PrimaryBrush}">
+                            <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" Text="OneDrive" FontSize="14"/>
+                        </Grid>
+                        <Grid Grid.Row="1" Background="{DynamicResource SecondaryRegionBrush}">
+                        </Grid>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+
+            <hc:BlurPopup IsOpen="{Binding IsAddToBookmarkShow, Mode=TwoWay}" PopupAnimation="Fade" AllowsTransparency="True" 
+                          PlacementTarget="{Binding ElementName=StarTabItemGrid}" StaysOpen="False" Placement="Right">
+                <Border Background="{DynamicResource BackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2">
+                    <StackPanel Orientation="Vertical" Width="300" Margin="10">
+                        <TextBlock x:Name="AddToBookmarkTipTextBlock" FontSize="16" FontWeight="Bold"/>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{u:Lang Name}" VerticalAlignment="Center"/>
+                            <hc:TextBox x:Name="BookmarkNameTextBox" Grid.Row="0" Grid.Column="1" Margin="5,10,0,10"
+                                        Text="{Binding BookmarkName, Mode=TwoWay}" VerticalAlignment="Center" ShowClearButton="True"
+                                        FocusManager.FocusedElement="{Binding RelativeSource={RelativeSource Self}}"
+                                        GotKeyboardFocus="BookmarkNameTextBox_OnGotKeyboardFocus"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{u:Lang Category}" VerticalAlignment="Center"/>
+                            <hc:ComboBox x:Name="BookmarkCategoryComboBox" Grid.Row="1" Grid.Column="1" ShowClearButton="True" IsEditable="True" 
+                                         ItemsSource="{Binding Source={x:Static m:BookmarkDbContext.BookmarkCategories}}"
+                                         Text="{Binding BookmarkCategory, Mode=OneWayToSource}" Margin="5,0,0,0" SelectedIndex="0"/>
+                        </Grid>
+                        <Grid Margin="0,20,0,0">
+                            <Button HorizontalAlignment="Left" Width="100" Content="{u:Lang Ok}" Style="{DynamicResource ButtonSuccess}" Click="AddToBookmarkConfirm_OnClick"/>
+                            <Button HorizontalAlignment="Right" Width="100" Content="{u:Lang Delete}" Style="{DynamicResource ButtonDanger}" Click="AddToBookmarkDelete_OnClick"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </hc:BlurPopup>
+
+            <Image HorizontalAlignment="Left" VerticalAlignment="Top" Height="34" Margin="8,14,6,0" 
                    Stretch="Uniform" Source="../Assets/Picture/Logo.png" ToolTip="ExplorerEx"/>
 
-            <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="1,0,0,0">
-                <ToggleButton x:Name="StarToggleButton" HorizontalAlignment="Stretch" BorderBrush="{x:Null}"
-                              Height="40" Margin="3,0,3,0" Padding="0" 
-                              ToolTip="{u:Lang Bookmarks}" ToolTipService.InitialShowDelay="300">
-                    <Image Width="24" Height="24" Source="{StaticResource StarDrawingImage}"/>
-                </ToggleButton>
-                <hc:BlurPopup IsOpen="{Binding IsAddToBookmarkShow, Mode=TwoWay}" PopupAnimation="Fade" AllowsTransparency="True" 
-                              PlacementTarget="{Binding ElementName=StarToggleButton}" StaysOpen="False" Placement="Right">
-                    <Border Background="{DynamicResource BackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2">
-                        <StackPanel Orientation="Vertical" Width="300" Margin="10">
-                            <TextBlock x:Name="AddToBookmarkTipTextBlock" FontSize="16" FontWeight="Bold"/>
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{u:Lang Name}" VerticalAlignment="Center"/>
-                                <hc:TextBox x:Name="BookmarkNameTextBox" Grid.Row="0" Grid.Column="1" Margin="5,10,0,10"
-                                            Text="{Binding BookmarkName, Mode=TwoWay}" VerticalAlignment="Center" ShowClearButton="True"
-                                            FocusManager.FocusedElement="{Binding RelativeSource={RelativeSource Self}}"
-                                            GotKeyboardFocus="BookmarkNameTextBox_OnGotKeyboardFocus"/>
-
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="{u:Lang Category}" VerticalAlignment="Center"/>
-                                <hc:ComboBox x:Name="BookmarkCategoryComboBox" Grid.Row="1" Grid.Column="1" ShowClearButton="True" IsEditable="True" 
-                                             ItemsSource="{Binding Source={x:Static m:BookmarkDbContext.BookmarkCategories}}"
-                                             Text="{Binding BookmarkCategory, Mode=OneWayToSource}" Margin="5,0,0,0" SelectedIndex="0"/>
-                            </Grid>
-                            <Grid Margin="0,20,0,0">
-                                <Button HorizontalAlignment="Left" Width="100" Content="{u:Lang Ok}" Style="{DynamicResource ButtonSuccess}" Click="AddToBookmarkConfirm_OnClick"/>
-                                <Button HorizontalAlignment="Right" Width="100" Content="{u:Lang Delete}" Style="{DynamicResource ButtonDanger}" Click="AddToBookmarkDelete_OnClick"/>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-                </hc:BlurPopup>
-
-                <ToggleButton x:Name="PinToggleButton" HorizontalAlignment="Stretch" BorderBrush="{x:Null}"
-                              Height="40" Margin="3,3,3,0" Padding="0" 
-                              ToolTip="{u:Lang Quick_access}" ToolTipService.InitialShowDelay="300">
-                    <Image Width="24" Height="24" Source="{StaticResource PaperPlaneDrawingImage}"/>
-                </ToggleButton>
-            </StackPanel>
-
-            <Button HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="40" Margin="3,0,3,4"
+            <Button HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="40" Width="40" Margin="5,0,3,4"
                     ToolTip="{u:Lang Settings}" ToolTipService.InitialShowDelay="300" Padding="0" BorderBrush="{x:Null}">
                 <Image Width="24" Height="24" Source="{StaticResource SettingsDrawingImage}"/>
             </Button>
         </Grid>
 
-        <Grid Grid.Column="1" Width="200" Visibility="{Binding IsChecked, ElementName=StarToggleButton, Converter={StaticResource Boolean2VisibilityConverter}}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="50"/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-
-            <Grid Grid.Row="0" Margin="0,10,0,0" Background="{DynamicResource PrimaryBrush}">
-                <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" Text="{u:Lang Bookmarks}" FontSize="14"/>
-            </Grid>
-            <Grid Grid.Row="1" Background="{DynamicResource SecondaryRegionBrush}">
-                <Grid.Resources>
-                    <ct:HoverContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
-                        <MenuItem Command="{Binding OpenCommand}" 
-                                  Icon="{Binding Icon}" Header="{u:Lang Open}"/>
-                        <MenuItem Command="{Binding OpenInNewTabCommand}" 
-                                  Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Tab}"/>
-                        <MenuItem Command="{Binding OpenInNewWindowCommand}" 
-                                  Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Window}"/>
-                        <Separator/>
-
-                        <MenuItem Command="{Binding RemoveFromBookmarksCommand}"
-                                  Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang Remove_from_bookmarks}"/>
-                        <Separator/>
-                        <MenuItem Command="{Binding AddToBookmarksCommand}"
-                                  Icon="{StaticResource EditDrawingImage}" Header="{u:Lang Edit_bookmark}"/>
-                        <Separator/>
-
-                        <MenuItem Command="{Binding ShowPropertiesCommand}"
-                                  Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
-                    </ct:HoverContextMenu>
-
-                    <ct:HoverContextMenu x:Key="FileItemContextMenu" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
-                        <MenuItem Command="{Binding OpenCommand}"
-                                  Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
-                                  Icon="{Binding Icon}" Header="{u:Lang Open}"/>
-                        <MenuItem Command="{Binding OpenCommand}"
-                                  Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                                  Icon="{Binding Icon}" Header="{u:Lang Run}"/>
-                        <MenuItem Command="{Binding OpenCommand}" CommandParameter="1"
-                                  Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                                  Icon="{StaticResource UacDrawingImage}" Header="{u:Lang Run_as_admin}"/>
-                        <MenuItem Command="{Binding EditCommand}"
-                                  Visibility="{Binding IsEditable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                                  Icon="{StaticResource EditDrawingImage}" Header="{u:Lang Edit}"/>
-                        <Separator/>
-
-                        <MenuItem Command="{Binding RemoveFromBookmarksCommand}"
-                                  Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang Remove_from_bookmarks}"/>
-                        <Separator/>
-
-                        <MenuItem Command="{Binding ShowPropertiesCommand}"
-                                  Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
-                    </ct:HoverContextMenu>
-
-                    <c:FileSystemItemContextMenuConverter x:Key="FileSystemItemContextMenuConverter"
-                                                          DirectoryContextMenu="{StaticResource FolderItemContextMenu}"
-                                                          FileContextMenu="{StaticResource FileItemContextMenu}"/>
-                </Grid.Resources>
-
-                <ScrollViewer>
-                    <TreeView ItemsSource="{Binding Source={x:Static m:BookmarkDbContext.BookmarkCategories}}">
-                        <TreeView.ItemContainerStyle>
-                            <Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemBaseStyle}">
-                                <Setter Property="Focusable" Value="False"/>
-                                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
-                            </Style>
-                        </TreeView.ItemContainerStyle>
-                        <TreeView.Resources>
-                            <HierarchicalDataTemplate ItemsSource="{Binding Children}" DataType="{x:Type m:BookmarkCategory}">
-                                <Grid Height="30">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="30"/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <Image Grid.Column="0" Margin="5" Stretch="Uniform" Source="{Binding Icon}"/>
-                                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" FontSize="13"/>
-                                </Grid>
-                            </HierarchicalDataTemplate>
-                            <DataTemplate DataType="{x:Type m:BookmarkItem}">
-                                <Grid Height="30" ToolTip="{Binding FullPath, Mode=OneWay}" ToolTipService.InitialShowDelay="300"
-                                      ContextMenu="{Binding IsFolder, Converter={StaticResource FileSystemItemContextMenuConverter}}">
-                                    <hc:Interaction.Triggers>
-                                        <hc:RoutedEventTrigger RoutedEvent="Grid.MouseLeftButtonDown">
-                                            <hc:EventToCommand Command="{Binding MouseLeftButtonDownCommand}"/>
-                                        </hc:RoutedEventTrigger>
-                                    </hc:Interaction.Triggers>
-
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="30"/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <Image Grid.Column="0" Margin="5" Stretch="Uniform" Source="{Binding Icon}"/>
-                                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" FontSize="13"/>
-                                </Grid>
-                            </DataTemplate>
-                        </TreeView.Resources>
-                    </TreeView>
-                </ScrollViewer>
-            </Grid>
-        </Grid>
+        <GridSplitter Grid.Column="1" Margin="-2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                      PreviewMouseDown="SidebarSplitter_OnPreviewMouseDown" PreviewMouseMove="SidebarSplitter_OnPreviewMouseMove" PreviewMouseUp="SidebarSplitter_OnPreviewMouseUp"/>
 
         <Grid x:Name="ContentGrid" Grid.Column="2">
             <Border MouseDown="DragArea_OnMouseLeftButtonDown" Background="#22FFFFFF"/>

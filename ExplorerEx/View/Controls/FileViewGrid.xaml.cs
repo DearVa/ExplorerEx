@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using ExplorerEx.Model;
@@ -18,7 +19,7 @@ public partial class FileViewGrid {
 	/// </summary>
 	public SimpleCommand CreateCommand { get; }
 
-	public FileViewGridViewModel ViewModel => (FileViewGridViewModel)DataContext;
+	public FileViewGridViewModel ViewModel { get; private set; }
 
 	public FileViewGrid() {
 		CreateCommand = new SimpleCommand(e => {
@@ -26,8 +27,16 @@ public partial class FileViewGrid {
 				Create((CreateFileItem)menuItem.DataContext);
 			}
 		});
+		DataContextChanged += DataContext_OnChanged;
 
 		InitializeComponent();
+	}
+
+	private void DataContext_OnChanged(object sender, DependencyPropertyChangedEventArgs e) {
+		ViewModel = (FileViewGridViewModel)e.NewValue;
+		if (ViewModel != null) {
+			ViewModel.FileDataGrid = FileDataGrid;
+		}
 	}
 
 	/// <summary>

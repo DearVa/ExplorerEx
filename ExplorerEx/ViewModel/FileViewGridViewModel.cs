@@ -31,6 +31,8 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	public MainWindow OwnerWindow => OwnerTabControl.MainWindow;
 
+	public FileDataGrid FileDataGrid { get; set; }
+
 	/// <summary>
 	/// 当前的路径，如果是首页，就是“此电脑”
 	/// </summary>
@@ -60,11 +62,6 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	public ObservableCollection<FileViewBaseItem> Items { get; } = new();
 
 	public ObservableHashSet<FileViewBaseItem> SelectedItems { get; } = new();
-
-	/// <summary>
-	/// 设置要把某一项Scroll到视野中
-	/// </summary>
-	public FileViewBaseItem ScrollIntoViewItem { get; private set; }
 
 	public SimpleCommand SelectionChangedCommand { get; }
 
@@ -390,6 +387,8 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 #endif
 
 		fileListBuffer.Clear();
+		FileViewBaseItem scrollIntoViewItem = null;
+
 		if (isLoadHome) {
 			watcher.EnableRaisingEvents = false;
 
@@ -403,7 +402,7 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 					if (drive.Name == selectedPath) {
 						item.IsSelected = true;
 						SelectedItems.Add(item);
-						ScrollIntoViewItem = item;
+						scrollIntoViewItem = item;
 					}
 				}
 			}, token);
@@ -430,7 +429,7 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 					if (directory == selectedPath) {
 						item.IsSelected = true;
 						SelectedItems.Add(item);
-						ScrollIntoViewItem = item;
+						scrollIntoViewItem = item;
 					}
 				}
 				foreach (var filePath in Directory.EnumerateFiles(path)) {
@@ -444,7 +443,7 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 					if (filePath == selectedPath) {
 						item.IsSelected = true;
 						SelectedItems.Add(item);
-						ScrollIntoViewItem = item;
+						scrollIntoViewItem = item;
 					}
 				}
 			}, token);
@@ -472,9 +471,11 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 				Items.Add(fileViewBaseItem);
 			}
 			if (selectedPath == null) {
-				ScrollIntoViewItem = fileListBuffer[0];
+				scrollIntoViewItem = fileListBuffer[0];
 			}
-			PropertyUpdateUI(nameof(ScrollIntoViewItem));
+#pragma warning disable CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
+			dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => FileDataGrid.ScrollIntoView(scrollIntoViewItem));
+#pragma warning restore CS4014
 		}
 
 		if (recordHistory) {
@@ -898,5 +899,6 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		watcher?.Dispose();
 		cts?.Dispose();
 		everythingReplyCts?.Dispose();
+		GC.SuppressFinalize(this);
 	}
 }

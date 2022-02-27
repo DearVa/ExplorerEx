@@ -7,15 +7,18 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using ExplorerEx.Model;
 using ExplorerEx.Utils;
 using ExplorerEx.View.Controls;
 using ExplorerEx.Win32;
-using HandyControl.Controls;
 using Microsoft.EntityFrameworkCore;
+using HandyControl.Tools;
 using static ExplorerEx.Win32.Win32Interop;
+using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
+using TextBox = HandyControl.Controls.TextBox;
 
 namespace ExplorerEx.View;
 
@@ -42,7 +45,7 @@ public sealed partial class MainWindow {
 	private readonly HashSet<uint> everythingQueryIds = new();
 
 	private readonly string startupPath;
-	
+
 	public MainWindow() : this(null) { }
 
 	public MainWindow(string startupPath) {
@@ -166,23 +169,45 @@ public sealed partial class MainWindow {
 	}
 
 	/// <summary>
-	/// 打开给定的路径，如果窗口隐藏就会显示并打开，如果有窗口就会在FocusedTabControl打开新标签页。使用了Dispatcher，可以跨线程安全调用
+	/// 打开给定的路径，如果没有窗口就打开一个新的，如果有窗口就会在FocusedTabControl打开新标签页，需要在UI线程调用
 	/// </summary>
 	/// <param name="path"></param>
-	public static void OpenPath(string path) {
-		FileTabControl fileTabControl;
-		if (MainWindows.Count == 1) {
-			var window = MainWindows[0];
-			Application.Current.Dispatcher.Invoke(() => {
-				if (window.Visibility != Visibility.Visible) {
-					window.Visibility = Visibility.Visible;
-				}
-			});
-			fileTabControl = window.splitGrid.FileTabControl;
+	public static async void OpenPath(string path) {
+		if (MainWindows.Count == 0) {  // 窗口都关闭了
+			new MainWindow(path).Show();
 		} else {
-			fileTabControl = FileTabControl.FocusedTabControl;
+			var tabControl = FileTabControl.FocusedTabControl;
+			tabControl.MainWindow.BringToFront();
+			await tabControl.OpenPathInNewTabAsync(path);
 		}
-		Application.Current.Dispatcher.Invoke(() => fileTabControl.OpenPathInNewTabAsync(path));
+	}
+
+	/// <summary>
+	/// 显示主窗口
+	/// </summary>
+	public static void ShowWindow() {
+		if (MainWindows.Count == 0) {  // 窗口都关闭了
+			new MainWindow().Show();
+		} else {
+			MainWindows[0].BringToFront();
+		}
+	}
+
+	/// <summary>
+	/// 显示窗口，置顶并Focus，需要在UI线程调用
+	/// </summary>
+	public void BringToFront() {
+		if (Visibility != Visibility.Visible) {
+			Visibility = Visibility.Visible;
+		}
+		if (WindowState == WindowState.Minimized) {
+			WindowState = WindowState.Normal;
+		}
+		var topmost = Topmost;
+		Topmost = false;
+		Topmost = true;
+		Topmost = topmost;
+		Focus();
 	}
 
 	/// <summary>
@@ -322,13 +347,6 @@ public sealed partial class MainWindow {
 				e.Cancel = true;
 			}
 		}
-		if (MainWindows.Count == 1) {  // 如果只剩这一个窗口
-			Visibility = Visibility.Collapsed;
-			splitGrid.CancelSubSplit();
-			splitGrid.FileTabControl.CloseAllTabs();
-			e.Cancel = true;
-			GC.Collect();
-		}
 		base.OnClosing(e);
 	}
 
@@ -393,10 +411,10 @@ public sealed partial class MainWindow {
 
 	protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
 		base.OnRenderSizeChanged(sizeInfo);
-		if (sizeInfo.WidthChanged) {
+		if (sizeInfo.WidthChanged && (int)sizeInfo.NewSize.Width != (int)sizeInfo.PreviousSize.Width) {
 			ConfigHelper.Save("WindowWidth", (int)sizeInfo.NewSize.Width);
 		}
-		if (sizeInfo.HeightChanged) {
+		if (sizeInfo.HeightChanged && (int)sizeInfo.NewSize.Height != (int)sizeInfo.PreviousSize.Height) {
 			ConfigHelper.Save("WindowHeight", (int)sizeInfo.NewSize.Height);
 		}
 	}
@@ -430,5 +448,103 @@ public sealed partial class MainWindow {
 			}
 		}
 		base.OnKeyDown(e);
+	}
+
+	private void Sidebar_OnSizeChanged(object sender, SizeChangedEventArgs e) {
+		int width;
+		if (e.WidthChanged && (width = (int)e.NewSize.Width) != (int)e.PreviousSize.Width && SidebarTabControl.SelectedIndex != -1) {
+			ConfigHelper.Save("SidebarWidth", width);
+		}
+	}
+
+	private bool loaded;
+	private const double SidebarDefaultWidth = 300;
+
+	private void Sidebar_OnSelectionChanged(object sender, SelectionChangedEventArgs e) {
+		void UpdateSidebarColumnDefinitionWidth() {
+			var width = (double)ConfigHelper.LoadInt("SidebarWidth");
+			if (width < SidebarMinWidth) {
+				width = SidebarDefaultWidth;
+			}
+			SidebarColumnDefinition.Width = new GridLength(width);
+		}
+
+		var sidebar = (TabControl)sender;
+		if (loaded) {
+			if (sidebar.SelectedIndex == -1) {
+				ConfigHelper.Save("IsSidebarOpen", false);
+				SidebarColumnDefinition.Width = new GridLength(0, GridUnitType.Auto);
+			} else {
+				ConfigHelper.Save("IsSidebarOpen", true);
+				ConfigHelper.Save("SidebarIndex", sidebar.SelectedIndex);
+				UpdateSidebarColumnDefinitionWidth();
+			}
+		} else {
+			if (ConfigHelper.LoadBoolean("IsSidebarOpen")) {
+				sidebar.SelectedIndex = ConfigHelper.LoadInt("SidebarIndex");
+				UpdateSidebarColumnDefinitionWidth();
+			} else {
+				sidebar.SelectedIndex = -1;
+			}
+			loaded = true;
+		}
+	}
+
+	private void Sidebar_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+		var tabItem = e.OriginalSource.FindParent<TabItem>();
+		if (tabItem != null) {
+			if (tabItem.IsSelected) {
+				SidebarTabControl.SelectedIndex = -1;
+			} else {
+				SidebarTabControl.SelectedItem = tabItem;
+			}
+			e.Handled = true;
+		}
+	}
+
+	private double sidebarStartOffset;
+	private const double SidebarMinWidth = 200;
+
+	/// <summary>
+	/// 当拖动至MinWidth之后，会吸附，之后如果继续小于一半，就折叠，大于一半，就展开
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	/// <exception cref="NotImplementedException"></exception>
+	private void SidebarSplitter_OnPreviewMouseDown(object sender, MouseButtonEventArgs e) {
+		if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed) {
+			var splitter = (GridSplitter)sender;
+			splitter.CaptureMouse();
+			sidebarStartOffset = SidebarColumnDefinition.ActualWidth - e.GetPosition(this).X;
+		}
+		e.Handled = true;
+	}
+
+	private void SidebarSplitter_OnPreviewMouseMove(object sender, MouseEventArgs e) {
+		if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed) {
+			var isOpen = SidebarTabControl.SelectedIndex != -1;
+			var width = sidebarStartOffset + e.GetPosition(this).X;
+			if (width > SidebarMinWidth / 2) {
+				if (!isOpen) {
+					var index = ConfigHelper.LoadInt("SidebarIndex");
+					SidebarTabControl.SelectedIndex = index <= -1 ? 0 : index;
+				}
+				if (width > SidebarMinWidth) {
+					SidebarColumnDefinition.Width = new GridLength(width);
+				} else {
+					SidebarColumnDefinition.Width = new GridLength(SidebarMinWidth);
+				}
+			} else if (isOpen) {
+				SidebarTabControl.SelectedIndex = -1;
+				ConfigHelper.Save("SidebarWidth", SidebarMinWidth);
+			}
+		}
+		e.Handled = true;
+	}
+
+	private void SidebarSplitter_OnPreviewMouseUp(object sender, MouseButtonEventArgs e) {
+		var splitter = (GridSplitter)sender;
+		splitter.ReleaseMouseCapture();
+		e.Handled = true;
 	}
 }

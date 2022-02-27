@@ -398,4 +398,13 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="Exit" xml:space="preserve">
     <value>退出</value>
   </data>
+  <data name="Show_window" xml:space="preserve">
+    <value>显示窗口</value>
+  </data>
+  <data name="Recycle_bin" xml:space="preserve">
+    <value>回收站</value>
+  </data>
+  <data name="Network" xml:space="preserve">
+    <value>网络</value>
+  </data>
 </root>

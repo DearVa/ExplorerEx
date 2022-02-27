@@ -11,10 +11,12 @@ public partial class NotifyIconWindow {
 		
 		InitializeComponent();
 		NotifyIconContextContent.Init();
+		NotifyIconContextContent.MouseDoubleClick += ShowWindow;
 	}
 
-	private void OpenButton_OnClick(object sender, RoutedEventArgs e) {
-		App.Instance.OpenWindow(null);
+	private void ShowWindow(object sender, RoutedEventArgs e) {
+		MainWindow.ShowWindow();
+		NotifyIconContextContent.CloseContextControl();
 	}
 
 	private void ExitButton_OnClick(object sender, RoutedEventArgs e) {

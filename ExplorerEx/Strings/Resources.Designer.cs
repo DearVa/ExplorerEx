@@ -523,6 +523,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 网络 的本地化字符串。
+        /// </summary>
+        internal static string Network {
+            get {
+                return ResourceManager.GetString("Network", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 新建 的本地化字符串。
         /// </summary>
         internal static string New {
@@ -609,6 +618,15 @@ namespace ExplorerEx.Strings {
         internal static string Quick_access {
             get {
                 return ResourceManager.GetString("Quick_access", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 回收站 的本地化字符串。
+        /// </summary>
+        internal static string Recycle_bin {
+            get {
+                return ResourceManager.GetString("Recycle_bin", resourceCulture);
             }
         }
         
@@ -753,6 +771,15 @@ namespace ExplorerEx.Strings {
         internal static string Shortcut {
             get {
                 return ResourceManager.GetString("Shortcut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 显示窗口 的本地化字符串。
+        /// </summary>
+        internal static string Show_window {
+            get {
+                return ResourceManager.GetString("Show_window", resourceCulture);
             }
         }
         

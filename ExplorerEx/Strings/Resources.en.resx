@@ -290,4 +290,13 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="Exit" xml:space="preserve">
     <value>Exit</value>
   </data>
+  <data name="Show_window" xml:space="preserve">
+    <value>Show window</value>
+  </data>
+  <data name="Recycle_bin" xml:space="preserve">
+    <value>Recycle bin</value>
+  </data>
+  <data name="Network" xml:space="preserve">
+    <value>Network</value>
+  </data>
 </root>

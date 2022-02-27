@@ -26,7 +26,7 @@ public partial class FileTabControl {
 	/// </summary>
 	public static FileTabControl MouseOverTabControl { get; private set; }
 	/// <summary>
-	/// 所有的TabControl
+	/// 所有的TabControl，一个分屏一个
 	/// </summary>
 	private static readonly List<FileTabControl> TabControls = new();
 

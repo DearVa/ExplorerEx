@@ -14,43 +14,52 @@ internal static class Win32Interop {
 	// ReSharper disable UnusedMember.Global
 	// ReSharper disable FieldCanBeMadeReadOnly.Global
 	// ReSharper disable UnusedType.Global
-	[DllImport("user32.dll")]
+	private const string gdi32 = "gdi32.dll";
+	private const string user32 = "user32.dll";
+	private const string shell32 = "shell32.dll";
+	private const string kernel32 = "kernel32.dll";
+
+	private const string ntdll = "ntdll.dll";
+	private const string dwmapi = "dwmapi.dll";
+
+
+	[DllImport(user32)]
 	public static extern IntPtr SetCursor(IntPtr hCursor);
 
-	[DllImport("user32.dll")]
+	[DllImport(user32)]
 	public static extern IntPtr LoadCursor(IntPtr hInstance, long lpCursorName);
 
-	[DllImport("user32.dll")]
+	[DllImport(user32)]
 	public static extern bool GetCursorPos(ref Point point);
 
-	[DllImport("shell32.dll", BestFitMapping = false, CharSet = CharSet.Unicode)]
+	[DllImport(shell32, BestFitMapping = false, CharSet = CharSet.Unicode)]
 	public static extern IntPtr ExtractAssociatedIcon(ref IntPtr hInst, StringBuilder iconPath, ref int index);
 
-	[DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
+	[DllImport(user32, CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
 	public static extern bool GetIconInfo(IntPtr hIcon, IntPtr pIconInfo);
 
-	[DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
+	[DllImport(user32, CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
 	public static extern bool DestroyIcon(IntPtr hIcon);
 
-	[DllImport("user32.dll")]
+	[DllImport(user32)]
 	public static extern int GetDoubleClickTime();
 
-	[DllImport("gdi32.dll")]
+	[DllImport(gdi32)]
 	public static extern IntPtr CreateCompatibleDC(IntPtr hdc);
 
-	[DllImport("gdi32.dll")]
+	[DllImport(gdi32)]
 	public static extern bool DeleteDC(IntPtr hdc);
 
-	[DllImport("gdi32.dll")]
+	[DllImport(gdi32)]
 	public static extern IntPtr SelectObject(IntPtr hdc, IntPtr h);
 
-	[DllImport("gdi32.dll")]
+	[DllImport(gdi32)]
 	public static extern int GetObject(IntPtr h, int c, IntPtr pv);
 
-	[DllImport("gdi32.dll")]
+	[DllImport(gdi32)]
 	public static extern int GetDIBits(ref IntPtr hdc, ref IntPtr hbm, uint start, uint cLines, IntPtr lpvBits, IntPtr lpbmi, uint usage);
 
-	[DllImport("gdi32.dll")]
+	[DllImport(gdi32)]
 	public static extern bool DeleteObject(IntPtr hObject);
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -124,7 +133,7 @@ internal static class Win32Interop {
 		public string szTypeName;
 	}
 
-	[DllImport("kernel32.dll")]
+	[DllImport(kernel32)]
 	[return: MarshalAs(UnmanagedType.Bool)]
 	public static extern bool CloseHandle(IntPtr handle);
 
@@ -269,16 +278,16 @@ internal static class Win32Interop {
 	/// http://support.microsoft.com/default.aspx?scid=kb;EN-US;Q316931
 	/// Apparently (and hopefully) ordinal 727 isn't going to change.
 	///
-	[DllImport("shell32.dll", EntryPoint = "#727")]
+	[DllImport(shell32, EntryPoint = "#727")]
 	public static extern int SHGetImageList(uint iImageList, ref Guid riid, out IImageList ppv);
 
-	[DllImport("Shell32.dll", CharSet = CharSet.Ansi)]
+	[DllImport(shell32, CharSet = CharSet.Unicode)]
 	public static extern int SHGetFileInfo(string pszPath, uint dwFileAttributes, ref ShFileInfo psfi, int cbFileInfo, uint uFlags);
 
-	[DllImport("Shell32.dll")]
+	[DllImport(shell32)]
 	public static extern int SHGetFileInfo(IntPtr pszPath, uint dwFileAttributes, ref ShFileInfo psfi, int cbFileInfo, uint uFlags);
 
-	[DllImport("shell32.dll", SetLastError = true)]
+	[DllImport(shell32, SetLastError = true)]
 	public static extern int SHGetSpecialFolderLocation(IntPtr hwndOwner, int nFolder, ref IntPtr ppidl);
 
 	public const uint FILE_ATTRIBUTE_READONLY = 0x00000001;
@@ -319,7 +328,7 @@ internal static class Win32Interop {
 
 	public const int ILD_TRANSPARENT = 1;
 
-	[DllImport("shell32.dll", CharSet = CharSet.Auto)]
+	[DllImport(shell32, CharSet = CharSet.Auto)]
 	public static extern bool ShellExecuteEx(ref SHELLEXECUTEINFO lpExecInfo);
 
 	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
@@ -404,7 +413,7 @@ internal static class Win32Interop {
 		public byte reserved;
 	}
 
-	[DllImport("shell32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+	[DllImport(shell32, CharSet = CharSet.Unicode, SetLastError = true)]
 	internal static extern int SHCreateItemFromParsingName([MarshalAs(UnmanagedType.LPWStr)] string path, IntPtr pbc, ref Guid riid, [MarshalAs(UnmanagedType.Interface)] out IShellItem shellItem);
 
 	#endregion
@@ -427,13 +436,13 @@ internal static class Win32Interop {
 		return ShellExecuteEx(ref info);
 	}
 
-	[DllImport("User32.dll", SetLastError = true)]
+	[DllImport(user32, SetLastError = true)]
 	public static extern IntPtr SetClipboardViewer(IntPtr hWndNewViewer);
 
-	[DllImport("User32.dll", CharSet = CharSet.Auto)]
+	[DllImport(user32, CharSet = CharSet.Auto)]
 	public static extern bool ChangeClipboardChain(IntPtr hWndRemove, IntPtr hWndNewNext);
 
-	[DllImport("user32.dll", CharSet = CharSet.Auto)]
+	[DllImport(user32, CharSet = CharSet.Auto)]
 	public static extern int SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, IntPtr lParam);
 
 	public enum WinMessage {
@@ -475,7 +484,7 @@ internal static class Win32Interop {
 		AccentPolicy = 19
 	}
 
-	[DllImport("user32.dll")]
+	[DllImport(user32)]
 	public static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
 
 	public enum DwmWindowAttribute {
@@ -484,13 +493,13 @@ internal static class Win32Interop {
 		MicaEffect = 1029
 	}
 
-	[DllImport("dwmapi.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+	[DllImport(dwmapi, CharSet = CharSet.Unicode, SetLastError = true)]
 	public static extern long DwmSetWindowAttribute(IntPtr hwnd, DwmWindowAttribute attribute, ref int pvAttribute, uint cbAttribute);
 	#endregion
 
 	#region 文件操作
 
-	[DllImport("shell32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+	[DllImport(shell32, SetLastError = true, CharSet = CharSet.Unicode)]
 	public static extern int SHFileOperation(ShFileOpStruct lpFileOp);
 
 	/// <summary>
@@ -682,17 +691,17 @@ internal static class Win32Interop {
 		public UnicodeString CommandLine;
 	}
 
-	[DllImport("ntdll.dll")]
+	[DllImport(ntdll)]
 	public static extern uint NtQueryInformationProcess(IntPtr ProcessHandle, uint ProcessInformationClass, IntPtr ProcessInformation, uint ProcessInformationLength, out uint ReturnLength);
 
-	[DllImport("kernel32.dll")]
+	[DllImport(kernel32)]
 	public static extern IntPtr OpenProcess(OpenProcessDesiredAccessFlags dwDesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, uint dwProcessId);
 
-	[DllImport("kernel32.dll")]
+	[DllImport(kernel32)]
 	public static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, IntPtr lpBuffer, uint nSize, out uint lpNumberOfBytesRead);
 
 
-	[DllImport("shell32.dll", SetLastError = true, CharSet = CharSet.Unicode, EntryPoint = "CommandLineToArgvW")]
+	[DllImport(shell32, SetLastError = true, CharSet = CharSet.Unicode, EntryPoint = "CommandLineToArgvW")]
 	public static extern IntPtr CommandLineToArgv(string lpCmdLine, out int pNumArgs);
 
 	private static bool ReadStructFromProcessMemory<TStruct>(
@@ -759,16 +768,16 @@ internal static class Win32Interop {
 
 	#region 控制台
 
-	[DllImport("kernel32.dll", SetLastError = true)]
+	[DllImport(kernel32, SetLastError = true)]
 	internal static extern int AllocConsole();
 	
-	[DllImport("kernel32.dll", SetLastError = true)]
+	[DllImport(kernel32, SetLastError = true)]
 	internal static extern int FreeConsole();
 
-	[DllImport("kernel32.dll", SetLastError = true)]
+	[DllImport(kernel32, SetLastError = true)]
 	internal static extern IntPtr GetConsoleWindow();
 
-	[DllImport("kernel32.dll", SetLastError = true)]
+	[DllImport(kernel32, SetLastError = true)]
 	internal static extern bool AttachConsole(int dwProcessId);
 
 	#endregion

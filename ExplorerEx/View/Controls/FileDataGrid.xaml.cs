@@ -121,23 +121,6 @@ public partial class FileDataGrid {
 		set => SetValue(FullPathProperty, value);
 	}
 
-	public static readonly DependencyProperty ScrollIntoViewItemProperty = DependencyProperty.Register(
-		"ScrollIntoViewItem", typeof(FileViewBaseItem), typeof(FileDataGrid), new PropertyMetadata(null, ScrollIntoView_OnChanged));
-
-	private static void ScrollIntoView_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-		if (e.NewValue != e.OldValue && e.NewValue != null) {
-			var fileDataGrid = (FileDataGrid)d;
-			if (!fileDataGrid.isRectSelecting && !fileDataGrid.isDragDropping) {
-				fileDataGrid.ScrollIntoView(e.NewValue);
-			}
-		}
-	}
-
-	public FileViewBaseItem ScrollIntoViewItem {
-		get => (FileViewBaseItem)GetValue(ScrollIntoViewItemProperty);
-		set => SetValue(ScrollIntoViewItemProperty, value);
-	}
-
 	/// <summary>
 	/// 选择一个文件，参数为string文件名，不含路径
 	/// </summary>
@@ -678,6 +661,12 @@ public partial class FileDataGrid {
 		}
 		mouseDownRowIndex = -1;
 		e.Handled = true;
+	}
+
+	public new void ScrollIntoView(object item) {
+		if (item is FileViewBaseItem && !isRectSelecting && !isDragDropping) {
+			base.ScrollIntoView(item);
+		}
 	}
 
 	/// <summary>

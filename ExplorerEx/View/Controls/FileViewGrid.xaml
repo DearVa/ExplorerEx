@@ -156,7 +156,6 @@
                              PathType="{Binding PathType, Mode=OneWay}"
                              FullPath="{Binding FullPath, Mode=OneWay}"
                              DetailLists="{Binding DetailLists, Mode=OneWay}"
-                             ScrollIntoViewItem="{Binding ScrollIntoViewItem, Mode=OneWay}"
                              Background="{DynamicResource RegionBrush}" 
                              Foreground="{DynamicResource PrimaryTextBrush}">
                 <hc:Interaction.Triggers>

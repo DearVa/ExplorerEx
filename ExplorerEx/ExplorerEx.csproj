@@ -14,12 +14,18 @@
 
   <ItemGroup>
     <None Remove="Assets\LogConfig.xml" />
+    <None Remove="Assets\Picture\Computer.png" />
     <None Remove="Assets\Picture\Logo.ico" />
     <None Remove="Assets\Picture\Logo.png" />
+    <None Remove="Assets\Picture\Network.png" />
+    <None Remove="Assets\Picture\RecycleBin.png" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\ExplorerEx.ico" />
+    <Resource Include="Assets\Picture\Computer.png" />
+    <Resource Include="Assets\Picture\Network.png" />
+    <Resource Include="Assets\Picture\RecycleBin.png" />
     <Resource Include="Assets\Picture\Logo.ico" />
     <Resource Include="Assets\Picture\Logo.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>

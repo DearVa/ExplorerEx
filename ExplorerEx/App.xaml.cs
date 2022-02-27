@@ -34,7 +34,7 @@ public partial class App {
 		}
 	}
 
-	private bool running, windowShown;
+	private bool running;
 	private Mutex mutex;
 	private NotifyIconWindow notifyIconWindow;
 
@@ -76,7 +76,6 @@ public partial class App {
 		await FileViewDbContext.Instance.LoadOrMigrateAsync();
 		if (!Args.RunInBackground) {
 			new MainWindow().Show();
-			windowShown = true;
 		}
 		notifyIconWindow = new NotifyIconWindow();
 	}
@@ -93,19 +92,10 @@ public partial class App {
 				var msg = Encoding.UTF8.GetString(data).Split('|');
 				switch (msg[0]) {
 				case "Open":
-					OpenWindow(msg.Length == 2 ? msg[1] : null);
+					View.MainWindow.OpenPath(msg.Length == 2 ? msg[1] : null);
 					break;
 				}
 			}
-		}
-	}
-
-	public void OpenWindow(string path) {
-		if (windowShown) {
-			View.MainWindow.OpenPath(path);
-		} else {
-			Dispatcher.Invoke(() => new MainWindow(path).Show());
-			windowShown = true;
 		}
 	}
 
