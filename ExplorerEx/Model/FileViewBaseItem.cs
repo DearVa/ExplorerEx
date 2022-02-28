@@ -41,13 +41,6 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 	[NotMapped]
 	public bool IsFolder { get; protected set; }
 
-	/// <summary>
-	/// 是否是可执行文件
-	/// </summary>
-	public bool IsRunnable => !IsFolder && Name[..^4] is ".exe" or ".com" or ".cmd" or ".bat";
-
-	public bool IsEditable => !IsFolder && Name[..^4] is ".txt" or ".log" or ".ini" or ".inf" or ".cmd" or ".bat" or ".ps1";
-
 	public bool IsBookmarked => BookmarkDbContext.Instance.BookmarkDbSet.Any(b => b.FullPath == FullPath);
 
 	[NotMapped]
@@ -68,9 +61,10 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 	public SimpleCommand OpenInNewTabCommand { get; }
 
 	public SimpleCommand OpenInNewWindowCommand { get; }
-	
-	public SimpleCommand EditCommand { get; }
 
+	/// <summary>
+	/// 添加到书签
+	/// </summary>
 	public SimpleCommand AddToBookmarksCommand { get; }
 
 	public SimpleCommand RemoveFromBookmarksCommand { get; }
@@ -88,8 +82,6 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 			}
 		});
 		OpenInNewWindowCommand = new SimpleCommand(_ => new MainWindow(FullPath).Show());
-
-		EditCommand = new SimpleCommand(_ => OpenWith("notepad.exe"));
 
 		AddToBookmarksCommand = new SimpleCommand(_ => FileTabControl.FocusedTabControl.MainWindow.AddToBookmark(this));
 		RemoveFromBookmarksCommand = new SimpleCommand(_ => MainWindow.RemoveFromBookmark(this));
@@ -123,22 +115,6 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 			} catch (Exception e) {
 				HandyControl.Controls.MessageBox.Error(e.Message, "Fail to open file".L());
 			}
-		}
-	}
-
-	/// <summary>
-	/// 用某应用打开此文件
-	/// </summary>
-	/// <param name="app"></param>
-	public void OpenWith(string app) {
-		try {
-			Process.Start(new ProcessStartInfo {
-				FileName = app,
-				Arguments = FullPath,
-				UseShellExecute = true
-			});
-		} catch (Exception e) {
-			HandyControl.Controls.MessageBox.Error(e.Message, "Fail to open file".L());
 		}
 	}
 

@@ -19,7 +19,7 @@
         </Border>
     </Grid>
     <Border x:Name="OperationBorder" Visibility="Collapsed" Margin="60,125,0,150" HorizontalAlignment="Left" CornerRadius="3" SnapsToDevicePixels="True"
-            Background="{DynamicResource BackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+            Background="{DynamicResource RegionBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
         <Grid>
             <Path x:Name="MovePath" Visibility="Collapsed" Fill="#050569" Stretch="Uniform" Data="{StaticResource RightArrowGeometry}" 
                   Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,0,0,0"/>

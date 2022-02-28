@@ -11,10 +11,10 @@ namespace ExplorerEx.Converter;
 internal class FileSystemItemContextMenuConverter : IValueConverter {
 	public ContextMenu FileContextMenu { get; set; }
 
-	public ContextMenu DirectoryContextMenu { get; set; }
+	public ContextMenu FolderContextMenu { get; set; }
 
 	public object Convert(object isDirectory, Type targetType, object parameter, CultureInfo culture) {
-		return (bool)isDirectory! ? DirectoryContextMenu : FileContextMenu;
+		return (bool)isDirectory! ? FolderContextMenu : FileContextMenu;
 	}
 
 	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {

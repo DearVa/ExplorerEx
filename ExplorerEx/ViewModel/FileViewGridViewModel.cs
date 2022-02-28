@@ -233,7 +233,7 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			break;
 		case 4:  // 平铺
 			FileViewType = FileViewType.Tile;
-			ItemSize = new Size(260d, 70d);
+			ItemSize = new Size(280d, 70d);
 			break;
 		case 5:  // 内容
 			FileViewType = FileViewType.Content;
@@ -243,6 +243,7 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		PropertyUpdateUI(nameof(ItemSize));
 		PropertyUpdateUI(nameof(FileViewType));
 		PropertyUpdateUI(nameof(ViewTypeIndex));
+		FileDataGrid.UpdateColumns();
 
 		await SaveViewToDbAsync(null);
 		await LoadThumbnailsAsync();
@@ -460,10 +461,11 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 		Items.Clear();
 		PathType = isLoadHome ? PathType.Home : PathType.Normal;  // TODO: 网络驱动器、OneDrive等
+		PropertyUpdateUI(nameof(ItemSize));
 		PropertyUpdateUI(nameof(PathType));  // 一旦调用这个，模板就会改变，所以要在清空之后，不然会导致排版混乱和绑定失败
 		PropertyUpdateUI(nameof(DetailLists));
 		PropertyUpdateUI(nameof(FileViewType));
-		PropertyUpdateUI(nameof(ItemSize));
+		FileDataGrid.UpdateColumns();
 		PropertyUpdateUI(nameof(ViewTypeIndex));
 
 		if (fileListBuffer.Count > 0) {

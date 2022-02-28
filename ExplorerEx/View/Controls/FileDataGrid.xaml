@@ -102,9 +102,9 @@
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="TileTemplate">
-            <Grid Width="{Binding Path=(ct:FileDataGrid.ItemSize).Width, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}"
-                  Height="{Binding Path=(ct:FileDataGrid.ItemSize).Height, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}" 
-                  HorizontalAlignment="Left" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
+            <Grid d:DataContext="{d:DesignInstance m:FileViewBaseItem}"
+                  Width="{Binding Path=(ct:FileDataGrid.ItemSize).Width, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}"
+                  Height="{Binding Path=(ct:FileDataGrid.ItemSize).Height, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="{Binding Path=(ct:FileDataGrid.ItemSize).Height, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}"/>
                     <ColumnDefinition/>
@@ -148,22 +148,26 @@
         </DataTemplate>
         <!--主页显示驱动器-->
         <DataTemplate x:Key="TileHomeTemplate">
-            <Grid d:DataContext="{d:DesignInstance m:DiskDriveItem}" Width="260" Height="60" Margin="5" VerticalAlignment="Center">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="60"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Image Grid.Column="0" Source="{Binding Icon}" VerticalAlignment="Center" Margin="5"/>
-                <StackPanel Grid.Column="1" Orientation="Vertical">
-                    <TextBlock Text="{Binding Name, Mode=OneWay}"/>
-                    <ProgressBar Value="{Binding FreeSpaceRatio, Mode=OneWay}" 
-                                 Foreground="{Binding ProgressBarBackground, Mode=OneWay}"
-                                 Maximum="1" BorderThickness="1.5" Margin="0,5,0,5" 
-                                 SnapsToDevicePixels="True" hc:ProgressBarAttach.AnimationDisabled="True"
-                                 Visibility="{Binding Driver.IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                    <TextBlock Text="{Binding SpaceOverviewString, Mode=OneWay}"
-                               Visibility="{Binding Driver.IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                </StackPanel>
+            <Grid d:DataContext="{d:DesignInstance m:DiskDriveItem}"
+                  Width="280"
+                  Height="{Binding Path=(ct:FileDataGrid.ItemSize).Height, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}">
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="{Binding Path=(ct:FileDataGrid.ItemSize).Height, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Image Grid.Column="0" Source="{Binding Icon}" VerticalAlignment="Center" Margin="5"/>
+                    <StackPanel Grid.Column="1" Orientation="Vertical">
+                        <TextBlock Text="{Binding Name, Mode=OneWay}"/>
+                        <ProgressBar Value="{Binding FreeSpaceRatio, Mode=OneWay}" 
+                                     Foreground="{Binding ProgressBarBackground, Mode=OneWay}"
+                                     Maximum="1" BorderThickness="1.5" Margin="0,5,0,5" 
+                                     SnapsToDevicePixels="True" hc:ProgressBarAttach.AnimationDisabled="True"
+                                     Visibility="{Binding Driver.IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                        <TextBlock Text="{Binding SpaceOverviewString, Mode=OneWay}"
+                                   Visibility="{Binding Driver.IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                    </StackPanel>
+                </Grid>
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="NameColumn">
@@ -279,9 +283,9 @@
             </StackPanel>
         </ControlTemplate>
 
-        <ct:HoverContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
-            <MenuItem Height="35" Template="{StaticResource FileOperationsTemplate}"/>
-            <Separator/>
+        <ContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance m:FileSystemItem}">
+            <MenuItem Height="45" Template="{StaticResource FileOperationsTemplate}"/>
+            <Separator Margin="-30,0,0,0"/>
 
             <MenuItem Command="{Binding OpenCommand}" 
                       Icon="{Binding Icon}" Header="{u:Lang Open}"/>
@@ -289,7 +293,7 @@
                       Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Tab}"/>
             <MenuItem Command="{Binding OpenInNewWindowCommand}" 
                       Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Window}"/>
-            <Separator/>
+            <Separator Margin="-30,0,0,0"/>
 
             <MenuItem Command="{Binding AddToBookmarksCommand}"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
@@ -297,15 +301,15 @@
             <MenuItem Command="{Binding RemoveFromBookmarksCommand}"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang Remove_from_bookmarks}"/>
-            <Separator/>
+            <Separator Margin="-30,0,0,0"/>
 
             <MenuItem Command="{Binding ShowPropertiesCommand}"
                       Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
-        </ct:HoverContextMenu>
+        </ContextMenu>
 
-        <ct:HoverContextMenu x:Key="FileItemContextMenu" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
-            <MenuItem Height="35" Template="{StaticResource FileOperationsTemplate}"/>
-            <Separator/>
+        <ContextMenu x:Key="FileItemContextMenu" d:DataContext="{d:DesignInstance m:FileSystemItem}">
+            <MenuItem Height="45" Template="{StaticResource FileOperationsTemplate}"/>
+            <Separator Margin="-30,0,0,0"/>
 
             <MenuItem Command="{Binding OpenCommand}"
                       Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
@@ -319,7 +323,7 @@
             <MenuItem Command="{Binding EditCommand}"
                       Visibility="{Binding IsEditable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{StaticResource EditDrawingImage}" Header="{u:Lang Edit}"/>
-            <Separator/>
+            <Separator Margin="-30,0,0,0"/>
 
             <MenuItem Command="{Binding AddToBookmarksCommand}"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
@@ -327,14 +331,14 @@
             <MenuItem Command="{Binding RemoveFromBookmarksCommand}"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang Remove_from_bookmarks}"/>
-            <Separator/>
+            <Separator Margin="-30,0,0,0"/>
 
             <MenuItem Command="{Binding ShowPropertiesCommand}"
                       Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
-        </ct:HoverContextMenu>
+        </ContextMenu>
 
         <c:FileSystemItemContextMenuConverter x:Key="FileSystemItemContextMenuConverter"
-                                              DirectoryContextMenu="{StaticResource FolderItemContextMenu}"
+                                              FolderContextMenu="{StaticResource FolderItemContextMenu}"
                                               FileContextMenu="{StaticResource FileItemContextMenu}"/>
     </DataGrid.Resources>
 
@@ -381,7 +385,9 @@
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
                                     <DataGridColumnHeadersPresenter x:Name="PART_ColumnHeadersPresenter" Grid.ColumnSpan="2" Grid.Row="0" Grid.Column="1" Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.Column}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
-                                    <hc:ToggleBlock IsChecked="{Binding HasItems,RelativeSource={RelativeSource AncestorType=DataGrid},Mode=OneWay}" Grid.ColumnSpan="3" Grid.Column="0" Grid.Row="1" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                    <hc:ToggleBlock IsChecked="{Binding HasItems,RelativeSource={RelativeSource AncestorType=DataGrid},Mode=OneWay}" Grid.ColumnSpan="3" 
+                                                    Grid.Column="0" Grid.Row="1" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" 
+                                                    ContextMenu="{StaticResource FolderItemContextMenu}" DataContext="{Binding Folder, RelativeSource={RelativeSource AncestorType=ct:FileDataGrid}}">
                                         <hc:ToggleBlock.CheckedContent>
                                             <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanContentScroll="{TemplateBinding CanContentScroll}"/>
                                         </hc:ToggleBlock.CheckedContent>

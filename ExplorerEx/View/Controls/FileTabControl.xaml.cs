@@ -87,6 +87,7 @@ public partial class FileTabControl {
 		DropCommand = new SimpleCommand(OnDrop);
 		TabControls.Add(this);
 		FocusedTabControl ??= this;
+		MouseOverTabControl ??= this;
 
 		InitializeComponent();
 

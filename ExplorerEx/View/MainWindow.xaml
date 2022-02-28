@@ -89,7 +89,7 @@
                                 </ct:HoverContextMenu>
 
                                 <c:FileSystemItemContextMenuConverter x:Key="FileSystemItemContextMenuConverter"
-                                                          DirectoryContextMenu="{StaticResource FolderItemContextMenu}"
+                                                          FolderContextMenu="{StaticResource FolderItemContextMenu}"
                                                           FileContextMenu="{StaticResource FileItemContextMenu}"/>
                             </Grid.Resources>
 

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
 using ExplorerEx.Converter;
@@ -37,6 +37,9 @@ public partial class FileDataGrid {
 	public static DragFilesPreview DragFilesPreview { get; private set; }
 
 	private static DragDropWindow dragDropWindow;
+	/// <summary>
+	/// 正在拖放的items列表，从外部拖进来的不算
+	/// </summary>
 	private static FileViewBaseItem[] draggingItems;
 
 	/// <summary>
@@ -73,7 +76,7 @@ public partial class FileDataGrid {
 	}
 
 	public static readonly DependencyProperty FileViewTypeProperty = DependencyProperty.Register(
-		"FileViewType", typeof(FileViewType), typeof(FileDataGrid), new PropertyMetadata(FileViewType.Tile, OnViewChanged));
+		"FileViewType", typeof(FileViewType), typeof(FileDataGrid), new PropertyMetadata(FileViewType.Tile));
 
 	public FileViewType FileViewType {
 		get => (FileViewType)GetValue(FileViewTypeProperty);
@@ -81,7 +84,7 @@ public partial class FileDataGrid {
 	}
 
 	public static readonly DependencyProperty PathTypeProperty = DependencyProperty.Register(
-		"PathType", typeof(PathType), typeof(FileDataGrid), new PropertyMetadata(PathType.Home, OnViewChanged));
+		"PathType", typeof(PathType), typeof(FileDataGrid), new PropertyMetadata(PathType.Home));
 
 	public PathType PathType {
 		get => (PathType)GetValue(PathTypeProperty);
@@ -89,7 +92,7 @@ public partial class FileDataGrid {
 	}
 
 	public static readonly DependencyProperty ItemSizeProperty = DependencyProperty.Register(
-		"ItemSize", typeof(Size), typeof(FileDataGrid), new PropertyMetadata(default(Size), OnViewChanged));
+		"ItemSize", typeof(Size), typeof(FileDataGrid), new PropertyMetadata(default(Size)));
 
 	/// <summary>
 	/// 项目大小
@@ -100,25 +103,40 @@ public partial class FileDataGrid {
 	}
 
 	public static readonly DependencyProperty DetailListsProperty = DependencyProperty.Register(
-		"DetailLists", typeof(List<DetailList>), typeof(FileDataGrid), new PropertyMetadata(null, OnViewChanged));
+		"DetailLists", typeof(List<DetailList>), typeof(FileDataGrid), new PropertyMetadata(null));
 
 	public List<DetailList> DetailLists {
 		get => (List<DetailList>)GetValue(DetailListsProperty);
 		set => SetValue(DetailListsProperty, value);
 	}
 
-	private static void OnViewChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-		if (e.NewValue != e.OldValue) {
-			((FileDataGrid)d).UpdateColumns();
-		}
-	}
-
 	public static readonly DependencyProperty FullPathProperty = DependencyProperty.Register(
-		"FullPath", typeof(string), typeof(FileDataGrid), new PropertyMetadata(default(string)));
+		"FullPath", typeof(string), typeof(FileDataGrid), new PropertyMetadata(null, FullPath_OnChanged));
+
+	private static void FullPath_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		var fileDataGrid = (FileDataGrid)d;
+		fileDataGrid.isMouseDown = false;
+		fileDataGrid.isRectSelecting = false;
+		fileDataGrid.isDoubleClicked = false;
+		fileDataGrid.isPreparedForRenaming = false;
+		fileDataGrid.lastBIndex = fileDataGrid.lastRIndex = -1;
+		fileDataGrid.lastTIndex = fileDataGrid.lastLIndex = 0;
+	}
 
 	public string FullPath {
 		get => (string)GetValue(FullPathProperty);
 		set => SetValue(FullPathProperty, value);
+	}
+
+	public static readonly DependencyProperty FolderProperty = DependencyProperty.Register(
+		"Folder", typeof(FileViewBaseItem), typeof(FileDataGrid), new PropertyMetadata(default(FileViewBaseItem)));
+
+	/// <summary>
+	/// 当前文件夹
+	/// </summary>
+	public FileViewBaseItem Folder {
+		get => (FileViewBaseItem)GetValue(FolderProperty);
+		set => SetValue(FolderProperty, value);
 	}
 
 	/// <summary>
@@ -144,13 +162,13 @@ public partial class FileDataGrid {
 	/// <summary>
 	/// 根据<see cref="PathType"/>、<see cref="FileViewType"/>和<see cref="DetailLists"/>选择列，同时更新<see cref="DataGrid.ColumnHeaderHeight"/>
 	/// </summary>
-	private void UpdateColumns() {
+	public void UpdateColumns() {
 		if (contentGrid == null) {
 			return;
 		}
 		columnsConverter.Convert(Columns, PathType, FileViewType, DetailLists);
 		if (FileViewType == FileViewType.Detail) {
-			ColumnHeaderHeight = 20d;
+			ColumnHeaderHeight = 25d;
 			contentGrid.Margin = new Thickness(Padding.Left, 20 + Padding.Top, Padding.Right, Padding.Bottom);
 		} else {
 			ColumnHeaderHeight = 0d;
@@ -179,11 +197,15 @@ public partial class FileDataGrid {
 		var textBox = (TextBox)sender;
 		if (textBox.DataContext is FileViewBaseItem item) {
 			renamingItem = item;
-			var lastIndexOfDot = textBox.Text.LastIndexOf('.');
-			if (lastIndexOfDot == -1) {
+			if (item.IsFolder) {
 				textBox.SelectAll();
 			} else {
-				textBox.Select(0, lastIndexOfDot);
+				var lastIndexOfDot = textBox.Text.LastIndexOf('.');
+				if (lastIndexOfDot == -1) {
+					textBox.SelectAll();
+				} else {
+					textBox.Select(0, lastIndexOfDot);
+				}
 			}
 			e.Handled = true;
 		}
@@ -242,8 +264,6 @@ public partial class FileDataGrid {
 	/// <summary>
 	/// 用于处理双击事件
 	/// </summary>
-	private FileViewBaseItem lastClickItem;
-	private DateTimeOffset lastClickTime;
 	private bool isDoubleClicked;
 
 	/// <summary>
@@ -262,7 +282,7 @@ public partial class FileDataGrid {
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
 		isDoubleClicked = false;
-		if (e.OriginalSource.FindParent<ScrollBar, FileDataGrid>() != null) {
+		if (e.OriginalSource is not ScrollViewer && e.OriginalSource.FindParent<ToggleBlock, FileDataGrid>() == null) {
 			base.OnPreviewMouseDown(e);
 			return;
 		}
@@ -282,60 +302,49 @@ public partial class FileDataGrid {
 
 			if (ContainerFromElement(this, (DependencyObject)e.OriginalSource) is DataGridRow row) {
 				var item = (FileViewBaseItem)row.Item;
-				// 双击
-				if (item == lastClickItem && DateTimeOffset.Now <= lastClickTime.AddMilliseconds(Win32Interop.GetDoubleClickTime())) {
-					isDoubleClicked = true;
-					renameCts?.Cancel();
-					renameCts = null;
-					UnselectAll();
-					RaiseEvent(new ItemClickEventArgs(ItemDoubleClickedEvent, item));
-				} else {
-					mouseDownRowIndex = Items.IndexOf(item);
-					if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) {
+				mouseDownRowIndex = Items.IndexOf(item);
+				if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) {
+					lastMouseDownRowIndex = mouseDownRowIndex;
+					row.IsSelected = !row.IsSelected;
+				} else if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) {
+					if (lastMouseDownRowIndex == -1) {
 						lastMouseDownRowIndex = mouseDownRowIndex;
-						row.IsSelected = !row.IsSelected;
-					} else if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) {
-						if (lastMouseDownRowIndex == -1) {
-							lastMouseDownRowIndex = mouseDownRowIndex;
-							row.IsSelected = true;
-						} else {
-							if (mouseDownRowIndex != lastMouseDownRowIndex) {
-								int startIndex, endIndex;
-								if (mouseDownRowIndex < lastMouseDownRowIndex) {
-									startIndex = mouseDownRowIndex;
-									endIndex = lastMouseDownRowIndex;
-								} else {
-									startIndex = lastMouseDownRowIndex;
-									endIndex = mouseDownRowIndex;
-								}
-								UnselectAll();
-								for (var i = startIndex; i <= endIndex; i++) {
-									Items[i].IsSelected = true;
-								}
+						row.IsSelected = true;
+					} else {
+						if (mouseDownRowIndex != lastMouseDownRowIndex) {
+							int startIndex, endIndex;
+							if (mouseDownRowIndex < lastMouseDownRowIndex) {
+								startIndex = mouseDownRowIndex;
+								endIndex = lastMouseDownRowIndex;
+							} else {
+								startIndex = lastMouseDownRowIndex;
+								endIndex = mouseDownRowIndex;
+							}
+							UnselectAll();
+							for (var i = startIndex; i <= endIndex; i++) {
+								Items[i].IsSelected = true;
 							}
 						}
-					} else {
-						lastMouseDownRowIndex = mouseDownRowIndex;
-						var selectedItems = SelectedItems;
-						if (selectedItems.Count == 0) {
-							row.IsSelected = true;
-						} else if (!row.IsSelected) {
-							UnselectAll();
-							row.IsSelected = true;
-						} else if (selectedItems.Count == 1 && e.ChangedButton == MouseButton.Left) {
-							isPreparedForRenaming = true;
-						}
+					}
+				} else {
+					lastMouseDownRowIndex = mouseDownRowIndex;
+					var selectedItems = SelectedItems;
+					if (selectedItems.Count == 0) {
+						row.IsSelected = true;
+					} else if (!row.IsSelected) {
+						UnselectAll();
+						row.IsSelected = true;
+					} else if (selectedItems.Count == 1 && e.ChangedButton == MouseButton.Left) {
+						isPreparedForRenaming = true;
 					}
 				}
-				lastClickItem = item;
-				lastClickTime = DateTimeOffset.Now;
 			} else {
 				mouseDownRowIndex = -1;
-				startDragPosition = e.GetPosition(contentGrid);
-				var x = Math.Min(Math.Max(startDragPosition.X, 0), contentGrid.ActualWidth);
-				var y = Math.Min(Math.Max(startDragPosition.Y, 0), contentGrid.ActualHeight);
-				startSelectionPoint = new Point(x + scrollViewer.HorizontalOffset, y + scrollViewer.VerticalOffset);
 			}
+			startDragPosition = e.GetPosition(contentGrid);
+			var x = Math.Min(Math.Max(startDragPosition.X, 0), contentGrid.ActualWidth);
+			var y = Math.Min(Math.Max(startDragPosition.Y, 0), contentGrid.ActualHeight);
+			startSelectionPoint = new Point(x + scrollViewer.HorizontalOffset, y + scrollViewer.VerticalOffset);
 		}
 		e.Handled = true;
 	}
@@ -351,12 +360,12 @@ public partial class FileDataGrid {
 	/// </summary>
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseMove(MouseEventArgs e) {
-		if (e.OriginalSource.FindParent<ScrollBar, FileDataGrid>() != null || isDoubleClicked || isMenuOpen) {
-			base.OnPreviewMouseMove(e);
+		base.OnPreviewMouseMove(e);
+		if (!isMouseDown || isDoubleClicked || isDragDropping) {
 			return;
 		}
 		// 只有isMouseDown（即OnPreviewMouseDown触发过）为true，这个才有用
-		if (isMouseDown && !isDragDropping && e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed) {
+		if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed) {
 			var point = e.GetPosition(contentGrid);
 			if (Math.Abs(point.X - startDragPosition.X) > SystemParameters.MinimumHorizontalDragDistance ||
 				Math.Abs(point.Y - startDragPosition.Y) > SystemParameters.MinimumVerticalDragDistance) {
@@ -422,7 +431,8 @@ public partial class FileDataGrid {
 	/// </summary>
 	private void UpdateRectSelection() {
 		var point = Mouse.GetPosition(contentGrid);
-		var x = Math.Min(Math.Max(point.X, 0), contentGrid.ActualWidth) + scrollViewer.HorizontalOffset;
+		var actualWidth = contentGrid.ActualWidth;
+		var x = Math.Min(Math.Max(point.X, 0), actualWidth) + scrollViewer.HorizontalOffset;
 		var y = Math.Min(Math.Max(point.Y, 0), contentGrid.ActualHeight) + scrollViewer.VerticalOffset;
 		double l, t, w, h;
 		if (x < startSelectionPoint.X) {
@@ -449,14 +459,19 @@ public partial class FileDataGrid {
 			var itemHeight = ItemSize.Height;
 			var dY = itemHeight + 4;  // 上下两项的y值之差，4是两项之间的间距，是固定的值
 			if (itemWidth > 0) {
-				return;  // 暂不支持Grid框选
-				var xCount = (int)(contentGrid.ActualWidth / itemWidth);  // 横向能容纳多少个元素
+				var xCount = (int)(actualWidth / itemWidth);  // 横向能容纳多少个元素
 				var yCount = (int)MathF.Ceiling((float)items.Count / xCount);  // 纵向有多少行
-				var dX = contentGrid.ActualWidth / xCount;
-				var lIndex = Math.Max((int)((l + 4) / dX), 0);
-				var rIndex = Math.Min((int)((l + w) / dX), xCount - 1);
+				var dX = (contentGrid.ActualWidth - itemWidth * xCount) / (xCount + 2);  // 横向两项之间的间距，分散对齐，两边是有间距的
+				var r = l + w;
+				if (r < dX || l > actualWidth - dX) {
+					return;
+				}
+				var lIndex = Math.Max((int)((l - dX) / (dX + itemWidth)), 0);
+				var rIndex = Math.Min((int)(r / (dX + itemWidth)), xCount - 1);
 				var tIndex = Math.Max((int)((t + 4) / dY), 0);
 				var bIndex = Math.Min((int)((h + t) / dY), yCount - 1);
+				Trace.WriteLine($"l: {lIndex} r: {rIndex} t: {tIndex} b: {bIndex}");
+				return;
 				var selectedCount = 0;
 				if (lIndex != lastLIndex && lIndex < xCount) {
 					for (var yy = lastTIndex; yy <= lastBIndex; yy++) {
@@ -597,10 +612,8 @@ public partial class FileDataGrid {
 		}
 	}
 
-	private bool isMenuOpen;
-
 	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
-		if (e.OriginalSource.FindParent<ScrollBar, FileDataGrid>() != null || isDoubleClicked) {
+		if (!isMouseDown || isDoubleClicked) {
 			base.OnPreviewMouseUp(e);
 			return;
 		}
@@ -616,16 +629,20 @@ public partial class FileDataGrid {
 				isPreparedForRenaming = false;
 				if (mouseDownRowIndex >= 0 && mouseDownRowIndex < Items.Count) {  // 防止集合改变过
 					var item = Items[mouseDownRowIndex];
-					if (renameCts == null) {
-						var cts = renameCts = new CancellationTokenSource();
-						Task.Run(() => {
-							Thread.Sleep((int)(Win32Interop.GetDoubleClickTime() * 1.5f));  // 要比双击的时间长一些
-							if (!cts.IsCancellationRequested) {
-								item.BeginRename();
-							}
-						}, renameCts.Token);
+					if (item != renamingItem) {  // 上次命名的这次点击就不命名了
+						if (renameCts == null) {
+							var cts = renameCts = new CancellationTokenSource();
+							Task.Run(() => {
+								Thread.Sleep((int)(Win32Interop.GetDoubleClickTime() * 1.5f)); // 要比双击的时间长一些
+								if (!cts.IsCancellationRequested) {
+									item.BeginRename();
+								}
+							}, renameCts.Token);
+						} else {
+							renameCts = null;
+						}
 					} else {
-						renameCts = null;
+						renamingItem = null;
 					}
 				}
 			} else {
@@ -654,7 +671,6 @@ public partial class FileDataGrid {
 					} else {
 						// ContextMenu!.IsOpen = true;
 					}
-					isMenuOpen = true;
 					break;
 				}
 			}
@@ -675,8 +691,10 @@ public partial class FileDataGrid {
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseDoubleClick(MouseButtonEventArgs e) {
 		if (mouseDownRowIndex >= 0 && mouseDownRowIndex < Items.Count && e.ChangedButton == MouseButton.Left) {
+			isDoubleClicked = true;
 			renameCts?.Cancel();
 			renameCts = null;
+			UnselectAll();
 			RaiseEvent(new ItemClickEventArgs(ItemDoubleClickedEvent, Items[mouseDownRowIndex]));
 		}
 		e.Handled = true;
@@ -705,13 +723,61 @@ public partial class FileDataGrid {
 		if (DragFilesPreview != null) {
 			DragFilesPreview.Destination = null;
 		}
+		if (lastDragOnItem != null) {
+			lastDragOnItem.IsSelected = false;
+			lastDragOnItem = null;
+		}
 	}
+
+	/// <summary>
+	/// 上一个拖放到的item
+	/// </summary>
+	private FileViewBaseItem lastDragOnItem;
 
 	protected override void OnDragOver(DragEventArgs e) {
 		isDragDropping = true;
-		if (PathType == PathType.Home && TabItem.DraggingTab == null) {
+		if (TabItem.DraggingTab == null) {
 			e.Effects = DragDropEffects.None;
 			e.Handled = true;
+		} else {
+			FileViewBaseItem item;
+			string path;
+			if (ContainerFromElement(this, (DependencyObject)e.OriginalSource) is DataGridRow row) {
+				item = (FileViewBaseItem)row.Item;
+				path = item.FullPath;
+			} else {
+				item = null;
+				if (PathType == PathType.Home) {
+					e.Effects = DragDropEffects.None;
+					e.Handled = true;
+					return;
+				}
+				path = FullPath;
+			}
+			var contains = draggingItems?.Any(item => item.FullPath == path) ?? false;
+			if (lastDragOnItem != item) {
+				if (lastDragOnItem != null) {
+					lastDragOnItem.IsSelected = false;
+				}
+				if (item != null && !contains) {
+					lastDragOnItem = item;
+					item.IsSelected = true;  // 让拖放到的item高亮
+				}
+			}
+			if (DragFilesPreview != null) {
+				if (item != null && contains) {  // 自己不能往自己身上拖放
+					e.Effects = DragDropEffects.None;
+					e.Handled = true;
+					return;
+				}
+				DragFilesPreview.Destination = path;
+			}
+			if (e.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {
+				if (Path.GetDirectoryName(fileList[0]) == path) {  // 相同文件夹禁止移动
+					e.Effects = DragDropEffects.None;
+					e.Handled = true;
+				}
+			}
 		}
 	}
 
