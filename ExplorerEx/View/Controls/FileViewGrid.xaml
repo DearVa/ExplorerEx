@@ -149,27 +149,26 @@
         <v:ClippingBorder Grid.Row="0" Margin="10,0,10,5" CornerRadius="8" 
                               BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
                               Background="{DynamicResource RegionBrush}">
-            <ct:FileDataGrid x:Name="FileDataGrid" d:DataContext="{d:DesignInstance vm:FileViewGridViewModel}"
+            <ct:FileGrid x:Name="FileDataGrid" d:DataContext="{d:DesignInstance vm:FileViewGridViewModel}"
                              ItemsSource="{Binding Items}" 
                              ItemSize="{Binding ItemSize, Mode=OneWay}"
                              FileViewType="{Binding FileViewType, Mode=OneWay}"
                              PathType="{Binding PathType, Mode=OneWay}"
                              FullPath="{Binding FullPath, Mode=OneWay}"
                              DetailLists="{Binding DetailLists, Mode=OneWay}"
-                             Background="{DynamicResource RegionBrush}" 
-                             Foreground="{DynamicResource PrimaryTextBrush}">
+                             Background="{DynamicResource RegionBrush}">
                 <hc:Interaction.Triggers>
                     <hc:RoutedEventTrigger RoutedEvent="ListBox.SelectionChanged">
                         <hc:EventToCommand Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True"/>
                     </hc:RoutedEventTrigger>
-                    <hc:RoutedEventTrigger RoutedEvent="ct:FileDataGrid.FileDrop">
+                    <hc:RoutedEventTrigger RoutedEvent="ct:FileGrid.FileDrop">
                         <hc:EventToCommand Command="{Binding FileDropCommand}" PassEventArgsToCommand="True"/>
                     </hc:RoutedEventTrigger>
-                    <hc:RoutedEventTrigger RoutedEvent="ct:FileDataGrid.ItemDoubleClicked">
+                    <hc:RoutedEventTrigger RoutedEvent="ct:FileGrid.ItemDoubleClicked">
                         <hc:EventToCommand Command="{Binding ItemDoubleClickedCommand}" PassEventArgsToCommand="True"/>
                     </hc:RoutedEventTrigger>
                 </hc:Interaction.Triggers>
-            </ct:FileDataGrid>
+            </ct:FileGrid>
         </v:ClippingBorder>
 
         <Border Grid.Row="1" Padding="20,0,0,0">

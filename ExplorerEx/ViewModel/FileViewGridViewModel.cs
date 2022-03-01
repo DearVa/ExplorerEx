@@ -18,7 +18,7 @@ using ExplorerEx.View.Controls;
 using ExplorerEx.Win32;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using static ExplorerEx.View.Controls.FileDataGrid;
+using static ExplorerEx.View.Controls.FileGrid;
 using hc = HandyControl.Controls;
 
 namespace ExplorerEx.ViewModel;
@@ -31,7 +31,7 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	public MainWindow OwnerWindow => OwnerTabControl.MainWindow;
 
-	public FileDataGrid FileDataGrid { get; set; }
+	public FileGrid FileGrid { get; set; }
 
 	/// <summary>
 	/// 当前的路径，如果是首页，就是“此电脑”
@@ -243,7 +243,7 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		PropertyUpdateUI(nameof(ItemSize));
 		PropertyUpdateUI(nameof(FileViewType));
 		PropertyUpdateUI(nameof(ViewTypeIndex));
-		FileDataGrid.UpdateColumns();
+		FileGrid.UpdateView();
 
 		await SaveViewToDbAsync(null);
 		await LoadThumbnailsAsync();
@@ -353,7 +353,6 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 				FullPath = path;
 			}
 		}
-		PropertyUpdateUI(nameof(FullPath));
 		if (token.IsCancellationRequested) {
 			return false;
 		}
@@ -378,6 +377,7 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			DetailLists = null;
 			ItemSize = new Size(0d, 30d);
 		}
+		PropertyUpdateUI(nameof(FullPath));
 		if (token.IsCancellationRequested) {
 			return false;
 		}
@@ -465,7 +465,7 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		PropertyUpdateUI(nameof(PathType));  // 一旦调用这个，模板就会改变，所以要在清空之后，不然会导致排版混乱和绑定失败
 		PropertyUpdateUI(nameof(DetailLists));
 		PropertyUpdateUI(nameof(FileViewType));
-		FileDataGrid.UpdateColumns();
+		FileGrid.UpdateView();
 		PropertyUpdateUI(nameof(ViewTypeIndex));
 
 		if (fileListBuffer.Count > 0) {
@@ -476,7 +476,7 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 				scrollIntoViewItem = fileListBuffer[0];
 			}
 #pragma warning disable CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
-			dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => FileDataGrid.ScrollIntoView(scrollIntoViewItem));
+			dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => FileGrid.ScrollIntoView(scrollIntoViewItem));
 #pragma warning restore CS4014
 		}
 

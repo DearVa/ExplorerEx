@@ -250,8 +250,8 @@ public partial class FileTabControl {
 			e.DragEventArgs.Effects = DragDropEffects.None;
 			return;
 		}
-		if (FileDataGrid.DragFilesPreview != null) {
-			FileDataGrid.DragFilesPreview.Destination = tab.FullPath;
+		if (FileGrid.DragFilesPreview != null) {
+			FileGrid.DragFilesPreview.Destination = tab.FullPath;
 		}
 	}
 
