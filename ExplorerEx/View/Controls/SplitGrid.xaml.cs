@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -22,7 +26,7 @@ public enum SplitOrientation {
 /// <summary>
 /// 提供分屏支持
 /// </summary>
-public partial class SplitGrid {
+public partial class SplitGrid : IEnumerable<FileTabControl> {
 	public MainWindow MainWindow { get; }
 
 	public SplitGrid OwnerSplitGrid { get; private set; }
@@ -60,7 +64,7 @@ public partial class SplitGrid {
 		Name = $"SplitGrid{id++}";
 	}
 
-	public SplitGrid(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileViewGridViewModel grid = null) : this(mainWindow, ownerSplitGrid) {
+	public SplitGrid(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileGridViewModel grid = null) : this(mainWindow, ownerSplitGrid) {
 		FileTabControl = new FileTabControl(mainWindow, this, grid);
 		Children.Insert(0, FileTabControl);
 	}
@@ -87,7 +91,7 @@ public partial class SplitGrid {
 	/// <summary>
 	/// 分屏，将一个TabItem加入
 	/// </summary>
-	public void Split(FileViewGridViewModel grid, SplitOrientation orientation) {
+	public void Split(FileGridViewModel grid, SplitOrientation orientation) {
 		if (otherSplitGrid != null) {  // 已经分屏了，就直接返回
 			return;
 		}
@@ -234,7 +238,7 @@ public partial class SplitGrid {
 	private void DragArea_OnDrop(object s, DragEventArgs e) {
 		if (TabItem.DraggingTab != null) {
 			HidePreview();
-			Split((FileViewGridViewModel)TabItem.DraggingTab.DataContext, orientation);
+			Split((FileGridViewModel)TabItem.DraggingTab.DataContext, orientation);
 		}
 	}
 
@@ -300,7 +304,63 @@ public partial class SplitGrid {
 		}
 	}
 
+	public IEnumerator<FileTabControl> GetEnumerator() {
+		return new Enumerator(this);
+	}
+
 	public override string ToString() {
 		return Name;
+	}
+
+	IEnumerator IEnumerable.GetEnumerator() {
+		return GetEnumerator();
+	}
+
+	public class Enumerator : IEnumerator<FileTabControl> {
+		private readonly SplitGrid splitGrid;
+
+		private Stack<SplitGrid> splitGrids;
+
+		public Enumerator(SplitGrid splitGrid) {
+			this.splitGrid = splitGrid;
+		}
+
+		public bool MoveNext() {
+			if (splitGrids == null) {
+				splitGrids = new Stack<SplitGrid>();
+				splitGrids.Push(splitGrid);
+			} else if (splitGrids.Count == 0) {
+				return false;
+			}
+			while (true) {
+				var splitGrid = splitGrids.Pop();
+				if (splitGrid.thisSplitGrid == null) { // 没有分屏，
+					Current = splitGrid.FileTabControl;
+					break;
+				}
+				if (splitGrid.otherSplitGrid.thisSplitGrid != null) { // 分的两个屏都也分屏了
+					splitGrids.Push(splitGrid.thisSplitGrid);
+					splitGrids.Push(splitGrid.otherSplitGrid);  // 入栈，继续遍历
+				} else {
+					splitGrids.Push(splitGrid.thisSplitGrid);
+					Current = splitGrid.otherSplitGrid.FileTabControl;
+					break;
+				}
+			}
+			return true;
+		}
+
+		public void Reset() {
+			splitGrids = null;
+		}
+
+		public FileTabControl Current { get; private set; }
+
+		object IEnumerator.Current => Current;
+
+		public void Dispose() {
+			Current = null;
+			GC.SuppressFinalize(this);
+		}
 	}
 }

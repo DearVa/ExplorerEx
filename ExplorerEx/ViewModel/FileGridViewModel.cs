@@ -26,7 +26,7 @@ namespace ExplorerEx.ViewModel;
 /// <summary>
 /// 对应一个Tab
 /// </summary>
-public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
+public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	public FileTabControl OwnerTabControl { get; }
 
 	public MainWindow OwnerWindow => OwnerTabControl.MainWindow;
@@ -64,6 +64,11 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	public ObservableHashSet<FileViewBaseItem> SelectedItems { get; } = new();
 
 	public SimpleCommand SelectionChangedCommand { get; }
+
+	/// <summary>
+	/// 当前文件夹的FileViewBaseItem
+	/// </summary>
+	public FileViewBaseItem Folder { get; private set; }
 
 	public bool CanGoBack => nextHistoryIndex > 1;
 
@@ -164,7 +169,7 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	private CancellationTokenSource cts;
 
-	public FileViewGridViewModel(FileTabControl ownerTabControl) {
+	public FileGridViewModel(FileTabControl ownerTabControl) {
 		OwnerTabControl = ownerTabControl;
 		OwnerWindow.EverythingQueryReplied += OnEverythingQueryReplied;
 
@@ -243,7 +248,6 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		PropertyUpdateUI(nameof(ItemSize));
 		PropertyUpdateUI(nameof(FileViewType));
 		PropertyUpdateUI(nameof(ViewTypeIndex));
-		FileGrid.UpdateView();
 
 		await SaveViewToDbAsync(null);
 		await LoadThumbnailsAsync();
@@ -301,12 +305,14 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	}
 
 	private void AddHistory(string path) {
+		Debug.Assert(historyPaths.Count >= nextHistoryIndex);
 		if (historyPaths.Count == nextHistoryIndex) {
+			if (nextHistoryIndex > 0 && historyPaths[nextHistoryIndex - 1] == path) {
+				return;  // 如果相同就不记录
+			}
 			historyPaths.Add(path);
-		} else if (historyPaths.Count > nextHistoryIndex) {
-			historyPaths[nextHistoryIndex] = path;
 		} else {
-			throw new ApplicationException("Error: History Record");
+			historyPaths[nextHistoryIndex] = path;
 		}
 		nextHistoryIndex++;
 		historyCount = nextHistoryIndex;
@@ -346,13 +352,16 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 		if (isLoadHome) {
 			FullPath = "This_computer".L();
+			Folder = null;
 		} else {
 			if (path.Length > 3) {
 				FullPath = path.TrimEnd('\\');
-			} else {
+			} else {  // 根目录
 				FullPath = path;
 			}
 		}
+		Folder = new FileSystemItem(new DirectoryInfo(FullPath));
+		PropertyUpdateUI(nameof(Folder));
 		if (token.IsCancellationRequested) {
 			return false;
 		}
@@ -465,7 +474,6 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		PropertyUpdateUI(nameof(PathType));  // 一旦调用这个，模板就会改变，所以要在清空之后，不然会导致排版混乱和绑定失败
 		PropertyUpdateUI(nameof(DetailLists));
 		PropertyUpdateUI(nameof(FileViewType));
-		FileGrid.UpdateView();
 		PropertyUpdateUI(nameof(ViewTypeIndex));
 
 		if (fileListBuffer.Count > 0) {
@@ -753,7 +761,7 @@ public class FileViewGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 				Items.Clear();  // 清空文件列表，进入搜索模式
 
 				// EverythingInterop.Reset();
-				EverythingInterop.Search = searchText;
+				EverythingInterop.Search = PathType == PathType.Normal ? FullPath + ' ' + searchText : searchText;
 				EverythingInterop.Max = 999;
 				// EverythingInterop.SetRequestFlags(EverythingInterop.RequestType.FullPathAndFileName | EverythingInterop.RequestType.DateModified | EverythingInterop.RequestType.Size);
 				// EverythingInterop.SetSort(EverythingInterop.SortMode.NameAscending);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -10,6 +11,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media.Animation;
+using ExplorerEx.Converter;
 using ExplorerEx.Model;
 using ExplorerEx.Utils;
 using ExplorerEx.View.Controls;
@@ -31,9 +34,9 @@ public sealed partial class MainWindow {
 
 	public event Action<uint, EverythingInterop.QueryReply> EverythingQueryReplied;
 
-	private static readonly List<MainWindow> MainWindows = new();
+	public static readonly List<MainWindow> MainWindows = new();
 
-	private readonly SplitGrid splitGrid;
+	public readonly SplitGrid splitGrid;
 	private readonly HwndSource hwnd;
 	private IntPtr nextClipboardViewer;
 	private bool isClipboardViewerSet;
@@ -45,6 +48,8 @@ public sealed partial class MainWindow {
 	private readonly HashSet<uint> everythingQueryIds = new();
 
 	private readonly string startupPath;
+
+	private readonly StringFilter2VisibilityConverter bookmarkFilter;
 
 	public MainWindow() : this(null) { }
 
@@ -64,6 +69,8 @@ public sealed partial class MainWindow {
 
 		DataContext = this;
 		InitializeComponent();
+
+		bookmarkFilter = (StringFilter2VisibilityConverter)FindResource("BookmarkFilter");
 
 		if (ConfigHelper.LoadBoolean("WindowMaximized")) {
 			WindowState = WindowState.Maximized;
@@ -251,27 +258,21 @@ public sealed partial class MainWindow {
 		((TextBox)sender).SelectAll();
 	}
 
-	private FileViewBaseItem bookmarkItem;
+	private string[] bookmarkItems;
+	private int currentBookmarkIndex;
 	public string BookmarkCategory { get; set; }
 	private bool isDeleteBookmark;
 
 	/// <summary>
 	/// 添加到书签，如果已添加，则会提示编辑
 	/// </summary>
-	/// <param name="bookmarkItem"></param>
-	public void AddToBookmark(FileViewBaseItem bookmarkItem) {
-		this.bookmarkItem = bookmarkItem;
-		var fullPath = Path.GetFullPath(bookmarkItem.FullPath);
-		var dbBookmark = BookmarkDbContext.Instance.BookmarkDbSet.Local.FirstOrDefault(b => b.FullPath == fullPath);
-		if (dbBookmark != null) {
-			AddToBookmarkTipTextBlock.Text = "Edit_bookmark".L();
-			BookmarkName = dbBookmark.Name;
-			BookmarkCategoryComboBox.SelectedItem = dbBookmark.Category;
-		} else {
-			AddToBookmarkTipTextBlock.Text = "Add_to_bookmarks".L();
-			BookmarkName = fullPath.Length == 3 ? fullPath : Path.GetFileName(fullPath);
-			BookmarkCategoryComboBox.SelectedIndex = 0;
+	/// <param name="bookmarkItems"></param>
+	public void AddToBookmark(params string[] bookmarkItems) {
+		if (bookmarkItems == null || bookmarkItems.Length == 0) {
+			return;
 		}
+		this.bookmarkItems = bookmarkItems;
+		currentBookmarkIndex = 0;
 		IsAddToBookmarkShow = true;
 	}
 
@@ -286,9 +287,22 @@ public sealed partial class MainWindow {
 	}
 
 	private static async void IsAddToBookmarkShow_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-		if (!(bool)e.NewValue) {
-			var window = (MainWindow)d;
-			if (window.bookmarkItem != null) {
+		var window = (MainWindow)d;
+		var	bookmarkItem = window.bookmarkItems[window.currentBookmarkIndex];
+		if ((bool)e.NewValue) {
+			var fullPath = Path.GetFullPath(bookmarkItem);
+			var dbBookmark = BookmarkDbContext.Instance.BookmarkDbSet.Local.FirstOrDefault(b => b.FullPath == fullPath);
+			if (dbBookmark != null) {
+				window.AddToBookmarkTipTextBlock.Text = "Edit_bookmark".L();
+				window.BookmarkName = dbBookmark.Name;
+				window.BookmarkCategoryComboBox.SelectedItem = dbBookmark.Category;
+			} else {
+				window.AddToBookmarkTipTextBlock.Text = "Add_to_bookmarks".L();
+				window.BookmarkName = fullPath.Length == 3 ? fullPath : Path.GetFileName(fullPath);
+				window.BookmarkCategoryComboBox.SelectedIndex = 0;
+			}
+		} else {
+			if (bookmarkItem != null) {
 				if (!window.isDeleteBookmark) {
 					var category = window.BookmarkCategory.Trim();
 					if (string.IsNullOrWhiteSpace(category)) {
@@ -300,7 +314,7 @@ public sealed partial class MainWindow {
 						categoryItem = new BookmarkCategory(category);
 						await bookmarkDb.BookmarkCategoryDbSet.AddAsync(categoryItem);
 					}
-					var fullPath = window.bookmarkItem.FullPath;
+					var fullPath = Path.GetFullPath(bookmarkItem);
 					var dbBookmark = await BookmarkDbContext.Instance.BookmarkDbSet.FirstOrDefaultAsync(b => b.FullPath == fullPath);
 					if (dbBookmark != null) {
 						dbBookmark.Name = window.BookmarkName;
@@ -308,14 +322,19 @@ public sealed partial class MainWindow {
 						dbBookmark.Category = categoryItem;
 						await bookmarkDb.SaveChangesAsync();
 					} else {
-						var item = new BookmarkItem(window.bookmarkItem.FullPath, window.BookmarkName, categoryItem);
+						var item = new BookmarkItem(bookmarkItem, window.BookmarkName, categoryItem);
 						await bookmarkDb.BookmarkDbSet.AddAsync(item);
 						await bookmarkDb.SaveChangesAsync();
 						item.LoadIcon();
 					}
-					window.bookmarkItem.PropertyUpdateUI(nameof(window.bookmarkItem.IsBookmarked));
+					foreach (var updateItem in MainWindows.SelectMany(mw => mw.splitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
+						updateItem.PropertyUpdateUI(nameof(updateItem.IsBookmarked));
+					}
 				}
-				window.bookmarkItem = null;
+				window.currentBookmarkIndex++;
+				if (window.currentBookmarkIndex < window.bookmarkItems.Length) {
+					window.IsAddToBookmarkShow = true;
+				}
 			}
 		}
 	}
@@ -546,5 +565,44 @@ public sealed partial class MainWindow {
 		var splitter = (GridSplitter)sender;
 		splitter.ReleaseMouseCapture();
 		e.Handled = true;
+	}
+
+	private void SearchTextBox_OnTextChanged(object sender, TextChangedEventArgs e) {
+		bookmarkFilter.Filter = ((TextBox)sender).Text;
+		BookmarkTreeView.Items.Refresh();
+	}
+
+	private void BookmarkDragArea_OnDragEnter(object sender, DragEventArgs e) {
+		if (e.Data.GetData(DataFormats.FileDrop) == null) {
+			e.Effects = DragDropEffects.None;
+			return;
+		}
+		BookmarkDragTipGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(1d, TimeSpan.FromSeconds(0.1d)));
+	}
+
+	private void BookmarkDragArea_OnDragOver(object sender, DragEventArgs e) {
+		if (e.Data.GetData(DataFormats.FileDrop) == null) {
+			e.Effects = DragDropEffects.None;
+		}
+	}
+
+	private void BookmarkDragArea_OnDragLeave(object sender, DragEventArgs e) {
+		BookmarkDragTipGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0d, TimeSpan.FromSeconds(0.1d)));
+	}
+
+	private void BookmarkDragArea_OnDrop(object sender, DragEventArgs e) {
+		if (e.Data.GetData(DataFormats.FileDrop) is not string[] fileList) {
+			e.Effects = DragDropEffects.None;
+			return;
+		}
+		BookmarkDragTipGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0d, TimeSpan.FromSeconds(0.1d)));
+		AddToBookmark(fileList);
+	}
+
+	private void TabItem_OnDragEnter(object sender, DragEventArgs e) {
+		var tabItem = sender.FindParent<TabItem>();
+		if (tabItem != null) {
+			SidebarTabControl.SelectedItem = tabItem;
+		}
 	}
 }

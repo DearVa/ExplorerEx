@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using ExplorerEx.Converter;
 using ExplorerEx.Utils;
 using ExplorerEx.Win32;
 using Microsoft.EntityFrameworkCore;
@@ -63,7 +64,7 @@ public class BookmarkCategory : SimpleNotifyPropertyChanged {
 /// 书签项
 /// </summary>
 [Serializable]
-public class BookmarkItem : FileViewBaseItem {
+public class BookmarkItem : FileViewBaseItem, IFilterable {
 	[Key]
 	public override string FullPath { get; protected set; }
 
@@ -114,6 +115,10 @@ public class BookmarkItem : FileViewBaseItem {
 
 	protected override bool Rename() {
 		throw new NotImplementedException();
+	}
+
+	public bool Filter(string filter) {
+		return Name.Contains(filter);
 	}
 }
 

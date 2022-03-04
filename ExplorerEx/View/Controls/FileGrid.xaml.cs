@@ -90,7 +90,7 @@ public partial class FileGrid {
 	}
 
 	public static readonly DependencyProperty FileViewTypeProperty = DependencyProperty.Register(
-		"FileViewType", typeof(FileViewType), typeof(FileGrid), new PropertyMetadata(FileViewType.Tile));
+		"FileViewType", typeof(FileViewType), typeof(FileGrid), new PropertyMetadata(OnViewChanged));
 
 	public FileViewType FileViewType {
 		get => (FileViewType)GetValue(FileViewTypeProperty);
@@ -98,7 +98,7 @@ public partial class FileGrid {
 	}
 
 	public static readonly DependencyProperty PathTypeProperty = DependencyProperty.Register(
-		"PathType", typeof(PathType), typeof(FileGrid), new PropertyMetadata(PathType.Home));
+		"PathType", typeof(PathType), typeof(FileGrid), new PropertyMetadata(OnViewChanged));
 
 	public PathType PathType {
 		get => (PathType)GetValue(PathTypeProperty);
@@ -106,7 +106,7 @@ public partial class FileGrid {
 	}
 
 	public static readonly DependencyProperty ItemSizeProperty = DependencyProperty.Register(
-		"ItemSize", typeof(Size), typeof(FileGrid), new PropertyMetadata(default(Size)));
+		"ItemSize", typeof(Size), typeof(FileGrid), new PropertyMetadata(OnViewChanged));
 
 	/// <summary>
 	/// 项目大小
@@ -117,7 +117,7 @@ public partial class FileGrid {
 	}
 
 	public static readonly DependencyProperty DetailListsProperty = DependencyProperty.Register(
-		"DetailLists", typeof(List<DetailList>), typeof(FileGrid), new PropertyMetadata(null));
+		"DetailLists", typeof(List<DetailList>), typeof(FileGrid), new PropertyMetadata(OnViewChanged));
 
 	public List<DetailList> DetailLists {
 		get => (List<DetailList>)GetValue(DetailListsProperty);
@@ -135,6 +135,7 @@ public partial class FileGrid {
 		fileDataGrid.isPreparedForRenaming = false;
 		fileDataGrid.lastBIndex = fileDataGrid.lastRIndex = -1;
 		fileDataGrid.lastTIndex = fileDataGrid.lastLIndex = 0;
+		fileDataGrid.UpdateView();
 	}
 
 	public string FullPath {
@@ -146,7 +147,7 @@ public partial class FileGrid {
 		"Folder", typeof(FileViewBaseItem), typeof(FileGrid), new PropertyMetadata(default(FileViewBaseItem)));
 
 	/// <summary>
-	/// 当前文件夹
+	/// 当前文件夹，用于空白右键ContextMenu的DataContext
 	/// </summary>
 	public FileViewBaseItem Folder {
 		get => (FileViewBaseItem)GetValue(FolderProperty);
@@ -182,13 +183,17 @@ public partial class FileGrid {
 		((FileGridListBoxTemplateConverter)FindResource("ListBoxTemplateConverter")).FileGrid = this;
 	}
 
+	private static void OnViewChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		((FileGrid)d).UpdateView();
+	}
+
 	/// <summary>
 	/// 更新视图，包括<see cref="PathType"/>、<see cref="FileViewType"/>和<see cref="DetailLists"/>
 	/// </summary>
 	public void UpdateView() {
 		if (FileViewType == FileViewType.Detail) {
 			ItemsControl = DataGrid;
-			columnsConverter.Convert(DataGrid.Columns, PathType, FileViewType, DetailLists);
+			columnsConverter.Convert(DataGrid.Columns, PathType, DetailLists);
 			ListBox.ItemsSource = null;
 			DataGrid.ItemsSource = ItemsSource;
 			DataGrid.Visibility = Visibility.Visible;  // 就不用了binding了
@@ -651,23 +656,27 @@ public partial class FileGrid {
 				if (l < row0.DesiredSize.Width) {  // 框的左边界在列内。每列Width都是一样的
 					var tIndex = Math.Max((int)((t + 4) / dY), 0);
 					var bIndex = Math.Min((int)((h + t) / dY), items.Count - 1);
-					if (tIndex != lastTIndex && tIndex < items.Count) {
-						for (var i = lastTIndex; i < tIndex; i++) {
-							items[i].IsSelected = false;
+					if (tIndex > bIndex) {
+						UnselectAll();
+					} else {
+						if (tIndex != lastTIndex && tIndex < items.Count) {
+							for (var i = lastTIndex; i < tIndex; i++) {
+								items[i].IsSelected = false;
+							}
+							for (var i = tIndex; i <= lastTIndex && i <= bIndex; i++) {
+								items[i].IsSelected = true;
+							}
+							lastTIndex = tIndex;
 						}
-						for (var i = tIndex; i <= lastTIndex && i <= bIndex; i++) {
-							items[i].IsSelected = true;
+						if (bIndex != lastBIndex && bIndex >= 0) {
+							for (var i = bIndex + 1; i <= lastBIndex; i++) {
+								items[i].IsSelected = false;
+							}
+							for (var i = Math.Max(lastBIndex + 1, tIndex); i <= bIndex; i++) {
+								items[i].IsSelected = true;
+							}
+							lastBIndex = bIndex;
 						}
-						lastTIndex = tIndex;
-					}
-					if (bIndex != lastBIndex && bIndex >= 0) {
-						for (var i = bIndex + 1; i <= lastBIndex; i++) {
-							items[i].IsSelected = false;
-						}
-						for (var i = Math.Max(lastBIndex + 1, tIndex); i <= bIndex; i++) {
-							items[i].IsSelected = true;
-						}
-						lastBIndex = bIndex;
 					}
 				} else if (lastTIndex <= lastBIndex) {
 					for (var i = lastTIndex; i <= lastBIndex; i++) {
@@ -736,8 +745,8 @@ public partial class FileGrid {
 						var menu = ((FrameworkElement)ItemsControl.ContainerFromElement(ItemsControl, o))!.ContextMenu!;
 						menu.DataContext = item;
 						menu.IsOpen = true;
-					} else {
-						// ContextMenu!.IsOpen = true;
+					} else if (Folder != null) {
+						ContextMenu!.IsOpen = true;
 					}
 					break;
 				}

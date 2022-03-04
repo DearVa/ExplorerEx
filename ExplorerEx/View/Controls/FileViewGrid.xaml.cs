@@ -19,7 +19,7 @@ public partial class FileViewGrid {
 	/// </summary>
 	public SimpleCommand CreateCommand { get; }
 
-	public FileViewGridViewModel ViewModel { get; private set; }
+	public FileGridViewModel GridViewModel { get; private set; }
 
 	public FileViewGrid() {
 		CreateCommand = new SimpleCommand(e => {
@@ -33,9 +33,9 @@ public partial class FileViewGrid {
 	}
 
 	private void DataContext_OnChanged(object sender, DependencyPropertyChangedEventArgs e) {
-		ViewModel = (FileViewGridViewModel)e.NewValue;
-		if (ViewModel != null) {
-			ViewModel.FileGrid = FileDataGrid;
+		GridViewModel = (FileGridViewModel)e.NewValue;
+		if (GridViewModel != null) {
+			GridViewModel.FileGrid = FileDataGrid;
 		}
 	}
 
@@ -43,7 +43,7 @@ public partial class FileViewGrid {
 	/// 创建文件或文件夹
 	/// </summary>
 	public void Create(CreateFileItem item) {
-		var viewModel = ViewModel;
+		var viewModel = GridViewModel;
 		if (viewModel.PathType == PathType.Home) {
 			return;
 		}
@@ -57,7 +57,7 @@ public partial class FileViewGrid {
 	private async void AddressBar_OnKeyDown(object sender, KeyEventArgs e) {
 		switch (e.Key) {
 		case Key.Enter:
-			await ViewModel.LoadDirectoryAsync(((TextBox)sender).Text);
+			await GridViewModel.LoadDirectoryAsync(((TextBox)sender).Text);
 			break;
 		}
 	}

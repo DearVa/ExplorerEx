@@ -14,13 +14,17 @@
     Title="ExplorerEx" Background="Transparent" WindowStartupLocation="Manual" 
     Foreground="{DynamicResource PrimaryTextBrush}" BorderThickness="0">
 
+    <Window.Resources>
+        <c:StringFilter2VisibilityConverter x:Key="BookmarkFilter"/>
+    </Window.Resources>
+
     <WindowChrome.WindowChrome>
         <WindowChrome GlassFrameThickness="-1" ResizeBorderThickness="1" UseAeroCaptionButtons="True"/>
     </WindowChrome.WindowChrome>
 
     <Grid x:Name="RootGrid" Margin="0,3,3,3">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="SidebarColumnDefinition" Width="Auto"/>
+            <ColumnDefinition x:Name="SidebarColumnDefinition" Width="300"/>
             <ColumnDefinition Width="1"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
@@ -30,20 +34,55 @@
                         SelectionChanged="Sidebar_OnSelectionChanged" PreviewMouseLeftButtonDown="Sidebar_OnPreviewMouseLeftButtonDown">
                 <TabItem Margin="0,50,0,-50" Width="50" Padding="0">
                     <TabItem.Header>
-                        <Grid x:Name="StarTabItemGrid" Height="40" ToolTip="{u:Lang Bookmarks}" ToolTipService.InitialShowDelay="300">
+                        <Grid x:Name="StarTabItemGrid" Height="40" ToolTip="{u:Lang Bookmarks}" ToolTipService.InitialShowDelay="300"
+                              AllowDrop="True" DragEnter="TabItem_OnDragEnter">
                             <Image Width="24" Height="24" Source="{StaticResource StarDrawingImage}"/>
                         </Grid>
                     </TabItem.Header>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="50"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
 
+                        <Grid.Triggers>
+                            <EventTrigger SourceName="SearchToggleButton" RoutedEvent="ToggleButton.Checked">
+                                <EventTrigger.Actions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Height" Storyboard.TargetName="SearchBoxGrid" 
+                                                             To="40" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger.Actions>
+                            </EventTrigger>
+                            <EventTrigger SourceName="SearchToggleButton" RoutedEvent="ToggleButton.Unchecked">
+                                <EventTrigger.Actions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Height" Storyboard.TargetName="SearchBoxGrid" 
+                                                             To="0" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger.Actions>
+                            </EventTrigger>
+                        </Grid.Triggers>
+
+                        <Grid x:Name="SearchBoxGrid" Grid.Row="1" Height="0" ClipToBounds="True">
+                            <hc:TextBox Margin="5,0,5,5" Height="30" VerticalAlignment="Bottom" ShowClearButton="True" 
+                                        hc:InfoElement.Placeholder="{u:Lang Search}" TextChanged="SearchTextBox_OnTextChanged"
+                                        Visibility="{Binding IsChecked, ElementName=SearchToggleButton, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                        </Grid>
+
                         <Grid Grid.Row="0" Margin="0,10,0,0" Background="{DynamicResource PrimaryBrush}">
                             <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" Text="{u:Lang Bookmarks}" FontSize="14"/>
+                            <ToggleButton x:Name="SearchToggleButton" hc:IconElement.Geometry="{StaticResource SearchGeometry}" 
+                                          Background="Transparent" BorderThickness="0" Width="25" Height="25" Padding="5" 
+                                          HorizontalAlignment="Right" Margin="0,0,10,0" ToolTip="{u:Lang Search}"/>
                         </Grid>
-                        <Grid Grid.Row="1" Background="{DynamicResource SecondaryRegionBrush}">
+
+                        <Grid Grid.Row="2" Background="{DynamicResource SecondaryRegionBrush}">
                             <Grid.Resources>
                                 <ct:HoverContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
                                     <MenuItem Command="{Binding OpenCommand}" 
@@ -93,10 +132,13 @@
                                                           FileContextMenu="{StaticResource FileItemContextMenu}"/>
                             </Grid.Resources>
 
-                            <ScrollViewer>
-                                <TreeView BorderThickness="0" ItemsSource="{Binding Source={x:Static m:BookmarkDbContext.BookmarkCategories}}">
+                            <ScrollViewer AllowDrop="true" Background="Transparent" Drop="BookmarkDragArea_OnDrop" 
+                                          DragEnter="BookmarkDragArea_OnDragEnter" DragLeave="BookmarkDragArea_OnDragLeave" DragOver="BookmarkDragArea_OnDragOver">
+                                <TreeView x:Name="BookmarkTreeView" BorderThickness="0"
+                                          ItemsSource="{Binding Source={x:Static m:BookmarkDbContext.BookmarkCategories}}">
                                     <TreeView.ItemContainerStyle>
                                         <Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemBaseStyle}">
+                                            <Setter Property="Visibility" Value="{Binding Converter={StaticResource BookmarkFilter}}"/>
                                             <Setter Property="Focusable" Value="False"/>
                                             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
                                         </Style>
@@ -134,12 +176,18 @@
                                     </TreeView.Resources>
                                 </TreeView>
                             </ScrollViewer>
+
+                            <Grid x:Name="BookmarkDragTipGrid" Background="#66ffca28" Opacity="0" IsHitTestVisible="False">
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{u:Lang Release_to_add_to_bookmark}" 
+                                           TextAlignment="Center" FontSize="24"/>
+                            </Grid>
                         </Grid>
                     </Grid>
                 </TabItem>
                 <TabItem Width="50" Margin="0,50,0,-50" Padding="0">
                     <TabItem.Header>
-                        <Grid Height="40" ToolTip="{u:Lang This_computer}" ToolTipService.InitialShowDelay="300">
+                        <Grid Height="40" ToolTip="{u:Lang This_computer}" ToolTipService.InitialShowDelay="300"
+                              AllowDrop="True" DragEnter="TabItem_OnDragEnter">
                             <Image Width="24" Height="24" Source="../Assets/Picture/Computer.png"/>
                         </Grid>
                     </TabItem.Header>
@@ -158,7 +206,8 @@
                 </TabItem>
                 <TabItem Width="50" Margin="0,50,0,-50" Padding="0">
                     <TabItem.Header>
-                        <Grid Height="40" ToolTip="{u:Lang Network}" ToolTipService.InitialShowDelay="300">
+                        <Grid Height="40" ToolTip="{u:Lang Network}" ToolTipService.InitialShowDelay="300"
+                              AllowDrop="True" DragEnter="TabItem_OnDragEnter">
                             <Image Width="24" Height="24" Source="../Assets/Picture/Network.png"/>
                         </Grid>
                     </TabItem.Header>
@@ -177,7 +226,8 @@
                 </TabItem>
                 <TabItem Width="50" Margin="0,50,0,-50" Padding="0">
                     <TabItem.Header>
-                        <Grid Height="40" ToolTip="{u:Lang Recycle_bin}" ToolTipService.InitialShowDelay="300">
+                        <Grid Height="40" ToolTip="{u:Lang Recycle_bin}" ToolTipService.InitialShowDelay="300" 
+                              AllowDrop="True" DragEnter="TabItem_OnDragEnter">
                             <Image Width="24" Height="24" Source="../Assets/Picture/RecycleBin.png"/>
                         </Grid>
                     </TabItem.Header>
@@ -196,7 +246,8 @@
                 </TabItem>
                 <TabItem Width="50" Margin="0,50,0,-50" Padding="0">
                     <TabItem.Header>
-                        <Grid Height="40" ToolTip="OneDrive" ToolTipService.InitialShowDelay="300">
+                        <Grid Height="40" ToolTip="OneDrive" ToolTipService.InitialShowDelay="300" 
+                              AllowDrop="True" DragEnter="TabItem_OnDragEnter">
                             <Image Width="24" Height="24" Source="{StaticResource OneDriveDrawingImage}"/>
                         </Grid>
                     </TabItem.Header>

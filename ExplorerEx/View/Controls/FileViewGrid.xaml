@@ -9,7 +9,7 @@
       xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
       xmlns:hc="https://handyorg.github.io/handycontrol"
       xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
-      mc:Ignorable="d" d:DataContext="{d:DesignInstance vm:FileViewGridViewModel}">
+      mc:Ignorable="d" d:DataContext="{d:DesignInstance vm:FileGridViewModel}">
     <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
@@ -149,14 +149,15 @@
         <v:ClippingBorder Grid.Row="0" Margin="10,0,10,5" CornerRadius="8" 
                               BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
                               Background="{DynamicResource RegionBrush}">
-            <ct:FileGrid x:Name="FileDataGrid" d:DataContext="{d:DesignInstance vm:FileViewGridViewModel}"
-                             ItemsSource="{Binding Items}" 
-                             ItemSize="{Binding ItemSize, Mode=OneWay}"
-                             FileViewType="{Binding FileViewType, Mode=OneWay}"
-                             PathType="{Binding PathType, Mode=OneWay}"
-                             FullPath="{Binding FullPath, Mode=OneWay}"
-                             DetailLists="{Binding DetailLists, Mode=OneWay}"
-                             Background="{DynamicResource RegionBrush}">
+            <ct:FileGrid x:Name="FileDataGrid" d:DataContext="{d:DesignInstance vm:FileGridViewModel}"
+                         ItemsSource="{Binding Items}" 
+                         ItemSize="{Binding ItemSize, Mode=OneWay}"
+                         FileViewType="{Binding FileViewType, Mode=OneWay}"
+                         PathType="{Binding PathType, Mode=OneWay}"
+                         FullPath="{Binding FullPath, Mode=OneWay}"
+                         Folder="{Binding Folder, Mode=OneWay}"
+                         DetailLists="{Binding DetailLists, Mode=OneWay}"
+                         Background="{DynamicResource RegionBrush}">
                 <hc:Interaction.Triggers>
                     <hc:RoutedEventTrigger RoutedEvent="ListBox.SelectionChanged">
                         <hc:EventToCommand Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True"/>
@@ -172,7 +173,7 @@
         </v:ClippingBorder>
 
         <Border Grid.Row="1" Padding="20,0,0,0">
-            <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance vm:FileViewGridViewModel}">
+            <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance vm:FileGridViewModel}">
                 <TextBlock Foreground="{DynamicResource PrimaryTextBrush}">
                     <Run Text="{Binding FileItemsCount, Mode=OneWay}"/>
                     <Run Text="{u:Lang Run_ItemsCount}"/>

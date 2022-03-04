@@ -327,6 +327,21 @@
                                               FileContextMenu="{StaticResource FileItemContextMenu}"/>
     </Grid.Resources>
 
+    <Grid.ContextMenu>
+        <ContextMenu DataContext="{Binding Folder, Mode=OneWay}">
+            <MenuItem Command="{Binding AddToBookmarksCommand}"
+                      Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                      Icon="{StaticResource StarDrawingImage}" Header="{u:Lang Add_to_bookmarks}"/>
+            <MenuItem Command="{Binding RemoveFromBookmarksCommand}"
+                      Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                      Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang Remove_from_bookmarks}"/>
+            <Separator Margin="-30,0,0,0"/>
+
+            <MenuItem Command="{Binding ShowPropertiesCommand}"
+                      Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
+        </ContextMenu>
+    </Grid.ContextMenu>
+
     <DataGrid x:Name="DataGrid"
               Background="{x:Null}" SelectionMode="Extended" 
               AutoGenerateColumns="False" ColumnHeaderHeight="25"

@@ -13,6 +13,7 @@ using ExplorerEx.Win32;
 using HandyControl.Controls;
 using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
 using MessageBox = HandyControl.Controls.MessageBox;
+using System.Diagnostics;
 
 namespace ExplorerEx.View.Controls;
 
@@ -33,7 +34,7 @@ public partial class FileTabControl {
 	/// <summary>
 	/// 标签页
 	/// </summary>
-	public ObservableCollection<FileViewGridViewModel> TabItems { get; } = new();
+	public ObservableCollection<FileGridViewModel> TabItems { get; } = new();
 
 	public new static readonly DependencyProperty SelectedIndexProperty = DependencyProperty.Register(
 		"SelectedIndex", typeof(int), typeof(FileTabControl), new PropertyMetadata(default(int)));
@@ -53,7 +54,7 @@ public partial class FileTabControl {
 		}
 	}
 
-	public FileViewGridViewModel SelectedTab => TabItems[SelectedIndex];
+	public FileGridViewModel SelectedTab => TabItems[SelectedIndex];
 
 	public static readonly DependencyProperty IsFileUtilsVisibleProperty = DependencyProperty.Register(
 		"IsFileUtilsVisible", typeof(bool), typeof(FileTabControl), new PropertyMetadata(default(bool)));
@@ -76,7 +77,7 @@ public partial class FileTabControl {
 
 	public SplitGrid OwnerSplitGrid { get; set; }
 
-	public FileTabControl(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileViewGridViewModel grid) {
+	public FileTabControl(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileGridViewModel grid) {
 		MainWindow = mainWindow;
 		OwnerSplitGrid = ownerSplitGrid;
 		DataContext = this;
@@ -115,7 +116,7 @@ public partial class FileTabControl {
 
 	public async Task OpenPathInNewTabAsync(string path) {
 		var newTabIndex = Math.Max(Math.Min(SelectedIndex + 1, TabItems.Count), 0);
-		var item = new FileViewGridViewModel(this);
+		var item = new FileGridViewModel(this);
 		TabItems.Insert(newTabIndex, item);
 		SelectedIndex = newTabIndex;
 		if (!await SelectedTab.LoadDirectoryAsync(path)) {
@@ -172,13 +173,9 @@ public partial class FileTabControl {
 			}
 			MouseOverTabControl = null;
 			UpdateFocusedTabControl();
-		} else {
-			if (SelectedIndex == 0) {
-				SelectedIndex++;
-			} else {
-				SelectedIndex--;
-			}
 		}
+		Trace.WriteLine(string.Join("\n", MainWindow.MainWindows.SelectMany(mw => mw.splitGrid).SelectMany(f => f.TabItems).Select(i => i.FullPath)));
+
 	}
 
 	private async void OnTabClosing(object args) {
@@ -245,7 +242,7 @@ public partial class FileTabControl {
 
 	private static void OnDrag(object args) {
 		var e = (TabItemDragEventArgs)args;
-		var tab = (FileViewGridViewModel)e.TabItem.DataContext;
+		var tab = (FileGridViewModel)e.TabItem.DataContext;
 		if (tab.PathType == PathType.Home) {
 			e.DragEventArgs.Effects = DragDropEffects.None;
 			return;
@@ -257,7 +254,7 @@ public partial class FileTabControl {
 
 	private static void OnDrop(object args) {
 		var e = (TabItemDragEventArgs)args;
-		var tab = (FileViewGridViewModel)e.TabItem.DataContext;
+		var tab = (FileGridViewModel)e.TabItem.DataContext;
 		if (tab.PathType == PathType.Home) {
 			return;
 		}

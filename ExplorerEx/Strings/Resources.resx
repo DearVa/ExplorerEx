@@ -407,4 +407,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="Network" xml:space="preserve">
     <value>网络</value>
   </data>
+  <data name="Release_to_add_to_bookmark" xml:space="preserve">
+    <value>松手添加到收藏夹</value>
+  </data>
 </root>

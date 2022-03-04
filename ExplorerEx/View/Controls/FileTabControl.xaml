@@ -33,7 +33,7 @@
     </hc:Interaction.Triggers>
     <hc:TabControl.ItemTemplate>
         <DataTemplate>
-            <TextBlock Width="200" d:DataContext="{d:DesignInstance vm:FileViewGridViewModel}" Text="{Binding Header}"/>
+            <TextBlock Width="200" d:DataContext="{d:DesignInstance vm:FileGridViewModel}" Text="{Binding Header}"/>
         </DataTemplate>
     </hc:TabControl.ItemTemplate>
     <hc:TabControl.ItemContainerStyle>

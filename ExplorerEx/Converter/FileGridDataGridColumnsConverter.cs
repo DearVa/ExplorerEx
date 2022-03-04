@@ -32,7 +32,7 @@ internal class FileGridDataGridColumnsConverter {
 		});
 	}
 
-	public void Convert(in ObservableCollection<DataGridColumn> columns, PathType pathType, FileViewType viewType, IList<DetailList> detailLists) {
+	public void Convert(in ObservableCollection<DataGridColumn> columns, PathType pathType, IList<DetailList> detailLists) {
 		columns.Clear();
 		detailLists ??= DetailList.GetDefaultLists(pathType);  // 如果为null，表示使用默认
 		foreach (var (list, width) in detailLists) {

@@ -12,6 +12,9 @@ using HandyControl.Data;
 
 namespace ExplorerEx.Model; 
 
+/// <summary>
+/// 所有可以显示在<see cref="FileGrid"/>中的项目的基类
+/// </summary>
 public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 	[NotMapped]
 	public ImageSource Icon {
@@ -83,7 +86,7 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 		});
 		OpenInNewWindowCommand = new SimpleCommand(_ => new MainWindow(FullPath).Show());
 
-		AddToBookmarksCommand = new SimpleCommand(_ => FileTabControl.FocusedTabControl.MainWindow.AddToBookmark(this));
+		AddToBookmarksCommand = new SimpleCommand(_ => FileTabControl.FocusedTabControl.MainWindow.AddToBookmark(FullPath));
 		RemoveFromBookmarksCommand = new SimpleCommand(_ => MainWindow.RemoveFromBookmark(this));
 
 		ShowPropertiesCommand = new SimpleCommand(_ => Win32Interop.ShowFileProperties(FullPath));

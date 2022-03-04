@@ -129,7 +129,7 @@ internal static class IconHelper {
 	/// <exception cref="FileNotFoundException"></exception>
 	/// <exception cref="Exception"></exception>
 	public static ImageSource GetPathThumbnail(string path) {
-		Trace.WriteLine($"加载缩略图：{path}");
+		// Trace.WriteLine($"加载缩略图：{path}");
 		string extension = null;
 		if (path.Length > 3) {  // 说明不是驱动器
 			extension = Path.GetExtension(path);
@@ -137,7 +137,7 @@ internal static class IconHelper {
 				return UnknownTypeFileDrawingImage;
 			}
 			if (ExtensionsWithThumbnail.Contains(extension)) {
-				Trace.WriteLine($"文件有缩略图，加载：{path}");
+				// Trace.WriteLine($"文件有缩略图，加载：{path}");
 				var shellItem2Guid = new Guid("7E9FB0D3-919F-4307-AB2E-9B1860310C93");
 				var retCode = SHCreateItemFromParsingName(path, IntPtr.Zero, ref shellItem2Guid, out var nativeShellItem);
 				if (retCode != 0) {
@@ -163,7 +163,7 @@ internal static class IconHelper {
 			}
 			lock (CachedLargeIcons) {
 				if (CachedLargeIcons.TryGetValue(extension, out var image)) {
-					Trace.WriteLine($"使用已缓存的大图标：{path}");
+					// Trace.WriteLine($"使用已缓存的大图标：{path}");
 					return image;
 				}
 			}
@@ -172,7 +172,7 @@ internal static class IconHelper {
 	}
 
 	private static ImageSource LoadLargeIcon(string path, string extension) {
-		Trace.WriteLine($"开始加载大图标：{path}");
+		// Trace.WriteLine($"开始加载大图标：{path}");
 		var shFileInfo = new ShFileInfo();
 		var res = SHGetFileInfo(path, FILE_ATTRIBUTE_NORMAL, ref shFileInfo, Marshal.SizeOf(shFileInfo), SHGFI_SYSICONINDEX);
 		if (res == 0) {
@@ -197,7 +197,7 @@ internal static class IconHelper {
 
 		if (extension != null) {
 			lock (CachedLargeIcons) {
-				Trace.WriteLine($"将大图标加入缓存：{path}");
+				// Trace.WriteLine($"将大图标加入缓存：{path}");
 				CachedLargeIcons.TryAdd(extension, bs);
 			}
 		}

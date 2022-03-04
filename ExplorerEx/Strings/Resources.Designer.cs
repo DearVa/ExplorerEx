@@ -631,6 +631,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 松手添加到收藏夹 的本地化字符串。
+        /// </summary>
+        internal static string Release_to_add_to_bookmark {
+            get {
+                return ResourceManager.GetString("Release_to_add_to_bookmark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 记住我的选择，下次不再询问 的本地化字符串。
         /// </summary>
         internal static string Remember_my_choice_and_dont_ask_again {

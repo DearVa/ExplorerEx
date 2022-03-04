@@ -299,4 +299,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="Network" xml:space="preserve">
     <value>Network</value>
   </data>
+  <data name="Release_to_add_to_bookmark" xml:space="preserve">
+    <value>Release to add to bookmark</value>
+  </data>
 </root>
