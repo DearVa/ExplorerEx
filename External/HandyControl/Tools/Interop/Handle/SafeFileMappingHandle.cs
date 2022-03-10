@@ -1,50 +1,34 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.Security.Permissions;
 using Microsoft.Win32.SafeHandles;
 
-namespace HandyControl.Tools.Interop
-{
-    internal sealed class SafeFileMappingHandle : SafeHandleZeroOrMinusOneIsInvalid
-    {
-        [SecurityCritical]
-        internal SafeFileMappingHandle(IntPtr handle) : base(false)
-        {
-            SetHandle(handle);
-        }
+namespace HandyControl.Tools.Interop; 
 
-        [SecurityCritical, SecuritySafeCritical]
-        internal SafeFileMappingHandle() : base(true)
-        {
-        }
+internal sealed class SafeFileMappingHandle : SafeHandleZeroOrMinusOneIsInvalid {
+	[SecurityCritical]
+	internal SafeFileMappingHandle(IntPtr handle) : base(false) {
+		SetHandle(handle);
+	}
 
-        public override bool IsInvalid
-        {
-            [SecurityCritical, SecuritySafeCritical]
-            get => handle == IntPtr.Zero;
-        }
+	[SecurityCritical, SecuritySafeCritical]
+	internal SafeFileMappingHandle() : base(true) {
+	}
 
-        [SecurityCritical, SecuritySafeCritical]
-        protected override bool ReleaseHandle()
-        {
-            new SecurityPermission(SecurityPermissionFlag.UnmanagedCode).Assert();
-            try
-            {
-                return CloseHandleNoThrow(new HandleRef(null, handle));
-            }
-            finally
-            {
-                CodeAccessPermission.RevertAssert();
-            }
-        }
+	public override bool IsInvalid {
+		[SecurityCritical, SecuritySafeCritical]
+		get => handle == IntPtr.Zero;
+	}
 
-        [SecurityCritical]
-        public static bool CloseHandleNoThrow(HandleRef handle)
-        {
-            HandleCollector.Remove((IntPtr) handle, CommonHandles.Kernel);
-            var result = InteropMethods.IntCloseHandle(handle);
-            return result;
-        }
-    }
+	[SecurityCritical, SecuritySafeCritical]
+	protected override bool ReleaseHandle() {
+		return CloseHandleNoThrow(new HandleRef(null, handle));
+	}
+
+	[SecurityCritical]
+	public static bool CloseHandleNoThrow(HandleRef handle) {
+		HandleCollector.Remove((IntPtr)handle, CommonHandles.Kernel);
+		var result = InteropMethods.IntCloseHandle(handle);
+		return result;
+	}
 }

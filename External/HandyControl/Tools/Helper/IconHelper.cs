@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Windows;
@@ -8,290 +7,237 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using HandyControl.Tools.Interop;
 
-namespace HandyControl.Tools
-{
-    [SuppressMessage("ReSharper", "ArrangeRedundantParentheses")]
-    [SuppressMessage("ReSharper", "IntVariableOverflowInUncheckedContext")]
-    internal static class IconHelper
-    {
-        private static Size SmallIconSize;
+namespace HandyControl.Tools; 
 
-        private static Size IconSize;
+internal static class IconHelper {
+	private static Size smallIconSize;
 
-        private static int SystemBitDepth;
+	private static Size iconSize;
 
-        [SecurityCritical, SecuritySafeCritical]
-        public static void GetIconHandlesFromImageSource(ImageSource image, out IconHandle largeIconHandle, out IconHandle smallIconHandle)
-        {
-            EnsureSystemMetrics();
-            largeIconHandle = CreateIconHandleFromImageSource(image, IconSize);
-            smallIconHandle = CreateIconHandleFromImageSource(image, SmallIconSize);
-        }
+	private static int systemBitDepth;
 
-        [SecurityCritical]
-        public static IconHandle CreateIconHandleFromImageSource(ImageSource image, Size size)
-        {
-            EnsureSystemMetrics();
+	[SecurityCritical, SecuritySafeCritical]
+	public static void GetIconHandlesFromImageSource(ImageSource image, out IconHandle largeIconHandle, out IconHandle smallIconHandle) {
+		EnsureSystemMetrics();
+		largeIconHandle = CreateIconHandleFromImageSource(image, iconSize);
+		smallIconHandle = CreateIconHandleFromImageSource(image, smallIconSize);
+	}
 
-            var asGoodAsItGets = false;
+	[SecurityCritical]
+	public static IconHandle CreateIconHandleFromImageSource(ImageSource image, Size size) {
+		EnsureSystemMetrics();
 
-            var bf = image as BitmapFrame;
-            if (bf?.Decoder?.Frames != null)
-            {
-                bf = GetBestMatch(bf.Decoder.Frames, size);
+		var asGoodAsItGets = false;
 
-                asGoodAsItGets = bf.Decoder is IconBitmapDecoder || bf.PixelWidth == (int) size.Width && bf.PixelHeight == (int) size.Height;
+		var bf = image as BitmapFrame;
+		if (bf?.Decoder?.Frames != null) {
+			bf = GetBestMatch(bf.Decoder.Frames, size);
 
-                image = bf;
-            }
+			asGoodAsItGets = bf.Decoder is IconBitmapDecoder || bf.PixelWidth == (int)size.Width && bf.PixelHeight == (int)size.Height;
 
-            if (!asGoodAsItGets)
-            {
-                bf = BitmapFrame.Create(GenerateBitmapSource(image, size));
-            }
+			image = bf;
+		}
 
-            return CreateIconHandleFromBitmapFrame(bf);
-        }
+		if (!asGoodAsItGets) {
+			bf = BitmapFrame.Create(GenerateBitmapSource(image, size));
+		}
 
-        [SecurityCritical]
-        private static IconHandle CreateIconHandleFromBitmapFrame(BitmapFrame sourceBitmapFrame)
-        {
-            BitmapSource bitmapSource = sourceBitmapFrame;
+		return CreateIconHandleFromBitmapFrame(bf);
+	}
 
-            if (bitmapSource.Format != PixelFormats.Bgra32 && bitmapSource.Format != PixelFormats.Pbgra32)
-            {
-                bitmapSource = new FormatConvertedBitmap(bitmapSource, PixelFormats.Bgra32, null, 0.0);
-            }
+	[SecurityCritical]
+	private static IconHandle CreateIconHandleFromBitmapFrame(BitmapFrame sourceBitmapFrame) {
+		BitmapSource bitmapSource = sourceBitmapFrame;
 
-            var w = bitmapSource.PixelWidth;
-            var h = bitmapSource.PixelHeight;
-            var bpp = bitmapSource.Format.BitsPerPixel;
-            var stride = (bpp * w + 31) / 32 * 4;
-            var sizeCopyPixels = stride * h;
-            var xor = new byte[sizeCopyPixels];
-            bitmapSource.CopyPixels(xor, stride, 0);
+		if (bitmapSource.Format != PixelFormats.Bgra32 && bitmapSource.Format != PixelFormats.Pbgra32) {
+			bitmapSource = new FormatConvertedBitmap(bitmapSource, PixelFormats.Bgra32, null, 0.0);
+		}
 
-            return CreateIconCursor(xor, w, h, 0, 0, true);
-        }
+		var w = bitmapSource.PixelWidth;
+		var h = bitmapSource.PixelHeight;
+		var bpp = bitmapSource.Format.BitsPerPixel;
+		var stride = (bpp * w + 31) / 32 * 4;
+		var sizeCopyPixels = stride * h;
+		var xor = new byte[sizeCopyPixels];
+		bitmapSource.CopyPixels(xor, stride, 0);
 
-        [SecurityCritical]
-        internal static IconHandle CreateIconCursor(byte[] colorArray, int width, int height, int xHotspot, int yHotspot, bool isIcon)
-        {
-            BitmapHandle colorBitmap = null;
-            BitmapHandle maskBitmap = null;
+		return CreateIconCursor(xor, w, h, 0, 0, true);
+	}
 
-            try
-            {
-                var bi = new InteropValues.BITMAPINFO(width, -height, 32)
-                {
-                    biCompression = InteropValues.BI_RGB
-                };
+	[SecurityCritical]
+	internal static IconHandle CreateIconCursor(byte[] colorArray, int width, int height, int xHotspot, int yHotspot, bool isIcon) {
+		BitmapHandle colorBitmap = null;
+		BitmapHandle maskBitmap = null;
 
-                var bits = IntPtr.Zero;
-                colorBitmap = InteropMethods.CreateDIBSection(new HandleRef(null, IntPtr.Zero), ref bi, InteropValues.DIB_RGB_COLORS, ref bits, null, 0);
+		try {
+			var bi = new InteropValues.BITMAPINFO(width, -height, 32) {
+				biCompression = InteropValues.BI_RGB
+			};
 
-                if (colorBitmap.IsInvalid || bits == IntPtr.Zero)
-                {
-                    return IconHandle.GetInvalidIcon();
-                }
+			var bits = IntPtr.Zero;
+			colorBitmap = InteropMethods.CreateDIBSection(new HandleRef(null, IntPtr.Zero), ref bi, InteropValues.DIB_RGB_COLORS, ref bits, null, 0);
 
-                Marshal.Copy(colorArray, 0, bits, colorArray.Length);
-                var maskArray = GenerateMaskArray(width, height, colorArray);
+			if (colorBitmap.IsInvalid || bits == IntPtr.Zero) {
+				return IconHandle.GetInvalidIcon();
+			}
 
-                maskBitmap = InteropMethods.CreateBitmap(width, height, 1, 1, maskArray);
-                if (maskBitmap.IsInvalid)
-                {
-                    return IconHandle.GetInvalidIcon();
-                }
+			Marshal.Copy(colorArray, 0, bits, colorArray.Length);
+			var maskArray = GenerateMaskArray(width, height, colorArray);
 
-                var iconInfo = new InteropValues.ICONINFO
-                {
-                    fIcon = isIcon,
-                    xHotspot = xHotspot,
-                    yHotspot = yHotspot,
-                    hbmMask = maskBitmap,
-                    hbmColor = colorBitmap
-                };
+			maskBitmap = InteropMethods.CreateBitmap(width, height, 1, 1, maskArray);
+			if (maskBitmap.IsInvalid) {
+				return IconHandle.GetInvalidIcon();
+			}
 
-                return InteropMethods.CreateIconIndirect(iconInfo);
-            }
-            finally
-            {
-                colorBitmap?.Dispose();
-                maskBitmap?.Dispose();
-            }
-        }
+			var iconInfo = new InteropValues.ICONINFO {
+				fIcon = isIcon,
+				xHotspot = xHotspot,
+				yHotspot = yHotspot,
+				hbmMask = maskBitmap,
+				hbmColor = colorBitmap
+			};
 
-        private static byte[] GenerateMaskArray(int width, int height, byte[] colorArray)
-        {
-            var nCount = width * height;
-            var bytesPerScanLine = AlignToBytes(width, 2) / 8;
-            var bitsMask = new byte[bytesPerScanLine * height];
+			return InteropMethods.CreateIconIndirect(iconInfo);
+		} finally {
+			colorBitmap?.Dispose();
+			maskBitmap?.Dispose();
+		}
+	}
 
-            for (var i = 0; i < nCount; i++)
-            {
-                var hPos = i % width;
-                var vPos = i / width;
-                var byteIndex = hPos / 8;
-                var offsetBit = (byte) (0x80 >> (hPos % 8));
+	private static byte[] GenerateMaskArray(int width, int height, byte[] colorArray) {
+		var nCount = width * height;
+		var bytesPerScanLine = AlignToBytes(width, 2) / 8;
+		var bitsMask = new byte[bytesPerScanLine * height];
 
-                if (colorArray[i * 4 + 3] == 0x00)
-                {
-                    bitsMask[byteIndex + bytesPerScanLine * vPos] |= offsetBit;
-                }
-                else
-                {
-                    bitsMask[byteIndex + bytesPerScanLine * vPos] &= (byte) ~offsetBit;
-                }
+		for (var i = 0; i < nCount; i++) {
+			var hPos = i % width;
+			var vPos = i / width;
+			var byteIndex = hPos / 8;
+			var offsetBit = (byte)(0x80 >> (hPos % 8));
 
-                if (hPos == width - 1 && width == 8)
-                {
-                    bitsMask[1 + bytesPerScanLine * vPos] = 0xff;
-                }
-            }
+			if (colorArray[i * 4 + 3] == 0x00) {
+				bitsMask[byteIndex + bytesPerScanLine * vPos] |= offsetBit;
+			} else {
+				bitsMask[byteIndex + bytesPerScanLine * vPos] &= (byte)~offsetBit;
+			}
 
-            return bitsMask;
-        }
+			if (hPos == width - 1 && width == 8) {
+				bitsMask[1 + bytesPerScanLine * vPos] = 0xff;
+			}
+		}
 
-        internal static int AlignToBytes(double original, int nBytesCount)
-        {
-            var nBitsCount = 8 << (nBytesCount - 1);
-            return ((int) Math.Ceiling(original) + (nBitsCount - 1)) / nBitsCount * nBitsCount;
-        }
+		return bitsMask;
+	}
 
-        private static BitmapSource GenerateBitmapSource(ImageSource img, Size renderSize)
-        {
-            var drawingDimensions = new Rect(0, 0, renderSize.Width, renderSize.Height);
+	internal static int AlignToBytes(double original, int nBytesCount) {
+		var nBitsCount = 8 << (nBytesCount - 1);
+		return ((int)Math.Ceiling(original) + (nBitsCount - 1)) / nBitsCount * nBitsCount;
+	}
 
-            var renderRatio = renderSize.Width / renderSize.Height;
-            var aspectRatio = img.Width / img.Height;
+	private static BitmapSource GenerateBitmapSource(ImageSource img, Size renderSize) {
+		var drawingDimensions = new Rect(0, 0, renderSize.Width, renderSize.Height);
 
-            if (img.Width <= renderSize.Width && img.Height <= renderSize.Height)
-            {
-                drawingDimensions = new Rect((renderSize.Width - img.Width) / 2, (renderSize.Height - img.Height) / 2, img.Width, img.Height);
-            }
-            else if (renderRatio > aspectRatio)
-            {
-                var scaledRenderWidth = (img.Width / img.Height) * renderSize.Width;
-                drawingDimensions = new Rect((renderSize.Width - scaledRenderWidth) / 2, 0, scaledRenderWidth, renderSize.Height);
-            }
-            else if (renderRatio < aspectRatio)
-            {
-                var scaledRenderHeight = img.Height / img.Width * renderSize.Height;
-                drawingDimensions = new Rect(0, (renderSize.Height - scaledRenderHeight) / 2, renderSize.Width, scaledRenderHeight);
-            }
+		var renderRatio = renderSize.Width / renderSize.Height;
+		var aspectRatio = img.Width / img.Height;
 
-            var dv = new DrawingVisual();
-            var dc = dv.RenderOpen();
-            dc.DrawImage(img, drawingDimensions);
-            dc.Close();
+		if (img.Width <= renderSize.Width && img.Height <= renderSize.Height) {
+			drawingDimensions = new Rect((renderSize.Width - img.Width) / 2, (renderSize.Height - img.Height) / 2, img.Width, img.Height);
+		} else if (renderRatio > aspectRatio) {
+			var scaledRenderWidth = (img.Width / img.Height) * renderSize.Width;
+			drawingDimensions = new Rect((renderSize.Width - scaledRenderWidth) / 2, 0, scaledRenderWidth, renderSize.Height);
+		} else if (renderRatio < aspectRatio) {
+			var scaledRenderHeight = img.Height / img.Width * renderSize.Height;
+			drawingDimensions = new Rect(0, (renderSize.Height - scaledRenderHeight) / 2, renderSize.Width, scaledRenderHeight);
+		}
 
-            var bmp = new RenderTargetBitmap((int) renderSize.Width, (int) renderSize.Height, 96, 96, PixelFormats.Pbgra32);
-            bmp.Render(dv);
+		var dv = new DrawingVisual();
+		var dc = dv.RenderOpen();
+		dc.DrawImage(img, drawingDimensions);
+		dc.Close();
 
-            return bmp;
-        }
+		var bmp = new RenderTargetBitmap((int)renderSize.Width, (int)renderSize.Height, 96, 96, PixelFormats.Pbgra32);
+		bmp.Render(dv);
 
-        private static BitmapFrame GetBestMatch(ReadOnlyCollection<BitmapFrame> frames, Size size)
-        {
-            var bestScore = int.MaxValue;
-            var bestBpp = 0;
-            var bestIndex = 0;
+		return bmp;
+	}
 
-            var isBitmapIconDecoder = frames[0].Decoder is IconBitmapDecoder;
+	private static BitmapFrame GetBestMatch(ReadOnlyCollection<BitmapFrame> frames, Size size) {
+		var bestScore = int.MaxValue;
+		var bestBpp = 0;
+		var bestIndex = 0;
 
-            for (var i = 0; i < frames.Count && bestScore != 0; ++i)
-            {
-                var currentIconBitDepth = isBitmapIconDecoder ? frames[i].Thumbnail.Format.BitsPerPixel : frames[i].Format.BitsPerPixel;
+		var isBitmapIconDecoder = frames[0].Decoder is IconBitmapDecoder;
 
-                if (currentIconBitDepth == 0)
-                {
-                    currentIconBitDepth = 8;
-                }
+		for (var i = 0; i < frames.Count && bestScore != 0; ++i) {
+			var currentIconBitDepth = isBitmapIconDecoder ? frames[i].Thumbnail.Format.BitsPerPixel : frames[i].Format.BitsPerPixel;
 
-                var score = MatchImage(frames[i], size, currentIconBitDepth);
-                if (score < bestScore)
-                {
-                    bestIndex = i;
-                    bestBpp = currentIconBitDepth;
-                    bestScore = score;
-                }
-                else if (score == bestScore)
-                {
-                    if (bestBpp < currentIconBitDepth)
-                    {
-                        bestIndex = i;
-                        bestBpp = currentIconBitDepth;
-                    }
-                }
-            }
+			if (currentIconBitDepth == 0) {
+				currentIconBitDepth = 8;
+			}
 
-            return frames[bestIndex];
-        }
+			var score = MatchImage(frames[i], size, currentIconBitDepth);
+			if (score < bestScore) {
+				bestIndex = i;
+				bestBpp = currentIconBitDepth;
+				bestScore = score;
+			} else if (score == bestScore) {
+				if (bestBpp < currentIconBitDepth) {
+					bestIndex = i;
+					bestBpp = currentIconBitDepth;
+				}
+			}
+		}
 
-        private static int MatchImage(BitmapFrame frame, Size size, int bpp)
-        {
-            var score = 2 * MyAbs(bpp, SystemBitDepth, false) +
-                        MyAbs(frame.PixelWidth, (int) size.Width, true) +
-                        MyAbs(frame.PixelHeight, (int) size.Height, true);
+		return frames[bestIndex];
+	}
 
-            return score;
-        }
+	private static int MatchImage(BitmapFrame frame, Size size, int bpp) {
+		var score = 2 * MyAbs(bpp, systemBitDepth, false) +
+		            MyAbs(frame.PixelWidth, (int)size.Width, true) +
+		            MyAbs(frame.PixelHeight, (int)size.Height, true);
 
-        private static int MyAbs(int valueHave, int valueWant, bool fPunish)
-        {
-            var diff = (valueHave - valueWant);
+		return score;
+	}
 
-            if (diff < 0)
-            {
-                diff = (fPunish ? -2 : -1) * diff;
-            }
+	private static int MyAbs(int valueHave, int valueWant, bool fPunish) {
+		var diff = (valueHave - valueWant);
 
-            return diff;
-        }
+		if (diff < 0) {
+			diff = (fPunish ? -2 : -1) * diff;
+		}
 
-        [SecurityCritical, SecuritySafeCritical]
-        private static void EnsureSystemMetrics()
-        {
-            if (SystemBitDepth == 0)
-            {
-                var hdcDesktop = new HandleRef(null, InteropMethods.GetDC(new HandleRef()));
-                try
-                {
-                    var sysBitDepth = InteropMethods.GetDeviceCaps(hdcDesktop, InteropValues.BITSPIXEL);
-                    sysBitDepth *= InteropMethods.GetDeviceCaps(hdcDesktop, InteropValues.PLANES);
+		return diff;
+	}
 
-                    if (sysBitDepth == 8)
-                    {
-                        sysBitDepth = 4;
-                    }
+	[SecurityCritical, SecuritySafeCritical]
+	private static void EnsureSystemMetrics() {
+		if (systemBitDepth == 0) {
+			var hdcDesktop = new HandleRef(null, InteropMethods.GetDC(new HandleRef()));
+			try {
+				var sysBitDepth = InteropMethods.GetDeviceCaps(hdcDesktop, InteropValues.BITSPIXEL);
+				sysBitDepth *= InteropMethods.GetDeviceCaps(hdcDesktop, InteropValues.PLANES);
 
-                    var cxSmallIcon = InteropMethods.GetSystemMetrics(InteropValues.SM.CXSMICON);
-                    var cySmallIcon = InteropMethods.GetSystemMetrics(InteropValues.SM.CYSMICON);
-                    var cxIcon = InteropMethods.GetSystemMetrics(InteropValues.SM.CXICON);
-                    var cyIcon = InteropMethods.GetSystemMetrics(InteropValues.SM.CYICON);
+				if (sysBitDepth == 8) {
+					sysBitDepth = 4;
+				}
 
-                    SmallIconSize = new Size(cxSmallIcon, cySmallIcon);
-                    IconSize = new Size(cxIcon, cyIcon);
-                    SystemBitDepth = sysBitDepth;
-                }
-                finally
-                {
-                    InteropMethods.ReleaseDC(new HandleRef(), hdcDesktop);
-                }
-            }
-        }
+				var cxSmallIcon = InteropMethods.GetSystemMetrics(InteropValues.SM.CXSMICON);
+				var cySmallIcon = InteropMethods.GetSystemMetrics(InteropValues.SM.CYSMICON);
+				var cxIcon = InteropMethods.GetSystemMetrics(InteropValues.SM.CXICON);
+				var cyIcon = InteropMethods.GetSystemMetrics(InteropValues.SM.CYICON);
 
-        [SecurityCritical, SecuritySafeCritical]
-        public static void GetDefaultIconHandles(out IconHandle largeIconHandle, out IconHandle smallIconHandle)
-        {
-            largeIconHandle = null;
-            smallIconHandle = null;
+				smallIconSize = new Size(cxSmallIcon, cySmallIcon);
+				iconSize = new Size(cxIcon, cyIcon);
+				systemBitDepth = sysBitDepth;
+			} finally {
+				InteropMethods.ReleaseDC(new HandleRef(), hdcDesktop);
+			}
+		}
+	}
 
-            SecurityHelper.DemandUIWindowPermission();
-
-            var iconModuleFile = InteropMethods.GetModuleFileName(new HandleRef());
-            InteropMethods.ExtractIconEx(iconModuleFile, 0, out largeIconHandle, out smallIconHandle, 1);
-        }
-    }
+	[SecurityCritical, SecuritySafeCritical]
+	public static void GetDefaultIconHandles(out IconHandle largeIconHandle, out IconHandle smallIconHandle) {
+		var iconModuleFile = InteropMethods.GetModuleFileName(new HandleRef());
+		InteropMethods.ExtractIconEx(iconModuleFile, 0, out largeIconHandle, out smallIconHandle, 1);
+	}
 }

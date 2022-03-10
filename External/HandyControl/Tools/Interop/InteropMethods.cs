@@ -543,8 +543,8 @@ internal static class InteropMethods {
 	public static void EnableAcrylic(IntPtr hwnd) {
 		var accent = new AccentPolicy {
 			AccentState = AccentState.EnableAcrylicBlurBehind,
-			// 20: 透明度 第一个0xFFFFFF：背景色
-			GradientColor = (20 << 24) | 0xFFFFFF
+			// 80: 透明度 第一个0xFFFFFF：背景色
+			GradientColor = (80 << 24) | 0xFFFFFF
 		};
 
 		var sizeOfAccent = Marshal.SizeOf<AccentPolicy>();
