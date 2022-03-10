@@ -117,7 +117,7 @@ namespace HandyControl.Data
 
         protected static ExternalException EFail(string msg)
         {
-            throw new ExternalException(msg, InteropMethods.E_FAIL);
+            throw new ExternalException(msg, InteropMethods.EFail);
         }
 
         protected static void NotImplemented()

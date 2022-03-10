@@ -447,12 +447,38 @@ internal static class Win32Interop {
 
 	public enum WinMessage {
 		CopyData = 0x004A,
+		DeviceChange = 0x0219,
 		DrawClipboard = 0x0308,
 		ChangeCbChain = 0x030D,
 		/// <summary>
 		/// 系统主题色改变
 		/// </summary>
 		DwmColorizationCOlorChanged = 0x0320,
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct DevBroadcastVolume {
+		public int size;
+		public int deviceType;
+		public int reserved;
+		public int unitMask;
+	}
+
+	public static char DriveMaskToLetter(int mask) {
+		char letter;
+		const string drives = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; //1 = A, 2 = B, 3 = C
+		var cnt = 0;
+		var pom = mask / 2;
+		while (pom != 0) {  // while there is any bit set in the mask shift it right   
+			pom /= 2;
+			cnt++;
+		}
+		if (cnt < drives.Length) {
+			letter = drives[cnt];
+		} else {
+			letter = '?';
+		}
+		return letter;
 	}
 
 	#region 亚克力/云母效果
@@ -474,10 +500,11 @@ internal static class Win32Interop {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct WindowCompositionAttributeData {
-		public WindowCompositionAttribute Attribute;
-		public IntPtr Data;
-		public int SizeOfData;
+	public struct Margins {
+		public int Left;
+		public int Right;
+		public int Top;
+		public int Bottom;
 	}
 
 	public enum WindowCompositionAttribute {
@@ -488,13 +515,80 @@ internal static class Win32Interop {
 	public static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
 
 	public enum DwmWindowAttribute {
-		WindowCornerPreference = 33,
+		TransitionsForceDisabled = 2,
 		UseImmersiveDarkMode = 20,
+		WindowCornerPreference = 33,
 		MicaEffect = 1029
 	}
 
+	public enum DwmWindowCornerPreference {
+		Default = 0,
+		DoNotRound = 1,
+		Round = 2,
+		RoundSmall = 3
+	}
+
 	[DllImport(dwmapi, CharSet = CharSet.Unicode, SetLastError = true)]
-	public static extern long DwmSetWindowAttribute(IntPtr hwnd, DwmWindowAttribute attribute, ref int pvAttribute, uint cbAttribute);
+	public static extern int DwmSetWindowAttribute(IntPtr hwnd, DwmWindowAttribute attribute, ref int pvAttribute, uint cbAttribute);
+
+	[DllImport(dwmapi, CharSet = CharSet.Unicode, SetLastError = true)]
+	public static extern int DwmSetWindowAttribute(IntPtr hwnd, DwmWindowAttribute attribute, ref DwmWindowCornerPreference pvAttribute, uint cbAttribute);
+
+	[DllImport(dwmapi, CharSet = CharSet.Unicode, SetLastError = true)]
+	public static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref Margins margins);
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WindowCompositionAttributeData {
+		public WindowCompositionAttribute Attribute;
+		public IntPtr Data;
+		public int SizeOfData;
+	}
+
+	/// <summary>
+	/// 开启窗口圆角
+	/// </summary>
+	/// <param name="hwnd"></param>
+	public static void EnableRoundCorner(IntPtr hwnd) {
+		var preference = DwmWindowCornerPreference.Round;
+		DwmSetWindowAttribute(hwnd, DwmWindowAttribute.WindowCornerPreference, ref preference, 4);
+	}
+
+	/// <summary>
+	/// 开启窗口的亚克力透明效果
+	/// </summary>
+	/// <param name="hwnd"></param>
+	public static void EnableAcrylic(IntPtr hwnd) {
+		var accent = new AccentPolicy {
+			AccentState = AccentState.EnableAcrylicBlurBehind,
+			// 20: 透明度 第一个0xFFFFFF：背景色
+			GradientColor = (20 << 24) | 0xFFFFFF
+		};
+
+		var sizeOfAccent = Marshal.SizeOf<AccentPolicy>();
+		var pAccent = Marshal.AllocHGlobal(sizeOfAccent);
+		Marshal.StructureToPtr(accent, pAccent, true);
+
+		var data = new WindowCompositionAttributeData {
+			Attribute = WindowCompositionAttribute.AccentPolicy,
+			SizeOfData = sizeOfAccent,
+			Data = pAccent
+		};
+		SetWindowCompositionAttribute(hwnd, ref data);
+
+		Marshal.FreeHGlobal(pAccent);
+	}
+
+	/// <summary>
+	/// 开启窗口投影
+	/// </summary>
+	/// <param name="hwnd"></param>
+	public static void EnableShadows(IntPtr hwnd) {
+		var v = 2;
+		if (DwmSetWindowAttribute(hwnd, DwmWindowAttribute.TransitionsForceDisabled, ref v, 4) == 0) {
+			var margins = new Margins();
+			DwmExtendFrameIntoClientArea(hwnd, ref margins);
+		}
+	}
 	#endregion
 
 	#region 文件操作
@@ -770,7 +864,7 @@ internal static class Win32Interop {
 
 	[DllImport(kernel32, SetLastError = true)]
 	internal static extern int AllocConsole();
-	
+
 	[DllImport(kernel32, SetLastError = true)]
 	internal static extern int FreeConsole();
 

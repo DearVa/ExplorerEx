@@ -323,13 +323,17 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// </summary>
 	private readonly List<FileViewBaseItem> fileListBuffer = new(128);
 
-	/// <summary>
-	/// 加载一个文件夹路径
-	/// </summary>
-	/// <param name="path">如果为null或者WhiteSpace，就加载“此电脑”</param>
-	/// <param name="recordHistory">是否记录历史，返回、前进就为false</param>
-	/// <param name="selectedPath">如果是返回，那就把这个设为返回前选中的那一项</param>
-	/// <returns></returns>
+	public async Task<bool> Refresh() {
+		return await LoadDirectoryAsync(FullPath, false);
+	}
+
+/// <summary>
+/// 加载一个文件夹路径
+/// </summary>
+/// <param name="path">如果为null或者WhiteSpace，就加载“此电脑”</param>
+/// <param name="recordHistory">是否记录历史，返回、前进就为false</param>
+/// <param name="selectedPath">如果是返回，那就把这个设为返回前选中的那一项</param>
+/// <returns></returns>
 	public async Task<bool> LoadDirectoryAsync(string path, bool recordHistory = true, string selectedPath = null) {
 		switchIconCts?.Cancel();
 		SelectedItems.Clear();

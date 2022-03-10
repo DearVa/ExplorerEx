@@ -18,7 +18,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="MenuItem">
                     <Border x:Name="Bd" MinWidth="120" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True" CornerRadius="5">
-                        <Grid x:Name="Grid" HorizontalAlignment="Left" Margin="{TemplateBinding Padding}">
+                        <Grid x:Name="Grid" HorizontalAlignment="Left" Margin="4">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="{TemplateBinding Height}"/>
                                 <ColumnDefinition Width="*"/>
@@ -30,7 +30,7 @@
                             <Border Margin="0,0,10,0" IsHitTestVisible="False" Grid.Column="0" x:Name="GlyphPanel" CornerRadius="2" Background="{DynamicResource PrimaryBrush}" ClipToBounds="False" HorizontalAlignment="Right" Height="16" Visibility="Collapsed" VerticalAlignment="Center" Width="16">
                                 <Path UseLayoutRounding="True" Width="12" Height="12" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource TextIconBrush}"/>
                             </Border>
-                            <ContentPresenter Grid.Column="1" Margin="5,0,0,0" x:Name="ContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" ContentSource="Header" VerticalAlignment="Center" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                            <ContentPresenter Grid.Column="1" Margin="9,0,0,0" x:Name="ContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" ContentSource="Header" VerticalAlignment="Center" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                             <TextBlock x:Name="InputGestureText" Margin="0,0,10,0" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Left" Text="{TemplateBinding InputGestureText}"/>
                         </Grid>
                     </Border>
@@ -42,7 +42,7 @@
                             <Setter Property="Visibility" TargetName="GlyphPanel" Value="Visible"/>
                         </Trigger>
                         <Trigger Property="Icon" Value="{x:Null}">
-                            <Setter Property="Visibility" TargetName="Icon" Value="Collapsed"/>
+                            <Setter Property="Visibility" TargetName="Icon" Value="Hidden"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -79,7 +79,7 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="Icon" Value="{x:Null}">
-                                    <Setter Property="Visibility" TargetName="Icon" Value="Collapsed"/>
+                                    <Setter Property="Visibility" TargetName="Icon" Value="Hidden"/>
                                 </Trigger>
                                 <Trigger Property="IsCheckable" Value="True">
                                     <Setter Property="Visibility" TargetName="GlyphPanel" Value="Hidden"/>
@@ -122,7 +122,7 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="Icon" Value="{x:Null}">
-                                    <Setter Property="Visibility" TargetName="Icon" Value="Collapsed"/>
+                                    <Setter Property="Visibility" TargetName="Icon" Value="Hidden"/>
                                 </Trigger>
                                 <Trigger Property="IsCheckable" Value="True">
                                     <Setter Property="Visibility" TargetName="GlyphPanel" Value="Hidden"/>

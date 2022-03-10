@@ -270,7 +270,7 @@
 
         <ContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance m:FileSystemItem}">
             <MenuItem Height="45" Template="{StaticResource FileOperationsTemplate}"/>
-            <Separator Margin="-30,0,0,0"/>
+            <Separator/>
 
             <MenuItem Command="{Binding OpenCommand}" 
                       Icon="{Binding Icon}" Header="{u:Lang Open}"/>
@@ -278,7 +278,7 @@
                       Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Tab}"/>
             <MenuItem Command="{Binding OpenInNewWindowCommand}" 
                       Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Window}"/>
-            <Separator Margin="-30,0,0,0"/>
+            <Separator/>
 
             <MenuItem Command="{Binding AddToBookmarksCommand}"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
@@ -286,7 +286,7 @@
             <MenuItem Command="{Binding RemoveFromBookmarksCommand}"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang Remove_from_bookmarks}"/>
-            <Separator Margin="-30,0,0,0"/>
+            <Separator/>
 
             <MenuItem Command="{Binding ShowPropertiesCommand}"
                       Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
@@ -294,7 +294,7 @@
 
         <ContextMenu x:Key="FileItemContextMenu" d:DataContext="{d:DesignInstance m:FileSystemItem}">
             <MenuItem Height="45" Template="{StaticResource FileOperationsTemplate}"/>
-            <Separator Margin="-30,0,0,0"/>
+            <Separator/>
 
             <MenuItem Command="{Binding OpenCommand}"
                       Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
@@ -308,7 +308,7 @@
             <MenuItem Command="{Binding EditCommand}"
                       Visibility="{Binding IsEditable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{StaticResource EditDrawingImage}" Header="{u:Lang Edit}"/>
-            <Separator Margin="-30,0,0,0"/>
+            <Separator/>
 
             <MenuItem Command="{Binding AddToBookmarksCommand}"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
@@ -316,7 +316,7 @@
             <MenuItem Command="{Binding RemoveFromBookmarksCommand}"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang Remove_from_bookmarks}"/>
-            <Separator Margin="-30,0,0,0"/>
+            <Separator/>
 
             <MenuItem Command="{Binding ShowPropertiesCommand}"
                       Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
@@ -335,7 +335,7 @@
             <MenuItem Command="{Binding RemoveFromBookmarksCommand}"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang Remove_from_bookmarks}"/>
-            <Separator Margin="-30,0,0,0"/>
+            <Separator/>
 
             <MenuItem Command="{Binding ShowPropertiesCommand}"
                       Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>

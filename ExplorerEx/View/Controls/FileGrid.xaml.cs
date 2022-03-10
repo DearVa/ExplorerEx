@@ -71,20 +71,12 @@ public partial class FileGrid {
 		remove => RemoveHandler(FileDropEvent, value);
 	}
 
-	public delegate void ItemClickEventHandler(object sender, ItemClickEventArgs e);
-
-	public static readonly RoutedEvent ItemClickedEvent = EventManager.RegisterRoutedEvent(
-		"ItemClicked", RoutingStrategy.Bubble, typeof(ItemClickEventHandler), typeof(FileGrid));
-
-	public event ItemClickEventHandler ItemClicked {
-		add => AddHandler(ItemClickedEvent, value);
-		remove => RemoveHandler(ItemClickedEvent, value);
-	}
+	public delegate void ItemDoubleClickEventHandler(object sender, ItemClickEventArgs e);
 
 	public static readonly RoutedEvent ItemDoubleClickedEvent = EventManager.RegisterRoutedEvent(
-		"ItemDoubleClicked", RoutingStrategy.Bubble, typeof(ItemClickEventHandler), typeof(FileGrid));
+		"ItemDoubleClicked", RoutingStrategy.Bubble, typeof(ItemDoubleClickEventHandler), typeof(FileGrid));
 
-	public event ItemClickEventHandler ItemDoubleClicked {
+	public event ItemDoubleClickEventHandler ItemDoubleClicked {
 		add => AddHandler(ItemDoubleClickedEvent, value);
 		remove => RemoveHandler(ItemDoubleClickedEvent, value);
 	}
@@ -668,7 +660,7 @@ public partial class FileGrid {
 							}
 							lastTIndex = tIndex;
 						}
-						if (bIndex != lastBIndex && bIndex >= 0) {
+						if (bIndex != lastBIndex) {
 							for (var i = bIndex + 1; i <= lastBIndex; i++) {
 								items[i].IsSelected = false;
 							}
@@ -734,7 +726,6 @@ public partial class FileGrid {
 							UnselectAll();
 						}
 						item.IsSelected = true;
-						RaiseEvent(new ItemClickEventArgs(ItemClickedEvent, item));
 					} else if (!isCtrlOrShiftPressed) {
 						UnselectAll();
 					}
@@ -763,8 +754,8 @@ public partial class FileGrid {
 		e.Handled = true;
 	}
 
-	public void ScrollIntoView(object item) {
-		if (item is FileViewBaseItem && !isRectSelecting && !isDragDropping) {
+	public void ScrollIntoView(FileViewBaseItem item) {
+		if (!isRectSelecting && !isDragDropping) {
 			if (FileViewType == FileViewType.Detail) {
 				DataGrid.ScrollIntoView(item);
 			} else {

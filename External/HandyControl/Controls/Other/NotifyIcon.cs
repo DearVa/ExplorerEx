@@ -545,13 +545,16 @@ public class NotifyIcon : FrameworkElement, IDisposable {
 
 	private void ShowContextMenu() {
 		if (ContextContent != null) {
-			contextContent ??= new BlurPopup {
-				Placement = PlacementMode.Mouse,
-				AllowsTransparency = true,
-				StaysOpen = false,
-				UseLayoutRounding = true,
-				SnapsToDevicePixels = true
-			};
+			if (contextContent == null) {
+				contextContent = new Popup {
+					Placement = PlacementMode.Mouse,
+					AllowsTransparency = true,
+					StaysOpen = false,
+					UseLayoutRounding = true,
+					SnapsToDevicePixels = true
+				};
+				contextContent.SetValue(BlurPopup.EnabledProperty, true);
+			}
 
 			contextContent.Child = new ContentControl {
 				Content = ContextContent

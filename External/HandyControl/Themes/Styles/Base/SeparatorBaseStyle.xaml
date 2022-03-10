@@ -3,6 +3,7 @@
 
     <Style x:Key="SeparatorBaseStyle" TargetType="Separator">
         <Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="Margin" Value="-30,3,0,3" />
     </Style>
 
 </ResourceDictionary>

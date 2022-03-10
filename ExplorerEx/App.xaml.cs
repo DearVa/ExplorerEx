@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Windows;
-using System.Windows.Interop;
 using ExplorerEx.Model;
 using ExplorerEx.Utils;
 using ExplorerEx.View;
@@ -14,7 +13,7 @@ namespace ExplorerEx;
 
 public partial class App {
 	public static App Instance { get; private set; }
-	public static Arguments Args;
+	public static Arguments Args { get; private set; }
 
 	private App() {
 		Instance = this;
@@ -79,7 +78,7 @@ public partial class App {
 		}
 		notifyIconWindow = new NotifyIconWindow();
 	}
-
+	
 	/// <summary>
 	/// 进程间消息传递线程
 	/// </summary>

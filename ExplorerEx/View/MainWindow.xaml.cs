@@ -110,28 +110,6 @@ public sealed partial class MainWindow {
 		OnClipboardChanged();
 	}
 
-	private void EnableAcrylic() {
-		var accent = new AccentPolicy {
-			AccentState = AccentState.EnableAcrylicBlurBehind,
-			// 20: 透明度 第一个0xFFFFFF：背景色
-			GradientColor = (40 << 24) | (0xCCCCCC & 0xFFFFFF)
-		};
-
-		var sizeOfAccent = Marshal.SizeOf<AccentPolicy>();
-		var pAccent = Marshal.AllocHGlobal(sizeOfAccent);
-		Marshal.StructureToPtr(accent, pAccent, true);
-
-		var data = new WindowCompositionAttributeData {
-			Attribute = WindowCompositionAttribute.AccentPolicy,
-			SizeOfData = sizeOfAccent,
-			Data = pAccent
-		};
-
-		SetWindowCompositionAttribute(hwnd.Handle, ref data);
-
-		Marshal.FreeHGlobal(pAccent);
-	}
-
 	private void EnableMica(bool isDarkTheme) {
 		if (Environment.OSVersion.Version >= Version.Parse("10.0.22000.0")) {
 			var isDark = isDarkTheme ? 1 : 0;
@@ -153,6 +131,39 @@ public sealed partial class MainWindow {
 					}
 				}
 				EverythingQueryReplied.Invoke(id, EverythingInterop.ParseEverythingIpcResult(cd.lpData, cd.cbData));
+			}
+			break;
+		case WinMessage.DeviceChange:
+			if (lParam == IntPtr.Zero) {
+				break;
+			}
+			var vol = Marshal.PtrToStructure<DevBroadcastVolume>(lParam);
+			if (vol.deviceType == 0x2) {  // DBT_DEVTYPVOLUME
+				switch (wParam.ToInt32()) {
+				case 0x8000:  // DBT_DEVICEARRIVAL
+				case 0x8004:  // DBT_DEVICEREMOVECOMPLETE
+					var drive = DriveMaskToLetter(vol.unitMask);
+					foreach (var fileTabControl in splitGrid) {
+						foreach (var tabItem in fileTabControl.TabItems) {
+							switch (tabItem.PathType) {
+							case PathType.Home:
+#pragma warning disable CS4014
+								tabItem.Refresh();
+#pragma warning restore CS4014
+								break;
+							case PathType.Normal: {
+								if (tabItem.FullPath[0] == drive) {
+#pragma warning disable CS4014
+									tabItem.LoadDirectoryAsync(null);  // 驱动器移除，返回主页
+#pragma warning restore CS4014
+								}
+								break;
+							}
+							}
+						}
+					}
+					break;
+				}
 			}
 			break;
 		case WinMessage.DrawClipboard:
