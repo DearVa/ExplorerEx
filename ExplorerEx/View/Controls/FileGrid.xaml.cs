@@ -380,6 +380,7 @@ public partial class FileGrid {
 			startDragPosition = e.GetPosition(ContentGrid);
 			var item = GetClickedItem(e.OriginalSource);
 			if (item != null) {
+				mouseDownRowIndex = ItemsSource.IndexOf(item);
 				if (e.ChangedButton == MouseButton.Left) {
 					if (item == lastMouseUpItem &&
 						Math.Abs(startDragPosition.X - lastMouseUpPoint.X) < SystemParameters.MinimumHorizontalDragDistance &&
@@ -391,7 +392,6 @@ public partial class FileGrid {
 						UnselectAll();
 						RaiseEvent(new ItemClickEventArgs(ItemDoubleClickedEvent, item));
 					} else {
-						mouseDownRowIndex = ItemsSource.IndexOf(item);
 						if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) {
 							lastMouseDownRowIndex = mouseDownRowIndex;
 							item.IsSelected = !item.IsSelected;

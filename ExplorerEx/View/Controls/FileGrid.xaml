@@ -396,8 +396,8 @@
                                         </Grid.RowDefinitions>
                                         <DataGridColumnHeadersPresenter x:Name="PART_ColumnHeadersPresenter" Grid.ColumnSpan="2" Grid.Row="0" Grid.Column="1" Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.Column}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
                                         <hc:ToggleBlock IsChecked="{Binding HasItems,RelativeSource={RelativeSource AncestorType=DataGrid},Mode=OneWay}" Grid.ColumnSpan="3" 
-                                                    Grid.Column="0" Grid.Row="1" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" 
-                                                    ContextMenu="{StaticResource FolderItemContextMenu}" DataContext="{Binding Folder, RelativeSource={RelativeSource AncestorType=ct:FileGrid}}">
+                                                        Grid.Column="0" Grid.Row="1" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" 
+                                                        DataContext="{Binding Folder, RelativeSource={RelativeSource AncestorType=ct:FileGrid}}">
                                             <hc:ToggleBlock.CheckedContent>
                                                 <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanContentScroll="{TemplateBinding CanContentScroll}"/>
                                             </hc:ToggleBlock.CheckedContent>
