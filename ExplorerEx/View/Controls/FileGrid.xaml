@@ -25,7 +25,7 @@
                 </Grid.RowDefinitions>
                 <Image Grid.Row="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
                        VerticalAlignment="Center" Margin="10"/>
-                <TextBlock Grid.Row="1" Text="{Binding Name, Mode=OneWay}" HorizontalAlignment="Center" 
+                <TextBlock Grid.Row="1" Text="{Binding DisplayText, Mode=OneWay}" HorizontalAlignment="Center" 
                            TextAlignment="Center" TextTrimming="WordEllipsis" TextWrapping="Wrap"
                            Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityReConverter}}"/>
                 <hc:TextBox x:Name="RenameTextBox" Grid.Row="1"
@@ -60,7 +60,7 @@
                 </Grid.ColumnDefinitions>
                 <Image Grid.Column="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
                        VerticalAlignment="Center" Margin="5"/>
-                <TextBlock Grid.Column="1" Text="{Binding Name, Mode=OneWay}" VerticalAlignment="Center" 
+                <TextBlock Grid.Column="1" Text="{Binding DisplayText, Mode=OneWay}" VerticalAlignment="Center" 
                            TextTrimming="WordEllipsis" Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityReConverter}}"/>
                 <hc:TextBox x:Name="RenameTextBox" Grid.Column="1" hc:BorderElement.CornerRadius="3" TextWrapping="Wrap" HorizontalAlignment="Center"
                             Text="{Binding EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" 
@@ -100,7 +100,7 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="{Binding Name, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                    <TextBlock Grid.Row="0" Text="{Binding DisplayText, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Center"
                                TextTrimming="WordEllipsis" Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityReConverter}}"/>
                     <hc:TextBox x:Name="RenameTextBox" Grid.Row="0" hc:BorderElement.CornerRadius="3" HorizontalAlignment="Left"
                                 Text="{Binding EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"
@@ -130,7 +130,7 @@
         </DataTemplate>
         <!--主页显示驱动器-->
         <DataTemplate x:Key="TileHomeTemplate">
-            <Grid d:DataContext="{d:DesignInstance m:DiskDriveItem}"
+            <Grid d:DataContext="{d:DesignInstance m:DiskDrive}"
                   Width="{Binding Path=(ct:FileGrid.ItemSize).Width, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileGrid}}"
                   Height="{Binding Path=(ct:FileGrid.ItemSize).Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileGrid}}">
                 <Grid Margin="5">
@@ -140,7 +140,7 @@
                     </Grid.ColumnDefinitions>
                     <Image Grid.Column="0" Source="{Binding Icon}" VerticalAlignment="Center" Margin="5"/>
                     <StackPanel Grid.Column="1" Orientation="Vertical">
-                        <TextBlock Text="{Binding Name, Mode=OneWay}"/>
+                        <TextBlock Text="{Binding DisplayText, Mode=OneWay}"/>
                         <ProgressBar Value="{Binding FreeSpaceRatio, Mode=OneWay}" 
                                      Foreground="{Binding ProgressBarBackground, Mode=OneWay}"
                                      Maximum="1" BorderThickness="1.5" Margin="0,5,0,5" 
@@ -160,7 +160,7 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Image Grid.Column="0" Source="{Binding Icon}" VerticalAlignment="Center" Margin="5"/>
-                <TextBlock Grid.Column="1" Text="{Binding Name, Mode=OneWay}" VerticalAlignment="Center" 
+                <TextBlock Grid.Column="1" Text="{Binding DisplayText, Mode=OneWay}" VerticalAlignment="Center" 
                            Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityReConverter}}"/>
                 <hc:TextBox x:Name="RenameTextBox" Grid.Column="1" hc:BorderElement.CornerRadius="3"
                             Text="{Binding EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" 
@@ -202,19 +202,19 @@
                        IsHitTestVisible="False"/>
         </DataTemplate>
         <DataTemplate x:Key="AvailableSpaceColumn">
-            <TextBlock d:DataContext="{d:DesignInstance m:DiskDriveItem}"
+            <TextBlock d:DataContext="{d:DesignInstance m:DiskDrive}"
                        Text="{Binding FreeSpace, Mode=OneWay, Converter={StaticResource Long2FileSizeConverter}}" 
                        VerticalAlignment="Center"
                        IsHitTestVisible="False"/>
         </DataTemplate>
         <DataTemplate x:Key="TotalSpaceColumn">
-            <TextBlock d:DataContext="{d:DesignInstance m:DiskDriveItem}"
+            <TextBlock d:DataContext="{d:DesignInstance m:DiskDrive}"
                        Text="{Binding TotalSpace, Mode=OneWay, Converter={StaticResource Long2FileSizeConverter}}" 
                        VerticalAlignment="Center"
                        IsHitTestVisible="False"/>
         </DataTemplate>
         <DataTemplate x:Key="FillRatioColumn">
-            <ProgressBar d:DataContext="{d:DesignInstance m:DiskDriveItem}"
+            <ProgressBar d:DataContext="{d:DesignInstance m:DiskDrive}"
                          Value="{Binding FreeSpaceRatio, Mode=OneWay}" 
                          Foreground="{Binding ProgressBarBackground, Mode=OneWay}"
                          Maximum="1" BorderThickness="1.5" Margin="0,2,0,2" 
@@ -229,7 +229,7 @@
             </ProgressBar>
         </DataTemplate>
         <DataTemplate x:Key="FileSystemColumn">
-            <TextBlock d:DataContext="{d:DesignInstance m:DiskDriveItem}"
+            <TextBlock d:DataContext="{d:DesignInstance m:DiskDrive}"
                        Text="{Binding Driver.DriveFormat, Mode=OneWay}" 
                        VerticalAlignment="Center"
                        IsHitTestVisible="False"/>
@@ -249,20 +249,16 @@
 
         <ControlTemplate x:Key="FileOperationsTemplate">
             <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
-                <Button Height="35" ToolTip="{u:Lang Cut}" 
-                        Command="{Binding DataContext.CutCommand, RelativeSource={RelativeSource AncestorType=ct:FileGrid, AncestorLevel=3}}">
+                <Button Height="35" ToolTip="{u:Lang Cut}" Click="Cut_OnClick">
                     <Image Width="20" Height="20" Source="{StaticResource CutDrawingImage}"/>
                 </Button>
-                <Button Height="35" Margin="6,0,0,0" ToolTip="{u:Lang Copy}"
-                        Command="{Binding DataContext.CopyCommand, RelativeSource={RelativeSource AncestorType=ct:FileGrid, AncestorLevel=3}}">
+                <Button Height="35" Margin="6,0,0,0" ToolTip="{u:Lang Copy}" Click="Copy_OnClick">
                     <Image Width="20" Height="20" Source="{StaticResource CopyDrawingImage}"/>
                 </Button>
-                <Button Height="35" Margin="6,0,0,0" ToolTip="{u:Lang Rename}"
-                        Command="{Binding DataContext.RenameCommand, RelativeSource={RelativeSource AncestorType=ct:FileGrid, AncestorLevel=3}}">
+                <Button Height="35" Margin="6,0,0,0" ToolTip="{u:Lang Rename}" Click="Rename_OnClick">
                     <Image Width="20" Height="20" Source="{StaticResource RenameDrawingImage}"/>
                 </Button>
-                <Button Height="35" Margin="6,0,0,0" ToolTip="{u:Lang Delete}"
-                        Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=ct:FileGrid, AncestorLevel=3}}">
+                <Button Height="35" Margin="6,0,0,0" ToolTip="{u:Lang Delete}" Click="Delete_OnClick">
                     <Image Width="20" Height="20" Source="{StaticResource DeleteDrawingImage}"/>
                 </Button>
             </StackPanel>
@@ -272,23 +268,23 @@
             <MenuItem Height="45" Template="{StaticResource FileOperationsTemplate}"/>
             <Separator/>
 
-            <MenuItem Command="{Binding OpenCommand}" 
+            <MenuItem Click="Open_OnClick"
                       Icon="{Binding Icon}" Header="{u:Lang Open}"/>
-            <MenuItem Command="{Binding OpenInNewTabCommand}" 
+            <MenuItem Click="OpenInNewTab_OnClick" 
                       Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Tab}"/>
-            <MenuItem Command="{Binding OpenInNewWindowCommand}" 
+            <MenuItem Click="OpenInNewWindow_OnClick" 
                       Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Window}"/>
             <Separator/>
 
-            <MenuItem Command="{Binding AddToBookmarksCommand}"
+            <MenuItem Click="AddToBookmarks_OnClick"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
                       Icon="{StaticResource StarDrawingImage}" Header="{u:Lang Add_to_bookmarks}"/>
-            <MenuItem Command="{Binding RemoveFromBookmarksCommand}"
+            <MenuItem Click="RemoveFromBookmarks_OnClick"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang Remove_from_bookmarks}"/>
             <Separator/>
 
-            <MenuItem Command="{Binding ShowPropertiesCommand}"
+            <MenuItem Click="ShowProperties_OnClick"
                       Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
         </ContextMenu>
 
@@ -296,13 +292,13 @@
             <MenuItem Height="45" Template="{StaticResource FileOperationsTemplate}"/>
             <Separator/>
 
-            <MenuItem Command="{Binding OpenCommand}"
+            <MenuItem Click="Open_OnClick"
                       Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
                       Icon="{Binding Icon}" Header="{u:Lang Open}"/>
-            <MenuItem Command="{Binding OpenCommand}"
+            <MenuItem Click="Open_OnClick"
                       Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{Binding Icon}" Header="{u:Lang Run}"/>
-            <MenuItem Command="{Binding OpenCommand}" CommandParameter="1"
+            <MenuItem Click="OpenAsAdmin_OnClick"
                       Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{StaticResource UacDrawingImage}" Header="{u:Lang Run_as_admin}"/>
             <MenuItem Command="{Binding EditCommand}"
@@ -310,15 +306,15 @@
                       Icon="{StaticResource EditDrawingImage}" Header="{u:Lang Edit}"/>
             <Separator/>
 
-            <MenuItem Command="{Binding AddToBookmarksCommand}"
+            <MenuItem Click="AddToBookmarks_OnClick"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
                       Icon="{StaticResource StarDrawingImage}" Header="{u:Lang Add_to_bookmarks}"/>
-            <MenuItem Command="{Binding RemoveFromBookmarksCommand}"
+            <MenuItem Click="RemoveFromBookmarks_OnClick"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang Remove_from_bookmarks}"/>
             <Separator/>
 
-            <MenuItem Command="{Binding ShowPropertiesCommand}"
+            <MenuItem Click="ShowProperties_OnClick"
                       Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
         </ContextMenu>
 
@@ -328,16 +324,30 @@
     </Grid.Resources>
 
     <Grid.ContextMenu>
-        <ContextMenu DataContext="{Binding Folder, Mode=OneWay}">
-            <MenuItem Command="{Binding AddToBookmarksCommand}"
-                      Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
-                      Icon="{StaticResource StarDrawingImage}" Header="{u:Lang Add_to_bookmarks}"/>
-            <MenuItem Command="{Binding RemoveFromBookmarksCommand}"
-                      Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                      Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang Remove_from_bookmarks}"/>
+        <ContextMenu>
+            <MenuItem Click="NewFolder_OnClick"
+                      Icon="{StaticResource NewFolderDrawingImage}" Header="{u:Lang New_folder}"/>
+            <MenuItem Icon="{StaticResource ListDrawingImage}" Header="{u:Lang View}">
+                <MenuItem.Items>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="0" Header="{u:Lang Big_icon}" 
+                              IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="1" Header="{u:Lang Small_icon}"
+                              IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="2" Header="{u:Lang List}"
+                              IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="3" Header="{u:Lang Detail}"
+                              IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="4" Header="{u:Lang Tile}"
+                              IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=4}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="5" Header="{u:Lang Content}"
+                              IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=5}"/>
+                </MenuItem.Items>
+            </MenuItem>
+            <MenuItem Click="Refresh_OnClick"
+                      Icon="{StaticResource RefreshDrawingImage}" Header="{u:Lang Refresh}"/>
             <Separator/>
 
-            <MenuItem Command="{Binding ShowPropertiesCommand}"
+            <MenuItem Click="ShowProperties_OnClick"
                       Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
         </ContextMenu>
     </Grid.ContextMenu>

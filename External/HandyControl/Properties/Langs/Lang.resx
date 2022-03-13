@@ -168,8 +168,8 @@
   <data name="Close" xml:space="preserve">
     <value>关闭</value>
   </data>
-  <data name="CloseAll" xml:space="preserve">
-    <value>关闭所有</value>
+  <data name="DuplicateTab" xml:space="preserve">
+    <value>复制标签页</value>
   </data>
   <data name="CloseOther" xml:space="preserve">
     <value>关闭其他</value>

@@ -34,11 +34,14 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	public FileGrid FileGrid { get; set; }
 
 	/// <summary>
+	/// 当前路径的FileViewBaseItem
+	/// </summary>
+	public FileViewBaseItem Folder { get; private set; } = Home.Instance;
+
+	/// <summary>
 	/// 当前的路径，如果是首页，就是“此电脑”
 	/// </summary>
-	public string FullPath { get; private set; }
-
-	public string Header => PathType == PathType.Home ? FullPath : FullPath.Length <= 3 ? FullPath : Path.GetFileName(FullPath);
+	public string FullPath => Folder.FullPath;
 
 	public PathType PathType { get; private set; } = PathType.Home;
 
@@ -65,11 +68,6 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	public SimpleCommand SelectionChangedCommand { get; }
 
-	/// <summary>
-	/// 当前文件夹的FileViewBaseItem
-	/// </summary>
-	public FileViewBaseItem Folder { get; private set; }
-
 	public bool CanGoBack => nextHistoryIndex > 1;
 
 	public SimpleCommand GoBackCommand { get; }
@@ -77,6 +75,11 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	public bool CanGoForward => nextHistoryIndex < historyCount;
 
 	public SimpleCommand GoForwardCommand { get; }
+
+	/// <summary>
+	/// 历史记录
+	/// </summary>
+	public ObservableCollection<FileViewBaseItem> HistoryList { get; } = new();
 
 	public bool CanGoToUpperLevel => PathType != PathType.Home;
 
@@ -138,7 +141,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 	}
 
-	public string SearchPlaceholderText => $"{"Search".L()} {Header}";
+	public string SearchPlaceholderText => $"{"Search".L()} {Folder.DisplayText}";
 
 	/// <summary>
 	/// 如果不为null，就说明用户输入了搜索，OneWayToSource
@@ -158,8 +161,6 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	}
 
 	private string searchText;
-
-	private readonly List<string> historyPaths = new(128);
 
 	private int nextHistoryIndex, historyCount;
 
@@ -183,7 +184,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		PasteCommand = new SimpleCommand(_ => Paste());
 		RenameCommand = new SimpleCommand(_ => Rename());
 		//ShareCommand = new SimpleCommand(_ => Copy(false));
-		DeleteCommand = new SimpleCommand(_ => Delete(true));
+		DeleteCommand = new SimpleCommand(_ => Delete());
 
 		SwitchViewCommand = new SimpleCommand(OnSwitchView);
 
@@ -206,7 +207,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		MainWindow.ClipboardChanged += OnClipboardChanged;
 	}
 
-	private void OnSwitchView(object e) {
+	public void OnSwitchView(object e) {
 		if (e is MenuItem menuItem) {
 			SwitchViewType(int.Parse((string)menuItem.CommandParameter));
 		}
@@ -304,40 +305,67 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		PropertyUpdateUI(nameof(CanPaste));
 	}
 
-	private void AddHistory(string path) {
-		Debug.Assert(historyPaths.Count >= nextHistoryIndex);
-		if (historyPaths.Count == nextHistoryIndex) {
-			if (nextHistoryIndex > 0 && historyPaths[nextHistoryIndex - 1] == path) {
+	private void AddHistory(FileViewBaseItem item) {
+		Debug.Assert(HistoryList.Count >= nextHistoryIndex);
+		if (HistoryList.Count == nextHistoryIndex) {
+			if (nextHistoryIndex > 0 && HistoryList[nextHistoryIndex - 1].FullPath == item.FullPath) {
 				return;  // 如果相同就不记录
 			}
-			historyPaths.Add(path);
+			HistoryList.Add(item);
 		} else {
-			historyPaths[nextHistoryIndex] = path;
+			HistoryList[nextHistoryIndex] = item;
+			for (var i = HistoryList.Count - 1; i > nextHistoryIndex; i--) {
+				HistoryList.RemoveAt(i);
+			}
 		}
 		nextHistoryIndex++;
 		historyCount = nextHistoryIndex;
 	}
 
-	/// <summary>
-	/// 每次遍历文件夹都存在这个list里，就避免每次new带来的GC压力
-	/// </summary>
-	private readonly List<FileViewBaseItem> fileListBuffer = new(128);
-
 	public async Task<bool> Refresh() {
 		return await LoadDirectoryAsync(FullPath, false);
 	}
 
-/// <summary>
-/// 加载一个文件夹路径
-/// </summary>
-/// <param name="path">如果为null或者WhiteSpace，就加载“此电脑”</param>
-/// <param name="recordHistory">是否记录历史，返回、前进就为false</param>
-/// <param name="selectedPath">如果是返回，那就把这个设为返回前选中的那一项</param>
-/// <returns></returns>
+	/// <summary>
+	/// 添加单个项目，这将会验证文件是否存在，之后将其添加，这在创建新文件时很有用
+	/// </summary>
+	/// <param name="name">文件或文件夹名，不包含路径</param>
+	/// <returns>成功返回添加的项，失败返回null</returns>
+	public FileViewBaseItem AddSingleItem(string name) {
+		if (Folder is Home) {
+			return null;
+		}
+		var fullPath = Path.Combine(FullPath, name);
+		FileViewBaseItem item;
+		bool isFile;
+		if (File.Exists(fullPath)) {
+			item = new FileSystemItem(new FileInfo(fullPath));
+			isFile = true;
+		} else if (Directory.Exists(fullPath)) {
+			item = new FileSystemItem(new DirectoryInfo(fullPath));
+			isFile = false;
+		} else {
+			return null;
+		}
+		Items.Add(item);
+		UpdateFolderUI();
+		if (isFile) {
+			Task.Run(item.LoadIcon);
+		}
+		return item;
+	}
+
+	/// <summary>
+	/// 加载一个文件夹路径
+	/// </summary>
+	/// <param name="path">如果为null或者WhiteSpace，就加载“此电脑”</param>
+	/// <param name="recordHistory">是否记录历史，返回、前进就为false</param>
+	/// <param name="selectedPath">如果是返回，那就把这个设为返回前选中的那一项</param>
+	/// <returns></returns>
 	public async Task<bool> LoadDirectoryAsync(string path, bool recordHistory = true, string selectedPath = null) {
 		switchIconCts?.Cancel();
 		SelectedItems.Clear();
-		var isLoadHome = string.IsNullOrWhiteSpace(path) || path == "This_computer".L() || path.ToLower() == "::{52205fd8-5dfb-447d-801a-d0b52f2e83e1}";  // 加载“此电脑”
+		var isLoadHome = string.IsNullOrWhiteSpace(path) || path == "This_computer".L() || path.ToLower() == Home.Uuid;  // 加载“此电脑”
 
 		if (!isLoadHome && !Directory.Exists(path)) {
 			var err = new StringBuilder();
@@ -355,16 +383,14 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 #endif
 
 		if (isLoadHome) {
-			FullPath = "This_computer".L();
-			Folder = null;
+			Folder = Home.Instance;
+		} else if (path.Length <= 3) {
+			Folder = new DiskDrive(new DriveInfo(path[..1]));
+			await Task.Run(Folder.LoadIcon, token);
 		} else {
-			if (path.Length > 3) {
-				FullPath = path.TrimEnd('\\');
-			} else {  // 根目录
-				FullPath = path;
-			}
+			Folder = new FileSystemItem(new DirectoryInfo(path));
 		}
-		Folder = new FileSystemItem(new DirectoryInfo(FullPath));
+
 		PropertyUpdateUI(nameof(Folder));
 		if (token.IsCancellationRequested) {
 			return false;
@@ -400,7 +426,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		sw.Restart();
 #endif
 
-		fileListBuffer.Clear();
+		var fileListBuffer = new List<FileViewBaseItem>(128);
 		FileViewBaseItem scrollIntoViewItem = null;
 
 		if (isLoadHome) {
@@ -411,7 +437,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 					if (token.IsCancellationRequested) {
 						return;
 					}
-					var item = new DiskDriveItem(drive);
+					var item = new DiskDrive(drive);
 					fileListBuffer.Add(item);
 					if (drive.Name == selectedPath) {
 						item.IsSelected = true;
@@ -427,7 +453,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			} catch {
 				hc.MessageBox.Error("Access_denied".L(), "Cannot_access_directory".L());
 				if (nextHistoryIndex > 0) {
-					await LoadDirectoryAsync(historyPaths[nextHistoryIndex - 1], false, path);
+					await LoadDirectoryAsync(HistoryList[nextHistoryIndex - 1].FullPath, false, path);
 				}
 				return false;
 			}
@@ -470,7 +496,6 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		Trace.WriteLine($"Enumerate {path} costs: {sw.ElapsedMilliseconds}ms");
 		sw.Restart();
 #endif
-		PropertyUpdateUI(nameof(Header));
 
 		Items.Clear();
 		PathType = isLoadHome ? PathType.Home : PathType.Normal;  // TODO: 网络驱动器、OneDrive等
@@ -493,7 +518,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 
 		if (recordHistory) {
-			AddHistory(path);
+			AddHistory(Folder);
 		}
 		UpdateFolderUI();
 		UpdateFileUI();
@@ -508,7 +533,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 		if (fileListBuffer.Count > 0) {
 			await Task.Run(() => {
-				foreach (var fileViewBaseItem in fileListBuffer.Where(item => item is DiskDriveItem || !item.IsFolder)) {
+				foreach (var fileViewBaseItem in fileListBuffer.Where(item => item is DiskDrive || !item.IsFolder)) {
 					if (token.IsCancellationRequested) {
 						return;
 					}
@@ -530,7 +555,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	public async void GoBackAsync() {
 		if (CanGoBack) {
 			nextHistoryIndex--;
-			await LoadDirectoryAsync(historyPaths[nextHistoryIndex - 1], false, historyPaths[nextHistoryIndex]);
+			await LoadDirectoryAsync(HistoryList[nextHistoryIndex - 1].FullPath, false, HistoryList[nextHistoryIndex].FullPath);
 		}
 	}
 
@@ -540,7 +565,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	public async void GoForwardAsync() {
 		if (CanGoForward) {
 			nextHistoryIndex++;
-			await LoadDirectoryAsync(historyPaths[nextHistoryIndex - 1], false);
+			await LoadDirectoryAsync(HistoryList[nextHistoryIndex - 1].FullPath, false);
 		}
 	}
 
@@ -619,15 +644,19 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		} else if (SelectedItems.Count == 1) {
 			SelectedItems.First().BeginRename();
 		} else {
+			SelectedItems.First().BeginRename();
 			// TODO: 批量重命名
 		}
 	}
 
-	public void Delete(bool recycle) {
+	/// <summary>
+	/// 删除一个或多个文件，按住shift就是强制删除
+	/// </summary>
+	public void Delete() {
 		if (PathType == PathType.Home || SelectedItems.Count == 0) {
 			return;
 		}
-		if (recycle) {
+		if ((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift) {  // 没有按Shift
 			if (!MessageBoxHelper.AskWithDefault("Recycle", "Are_you_sure_to_recycle_these_files?".L())) {
 				return;
 			}
@@ -702,7 +731,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		var isAltPressed = Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt);
 		switch (e.Item) {
 		// 双击事件
-		case DiskDriveItem ddi:
+		case DiskDrive ddi:
 			if (isCtrlPressed) {
 				await OwnerTabControl.OpenPathInNewTabAsync(ddi.Driver.Name);
 			} else if (isShiftPressed) {
@@ -877,6 +906,9 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			return;
 		}
 		dispatcher.Invoke(async () => {
+			if (Items.Any(i => i.Name == e.Name)) {
+				return;
+			}
 			FileSystemItem item;
 			if (Directory.Exists(e.FullPath)) {
 				item = new FileSystemItem(new DirectoryInfo(e.FullPath));

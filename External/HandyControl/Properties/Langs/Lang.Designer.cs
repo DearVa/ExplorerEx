@@ -125,13 +125,13 @@ namespace HandyControl.Properties.Langs
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to 关闭所有.
+        ///   Looks up a localized string similar to 复制标签页.
         /// </summary>
-        public static string CloseAll
+        public static string DuplicateTab
         {
             get
             {
-                return ResourceManager.GetString("CloseAll", resourceCulture);
+                return ResourceManager.GetString("DuplicateTab", resourceCulture);
             }
         }
 

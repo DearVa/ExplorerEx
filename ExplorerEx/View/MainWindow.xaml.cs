@@ -269,7 +269,7 @@ public sealed partial class MainWindow {
 		((TextBox)sender).SelectAll();
 	}
 
-	private string[] bookmarkItems;
+	private string[] bookmarkPaths;
 	private int currentBookmarkIndex;
 	public string BookmarkCategory { get; set; }
 	private bool isDeleteBookmark;
@@ -277,12 +277,12 @@ public sealed partial class MainWindow {
 	/// <summary>
 	/// 添加到书签，如果已添加，则会提示编辑
 	/// </summary>
-	/// <param name="bookmarkItems"></param>
-	public void AddToBookmark(params string[] bookmarkItems) {
-		if (bookmarkItems == null || bookmarkItems.Length == 0) {
+	/// <param name="filePaths"></param>
+	public void AddToBookmark(params string[] filePaths) {
+		if (filePaths == null || filePaths.Length == 0) {
 			return;
 		}
-		this.bookmarkItems = bookmarkItems;
+		bookmarkPaths = filePaths;
 		currentBookmarkIndex = 0;
 		IsAddToBookmarkShow = true;
 	}
@@ -299,7 +299,7 @@ public sealed partial class MainWindow {
 
 	private static async void IsAddToBookmarkShow_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		var window = (MainWindow)d;
-		var	bookmarkItem = window.bookmarkItems[window.currentBookmarkIndex];
+		var	bookmarkItem = window.bookmarkPaths[window.currentBookmarkIndex];
 		if ((bool)e.NewValue) {
 			var fullPath = Path.GetFullPath(bookmarkItem);
 			var dbBookmark = BookmarkDbContext.Instance.BookmarkDbSet.Local.FirstOrDefault(b => b.FullPath == fullPath);
@@ -343,21 +343,28 @@ public sealed partial class MainWindow {
 					}
 				}
 				window.currentBookmarkIndex++;
-				if (window.currentBookmarkIndex < window.bookmarkItems.Length) {
+				if (window.currentBookmarkIndex < window.bookmarkPaths.Length) {
 					window.IsAddToBookmarkShow = true;
 				}
 			}
 		}
 	}
 
-	public static async void RemoveFromBookmark(FileViewBaseItem bookmarkItem) {
+	public static async void RemoveFromBookmark(params string[] filePaths) {
+		if (filePaths == null || filePaths.Length == 0) {
+			return;
+		}
 		var bookmarkDb = BookmarkDbContext.Instance;
-		var fullPath = bookmarkItem.FullPath;
-		var item = await bookmarkDb.BookmarkDbSet.FirstOrDefaultAsync(b => b.FullPath == fullPath);
-		if (item != null) {
-			bookmarkDb.BookmarkDbSet.Remove(item);
-			await bookmarkDb.SaveChangesAsync();
-			bookmarkItem.PropertyUpdateUI(nameof(bookmarkItem.IsBookmarked));
+		foreach (var filePath in filePaths) {
+			var fullPath = Path.GetFullPath(filePath);
+			var item = await bookmarkDb.BookmarkDbSet.FirstOrDefaultAsync(b => b.FullPath == fullPath);
+			if (item != null) {
+				bookmarkDb.BookmarkDbSet.Remove(item);
+				await bookmarkDb.SaveChangesAsync();
+				foreach (var updateItem in MainWindows.SelectMany(mw => mw.splitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
+					updateItem.PropertyUpdateUI(nameof(updateItem.IsBookmarked));
+				}
+			}
 		}
 	}
 	#endregion
@@ -450,11 +457,6 @@ public sealed partial class MainWindow {
 	}
 
 	protected override void OnKeyDown(KeyEventArgs e) {
-#if DEBUG
-		if (e.Key == Key.Pause) {
-			Debugger.Break();
-		}
-#endif
 		var mouseOverTab = FileTabControl.MouseOverTabControl.SelectedTab;
 		if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
 			switch (e.Key) {
@@ -473,7 +475,7 @@ public sealed partial class MainWindow {
 		} else {
 			switch (e.Key) {
 			case Key.Delete:
-				mouseOverTab?.Delete((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift);
+				mouseOverTab?.Delete();
 				break;
 			}
 		}
@@ -515,6 +517,7 @@ public sealed partial class MainWindow {
 				UpdateSidebarColumnDefinitionWidth();
 			} else {
 				sidebar.SelectedIndex = -1;
+				SidebarColumnDefinition.Width = new GridLength(0, GridUnitType.Auto);
 			}
 			loaded = true;
 		}

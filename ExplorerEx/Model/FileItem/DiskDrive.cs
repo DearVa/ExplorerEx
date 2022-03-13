@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using ExplorerEx.Utils;
-using System.Threading.Tasks;
 using System.Windows.Media;
 using ExplorerEx.Win32;
 using System.Runtime.CompilerServices;
@@ -12,12 +11,22 @@ namespace ExplorerEx.Model;
 /// <summary>
 /// 硬盘驱动器
 /// </summary>
-public sealed class DiskDriveItem : FileViewBaseItem {
+public sealed class DiskDrive : FileViewBaseItem {
 	public DriveInfo Driver { get; private set; }
 
 	public override string FullPath {
 		get => Driver.Name;
 		protected set => Driver = new DriveInfo(value);
+	}
+
+	public override string DisplayText {
+		get {
+			var driver = Driver;
+			if (driver.IsReady) {
+				return $"{(string.IsNullOrWhiteSpace(driver.VolumeLabel) ? Type : driver.VolumeLabel)} ({driver.Name[..1]})";
+			}
+			return $"{Type} ({driver.Name[..1]})";
+		}
 	}
 
 	public override string Type => Driver.DriveType switch {
@@ -41,15 +50,15 @@ public sealed class DiskDriveItem : FileViewBaseItem {
 
 	private static readonly Gradient GradientColor = new(Colors.ForestGreen, Colors.Orange, Colors.Red);
 
-	public DiskDriveItem(DriveInfo driver) {
+	public DiskDrive(DriveInfo driver) {
 		Driver = driver;
 		IsFolder = true;
 		if (driver.IsReady) {
-			Name = $"{(string.IsNullOrWhiteSpace(driver.VolumeLabel) ? Type : driver.VolumeLabel)} ({driver.Name[..1]})";
+			Name = string.IsNullOrWhiteSpace(driver.VolumeLabel) ? Type : driver.VolumeLabel;
 			TotalSpace = driver.TotalSize;
 			FreeSpace = driver.AvailableFreeSpace; // 考虑用户配额
 		} else {
-			Name = $"{Type} ({driver.Name[..1]})";
+			Name = Type;
 		}
 	}
 
@@ -58,7 +67,13 @@ public sealed class DiskDriveItem : FileViewBaseItem {
 	}
 
 	protected override bool Rename() {
-		throw new NotImplementedException();
+		try {
+			Driver.VolumeLabel = EditingName;
+			return true;
+		} catch (Exception e) {
+			Logger.Error(e.Message);
+			return false;
+		}
 	}
 
 	public void Refresh() {

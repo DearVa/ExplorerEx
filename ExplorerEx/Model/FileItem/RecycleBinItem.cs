@@ -11,6 +11,7 @@ namespace ExplorerEx.Model;
 /// </summary>
 public class RecycleBinItem : FileViewBaseItem {
 	public override string FullPath { get; protected set; }
+	public override string DisplayText { get; }
 	public override string Type { get; }
 	public override void LoadIcon() {
 		throw new NotImplementedException();

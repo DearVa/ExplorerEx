@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -37,7 +35,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 	/// <summary>
 	/// 分屏的阈值，即鼠标到边界占比多少时显示为边界分屏
 	/// </summary>
-	private const double Threshold = 0.2d;
+	private const double Threshold = 0.3d;
 
 	private static DoubleAnimation showAnimation, hideAnimation;
 	private SplitOrientation orientation;
@@ -52,27 +50,71 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 
 	private bool isClosing;
 
+	/// <summary>
+	/// 是否为最右上的Grid，如果是，那么其中的TabControl要避免遮挡窗口的控制按钮
+	/// </summary>
+	private bool IsTopRightGrid {
+		set {
+			if (isTopRightGrid != value) {
+				isTopRightGrid = value;
+				if (value) {
+					FileTabControl.TabBorderRoot.Margin = new Thickness(0, 0, 160, 0);
+				} else {
+					FileTabControl.TabBorderRoot.Margin = new Thickness();
+				}
+			}
+		}
+	}
+
+	private bool isTopRightGrid;
+
+#if DEBUG
 	private static int id;
+#endif
+
+	private static readonly CubicEase CubicEase = new() { EasingMode = EasingMode.EaseInOut };
 
 	private SplitGrid(MainWindow mainWindow, SplitGrid ownerSplitGrid) {
-		showAnimation ??= new DoubleAnimation(1d, new Duration(TimeSpan.FromMilliseconds(150)));
-		hideAnimation ??= new DoubleAnimation(0d, new Duration(TimeSpan.FromMilliseconds(150)));
+		showAnimation ??= new DoubleAnimation(1d, new Duration(TimeSpan.FromMilliseconds(100))) { EasingFunction = CubicEase };
+		hideAnimation ??= new DoubleAnimation(0d, new Duration(TimeSpan.FromMilliseconds(100))) { EasingFunction = CubicEase };
 
 		MainWindow = mainWindow;
 		OwnerSplitGrid = ownerSplitGrid;
 		InitializeComponent();
+#if DEBUG
 		Name = $"SplitGrid{id++}";
+#endif
 	}
 
 	public SplitGrid(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileGridViewModel grid = null) : this(mainWindow, ownerSplitGrid) {
 		FileTabControl = new FileTabControl(mainWindow, this, grid);
 		Children.Insert(0, FileTabControl);
+		if (ownerSplitGrid == null) {
+			isTopRightGrid = true;
+		}
 	}
 
 	public SplitGrid(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileTabControl tab) : this(mainWindow, ownerSplitGrid) {
 		FileTabControl = tab;
 		FileTabControl.OwnerSplitGrid = this;
 		Children.Insert(0, tab);
+	}
+
+	private bool rendered;
+
+	protected override void OnRender(DrawingContext dc) {
+		if (!rendered) {
+			rendered = true;
+			FileTabControl.TabBorder.MouseLeftButtonDown += TopBorderDragMove;
+			if (isTopRightGrid) {
+				FileTabControl.TabBorderRoot.Margin = new Thickness(0, 0, 160, 0);
+			}
+		}
+		base.OnRender(dc);
+	}
+
+	private void TopBorderDragMove(object s, MouseButtonEventArgs e) {
+		MainWindow.DragMove();
 	}
 
 	/// <summary>
@@ -106,39 +148,44 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 			}
 			break;
 		case SplitOrientation.Left when !contains || moreThan1: {  // tab不在当前TabControl中或者TabControl中有超过一个Tab
-				ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1d) });  // Splitter
-				Splitter.SetValue(ColumnProperty, 1);
-				ColumnDefinitions.Add(new ColumnDefinition { MinWidth = 100 });
-				FirstSplit();
-				thisSplitGrid.SetValue(ColumnProperty, 2);
-				otherSplitGrid = new SplitGrid(MainWindow, this, grid);
-				otherSplitGrid.SetValue(ColumnProperty, 0);
-				Children.Insert(0, otherSplitGrid);
-				TabItem.MoveAfterDrag = true;
-				break;
-			}
+			ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1d) });  // Splitter
+			Splitter.SetValue(ColumnProperty, 1);
+			ColumnDefinitions.Add(new ColumnDefinition { MinWidth = 100 });
+			FirstSplit();
+			thisSplitGrid.SetValue(ColumnProperty, 2);
+			otherSplitGrid = new SplitGrid(MainWindow, this, grid);
+			otherSplitGrid.SetValue(ColumnProperty, 0);
+			Children.Insert(0, otherSplitGrid);
+			TabItem.MoveAfterDrag = true;
+			break;
+		}
 		case SplitOrientation.Bottom when !contains || moreThan1: {
-				RowDefinitions.Add(new RowDefinition { Height = new GridLength(1d) });
-				Splitter.SetValue(RowProperty, 1);
-				RowDefinitions.Add(new RowDefinition { MinHeight = 100 });
-				FirstSplit();
-				otherSplitGrid = new SplitGrid(MainWindow, this, grid);
-				otherSplitGrid.SetValue(RowProperty, 2);
-				Children.Insert(0, otherSplitGrid);
-				TabItem.MoveAfterDrag = true;
-				break;
-			}
+			RowDefinitions.Add(new RowDefinition { Height = new GridLength(1d) });
+			Splitter.SetValue(RowProperty, 1);
+			RowDefinitions.Add(new RowDefinition { MinHeight = 100 });
+			FirstSplit();
+			otherSplitGrid = new SplitGrid(MainWindow, this, grid);
+			otherSplitGrid.SetValue(RowProperty, 2);
+			Children.Insert(0, otherSplitGrid);
+			TabItem.MoveAfterDrag = true;
+			break;
+		}
 		case SplitOrientation.Right when !contains || moreThan1: {
-				ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1d) });  // Splitter
-				Splitter.SetValue(ColumnProperty, 1);
-				ColumnDefinitions.Add(new ColumnDefinition { MinWidth = 100 });
-				FirstSplit();
-				otherSplitGrid = new SplitGrid(MainWindow, this, grid);
-				otherSplitGrid.SetValue(ColumnProperty, 2);
-				Children.Insert(0, otherSplitGrid);
-				TabItem.MoveAfterDrag = true;
-				break;
+			ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1d) });  // Splitter
+			Splitter.SetValue(ColumnProperty, 1);
+			ColumnDefinitions.Add(new ColumnDefinition { MinWidth = 100 });
+			FirstSplit();
+			otherSplitGrid = new SplitGrid(MainWindow, this, grid);
+			if (isTopRightGrid) {
+				otherSplitGrid.isTopRightGrid = true;
+				isTopRightGrid = false;
+				FileTabControl.TabBorderRoot.Margin = new Thickness();
 			}
+			otherSplitGrid.SetValue(ColumnProperty, 2);
+			Children.Insert(0, otherSplitGrid);
+			TabItem.MoveAfterDrag = true;
+			break;
+		}
 		}
 	}
 
@@ -170,6 +217,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 	/// </summary>
 	public void CancelSplit() {
 		if (otherSplitGrid != null) {  // 如果右半边有分屏，否则就是没有分屏的状态，直接关闭
+			otherSplitGrid.IsTopRightGrid = isTopRightGrid;
 			otherSplitGrid.OwnerSplitGrid = null;
 			thisSplitGrid.Close();
 			Children.RemoveRange(0, 2);  // index0和1分别是FileTabControl的SplitGrid和otherSplitGrid，2是分屏的预览Grid，不能Remove
@@ -186,6 +234,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 	/// </summary>
 	public void CancelSubSplit() {
 		if (thisSplitGrid != null) {
+			IsTopRightGrid = otherSplitGrid.isTopRightGrid;
 			otherSplitGrid.Close();
 			Children.RemoveRange(0, 2);
 			thisSplitGrid.MoveChildren(this);
@@ -200,7 +249,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 		Name = "Deleted" + Name;
 		if (otherSplitGrid != null) {  // 说明自己分屏了
 			Children.RemoveRange(0, 2);  // 那就需要Remove两个SplitGrid
-			// 下面需要将Column和Row定义设置成一样的
+										 // 下面需要将Column和Row定义设置成一样的
 			if (splitGrid.ColumnDefinitions.Count < ColumnDefinitions.Count) {
 				splitGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1d) });
 				splitGrid.Splitter.SetValue(ColumnProperty, 1);
@@ -268,24 +317,24 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 			var height = ActualHeight;
 			if (p.X < width * Threshold) {
 				if (orientation != SplitOrientation.Left) {
-					var animation = new ThicknessAnimation(new Thickness(0, 0, width * 0.5d, 0), new Duration(TimeSpan.FromMilliseconds(150)));
+					var animation = new ThicknessAnimation(new Thickness(0, 0, width * 0.5d, 0), new Duration(TimeSpan.FromMilliseconds(100))) { EasingFunction = CubicEase };
 					SplitPreviewRectangle.BeginAnimation(MarginProperty, animation);
 					orientation = SplitOrientation.Left;
 				}
 			} else if (p.Y > height * (1 - Threshold)) {
 				if (orientation != SplitOrientation.Bottom) {
-					var animation = new ThicknessAnimation(new Thickness(0, height * 0.5d, 0, 0), new Duration(TimeSpan.FromMilliseconds(150)));
+					var animation = new ThicknessAnimation(new Thickness(0, height * 0.5d, 0, 0), new Duration(TimeSpan.FromMilliseconds(100))) { EasingFunction = CubicEase };
 					SplitPreviewRectangle.BeginAnimation(MarginProperty, animation);
 					orientation = SplitOrientation.Bottom;
 				}
 			} else if (p.X > width * (1 - Threshold)) {
 				if (orientation != SplitOrientation.Right) {
-					var animation = new ThicknessAnimation(new Thickness(width * 0.5d, 0, 0, 0), new Duration(TimeSpan.FromMilliseconds(150)));
+					var animation = new ThicknessAnimation(new Thickness(width * 0.5d, 0, 0, 0), new Duration(TimeSpan.FromMilliseconds(100))) { EasingFunction = CubicEase };
 					SplitPreviewRectangle.BeginAnimation(MarginProperty, animation);
 					orientation = SplitOrientation.Right;
 				}
 			} else if (orientation != SplitOrientation.None) {
-				var animation = new ThicknessAnimation(new Thickness(), new Duration(TimeSpan.FromMilliseconds(150)));
+				var animation = new ThicknessAnimation(new Thickness(), new Duration(TimeSpan.FromMilliseconds(100))) { EasingFunction = CubicEase };
 				SplitPreviewRectangle.BeginAnimation(MarginProperty, animation);
 				orientation = SplitOrientation.None;
 			}

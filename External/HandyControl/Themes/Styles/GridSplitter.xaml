@@ -2,6 +2,7 @@
 
     <Style TargetType="GridSplitter">
         <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Background" Value="Transparent"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Trigger.EnterActions>

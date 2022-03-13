@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -11,6 +12,7 @@ using HandyControl.Data;
 using HandyControl.Interactivity;
 using HandyControl.Tools;
 using HandyControl.Tools.Extension;
+using HandyControl.Tools.Interop;
 
 namespace HandyControl.Controls; 
 
@@ -73,6 +75,8 @@ public class TabItem : System.Windows.Controls.TabItem {
 
 	public static readonly RoutedEvent MovedEvent = EventManager.RegisterRoutedEvent("Moved", RoutingStrategy.Bubble, typeof(EventHandler), typeof(TabItem));
 
+	public static readonly RoutedEvent DuplicatingEvent = EventManager.RegisterRoutedEvent("Duplicating", RoutingStrategy.Bubble, typeof(EventHandler), typeof(TabItem));
+
 	// DragEnter等方法找不出对应的TabItem是哪个，使用自定的方法（如果有更好的方法请帮我提个issue）
 	public static readonly RoutedEvent DragDropEnterEvent = EventManager.RegisterRoutedEvent("DragDropEnter", RoutingStrategy.Bubble, typeof(DragEventHandler), typeof(TabItem));
 
@@ -93,6 +97,11 @@ public class TabItem : System.Windows.Controls.TabItem {
 	public event EventHandler Moved {
 		add => AddHandler(MovedEvent, value);
 		remove => RemoveHandler(MovedEvent, value);
+	}
+
+	public event EventHandler Duplicating {
+		add => AddHandler(DuplicatingEvent, value);
+		remove => RemoveHandler(DuplicatingEvent, value);
 	}
 
 	public event DragEventHandler DragDropEnter {
@@ -167,6 +176,7 @@ public class TabItem : System.Windows.Controls.TabItem {
 	public TabItem() {
 		CommandBindings.Add(new CommandBinding(ControlCommands.Close, (_, _) => Close()));
 		CommandBindings.Add(new CommandBinding(ControlCommands.CloseOther, (_, _) => TabControlParent.CloseOtherItems(this)));
+		CommandBindings.Add(new CommandBinding(ControlCommands.DuplicateTab, (_, _) => RaiseEvent(new RoutedEventArgs(DuplicatingEvent, this))));
 		Loaded += (_, _) => OnMenuChanged(Menu);
 	}
 
@@ -355,24 +365,25 @@ public class TabItem : System.Windows.Controls.TabItem {
 			return;
 		}
 
-		var parent = TabControlParent.HeaderPanel;
+		var parent = TabControlParent.TabBorder;
 		if (!isItemDragging && !isDragging) {
 			TabPanel.SetValue(TabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromSeconds(0)));
 			mouseDownOffsetX = RenderTransform.Value.OffsetX;
 			var mx = TranslatePoint(new Point(), parent).X;
-			mouseDownIndex = CalLocationIndex(mx);
-			var subIndex = mouseDownIndex;
-			maxMoveLeft = -subIndex * ItemWidth;
-			maxMoveRight = parent.ActualWidth - ActualWidth + maxMoveLeft;
-
-			isDragging = true;
-			isItemDragging = true;
-			isWaiting = true;
-			dragPoint = e.GetPosition(parent);
-			dragPoint = new Point(dragPoint.X, dragPoint.Y);
-			mouseDownPoint = dragPoint;
-			CaptureMouse();
+			mouseDownPoint = e.GetPosition(parent);
+			StartDrag(parent, mouseDownPoint, CalLocationIndex(mx));
 		}
+	}
+
+	internal void StartDrag(Border parent, Point mouseDownPoint, int mouseDownIndex) {
+		maxMoveLeft = -mouseDownIndex * ItemWidth;
+		maxMoveRight = parent.ActualWidth - ActualWidth + maxMoveLeft;
+
+		isDragging = true;
+		isItemDragging = true;
+		isWaiting = true;
+		dragPoint = mouseDownPoint;
+		CaptureMouse();
 	}
 
 	protected override void OnMouseMove(MouseEventArgs e) {
@@ -398,27 +409,31 @@ public class TabItem : System.Windows.Controls.TabItem {
 
 			isWaiting = false;
 			isDragged = true;
+			TabControlParent.NewTabButton.Visibility = Visibility.Hidden;
 
-			var left = subLeft + RenderTransform.Value.OffsetX;
+			double left;
 			var totalLeft = p.X - mouseDownPoint.X;
 			if (totalLeft < maxMoveLeft) {
 				left = maxMoveLeft + mouseDownOffsetX;
 			} else if (totalLeft > maxMoveRight) {
 				left = maxMoveRight + mouseDownOffsetX;
+			} else {
+				left = subLeft + RenderTransform.Value.OffsetX;
 			}
-
-			var t = new TranslateTransform(left, 0);
-			RenderTransform = t;
+			Trace.WriteLine($"{p.X} {left} {totalLeft} {maxMoveLeft} {maxMoveRight}");
+			
+			RenderTransform = new TranslateTransform(left, 0);
 			dragPoint = p;
 
 			if (p.X < 0 || p.X > parent.ActualWidth || p.Y < 0 || p.Y > parent.ActualHeight) {
 				if (DraggingTab == null) {
 					DraggingTab = this;
 					var tab = (Grid)GetVisualChild(0)!;
-					DragDropWindow = new DragDropWindow(tab, new Point(tab.ActualWidth / 2, tab.ActualHeight / 2));
+					DragDropWindow = new DragDropWindow(tab, mouseDownPoint);
 					Visibility = Visibility.Hidden;
 					isItemDragging = isDragging = MoveAfterDrag = CancelDrag = false;
 					System.Windows.DragDrop.DoDragDrop(this, DragDropData, DragDropEffects.Move);
+					TabControlParent.NewTabButton.Visibility = Visibility.Visible;
 					EndDragDrop();
 					DragEnd?.Invoke();
 					DragEnd = null;
@@ -431,6 +446,21 @@ public class TabItem : System.Windows.Controls.TabItem {
 						tabControl.RaiseEvent(new RoutedEventArgs(MovedEvent, this));
 					} else {
 						Visibility = Visibility.Visible;
+						// 这里使用e.GetPosition(parent)获取到的是错误的结果，此时Mouse坐标被错误地认为位于屏幕的左上角
+						var mousePoint = InteropMethods.GetCursorPos();
+						var parentPoint = e.GetPosition(parent);
+						mouseDownPoint = new Point(mousePoint.X + parentPoint.X, mousePoint.Y + parentPoint.Y);
+						totalLeft = mouseDownPoint.X - ActualWidth / 2;
+						if (totalLeft < maxMoveLeft) {
+							left = maxMoveLeft + mouseDownOffsetX;
+						} else if (totalLeft > maxMoveRight) {
+							left = maxMoveRight + mouseDownOffsetX;
+						} else {
+							left = totalLeft;
+						}
+						CurrentIndex = CalLocationIndex(left);
+						RenderTransform = new TranslateTransform(left - currentIndex * ItemWidth, 0);
+						StartDrag(parent, mouseDownPoint, currentIndex);
 					}
 				}
 			}
@@ -444,6 +474,7 @@ public class TabItem : System.Windows.Controls.TabItem {
 	protected override void OnPreviewQueryContinueDrag(QueryContinueDragEventArgs e) {
 		if (CancelDrag) {
 			e.Action = DragAction.Cancel;
+			e.Handled = true;
 		}
 	}
 
@@ -461,6 +492,7 @@ public class TabItem : System.Windows.Controls.TabItem {
 		ReleaseMouseCapture();
 
 		if (isDragged) {
+			TabControlParent.NewTabButton.Visibility = Visibility.Visible;
 			var parent = TabControlParent;
 			if (parent == null) {
 				return;

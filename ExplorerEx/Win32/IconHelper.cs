@@ -16,6 +16,7 @@ internal static class IconHelper {
 	public static DrawingImage FolderDrawingImage { get; private set; }
 	public static DrawingImage EmptyFolderDrawingImage { get; private set; }
 	public static DrawingImage UnknownTypeFileDrawingImage { get; private set; }
+	public static BitmapImage ComputerBitmapImage { get; } = new(new Uri("pack://application:,,,/ExplorerEx;component/Assets/Picture/Computer.png"));
 
 	/// <summary>
 	/// 可以获取缩略图的文件格式

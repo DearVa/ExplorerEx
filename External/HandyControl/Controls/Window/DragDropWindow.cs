@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
+using HandyControl.Tools.Interop;
 
 namespace HandyControl.Controls;
 
@@ -10,18 +10,6 @@ namespace HandyControl.Controls;
 /// 拖放一个控件时，可以Show这个窗口，是一个跟随鼠标的控件
 /// </summary>
 public sealed class DragDropWindow : Window {
-	[DllImport("user32.dll")]
-	private static extern bool GetCursorPos(ref Win32Point pt);
-
-	[StructLayout(LayoutKind.Sequential)]
-	private struct Win32Point {
-		public int X;
-		public int Y;
-	}
-
-	[DllImport("user32")]
-	private static extern uint SetWindowLong(IntPtr hwnd, int nIndex, int newLong);
-
 	private Point cursorPoint;
 
 	/// <summary>
@@ -49,17 +37,15 @@ public sealed class DragDropWindow : Window {
 			Content = visual;
 		}
 		BorderBrush = null;
-		var mousePos = new Win32Point();
-		GetCursorPos(ref mousePos);
+		var mousePos = InteropMethods.GetCursorPos();
 		Left = mousePos.X - cursorPoint.X;
 		Top = mousePos.Y - cursorPoint.Y;
-		SetWindowLong(new WindowInteropHelper(this).EnsureHandle(), -20, 0x20);  // 设置鼠标穿透
+		InteropMethods.SetWindowLongPtr32(new WindowInteropHelper(this).EnsureHandle(), -20, (IntPtr)0x20);
 		Show();
 	}
 
 	public void MoveWithCursor() {
-		var mousePos = new Win32Point();
-		GetCursorPos(ref mousePos);
+		var mousePos = InteropMethods.GetCursorPos();
 		Left = mousePos.X - cursorPoint.X;
 		Top = mousePos.Y - cursorPoint.Y;
 	}

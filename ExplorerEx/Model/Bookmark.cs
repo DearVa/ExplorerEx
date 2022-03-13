@@ -68,6 +68,8 @@ public class BookmarkItem : FileViewBaseItem, IFilterable {
 	[Key]
 	public override string FullPath { get; protected set; }
 
+	public override string DisplayText => Name;
+
 	public override string Type => throw new InvalidOperationException();
 
 	[NotMapped]
@@ -85,9 +87,9 @@ public class BookmarkItem : FileViewBaseItem, IFilterable {
 
 	private DateTimeOffset lastClickTime;
 
-	private void OnMouseLeftButtonDown(object args) {
+	private async void OnMouseLeftButtonDown(object args) {
 		if (lastClickTime.Add(TimeSpan.FromMilliseconds(Win32Interop.GetDoubleClickTime())) >= DateTimeOffset.Now) {
-			OpenCommand.Execute(null);
+			await OpenAsync();
 		}
 		lastClickTime = DateTimeOffset.Now;
 	}

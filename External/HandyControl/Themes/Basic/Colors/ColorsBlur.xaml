@@ -33,7 +33,7 @@
     <Color x:Key="BackgroundColor">#55eeeeee</Color>
     <Color x:Key="RegionColor">#ffffff</Color>
     <Color x:Key="SecondaryRegionColor">#dddddd</Color>
-    <Color x:Key="ThirdlyRegionColor">#ffffff</Color>
+    <Color x:Key="ThirdlyRegionColor">#88ffffff</Color>
     <Color x:Key="TitleColor">#326cf3</Color>
     <Color x:Key="SecondaryTitleColor">#326cf3</Color>
 

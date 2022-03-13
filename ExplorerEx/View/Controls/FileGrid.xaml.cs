@@ -16,6 +16,7 @@ using System.Windows.Threading;
 using ExplorerEx.Converter;
 using ExplorerEx.Model;
 using ExplorerEx.Utils;
+using ExplorerEx.ViewModel;
 using ExplorerEx.Win32;
 using HandyControl.Controls;
 using HandyControl.Tools;
@@ -29,7 +30,7 @@ namespace ExplorerEx.View.Controls;
 /// 要能够响应鼠标事件，处理点选、框选、拖放、重命名和双击
 /// </summary>
 public partial class FileGrid {
-	private ScrollViewer ScrollViewer => FileViewType == FileViewType.Detail ? dataGridScrollViewer : listBoxScrollViewer;
+	private ScrollViewer ViewScrollViewer => FileViewType == FileViewType.Detail ? dataGridScrollViewer : listBoxScrollViewer;
 	private ScrollViewer dataGridScrollViewer, listBoxScrollViewer;
 
 	/// <summary>
@@ -61,6 +62,8 @@ public partial class FileGrid {
 		set => SetValue(ItemsSourceProperty, value);
 	}
 
+	public FileGridViewModel ViewModel => (FileGridViewModel)DataContext;
+
 	public delegate void FileDropEventHandler(object sender, FileDropEventArgs e);
 
 	public static readonly RoutedEvent FileDropEvent = EventManager.RegisterRoutedEvent(
@@ -88,6 +91,16 @@ public partial class FileGrid {
 		get => (FileViewType)GetValue(FileViewTypeProperty);
 		set => SetValue(FileViewTypeProperty, value);
 	}
+
+	public int ViewTypeIndex => FileViewType switch {
+		FileViewType.Icon when ItemSize.Width > 100d && ItemSize.Height > 130d => 0,
+		FileViewType.Icon => 1,
+		FileViewType.List => 2,
+		FileViewType.Detail => 3,
+		FileViewType.Tile => 4,
+		FileViewType.Content => 5,
+		_ => -1
+	};
 
 	public static readonly DependencyProperty PathTypeProperty = DependencyProperty.Register(
 		"PathType", typeof(PathType), typeof(FileGrid), new PropertyMetadata(OnViewChanged));
@@ -163,14 +176,19 @@ public partial class FileGrid {
 	/// </summary>
 	public SimpleCommand StartRenameCommand { get; }
 
+	public SimpleCommand SwitchViewCommand { get; }
+
 	private readonly FileGridDataGridColumnsConverter columnsConverter;
+
+	private ContextMenu openedContextMenu;
 
 	public FileGrid() {
 		InitializeComponent();
 		DataGrid.DataContext = ListBox.DataContext = this;
 		EventManager.RegisterClassHandler(typeof(TextBox), GotFocusEvent, new RoutedEventHandler(OnRenameTextBoxGotFocus));
 		SelectCommand = new SimpleCommand(Select);
-		StartRenameCommand = new SimpleCommand(StartRename);
+		StartRenameCommand = new SimpleCommand(e => StartRename((string)e));
+		SwitchViewCommand = new SimpleCommand(e => ViewModel?.OnSwitchView(e));
 		columnsConverter = (FileGridDataGridColumnsConverter)FindResource("ColumnsConverter");
 		((FileGridListBoxTemplateConverter)FindResource("ListBoxTemplateConverter")).FileGrid = this;
 	}
@@ -210,13 +228,16 @@ public partial class FileGrid {
 		}
 	}
 
-	public void StartRename(object fileName) {
-		var item = ItemsSource.FirstOrDefault(item => item.Name == (string)fileName);
-		if (item != null) {
-			ScrollIntoView(item);
-			item.IsSelected = true;
-			item.BeginRename();
+	public void StartRename(string fileName) {
+		var item = ItemsSource.FirstOrDefault(item => item.Name == fileName);
+		if (item == null) {
+			if (ViewModel == null || (item = ViewModel.AddSingleItem(fileName)) == null) {
+				return;
+			}
 		}
+		ScrollIntoView(item);
+		item.IsSelected = true;
+		item.BeginRename();
 	}
 
 	private void OnRenameTextBoxGotFocus(object sender, RoutedEventArgs e) {
@@ -333,9 +354,9 @@ public partial class FileGrid {
 	/// </summary>
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
+		base.OnPreviewMouseDown(e);
 		isDoubleClicked = false;
-		if (e.OriginalSource is not System.Windows.Controls.ScrollViewer && e.OriginalSource.FindParent<ToggleBlock, FileGrid>() == null) {
-			base.OnPreviewMouseDown(e);
+		if (e.OriginalSource is not ScrollViewer && e.OriginalSource.FindParent<ToggleBlock, FileGrid>() == null) {
 			return;
 		}
 
@@ -349,57 +370,72 @@ public partial class FileGrid {
 			if (renamingItem is { EditingName: not null }) {
 				if (e.OriginalSource.FindParent<TextBox, FileGrid>() == null) {
 					renamingItem.StopRename();
+				} else {
+					return;
 				}
+			} else {
+				renamingItem = null;
 			}
 
 			startDragPosition = e.GetPosition(ContentGrid);
 			var item = GetClickedItem(e.OriginalSource);
 			if (item != null) {
-				if (item == lastMouseUpItem && 
-				    Math.Abs(startDragPosition.X - lastMouseUpPoint.X) < SystemParameters.MinimumHorizontalDragDistance &&
-					Math.Abs(startDragPosition.Y - lastMouseUpPoint.Y) < SystemParameters.MinimumVerticalDragDistance && 
-				    DateTimeOffset.Now <= lastMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime())) {
-					isDoubleClicked = true;
-					renameCts?.Cancel();
-					renameCts = null;
-					UnselectAll();
-					RaiseEvent(new ItemClickEventArgs(ItemDoubleClickedEvent, item));
-				} else {
-					mouseDownRowIndex = ItemsSource.IndexOf(item);
-					if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) {
-						lastMouseDownRowIndex = mouseDownRowIndex;
-						item.IsSelected = !item.IsSelected;
-					} else if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) {
-						if (lastMouseDownRowIndex == -1) {
+				if (e.ChangedButton == MouseButton.Left) {
+					if (item == lastMouseUpItem &&
+						Math.Abs(startDragPosition.X - lastMouseUpPoint.X) < SystemParameters.MinimumHorizontalDragDistance &&
+						Math.Abs(startDragPosition.Y - lastMouseUpPoint.Y) < SystemParameters.MinimumVerticalDragDistance &&
+						DateTimeOffset.Now <= lastMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime())) {
+						isDoubleClicked = true;
+						renameCts?.Cancel();
+						renameCts = null;
+						UnselectAll();
+						RaiseEvent(new ItemClickEventArgs(ItemDoubleClickedEvent, item));
+					} else {
+						mouseDownRowIndex = ItemsSource.IndexOf(item);
+						if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) {
 							lastMouseDownRowIndex = mouseDownRowIndex;
-							item.IsSelected = true;
-						} else {
-							if (mouseDownRowIndex != lastMouseDownRowIndex) {
-								int startIndex, endIndex;
-								if (mouseDownRowIndex < lastMouseDownRowIndex) {
-									startIndex = mouseDownRowIndex;
-									endIndex = lastMouseDownRowIndex;
-								} else {
-									startIndex = lastMouseDownRowIndex;
-									endIndex = mouseDownRowIndex;
-								}
-								UnselectAll();
-								for (var i = startIndex; i <= endIndex; i++) {
-									ItemsSource[i].IsSelected = true;
+							item.IsSelected = !item.IsSelected;
+						} else if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) {
+							if (lastMouseDownRowIndex == -1) {
+								lastMouseDownRowIndex = mouseDownRowIndex;
+								item.IsSelected = true;
+							} else {
+								if (mouseDownRowIndex != lastMouseDownRowIndex) {
+									int startIndex, endIndex;
+									if (mouseDownRowIndex < lastMouseDownRowIndex) {
+										startIndex = mouseDownRowIndex;
+										endIndex = lastMouseDownRowIndex;
+									} else {
+										startIndex = lastMouseDownRowIndex;
+										endIndex = mouseDownRowIndex;
+									}
+									UnselectAll();
+									for (var i = startIndex; i <= endIndex; i++) {
+										ItemsSource[i].IsSelected = true;
+									}
 								}
 							}
+						} else {
+							lastMouseDownRowIndex = mouseDownRowIndex;
+							var selectedItems = SelectedItems;
+							if (selectedItems.Count == 0) {
+								item.IsSelected = true;
+							} else if (!item.IsSelected) {
+								UnselectAll();
+								item.IsSelected = true;
+							} else if (selectedItems.Count == 1) {
+								isPreparedForRenaming = true;
+							}
 						}
-					} else {
-						lastMouseDownRowIndex = mouseDownRowIndex;
-						var selectedItems = SelectedItems;
-						if (selectedItems.Count == 0) {
-							item.IsSelected = true;
-						} else if (!item.IsSelected) {
-							UnselectAll();
-							item.IsSelected = true;
-						} else if (selectedItems.Count == 1 && e.ChangedButton == MouseButton.Left) {
-							isPreparedForRenaming = true;
-						}
+					}
+				} else {
+					lastMouseDownRowIndex = mouseDownRowIndex;
+					var selectedItems = SelectedItems;
+					if (selectedItems.Count == 0) {
+						item.IsSelected = true;
+					} else if (!item.IsSelected) {
+						UnselectAll();
+						item.IsSelected = true;
 					}
 				}
 			} else {
@@ -407,7 +443,7 @@ public partial class FileGrid {
 			}
 			var x = Math.Min(Math.Max(startDragPosition.X, 0), ContentGrid.ActualWidth);
 			var y = Math.Min(Math.Max(startDragPosition.Y, 0), ContentGrid.ActualHeight);
-			var scrollViewer = ScrollViewer;
+			var scrollViewer = ViewScrollViewer;
 			startSelectionPoint = new Point(x + scrollViewer.HorizontalOffset, y + scrollViewer.VerticalOffset);
 		}
 		e.Handled = true;
@@ -425,7 +461,7 @@ public partial class FileGrid {
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseMove(MouseEventArgs e) {
 		base.OnPreviewMouseMove(e);
-		if (!isMouseDown || isDoubleClicked || isDragDropping) {
+		if (!isMouseDown || isDoubleClicked || isDragDropping || renamingItem != null) {
 			return;
 		}
 		// 只有isMouseDown（即OnPreviewMouseDown触发过）为true，这个才有用
@@ -436,7 +472,7 @@ public partial class FileGrid {
 				if (mouseDownRowIndex != -1) {
 					draggingItems = SelectedItems.Cast<FileViewBaseItem>().ToArray();
 					var data = new DataObject(DataFormats.FileDrop, draggingItems.Select(item => item.FullPath).ToArray(), true);
-					var allowedEffects = draggingItems.Any(item => item is DiskDriveItem) ? DragDropEffects.Link : DragDropEffects.Copy | DragDropEffects.Link | DragDropEffects.Move;
+					var allowedEffects = draggingItems.Any(item => item is DiskDrive) ? DragDropEffects.Link : DragDropEffects.Copy | DragDropEffects.Link | DragDropEffects.Move;
 					DragFilesPreview = new DragFilesPreview(draggingItems.Select(item => item.Icon).ToArray());
 					dragDropWindow = new DragDropWindow(DragFilesPreview, new Point(50, 100), 0.8, false);
 					isDragDropping = true;
@@ -494,7 +530,7 @@ public partial class FileGrid {
 	/// 计算框选的元素
 	/// </summary>
 	private void UpdateRectSelection() {
-		var scrollViewer = ScrollViewer;
+		var scrollViewer = ViewScrollViewer;
 		var point = Mouse.GetPosition(ContentGrid);
 		var actualWidth = ContentGrid.ActualWidth;
 		var x = Math.Min(Math.Max(point.X, 0), actualWidth) + scrollViewer.HorizontalOffset;
@@ -644,6 +680,9 @@ public partial class FileGrid {
 			} else {  // 只计算纵向
 				var firstIndex = (int)(scrollViewer.VerticalOffset / dY);  // 视图中第一个元素的index，因为使用了虚拟化容器，所以不能找Items[0]，它可能不存在
 				var row0 = FileViewType == FileViewType.Detail ? (UIElement)DataGrid.ItemContainerGenerator.ContainerFromIndex(firstIndex) : (UIElement)ListBox.ItemContainerGenerator.ContainerFromIndex(firstIndex);
+				if (row0 == null) {
+					return;
+				}
 				// l = 0, t = 0时，正好是第一个元素左上的坐标
 				if (l < row0.DesiredSize.Width) {  // 框的左边界在列内。每列Width都是一样的
 					var tIndex = Math.Max((int)((t + 4) / dY), 0);
@@ -682,8 +721,8 @@ public partial class FileGrid {
 	}
 
 	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
-		if (!isMouseDown || isDoubleClicked) {
-			base.OnPreviewMouseUp(e);
+		base.OnPreviewMouseUp(e);
+		if (!isMouseDown || isDoubleClicked || renamingItem != null) {
 			return;
 		}
 		// 只有isMouseDown（即OnPreviewMouseDown触发过）为true，这个才有用
@@ -697,13 +736,13 @@ public partial class FileGrid {
 				timer?.Stop();
 			} else if (isPreparedForRenaming) {
 				isPreparedForRenaming = false;
-				if (mouseDownRowIndex >= 0 && mouseDownRowIndex < ItemsSource.Count) {  // 防止集合改变过
+				if (mouseDownRowIndex >= 0 && mouseDownRowIndex < ItemsSource.Count && DateTimeOffset.Now > lastMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime() * 1.5)) {
 					var item = ItemsSource[mouseDownRowIndex];
 					if (item != renamingItem) {  // 上次命名的这次点击就不命名了
 						if (renameCts == null) {
 							var cts = renameCts = new CancellationTokenSource();
 							Task.Run(() => {
-								Thread.Sleep((int)(Win32Interop.GetDoubleClickTime() * 1.5f)); // 要比双击的时间长一些
+								Thread.Sleep(Win32Interop.GetDoubleClickTime());
 								if (!cts.IsCancellationRequested) {
 									item.BeginRename();
 								}
@@ -717,7 +756,7 @@ public partial class FileGrid {
 				}
 			} else {
 				var isCtrlOrShiftPressed = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ||
-				                           Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
+										   Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
 				switch (e.ChangedButton) {
 				case MouseButton.Left:
 					if (isClickOnItem) {
@@ -733,11 +772,12 @@ public partial class FileGrid {
 				case MouseButton.Right:
 					if (isClickOnItem && e.OriginalSource is DependencyObject o) {
 						var item = ItemsSource[mouseDownRowIndex];
-						var menu = ((FrameworkElement)ItemsControl.ContainerFromElement(ItemsControl, o))!.ContextMenu!;
-						menu.DataContext = item;
-						menu.IsOpen = true;
+						openedContextMenu = ((FrameworkElement)ItemsControl.ContainerFromElement(ItemsControl, o))!.ContextMenu!;
+						openedContextMenu.DataContext = item;
+						openedContextMenu.IsOpen = true;
 					} else if (Folder != null) {
-						ContextMenu!.IsOpen = true;
+						openedContextMenu = ContextMenu;
+						openedContextMenu!.IsOpen = true;
 					}
 					break;
 				}
@@ -765,7 +805,7 @@ public partial class FileGrid {
 	}
 
 	private void RectSelectScroll(object sender, EventArgs e) {
-		var scrollViewer = ScrollViewer;
+		var scrollViewer = ViewScrollViewer;
 		scrollViewer.ScrollToHorizontalOffset(scrollViewer.HorizontalOffset + scrollSpeed.X);
 		scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset + scrollSpeed.Y);
 		UpdateRectSelection();
@@ -893,6 +933,116 @@ public partial class FileGrid {
 			Item = item;
 		}
 	}
+
+	#region MenuItem点击事件，用Binding的话太浪费资源了
+	private void Cut_OnClick(object sender, RoutedEventArgs e) {
+		ViewModel?.Copy(true);
+		if (openedContextMenu != null) {
+			openedContextMenu.IsOpen = false;
+		}
+	}
+
+	private void Copy_OnClick(object sender, RoutedEventArgs e) {
+		ViewModel?.Copy(false);
+		if (openedContextMenu != null) {
+			openedContextMenu.IsOpen = false;
+		}
+	}
+
+	private void Rename_OnClick(object sender, RoutedEventArgs e) {
+		ViewModel?.Rename();
+		if (openedContextMenu != null) {
+			openedContextMenu.IsOpen = false;
+		}
+	}
+
+	private void Delete_OnClick(object sender, RoutedEventArgs e) {
+		ViewModel?.Delete();
+		if (openedContextMenu != null) {
+			openedContextMenu.IsOpen = false;
+		}
+	}
+
+	private async void Open_OnClick(object sender, RoutedEventArgs e) {
+		if (ViewModel == null) {
+			return;
+		}
+		foreach (var item in ViewModel.SelectedItems) {
+			await item.OpenAsync();
+		}
+	}
+
+	private async void OpenAsAdmin_OnClick(object sender, RoutedEventArgs e) {
+		if (ViewModel == null) {
+			return;
+		}
+		foreach (var item in ViewModel.SelectedItems) {
+			await item.OpenAsync(true);
+		}
+	}
+
+	private async void OpenInNewTab_OnClick(object sender, RoutedEventArgs e) {
+		if (ViewModel == null) {
+			return;
+		}
+		foreach (var item in ViewModel.SelectedItems.Where(i => i.IsFolder)) {
+			await item.OpenAsync();
+		}
+	}
+
+	private void Refresh_OnClick(object sender, RoutedEventArgs e) {
+		ViewModel?.Refresh();
+	}
+
+	private void NewFolder_OnClick(object sender, RoutedEventArgs e) {
+		string folderName;
+		try {
+			folderName = FileUtils.GetNewFileName(FullPath, "New_folder".L());
+			Directory.CreateDirectory(Path.Combine(FullPath, folderName));
+		} catch (Exception ex) {
+			Logger.Error(ex.Message);
+			return;
+		}
+		StartRename(folderName);
+	}
+
+	private void OpenInNewWindow_OnClick(object sender, RoutedEventArgs e) {
+		if (ViewModel == null) {
+			return;
+		}
+		foreach (var item in ViewModel.SelectedItems.Where(i => i.IsFolder)) {
+			new MainWindow(item.FullPath).Show();
+		}
+	}
+
+	private void AddToBookmarks_OnClick(object sender, RoutedEventArgs e) {
+		if (ViewModel == null || ViewModel.SelectedItems.Count == 0) {
+			return;
+		}
+		FileTabControl.FocusedTabControl.MainWindow.AddToBookmark(ViewModel.SelectedItems.Select(i => i.FullPath).ToArray());
+	}
+
+	private void RemoveFromBookmarks_OnClick(object sender, RoutedEventArgs e) {
+		if (ViewModel == null || ViewModel.SelectedItems.Count == 0) {
+			return;
+		}
+		MainWindow.RemoveFromBookmark(ViewModel.SelectedItems.Select(i => i.FullPath).ToArray());
+	}
+
+	private void ShowProperties_OnClick(object sender, RoutedEventArgs e) {
+		if (ViewModel == null) {
+			return;
+		}
+		var selectedItems = ViewModel.SelectedItems;
+		if (selectedItems.Count == 0) {
+			Win32Interop.ShowFileProperties(FullPath);
+		} else {
+			foreach (var item in ViewModel.SelectedItems.Where(i => i.IsFolder)) {
+				Win32Interop.ShowFileProperties(item.FullPath);
+			}
+		}
+	}
+	#endregion
 }
 
 public class FileDropEventArgs : RoutedEventArgs {

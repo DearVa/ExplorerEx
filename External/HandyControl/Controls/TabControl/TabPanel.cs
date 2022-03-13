@@ -115,11 +115,9 @@ public class TabPanel : Panel {
 
 		var itemWidth = TabItemWidth;
 		var containerWidth = tabControl.TabBorder.ActualWidth;
+		var newButtonLeft = 0d;
 		if (containerWidth > 0 && itemWidth * count > containerWidth) {
 			itemWidth = containerWidth / count;
-			tabControl.NewTabButton.Margin = new Thickness(containerWidth + 4, 4, 0, 4);
-		} else {
-			tabControl.NewTabButton.Margin = new Thickness(itemWidth * count + 4, 4, 0, 4);
 		}
 
 		for (var index = 0; index < count; index++) {
@@ -131,6 +129,7 @@ public class TabPanel : Panel {
 					Width = itemWidth,
 					Height = TabItemHeight
 				};
+				newButtonLeft = Math.Max(newButtonLeft, rect.X + itemWidth);
 				tabItem.Arrange(rect);
 				tabItem.ItemWidth = Math.Max(itemWidth - tabItem.BorderThickness.Left, 1);
 				tabItem.CurrentIndex = index;
@@ -139,6 +138,8 @@ public class TabPanel : Panel {
 				size.Width += tabItem.ItemWidth;
 			}
 		}
+		tabControl.NewTabButton.Margin = new Thickness(newButtonLeft + 12, 5, 0, 3);
+
 		size.Height = constraint.Height;
 		oldSize = size;
 		return oldSize;

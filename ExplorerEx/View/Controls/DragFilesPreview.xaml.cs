@@ -41,9 +41,18 @@ public partial class DragFilesPreview {
 				MovePath.Visibility = Visibility.Collapsed;
 				LinkPath.Visibility = Visibility.Visible;
 				break;
+			case DragDropEffects.All:  // 自定义
+				OperationTypeRun.Text = CustomOperation;
+				OperationBorder.Visibility = Visibility.Visible;
+				CopyPath.Visibility = Visibility.Collapsed;
+				MovePath.Visibility = Visibility.Collapsed;
+				LinkPath.Visibility = Visibility.Collapsed;
+				break;
 			}
 		}
 	}
+
+	public string CustomOperation { get; set; }
 
 	public DragFilesPreview(IList<ImageSource> icons) {
 		InitializeComponent();

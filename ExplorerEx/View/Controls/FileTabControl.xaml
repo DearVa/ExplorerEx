@@ -18,8 +18,20 @@
         <hc:RoutedEventTrigger RoutedEvent="hc:TabItem.Moved">
             <hc:EventToCommand Command="{Binding TabMovedCommand}" PassEventArgsToCommand="False"/>
         </hc:RoutedEventTrigger>
+        <hc:RoutedEventTrigger RoutedEvent="hc:TabItem.Duplicating">
+            <hc:EventToCommand Command="{Binding TabDuplicatingCommand}" PassEventArgsToCommand="True"/>
+        </hc:RoutedEventTrigger>
         <hc:RoutedEventTrigger RoutedEvent="hc:TabControl.NewTab">
             <hc:EventToCommand Command="{Binding CreateNewTabCommand}" PassEventArgsToCommand="True"/>
+        </hc:RoutedEventTrigger>
+        <hc:RoutedEventTrigger RoutedEvent="hc:TabControl.DragDropEnter">
+            <hc:EventToCommand Command="{Binding DragCommand}" PassEventArgsToCommand="True"/>
+        </hc:RoutedEventTrigger>
+        <hc:RoutedEventTrigger RoutedEvent="hc:TabControl.DragDropOver">
+            <hc:EventToCommand Command="{Binding DragCommand}" PassEventArgsToCommand="True"/>
+        </hc:RoutedEventTrigger>
+        <hc:RoutedEventTrigger RoutedEvent="hc:TabControl.DragDrop">
+            <hc:EventToCommand Command="{Binding DropCommand}" PassEventArgsToCommand="True"/>
         </hc:RoutedEventTrigger>
         <hc:RoutedEventTrigger RoutedEvent="hc:TabItem.DragDropEnter">
             <hc:EventToCommand Command="{Binding DragCommand}" PassEventArgsToCommand="True"/>
@@ -33,12 +45,15 @@
     </hc:Interaction.Triggers>
     <hc:TabControl.ItemTemplate>
         <DataTemplate>
-            <TextBlock Width="200" d:DataContext="{d:DesignInstance vm:FileGridViewModel}" Text="{Binding Header}"/>
+            <StackPanel Orientation="Horizontal" Height="18" d:DataContext="{d:DesignInstance vm:FileGridViewModel}">
+                <Image Width="18" Height="18" Source="{Binding Folder.Icon}" Margin="0,0,5,0"/>
+                <TextBlock Text="{Binding Folder.DisplayText}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
         </DataTemplate>
     </hc:TabControl.ItemTemplate>
     <hc:TabControl.ItemContainerStyle>
         <Style TargetType="hc:TabItem" BasedOn="{StaticResource TabItemPlusBaseStyle}">
-            <Setter Property="DragDropData" Value="{Binding Header}"/>
+            <Setter Property="DragDropData" Value="{Binding Folder.FullPath}"/>
         </Style>
     </hc:TabControl.ItemContainerStyle>
     <hc:TabControl.ContentTemplate>

@@ -35,7 +35,7 @@ public partial class FileViewGrid {
 	private void DataContext_OnChanged(object sender, DependencyPropertyChangedEventArgs e) {
 		GridViewModel = (FileGridViewModel)e.NewValue;
 		if (GridViewModel != null) {
-			GridViewModel.FileGrid = FileDataGrid;
+			GridViewModel.FileGrid = FileGrid;
 		}
 	}
 
@@ -48,7 +48,7 @@ public partial class FileViewGrid {
 			return;
 		}
 		try {
-			FileDataGrid.StartRename(item.Create(viewModel.FullPath));
+			FileGrid.StartRename(item.Create(viewModel.FullPath));
 		} catch (Exception e) {
 			hc.MessageBox.Error(e.Message, "Cannot_create".L());
 		}
@@ -60,5 +60,9 @@ public partial class FileViewGrid {
 			await GridViewModel.LoadDirectoryAsync(((TextBox)sender).Text);
 			break;
 		}
+	}
+
+	private async void History_OnClick(object sender, RoutedEventArgs e) {
+		await GridViewModel.LoadDirectoryAsync(((FileViewBaseItem)((MenuItem)sender).DataContext).FullPath);
 	}
 }

@@ -38,18 +38,10 @@ public class CreateFileItem : SimpleNotifyPropertyChanged {
 	/// 创建该文件，方法会自动枚举文件，防止重名
 	/// </summary>
 	/// <param name="path">文件夹路径</param>
-	/// <returns>创建的文件名</returns>
+	/// <returns>创建的文件名，不包括路径</returns>
 	public virtual string Create(string path) {
-		var newFileNameBase = $"{"New".L()} {Description}";
-		var newFileName = newFileNameBase + Extension;
-		var sameNameCount = 0;
-		// 这里应该不需要使用哈希表，毕竟数量不多，枚举不需要消耗太多时间，节省内存
-		var list = Directory.EnumerateFiles(path, $"*{Extension}").Select(path => path[(path.LastIndexOf('\\') + 1)..]).ToArray();
-		while (list.Contains(newFileName)) {
-			newFileName = $"{newFileNameBase} ({++sameNameCount}){Extension}";
-		}
-		var fileName = Path.Combine(path, newFileName);
-		File.Create(fileName).Dispose();
+		var fileName = FileUtils.GetNewFileName(path, $"{"New".L()} {Description}");
+		File.Create(Path.Combine(path, fileName)).Dispose();
 		return fileName;
 	}
 
@@ -66,7 +58,7 @@ public class CreateFileItem : SimpleNotifyPropertyChanged {
 	public static void UpdateItems() {
 		var newItems = (string[])Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\Discardable\PostSetup\ShellNew")!.GetValue("Classes")!;
 		items.Clear();
-		items.Add(new CreateFileDirectoryItem());
+		items.Add(new CreateDirectoryItem());
 		items.Add(new CreateFileLinkItem());
 		items.Add(new CreateFileItem(".txt"));
 		foreach (var item in newItems) {
@@ -88,23 +80,15 @@ public class CreateFileItem : SimpleNotifyPropertyChanged {
 /// <summary>
 /// 新建文件夹
 /// </summary>
-internal class CreateFileDirectoryItem : CreateFileItem {
-	public CreateFileDirectoryItem() : base(null, false) {
+internal class CreateDirectoryItem : CreateFileItem {
+	public CreateDirectoryItem() : base(null, false) {
 		Icon = EmptyFolderDrawingImage;
 		Description = "Folder".L();
 	}
 
 	public override string Create(string path) {
-		var newFolderNameBase = "New_folder".L();
-		var newFolderName = newFolderNameBase;
-		var sameNameCount = 0;
-		// 这里应该不需要使用哈希表，毕竟数量不多，枚举不需要消耗太多时间，节省内存
-		var list = Directory.EnumerateFileSystemEntries(path, "*").Select(path => path[(path.LastIndexOf('\\') + 1)..]).ToArray();
-		while (list.Contains(newFolderName)) {
-			newFolderName = $"{newFolderNameBase} ({++sameNameCount})";
-		}
-		var folderName = Path.Combine(path, newFolderName);
-		Directory.CreateDirectory(folderName);
+		var folderName = FileUtils.GetNewFileName(path, "New_folder".L());
+		Directory.CreateDirectory(Path.Combine(path, folderName));
 		return folderName;
 	}
 }

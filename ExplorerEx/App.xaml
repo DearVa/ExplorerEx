@@ -18,6 +18,7 @@
                 <ResourceDictionary Source="Assets/Geometries.xaml"/>
                 <ResourceDictionary>
                     <c:Equality2BooleanConverter x:Key="Equality2BooleanConverter"/>
+                    <c:Int2BooleanConverter x:Key="Int2BooleanConverter"/>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

@@ -6,18 +6,28 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using HandyControl.Data;
 using HandyControl.Interactivity;
+using HandyControl.Tools.Interop;
 
 namespace HandyControl.Controls; 
 
 [TemplatePart(Name = HeaderPanelKey, Type = typeof(TabPanel))]
-[TemplatePart(Name = HeaderBorder, Type = typeof(Border))]
+[TemplatePart(Name = HeaderBorderKey, Type = typeof(Border))]
+[TemplatePart(Name = TabBorderRootKey, Type = typeof(Border))]
 [TemplatePart(Name = TabBorderKey, Type = typeof(Border))]
 [TemplatePart(Name = NewTabButtonKey, Type = typeof(Button))]
 public class TabControl : System.Windows.Controls.TabControl {
 	private const string HeaderPanelKey = "PART_HeaderPanel";
 
-	private const string HeaderBorder = "PART_HeaderBorder";
+	private const string HeaderBorderKey = "PART_HeaderBorder";
 
+	/// <summary>
+	/// 停靠标签页以及新建标签页按钮的区域，如果是最右上角的，应当把Margin设为0,0,160,0，避免遮挡窗口右上角的控制按钮
+	/// </summary>
+	private const string TabBorderRootKey = "PART_TabBorderRoot";
+
+	/// <summary>
+	/// 停靠标签页的区域
+	/// </summary>
 	private const string TabBorderKey = "PART_TabBorder";
 
 	private const string NewTabButtonKey = "NewTabButton";
@@ -42,16 +52,18 @@ public class TabControl : System.Windows.Controls.TabControl {
 
 	private Border headerBorder;
 
-	internal Border TabBorder { get; private set; }
+	public Border TabBorder { get; private set; }
 
-	internal Button NewTabButton { get; private set; }
+	public Border TabBorderRoot { get; private set; }
+
+	public Button NewTabButton { get; private set; }
 
 	/// <summary>
 	///     是否为内部操作
 	/// </summary>
 	internal bool IsInternalAction;
 
-	internal TabPanel HeaderPanel { get; private set; }
+	public TabPanel HeaderPanel { get; private set; }
 
 	/// <summary>
 	///     是否显示上下文菜单
@@ -79,9 +91,31 @@ public class TabControl : System.Windows.Controls.TabControl {
 
 	public static readonly RoutedEvent NewTabEvent = EventManager.RegisterRoutedEvent("NewTab", RoutingStrategy.Bubble, typeof(EventHandler), typeof(TabControl));
 
+	public static readonly RoutedEvent DragDropEnterEvent = EventManager.RegisterRoutedEvent("DragDropEnter", RoutingStrategy.Bubble, typeof(DragEventHandler), typeof(TabControl));
+
+	public static readonly RoutedEvent DragDropOverEvent = EventManager.RegisterRoutedEvent("DragDropOver", RoutingStrategy.Bubble, typeof(DragEventHandler), typeof(TabControl));
+
+	public static readonly RoutedEvent DragDropEvent = EventManager.RegisterRoutedEvent("DragDrop", RoutingStrategy.Bubble, typeof(DragEventHandler), typeof(TabControl));
+
+
 	public event EventHandler NewTab {
 		add => AddHandler(NewTabEvent, value);
 		remove => RemoveHandler(NewTabEvent, value);
+	}
+
+	public event DragEventHandler DragDropEnter {
+		add => AddHandler(DragDropEnterEvent, value);
+		remove => RemoveHandler(DragDropEnterEvent, value);
+	}
+
+	public event DragEventHandler DragDropOver {
+		add => AddHandler(DragDropOverEvent, value);
+		remove => RemoveHandler(DragDropOverEvent, value);
+	}
+
+	public event DragEventHandler DragDrop {
+		add => AddHandler(DragDropEvent, value);
+		remove => RemoveHandler(DragDropEvent, value);
 	}
 
 	public TabControl() {
@@ -137,17 +171,44 @@ public class TabControl : System.Windows.Controls.TabControl {
 		HeaderPanel = (TabPanel)GetTemplateChild(HeaderPanelKey);
 		TabBorder = (Border)GetTemplateChild(TabBorderKey)!;
 		TabBorder.DragEnter += TabBorder_OnDragEnter;
-		headerBorder = (Border)GetTemplateChild(HeaderBorder);
+		TabBorder.DragOver += (_, args) => {
+			args.RoutedEvent = DragDropOverEvent;
+			RaiseEvent(new TabBorderDragEventArgs(args, this));
+		};
+		TabBorder.Drop += (_, args) => {
+			args.RoutedEvent = DragDropEvent;
+			RaiseEvent(new TabBorderDragEventArgs(args, this));
+		};
+		TabBorderRoot = (Border)GetTemplateChild(TabBorderRootKey);
+		headerBorder = (Border)GetTemplateChild(HeaderBorderKey);
 		NewTabButton = (Button)GetTemplateChild(NewTabButtonKey);
 	}
 
 	private void TabBorder_OnDragEnter(object sender, DragEventArgs e) {
 		if (TabItem.DraggingTab != null) {
-			if (Items.Contains(TabItem.DraggingTab)) {  // 当前正是这里边的
+			if (Items.Contains(TabItem.DraggingTab.DataContext)) {  // 当前正是这里边的
 				TabItem.MoveAfterDrag = false;
+			} else {
+				TabItem.MoveAfterDrag = true;
+				var mouseDownPoint = e.GetPosition(TabBorder);
+				var list = GetActualList();
+				double tabWidth;
+				var newCount = list.Count + 1;
+				if (newCount * TabItemWidth > TabBorder.ActualWidth) {
+					tabWidth = TabBorder.ActualWidth / newCount;
+				} else {
+					tabWidth = TabItemWidth;
+				}
+				var insertIndex = (int)(mouseDownPoint.X / tabWidth);
+				var newTab = TabItem.DraggingTab;
+				list.Insert(insertIndex, newTab.DataContext);
+				SelectedIndex = insertIndex;
+				newTab.StartDrag(TabBorder, mouseDownPoint, insertIndex);
 			}
 			TabItem.CancelDrag = true;
 		}
+		e.RoutedEvent = DragDropEnterEvent;
+		RaiseEvent(new TabBorderDragEventArgs(e, this));
 	}
 
 	internal void CloseOtherItems(TabItem currentItem) {
@@ -201,5 +262,20 @@ public class TabControl : System.Windows.Controls.TabControl {
 
 	protected override DependencyObject GetContainerForItemOverride() {
 		return new TabItem();
+	}
+}
+
+/// <summary>
+/// 拖动到了标签页停放区
+/// </summary>
+public class TabBorderDragEventArgs : RoutedEventArgs {
+	public DragEventArgs DragEventArgs { get; }
+
+	public TabControl TabControl { get; }
+
+	public TabBorderDragEventArgs(DragEventArgs args, TabControl tabControl) {
+		RoutedEvent = args.RoutedEvent;
+		DragEventArgs = args;
+		TabControl = tabControl;
 	}
 }

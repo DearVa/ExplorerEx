@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Windows;
+using System.Windows.Input;
 using ExplorerEx.Model;
 using ExplorerEx.Utils;
 using ExplorerEx.View;
@@ -77,6 +78,14 @@ public partial class App {
 			new MainWindow().Show();
 		}
 		notifyIconWindow = new NotifyIconWindow();
+
+#if DEBUG
+		EventManager.RegisterClassHandler(typeof(UIElement), UIElement.PreviewKeyDownEvent, new KeyEventHandler((_, args) => {
+			if (args.Key == Key.Pause) {
+				Debugger.Break();
+			}
+		}));
+#endif
 	}
 	
 	/// <summary>

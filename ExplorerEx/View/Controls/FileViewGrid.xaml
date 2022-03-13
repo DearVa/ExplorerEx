@@ -9,7 +9,8 @@
       xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
       xmlns:hc="https://handyorg.github.io/handycontrol"
       xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
-      mc:Ignorable="d" d:DataContext="{d:DesignInstance vm:FileGridViewModel}">
+      mc:Ignorable="d" d:DataContext="{d:DesignInstance vm:FileGridViewModel}"
+      Background="{DynamicResource ThirdlyRegionBrush}">
     <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
@@ -113,29 +114,49 @@
         </Button>
     </StackPanel>
 
-    <Border Grid.Row="1" BorderThickness="0,1,0,0" Padding="5,5,5,5">
+    <Border Grid.Row="1" BorderThickness="0,1,0,0" Margin="10,0" Padding="0,5" BorderBrush="{DynamicResource BorderBrush}">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="45"/>
+                <ColumnDefinition Width="45"/>
+                <ColumnDefinition MinWidth="150"/>
+                <ColumnDefinition Width="1"/>
+                <ColumnDefinition Width="300" MinWidth="150"/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Margin="5" hc:IconElement.Geometry="{StaticResource LeftArrowGeometry}" 
-                    IsEnabled="{Binding CanGoBack, Mode=OneWay}" 
+            <Button Grid.Column="0" Margin="0,3,3,3" hc:IconElement.Geometry="{StaticResource LeftArrowGeometry}" 
+                    IsEnabled="{Binding CanGoBack, Mode=OneWay}"
                     Command="{Binding GoBackCommand}"/>
-            <hc:SplitButton Grid.Column="1" Margin="5" hc:IconElement.Geometry="{StaticResource RightArrowGeometry}" 
-                            IsEnabled="{Binding CanGoForward, Mode=OneWay}" 
-                            Command="{Binding GoForwardCommand}" HitMode="Click"/>
-            <Button Grid.Column="2" Margin="5" hc:IconElement.Geometry="{StaticResource UpArrowGeometry}"
+            <Button Grid.Column="1" Margin="3" hc:IconElement.Geometry="{StaticResource RightArrowGeometry}" 
+                    IsEnabled="{Binding CanGoForward, Mode=OneWay}" 
+                    Command="{Binding GoForwardCommand}"/>
+            <ToggleButton x:Name="HistoryToggleButton" Grid.Column="2" Margin="3" Padding="5"
+                          IsEnabled="{Binding HistoryList.Count, Converter={StaticResource Int2BooleanConverter}}">
+                <Image Source="{StaticResource HistoryDrawingImage}"/>
+            </ToggleButton>
+            <Popup Grid.Column="2" MinWidth="150" AllowsTransparency="True" StaysOpen="False" UseLayoutRounding="False" SnapsToDevicePixels="True"
+                   IsOpen="{Binding IsChecked, Mode=TwoWay, ElementName=HistoryToggleButton}"
+                   hc:BlurPopup.Enabled="True">
+                <ItemsControl ItemsSource="{Binding HistoryList}" Margin="5">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <MenuItem HorizontalAlignment="Stretch"
+                                      Click="History_OnClick" Icon="{Binding Icon}" Header="{Binding DisplayText}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Popup>
+            
+            <Button Grid.Column="3" Margin="3" hc:IconElement.Geometry="{StaticResource UpArrowGeometry}"
                     IsEnabled="{Binding CanGoToUpperLevel, Mode=OneWay}" 
                     Command="{Binding GoToUpperLevelCommand}"/>
 
-            <hc:TextBox Grid.Column="3" DockPanel.Dock="Left" x:Name="AddressBar" BorderThickness="0,0,0,2" 
+            <hc:TextBox Grid.Column="4" DockPanel.Dock="Left" x:Name="AddressBar" BorderThickness="0,0,0,2" 
                         Margin="5" Text="{Binding FullPath, Mode=OneWay}" KeyDown="AddressBar_OnKeyDown"/>
-            <hc:TextBox Grid.Column="4" DockPanel.Dock="Right" BorderThickness="0,0,0,2" ShowClearButton="True" 
-                        Margin="5" hc:InfoElement.Placeholder="{Binding SearchPlaceholderText, Mode=OneWay}"
+            <GridSplitter Grid.Column="5" Margin="-2,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <hc:TextBox Grid.Column="6" DockPanel.Dock="Right" BorderThickness="0,0,0,2" ShowClearButton="True" 
+                        Margin="5,5,0,5" hc:InfoElement.Placeholder="{Binding SearchPlaceholderText, Mode=OneWay}"
                         Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
         </Grid>
     </Border>
@@ -149,7 +170,7 @@
         <v:ClippingBorder Grid.Row="0" Margin="10,0,10,5" CornerRadius="8" 
                               BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
                               Background="{DynamicResource RegionBrush}">
-            <ct:FileGrid x:Name="FileDataGrid" d:DataContext="{d:DesignInstance vm:FileGridViewModel}"
+            <ct:FileGrid x:Name="FileGrid" d:DataContext="{d:DesignInstance vm:FileGridViewModel}"
                          ItemsSource="{Binding Items}" 
                          ItemSize="{Binding ItemSize, Mode=OneWay}"
                          FileViewType="{Binding FileViewType, Mode=OneWay}"
@@ -157,7 +178,8 @@
                          FullPath="{Binding FullPath, Mode=OneWay}"
                          Folder="{Binding Folder, Mode=OneWay}"
                          DetailLists="{Binding DetailLists, Mode=OneWay}"
-                         Background="{DynamicResource RegionBrush}">
+                         Background="{DynamicResource RegionBrush}"
+                         Focusable="True">
                 <hc:Interaction.Triggers>
                     <hc:RoutedEventTrigger RoutedEvent="ListBox.SelectionChanged">
                         <hc:EventToCommand Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True"/>

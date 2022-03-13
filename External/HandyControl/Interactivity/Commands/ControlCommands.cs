@@ -88,9 +88,9 @@ namespace HandyControl.Interactivity
         public static RoutedCommand No { get; } = new(nameof(No), typeof(ControlCommands));
 
         /// <summary>
-        ///     关闭所有
+        ///     复制标签页
         /// </summary>
-        public static RoutedCommand CloseAll { get; } = new(nameof(CloseAll), typeof(ControlCommands));
+        public static RoutedCommand DuplicateTab { get; } = new(nameof(DuplicateTab), typeof(ControlCommands));
 
         /// <summary>
         ///     关闭其他

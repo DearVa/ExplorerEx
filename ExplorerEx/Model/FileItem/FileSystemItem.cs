@@ -44,6 +44,8 @@ public class FileSystemItem : FileViewBaseItem {
 		}
 	}
 
+	public override string DisplayText => Name;
+
 	/// <summary>
 	/// 是否使用大图标
 	/// </summary>

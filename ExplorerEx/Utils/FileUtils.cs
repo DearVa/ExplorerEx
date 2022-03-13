@@ -2,7 +2,6 @@
 using ExplorerEx.Win32;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -90,6 +89,25 @@ internal static class FileUtils {
 	}
 
 	/// <summary>
+	/// 枚举<see cref="destPath"/>，获取一个不重名的文件名
+	/// </summary>
+	/// <para>例如fileName为2.txt，文件夹里有2.txt, 2 (1).txt，那么就返回2 (2).txt</para>
+	/// <param name="destPath"></param>
+	/// <param name="fileName"></param>
+	/// <returns></returns>
+	public static string GetNewFileName(string destPath, string fileName) {
+		var newFileName = fileName;
+		var extension = Path.GetExtension(fileName);
+		var sameNameCount = 0;
+		// 这里应该不需要使用哈希表，毕竟数量不多，枚举不需要消耗太多时间，节省内存
+		var destFileList = Directory.EnumerateFiles(destPath, "*" + extension).Select(Path.GetFileName).ToArray();
+		while (destFileList.Contains(newFileName)) {
+			newFileName = $"{fileName} ({++sameNameCount}){extension}";
+		}
+		return newFileName;
+	}
+
+	/// <summary>
 	/// Shell文件操作
 	/// </summary>
 	/// <param name="type"></param>
@@ -120,7 +138,7 @@ internal static class FileUtils {
 			fo.pTo = ParseFileList(destinationFiles);
 		}
 		var result = SHFileOperation(fo);
-		if (result != 0 && result != 1223) {
+		if (result is not 0 and not 1223) {  // 1223: 用户取消了操作
 			throw new IOException(GetErrorString(result));
 		}
 	}
@@ -157,6 +175,15 @@ internal static class FileUtils {
 		if (result != 0) {
 			throw new IOException(GetErrorString(result));
 		}
+	}
+
+	/// <summary>
+	/// 将<see cref="sourceFiles"/>拷贝到目标文件夹
+	/// </summary>
+	/// <param name="sourceFiles"></param>
+	/// <param name="destFolder"></param>
+	public static void CopyFiles(IList<string> sourceFiles, string destFolder) {
+
 	}
 
 	public static void CreateShortcut(string lnkPath, string targetPath, string description = null, string iconPath = null) {

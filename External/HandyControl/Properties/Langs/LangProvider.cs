@@ -42,7 +42,7 @@ namespace HandyControl.Properties.Langs
             OnPropertyChanged(nameof(Cancel));
             OnPropertyChanged(nameof(Clear));
             OnPropertyChanged(nameof(Close));
-            OnPropertyChanged(nameof(CloseAll));
+            OnPropertyChanged(nameof(DuplicateTab));
             OnPropertyChanged(nameof(CloseOther));
             OnPropertyChanged(nameof(Confirm));
             OnPropertyChanged(nameof(ErrorImgPath));
@@ -105,9 +105,9 @@ namespace HandyControl.Properties.Langs
 		public string Close => Lang.Close;
 
         /// <summary>
-        ///   查找类似 关闭所有 的本地化字符串。
+        ///   查找类似 复制标签页 的本地化字符串。
         /// </summary>
-		public string CloseAll => Lang.CloseAll;
+		public string DuplicateTab => Lang.DuplicateTab;
 
         /// <summary>
         ///   查找类似 关闭其他 的本地化字符串。
@@ -314,9 +314,9 @@ namespace HandyControl.Properties.Langs
 		public static string Close = nameof(Close);
 
         /// <summary>
-        ///   查找类似 关闭所有 的本地化字符串。
+        ///   查找类似 复制标签页 的本地化字符串。
         /// </summary>
-		public static string CloseAll = nameof(CloseAll);
+		public static string DuplicateTab = nameof(DuplicateTab);
 
         /// <summary>
         ///   查找类似 关闭其他 的本地化字符串。

@@ -5,9 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using ExplorerEx.Utils;
-using ExplorerEx.View;
 using ExplorerEx.View.Controls;
-using ExplorerEx.Win32;
 using HandyControl.Data;
 
 namespace ExplorerEx.Model; 
@@ -30,6 +28,8 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 	private ImageSource icon;
 
 	public abstract string FullPath { get; protected set; }
+
+	public abstract string DisplayText { get; }
 
 	public string Name { get; set; }
 
@@ -58,38 +58,9 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 	}
 
 	private bool isSelected;
-	
-	public SimpleCommand OpenCommand { get; }
-
-	public SimpleCommand OpenInNewTabCommand { get; }
-
-	public SimpleCommand OpenInNewWindowCommand { get; }
-
-	/// <summary>
-	/// 添加到书签
-	/// </summary>
-	public SimpleCommand AddToBookmarksCommand { get; }
-
-	public SimpleCommand RemoveFromBookmarksCommand { get; }
-
-	public SimpleCommand ShowPropertiesCommand { get; }
 
 	protected FileViewBaseItem() {
 		LostFocusCommand = new SimpleCommand(OnLostFocus);
-		// ReSharper disable once AsyncVoidLambda
-		OpenCommand = new SimpleCommand(async e => await OpenAsync((string)e != string.Empty));
-		// ReSharper disable once AsyncVoidLambda
-		OpenInNewTabCommand = new SimpleCommand(async _ => {
-			if (IsFolder) {
-				await FileTabControl.FocusedTabControl.OpenPathInNewTabAsync(FullPath);
-			}
-		});
-		OpenInNewWindowCommand = new SimpleCommand(_ => new MainWindow(FullPath).Show());
-
-		AddToBookmarksCommand = new SimpleCommand(_ => FileTabControl.FocusedTabControl.MainWindow.AddToBookmark(FullPath));
-		RemoveFromBookmarksCommand = new SimpleCommand(_ => MainWindow.RemoveFromBookmark(this));
-
-		ShowPropertiesCommand = new SimpleCommand(_ => Win32Interop.ShowFileProperties(FullPath));
 	}
 
 	/// <summary>

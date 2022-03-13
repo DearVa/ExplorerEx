@@ -77,7 +77,6 @@
     <Page Remove="Themes\Styles\Base\SplitButtonBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\StatusBarBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\StepBarBaseStyle.xaml" />
-    <Page Remove="Themes\Styles\Base\TabControlBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\TagBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\TextBlockBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\TextBoxBaseStyle.xaml" />
@@ -266,7 +265,6 @@
     <None Include="Themes\Styles\Base\SplitButtonBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\StatusBarBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\StepBarBaseStyle.xaml" />
-    <None Include="Themes\Styles\Base\TabControlBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\TagBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\TextBlockBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\TextBoxBaseStyle.xaml" />

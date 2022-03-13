@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Windows.Input;
 using ExplorerEx.Model;
@@ -14,6 +15,8 @@ using HandyControl.Controls;
 using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
 using MessageBox = HandyControl.Controls.MessageBox;
 using System.Diagnostics;
+using System.IO;
+using HandyControl.Interactivity;
 
 namespace ExplorerEx.View.Controls;
 
@@ -66,6 +69,7 @@ public partial class FileTabControl {
 
 	public SimpleCommand TabClosingCommand { get; }
 	public SimpleCommand TabMovedCommand { get; }
+	public SimpleCommand TabDuplicatingCommand { get; }
 	public SimpleCommand CreateNewTabCommand { get; }
 	/// <summary>
 	/// DragEnter、Over是一样的
@@ -83,6 +87,7 @@ public partial class FileTabControl {
 		DataContext = this;
 		TabClosingCommand = new SimpleCommand(OnTabClosing);
 		TabMovedCommand = new SimpleCommand(OnTabMoved);
+		TabDuplicatingCommand = new SimpleCommand(OnTabDuplicating);
 		CreateNewTabCommand = new SimpleCommand(OnCreateNewTab);
 		DragCommand = new SimpleCommand(OnDrag);
 		DropCommand = new SimpleCommand(OnDrop);
@@ -91,7 +96,6 @@ public partial class FileTabControl {
 		MouseOverTabControl ??= this;
 
 		InitializeComponent();
-
 		if (grid != null) {
 			TabItems.Add(grid);
 		}
@@ -162,6 +166,11 @@ public partial class FileTabControl {
 		}
 	}
 
+	private async void OnTabDuplicating(object args) {
+		var tab = (TabItem)((RoutedEventArgs)args).OriginalSource;
+		await OpenPathInNewTabAsync((string)tab.DragDropData);
+	}
+
 	private void OnTabMoved(object args) {
 		if (TabItems.Count == 0) {
 			if (OwnerSplitGrid.AnyOtherTabs) {
@@ -220,12 +229,7 @@ public partial class FileTabControl {
 				}
 			}
 		} else {
-			SelectedTab.Dispose();
-			if (SelectedIndex == 0) {
-				SelectedIndex++;
-			} else {
-				SelectedIndex--;
-			}
+			((FileGridViewModel)e.OriginalSource).Dispose();
 		}
 	}
 
@@ -240,25 +244,58 @@ public partial class FileTabControl {
 		}
 	}
 
-	private static void OnDrag(object args) {
-		var e = (TabItemDragEventArgs)args;
-		var tab = (FileGridViewModel)e.TabItem.DataContext;
-		if (tab.PathType == PathType.Home) {
-			e.DragEventArgs.Effects = DragDropEffects.None;
-			return;
+	private static bool CanDragDrop(DragEventArgs e, FileGridViewModel vm) {
+		if (vm.PathType == PathType.Home) {
+			e.Effects = DragDropEffects.None;
+			return false;
 		}
-		if (FileGrid.DragFilesPreview != null) {
-			FileGrid.DragFilesPreview.Destination = tab.FullPath;
+		if (e.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {
+			if (Path.GetDirectoryName(fileList[0]) == vm.FullPath) {  // 相同文件夹禁止移动
+				e.Effects = DragDropEffects.None;
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static void OnDrag(object args) {
+		if (args is TabItemDragEventArgs ti) {
+			var tab = (FileGridViewModel)ti.TabItem.DataContext;
+			if (!CanDragDrop(ti.DragEventArgs, tab)) {
+				return;
+			}
+			if (FileGrid.DragFilesPreview != null) {
+				FileGrid.DragFilesPreview.Destination = tab.FullPath;
+			}
+		} else {
+			var tb = (TabBorderDragEventArgs)args;
+			if (tb.DragEventArgs.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {
+				var folderList = fileList.Select(Directory.Exists).ToImmutableList();
+				if (folderList.Count > 0) {
+					if (FileGrid.DragFilesPreview != null) {
+						FileGrid.DragFilesPreview.CustomOperation = "Open_in_new_Tab".L();
+						FileGrid.DragFilesPreview.DragDropEffect = DragDropEffects.All;
+					}
+				}
+			}
 		}
 	}
 
-	private static void OnDrop(object args) {
-		var e = (TabItemDragEventArgs)args;
-		var tab = (FileGridViewModel)e.TabItem.DataContext;
-		if (tab.PathType == PathType.Home) {
-			return;
+	private async void OnDrop(object args) {
+		if (args is TabItemDragEventArgs ti) {
+			var tab = (FileGridViewModel)ti.TabItem.DataContext;
+			if (!CanDragDrop(ti.DragEventArgs, tab)) {
+				return;
+			}
+			FileUtils.HandleDrop(new DataObjectContent(ti.DragEventArgs.Data), tab.FullPath, ti.DragEventArgs.Effects.GetFirstEffect());
+		} else {
+			var tb = (TabBorderDragEventArgs)args;
+			if (tb.DragEventArgs.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {
+				foreach (var folderPath in fileList.Where(Directory.Exists)) {
+					await OpenPathInNewTabAsync(folderPath);
+				}
+			}
 		}
-		FileUtils.HandleDrop(new DataObjectContent(e.DragEventArgs.Data), tab.FullPath, e.DragEventArgs.Effects.GetFirstEffect());
 	}
 
 	protected override void OnMouseEnter(MouseEventArgs e) {

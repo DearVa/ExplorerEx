@@ -631,6 +631,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 刷新 的本地化字符串。
+        /// </summary>
+        internal static string Refresh {
+            get {
+                return ResourceManager.GetString("Refresh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 松手添加到收藏夹 的本地化字符串。
         /// </summary>
         internal static string Release_to_add_to_bookmark {
