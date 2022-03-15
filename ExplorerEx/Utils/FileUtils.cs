@@ -282,4 +282,68 @@ internal static class FileUtils {
 			_ => Marshal.GetExceptionForHR(code)?.Message ?? $"Unknown error: {code}"
 		};
 	}
+
+	/// <summary>
+	/// 判断一个文件是否为文本文件
+	/// </summary>
+	/// <para> From: https://social.msdn.microsoft.com/Forums/vstudio/en-US/c177719a-4671-4435-aa4f-7a92852be6cc/how-can-i-determine-if-a-file-is-binary-or-text-in-c </para>
+	/// <param name="encoding"></param>
+	/// <param name="filePath"></param>
+	/// <param name="windowSize"></param>
+	/// <returns></returns>
+	public static bool IsTextFile(out Encoding encoding, string filePath, int windowSize = 10240) {
+		using var fileStream = File.OpenRead(filePath);
+		var rawData = new byte[windowSize];
+		var text = new char[windowSize];
+		var isText = true;
+
+		// Read raw bytes
+		var rawLength = fileStream.Read(rawData, 0, rawData.Length);
+		fileStream.Seek(0, SeekOrigin.Begin);
+
+		switch (rawData[0]) {
+		// Detect encoding correctly (from Rick Strahl's blog)
+		// http://www.west-wind.com/weblog/posts/2007/Nov/28/Detecting-Text-Encoding-for-StreamReader
+		case 0xef when rawData[1] == 0xbb && rawData[2] == 0xbf:
+			encoding = Encoding.UTF8;
+			break;
+		case 0xfe when rawData[1] == 0xff:
+			encoding = Encoding.Unicode;
+			break;
+		case 0 when rawData[1] == 0 && rawData[2] == 0xfe && rawData[3] == 0xff:
+			encoding = Encoding.UTF32;
+			break;
+		case 0x2b when rawData[1] == 0x2f && rawData[2] == 0x76:
+#pragma warning disable SYSLIB0001 // 类型或成员已过时
+#pragma warning disable CS0618
+			encoding = Encoding.UTF7;
+#pragma warning restore CS0618
+#pragma warning restore SYSLIB0001 // 类型或成员已过时
+			break;
+		default:
+			encoding = Encoding.Default;
+			break;
+		}
+
+		// Read text and detect the encoding
+		using (var streamReader = new StreamReader(fileStream)) {
+			streamReader.Read(text, 0, text.Length);
+		}
+
+		using var memoryStream = new MemoryStream();
+		using var streamWriter = new StreamWriter(memoryStream, encoding);
+		// Write the text to a buffer
+		streamWriter.Write(text);
+		streamWriter.Flush();
+
+		// Get the buffer from the memory stream for comparision
+		var memoryBuffer = memoryStream.GetBuffer();
+
+		// Compare only bytes read
+		for (var i = 0; i < rawLength && isText; i++) {
+			isText = rawData[i] == memoryBuffer[i];
+		}
+
+		return isText;
+	}
 }

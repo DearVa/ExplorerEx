@@ -10,26 +10,47 @@ namespace ExplorerEx.Model;
 public class FileSystemItem : FileViewBaseItem {
 	public FileSystemInfo FileSystemInfo { get; private set; }
 
-	public DateTime LastWriteTime => FileSystemInfo.LastWriteTime;
+	/// <summary>
+	/// 自动更新UI
+	/// </summary>
+	public DateTime LastWriteTime {
+		get => lastWriteTime;
+		private set {
+			if (lastWriteTime != value) {
+				lastWriteTime = value;
+				UpdateUI();
+			}
+		}
+	}
+
+	private DateTime lastWriteTime;
+
+	/// <summary>
+	/// 自动更新UI
+	/// </summary>
+	public DateTime CreationTime {
+		get => creationTime;
+		private set {
+			if (creationTime != value) {
+				creationTime = value;
+				UpdateUI();
+			}
+		}
+	}
+
+	private DateTime creationTime;
 
 	/// <summary>
 	/// 是否是可执行文件
 	/// </summary>
-	public bool IsRunnable => !IsFolder && Name[..^4] is ".exe" or ".com" or ".cmd" or ".bat";
+	public bool IsRunnable => !IsFolder && Name[^4..] is ".exe" or ".com" or ".cmd" or ".bat";
 
-	public bool IsEditable => !IsFolder && Name[..^4] is ".txt" or ".log" or ".ini" or ".inf" or ".cmd" or ".bat" or ".ps1";
+	public bool IsEditable => !IsFolder && Name[^4..] is ".txt" or ".log" or ".ini" or ".inf" or ".cmd" or ".bat" or ".ps1";
 
 	/// <summary>
 	/// 点击“编辑”选项
 	/// </summary>
 	public SimpleCommand EditCommand { get; }
-
-	/// <summary>
-	/// 类型
-	/// </summary>
-	public override string Type => IsFolder ? (isEmptyFolder ? "Empty_folder".L() : "Folder".L()) : GetFileTypeDescription(Path.GetExtension(FileSystemInfo.Name));
-
-	public string FileSizeString => FileUtils.FormatByteSize(FileSize);
 
 	public override string FullPath {
 		get => FileSystemInfo.FullName;
@@ -39,6 +60,7 @@ public class FileSystemItem : FileViewBaseItem {
 			} else if (File.Exists(value)) {
 				FileSystemInfo = new FileInfo(value);
 			} else {
+				FileSystemInfo = null;
 				throw new FileNotFoundException(value);
 			}
 		}
@@ -53,40 +75,51 @@ public class FileSystemItem : FileViewBaseItem {
 
 	private bool isEmptyFolder;
 
-	public FileSystemItem(FileSystemInfo fileSystemInfo) {
-		FileSystemInfo = fileSystemInfo;
+	public FileSystemItem(FileInfo fileInfo) {
+		FileSystemInfo = fileInfo;
 		Name = FileSystemInfo.Name;
-		if (fileSystemInfo is FileInfo fi) {
-			FileSize = fi.Length;
-			IsFolder = false;
-			Icon = UnknownTypeFileDrawingImage;
-			EditCommand = new SimpleCommand(_ => OpenWith("notepad.exe"));
+		IsFolder = false;
+		FileSize = -1;
+		Icon = UnknownTypeFileDrawingImage;
+		EditCommand = new SimpleCommand(_ => OpenWith(Settings.Instance.TextEditor));
+	}
+
+	public FileSystemItem(DirectoryInfo directoryInfo) {
+		FileSystemInfo = directoryInfo;
+		Name = FileSystemInfo.Name;
+		IsFolder = true;
+		FileSize = -1;
+		Icon = EmptyFolderDrawingImage;
+	}
+
+	public override void LoadAttributes() {
+		if (FileSystemInfo == null) {
+			return;
+		}
+		if (IsFolder) {
+			isEmptyFolder = FolderUtils.IsEmptyFolder(FileSystemInfo.FullName);
+			Type = isEmptyFolder ? "Empty_folder".L() : "Folder".L();
 		} else {
-			FileSize = -1;
-			IsFolder = true;
-			LoadDirectoryIcon();
+			Type = GetFileTypeDescription(Path.GetExtension(FileSystemInfo.Name));
+			LastWriteTime = FileSystemInfo.LastWriteTime;
+			CreationTime = FileSystemInfo.CreationTime;
+			FileSize = ((FileInfo)FileSystemInfo).Length;
 		}
 	}
 
-	private void LoadDirectoryIcon() {
-		try {
-			isEmptyFolder = FolderUtils.IsEmptyFolder(FileSystemInfo.FullName);
+	public override void LoadIcon() {
+		if (IsFolder) {
 			if (isEmptyFolder) {
 				Icon = EmptyFolderDrawingImage;
 			} else {
 				Icon = FolderDrawingImage;
 			}
-		} catch {
-			Icon = EmptyFolderDrawingImage;
-		}
-	}
-
-	public override void LoadIcon() {
-		Debug.Assert(!IsFolder);
-		if (UseLargeIcon) {
-			Icon = GetPathThumbnail(FullPath);
 		} else {
-			Icon = GetPathIcon(FullPath, false);
+			if (UseLargeIcon) {
+				Icon = GetPathThumbnail(FullPath);
+			} else {
+				Icon = GetPathIcon(FullPath, false);
+			}
 		}
 	}
 
@@ -110,13 +143,11 @@ public class FileSystemItem : FileViewBaseItem {
 	}
 
 	public void Refresh() {
-		if (IsFolder) {
-			LoadDirectoryIcon();
-		} else {
+		if (!IsFolder) {
 			LoadIcon();
-			PropertyUpdateUI(nameof(FileSize));
 		}
-		PropertyUpdateUI(nameof(Icon));
+		UpdateUI(nameof(Icon));
+		LoadAttributes();
 	}
 
 	/// <summary>

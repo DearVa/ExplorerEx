@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace ExplorerEx.View; 
+namespace ExplorerEx.View.Controls; 
 
 /// <summary>
 /// 可以根据圆角来裁剪内容

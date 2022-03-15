@@ -24,8 +24,8 @@ internal static class IconHelper {
 	private static readonly HashSet<string> ExtensionsWithThumbnail = new() {
 		".exe", ".lnk",
 		".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".gif", ".svg",
-		".mp3", ".flac", 
-		".mp4", ".wmv", ".avi", 
+		".mp3", ".flac",
+		".avi", ".wmv", ".mpeg", ".mp4", ".m4v", ".mov", ".asf", ".flv", ".f4v", ".rmvb", ".rm", ".3gp", ".vob",
 		".docx", ".pptx", ".pdf"
 	};
 
@@ -68,6 +68,7 @@ internal static class IconHelper {
 		if (string.IsNullOrEmpty(extension)) {
 			return UnknownTypeFileDrawingImage;
 		}
+		extension = extension.ToLower();
 		var isLnk = extension == ".lnk";
 		var useCache = extension != ".exe" && !isLnk;
 		lock (CachedIcons) {
@@ -105,21 +106,27 @@ internal static class IconHelper {
 	}
 
 	public static string GetFileTypeDescription(string extension) {
-		if (CachedDescriptions.TryGetValue(extension, out var desc)) {
-			return desc;
-		}
-
-		var shFileInfo = new ShFileInfo();
-		Monitor.Enter(ShellLock);
-		var res = SHGetFileInfo(extension, FILE_ATTRIBUTE_NORMAL, ref shFileInfo, Marshal.SizeOf(shFileInfo), SHGFI_USEFILEATTRIBUTES | SHGFI_TYPENAME);
-		Monitor.Exit(ShellLock);
-		if (res == 0 || shFileInfo.szTypeName == null) {
-			Trace.WriteLine($"无法获取 {extension} 的描述，Res: {res}");
+		if (string.IsNullOrEmpty(extension)) {
 			return string.Empty;
 		}
-		
-		CachedDescriptions.Add(extension, shFileInfo.szTypeName);
-		return shFileInfo.szTypeName;
+		lock (CachedDescriptions) {
+			extension = extension.ToLower();
+			if (CachedDescriptions.TryGetValue(extension, out var desc)) {
+				return desc;
+			}
+
+			var shFileInfo = new ShFileInfo();
+			Monitor.Enter(ShellLock);
+			var res = SHGetFileInfo(extension, FILE_ATTRIBUTE_NORMAL, ref shFileInfo, Marshal.SizeOf(shFileInfo), SHGFI_USEFILEATTRIBUTES | SHGFI_TYPENAME);
+			Monitor.Exit(ShellLock);
+			if (res == 0 || shFileInfo.szTypeName == null) {
+				Trace.WriteLine($"无法获取 {extension} 的描述，Res: {res}");
+				return string.Empty;
+			}
+
+			CachedDescriptions.Add(extension, shFileInfo.szTypeName);
+			return shFileInfo.szTypeName;
+		}
 	}
 
 	/// <summary>
@@ -137,6 +144,7 @@ internal static class IconHelper {
 			if (string.IsNullOrEmpty(extension)) {
 				return UnknownTypeFileDrawingImage;
 			}
+			extension = extension.ToLower();
 			if (ExtensionsWithThumbnail.Contains(extension)) {
 				// Trace.WriteLine($"文件有缩略图，加载：{path}");
 				var shellItem2Guid = new Guid("7E9FB0D3-919F-4307-AB2E-9B1860310C93");

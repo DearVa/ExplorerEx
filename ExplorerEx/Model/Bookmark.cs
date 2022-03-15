@@ -31,7 +31,7 @@ public class BookmarkCategory : SimpleNotifyPropertyChanged {
 		set {
 			if (isExpanded != value) {
 				isExpanded = value;
-				PropertyUpdateUI();
+				UpdateUI();
 			}
 		}
 	}
@@ -51,8 +51,8 @@ public class BookmarkCategory : SimpleNotifyPropertyChanged {
 	public void AddBookmark(BookmarkItem item) {
 		Children ??= new ObservableCollection<BookmarkItem>();
 		Children.Add(item);
-		PropertyUpdateUI(nameof(Children));
-		PropertyUpdateUI(nameof(Icon));
+		UpdateUI(nameof(Children));
+		UpdateUI(nameof(Icon));
 	}
 
 	public override string ToString() {
@@ -69,8 +69,6 @@ public class BookmarkItem : FileViewBaseItem, IFilterable {
 	public override string FullPath { get; protected set; }
 
 	public override string DisplayText => Name;
-
-	public override string Type => throw new InvalidOperationException();
 
 	[NotMapped]
 	public bool IsExpanded { get; set; }
@@ -100,6 +98,10 @@ public class BookmarkItem : FileViewBaseItem, IFilterable {
 		Name = name;
 		Category = category;
 		category.AddBookmark(this);
+	}
+
+	public override void LoadAttributes() {
+		throw new NotImplementedException();
 	}
 
 	public override void LoadIcon() {

@@ -167,7 +167,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <v:ClippingBorder Grid.Row="0" Margin="10,0,10,5" CornerRadius="8" 
+        <ct:ClippingBorder Grid.Row="0" Margin="10,0,10,5" CornerRadius="8" 
                               BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
                               Background="{DynamicResource RegionBrush}">
             <ct:FileGrid x:Name="FileGrid" d:DataContext="{d:DesignInstance vm:FileGridViewModel}"
@@ -192,7 +192,7 @@
                     </hc:RoutedEventTrigger>
                 </hc:Interaction.Triggers>
             </ct:FileGrid>
-        </v:ClippingBorder>
+        </ct:ClippingBorder>
 
         <Border Grid.Row="1" Padding="20,0,0,0">
             <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance vm:FileGridViewModel}">

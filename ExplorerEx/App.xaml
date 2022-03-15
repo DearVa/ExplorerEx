@@ -19,6 +19,9 @@
                 <ResourceDictionary>
                     <c:Equality2BooleanConverter x:Key="Equality2BooleanConverter"/>
                     <c:Int2BooleanConverter x:Key="Int2BooleanConverter"/>
+                    <c:FileName2IconConverter x:Key="FileName2IconConverter"/>
+                    <c:FullPath2FileNameConverter x:Key="FullPath2FileNameConverter"/>
+                    <c:Bytes2StringConverter x:Key="Bytes2StringConverter"/>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

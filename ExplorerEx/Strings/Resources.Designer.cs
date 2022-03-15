@@ -80,6 +80,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 此文件是二进制文件或者使用了不支持的编码方式。 的本地化字符串。
+        /// </summary>
+        internal static string _Unsupported_encoding {
+            get {
+                return ResourceManager.GetString("#Unsupported_encoding", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 拒绝访问 的本地化字符串。
         /// </summary>
         internal static string Access_denied {
@@ -433,6 +442,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 主页 的本地化字符串。
+        /// </summary>
+        internal static string Home {
+            get {
+                return ResourceManager.GetString("Home", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 图像 的本地化字符串。
         /// </summary>
         internal static string Image {
@@ -465,6 +483,15 @@ namespace ExplorerEx.Strings {
         internal static string List {
             get {
                 return ResourceManager.GetString("List", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 加载中…… 的本地化字符串。
+        /// </summary>
+        internal static string Loading {
+            get {
+                return ResourceManager.GetString("Loading", resourceCulture);
             }
         }
         

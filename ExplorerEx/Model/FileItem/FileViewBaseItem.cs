@@ -14,13 +14,16 @@ namespace ExplorerEx.Model;
 /// 所有可以显示在<see cref="FileGrid"/>中的项目的基类
 /// </summary>
 public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
+	/// <summary>
+	/// 图标，自动更新UI
+	/// </summary>
 	[NotMapped]
 	public ImageSource Icon {
 		get => icon;
 		protected set {
 			if (icon != value) {
 				icon = value;
-				PropertyUpdateUI();
+				UpdateUI();
 			}
 		}
 	}
@@ -34,12 +37,33 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 	public string Name { get; set; }
 
 	/// <summary>
-	/// 类型描述
+	/// 类型描述，自动更新UI
 	/// </summary>
-	public abstract string Type { get; }
+	[NotMapped]
+	public string Type {
+		get => type;
+		protected set {
+			if (type != value) {
+				type = value;
+				UpdateUI();
+			}
+		}
+	}
+
+	private string type;
 
 	[NotMapped]
-	public long FileSize { get; protected init; }
+	public long FileSize {
+		get => fileSize;
+		protected set {
+			if (fileSize != value) {
+				fileSize = value;
+				UpdateUI();
+			}
+		}
+	}
+
+	private long fileSize;
 
 	[NotMapped]
 	public bool IsFolder { get; protected set; }
@@ -52,7 +76,7 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 		set {
 			if (isSelected != value) {
 				isSelected = value;
-				PropertyUpdateUI();
+				UpdateUI();
 			}
 		}
 	}
@@ -62,6 +86,11 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 	protected FileViewBaseItem() {
 		LostFocusCommand = new SimpleCommand(OnLostFocus);
 	}
+
+	/// <summary>
+	/// 加载文件的各项属性
+	/// </summary>
+	public abstract void LoadAttributes();
 
 	/// <summary>
 	/// LoadIcon用到了shell，那并不是一个可以多线程的方法，所以与其每次都Task.Run，不如提高粗粒度
@@ -113,18 +142,18 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 	/// </summary>
 	public void BeginRename() {
 		EditingName = Name;
-		PropertyUpdateUI(nameof(EditingName));
+		UpdateUI(nameof(EditingName));
 	}
 
 	public void StopRename() {
 		if (!IsErrorFileName && EditingName != Name) {
 			if (Rename()) {
 				Name = EditingName;
-				PropertyUpdateUI(nameof(Name));
+				UpdateUI(nameof(Name));
 			}
 		}
 		EditingName = null;
-		PropertyUpdateUI(nameof(EditingName));
+		UpdateUI(nameof(EditingName));
 	}
 
 	public void OnLostFocus(object args) {

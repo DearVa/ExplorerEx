@@ -8,7 +8,7 @@ public class SimpleNotifyPropertyChanged : INotifyPropertyChanged {
 	public event PropertyChangedEventHandler PropertyChanged;
 
 	[NotifyPropertyChangedInvocator]
-	public void PropertyUpdateUI([CallerMemberName] string propertyName = null) {
+	public void UpdateUI([CallerMemberName] string propertyName = null) {
 		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 	}
 }

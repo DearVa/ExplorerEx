@@ -14,14 +14,17 @@ internal sealed class Home : FileViewBaseItem {
 	static Home() { }
 
 	private Home() {
+		Type = "Home".L();
 		Icon = IconHelper.ComputerBitmapImage;
 	}
 
 	public override string FullPath { get; protected set; } = Uuid;
 
 	public override string DisplayText => "This_computer".L();
-
-	public override string Type => "Home".L();
+	
+	public override void LoadAttributes() {
+		throw new NotImplementedException();
+	}
 
 	public override void LoadIcon() {
 		throw new NotImplementedException();

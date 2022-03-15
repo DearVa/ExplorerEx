@@ -30,7 +30,7 @@ internal static class Win32Interop {
 	public static extern IntPtr LoadCursor(IntPtr hInstance, long lpCursorName);
 
 	[DllImport(user32)]
-	public static extern bool GetCursorPos(ref Point point);
+	public static extern bool GetCursorPos(out Point point);
 
 	[DllImport(shell32, BestFitMapping = false, CharSet = CharSet.Unicode)]
 	public static extern IntPtr ExtractAssociatedIcon(ref IntPtr hInst, StringBuilder iconPath, ref int index);

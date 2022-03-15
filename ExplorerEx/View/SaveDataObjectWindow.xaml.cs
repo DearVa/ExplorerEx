@@ -125,8 +125,7 @@ public partial class SaveDataObjectWindow {
 		this.basePath = basePath;
 		DataContext = this;
 		InitializeComponent();
-		var p = new Win32Interop.Point();
-		Win32Interop.GetCursorPos(ref p);
+		Win32Interop.GetCursorPos(out var p);
 		var mousePoint = new Point(p.x, p.y);
 		Left = Math.Min(SystemParameters.PrimaryScreenWidth - Width, Math.Max(0, mousePoint.X));
 		Top = Math.Min(SystemParameters.PrimaryScreenHeight - Height, Math.Max(0, mousePoint.Y));

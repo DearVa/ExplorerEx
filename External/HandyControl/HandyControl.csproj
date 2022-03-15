@@ -13,12 +13,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release | x64'">
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HandyControl.xml</DocumentationFile>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="Net_40\**" />
-    <EmbeddedResource Remove="Net_40\**" />
-    <None Remove="Net_40\**" />
-    <Page Remove="Net_40\**" />
-  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LangVersion>10</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
   <ItemGroup>
     <Page Remove="Themes\Styles\AutoCompleteTextBox.xaml" />
     <Page Remove="Themes\Styles\Badge.xaml" />

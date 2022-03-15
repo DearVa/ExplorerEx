@@ -12,6 +12,14 @@
     <ApplicationIcon>Assets\ExplorerEx.ico</ApplicationIcon>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="Assets\LogConfig.xml" />
     <None Remove="Assets\Picture\Computer.png" />
@@ -71,6 +79,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\External\HandyControl\HandyControl.csproj" />
+    <ProjectReference Include="..\External\SvgConverter\SvgConverter.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -82,6 +91,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Update="View\Controls\FilePreview\TextPreviewPopup.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -92,6 +104,19 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="View\Controls\FilePreview\ImagePreviewPopup.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="View\Controls\FilePreview\TextPreviewPopup.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
 
 </Project>

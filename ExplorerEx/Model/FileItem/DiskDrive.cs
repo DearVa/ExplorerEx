@@ -29,18 +29,11 @@ public sealed class DiskDrive : FileViewBaseItem {
 		}
 	}
 
-	public override string Type => Driver.DriveType switch {
-		DriveType.Removable => "Removable_disk".L(),
-		DriveType.CDRom => "CD_drive".L(),
-		DriveType.Fixed => "Local_disk".L(),
-		_ => "Other_type_disk".L()
-	};
+	public long FreeSpace { get; private set; }
 
-	public long FreeSpace { get; }
+	public long TotalSpace { get; private set; }
 
-	public long TotalSpace { get; }
-
-	public double FreeSpaceRatio => (double)(TotalSpace - FreeSpace) / TotalSpace;
+	public double FreeSpaceRatio => TotalSpace == -1 ? 0 : (double)(TotalSpace - FreeSpace) / TotalSpace;
 
 	public Brush ProgressBarBackground => FreeSpaceRatio > 0.8d ? new SolidColorBrush(GradientColor.Eval((FreeSpaceRatio - 0.5d) * 2d)) : NormalProgressBrush;
 
@@ -53,13 +46,32 @@ public sealed class DiskDrive : FileViewBaseItem {
 	public DiskDrive(DriveInfo driver) {
 		Driver = driver;
 		IsFolder = true;
+		TotalSpace = -1;
 		if (driver.IsReady) {
 			Name = string.IsNullOrWhiteSpace(driver.VolumeLabel) ? Type : driver.VolumeLabel;
-			TotalSpace = driver.TotalSize;
-			FreeSpace = driver.AvailableFreeSpace; // 考虑用户配额
 		} else {
 			Name = Type;
 		}
+	}
+
+	public override void LoadAttributes() {
+		Type = Driver.DriveType switch {
+			DriveType.Removable => "Removable_disk".L(),
+			DriveType.CDRom => "CD_drive".L(),
+			DriveType.Fixed => "Local_disk".L(),
+			_ => "Other_type_disk".L()
+		};
+		if (Driver.IsReady) {
+			TotalSpace = Driver.TotalSize;
+			FreeSpace = Driver.AvailableFreeSpace; // 考虑用户配额
+		} else {
+			TotalSpace = -1;
+		}
+		UpdateUI(nameof(FreeSpace));
+		UpdateUI(nameof(TotalSpace));
+		UpdateUI(nameof(FreeSpaceRatio));
+		UpdateUI(nameof(ProgressBarBackground));
+		UpdateUI(nameof(SpaceOverviewString));
 	}
 
 	public override void LoadIcon() {
@@ -78,7 +90,7 @@ public sealed class DiskDrive : FileViewBaseItem {
 
 	public void Refresh() {
 		LoadIcon();
-		PropertyUpdateUI(nameof(Icon));
+		UpdateUI(nameof(Icon));
 	}
 
 	private class Gradient {

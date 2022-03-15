@@ -308,4 +308,10 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="Refresh" xml:space="preserve">
     <value>Refresh</value>
   </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="#Unsupported_encoding" xml:space="preserve">
+    <value>This file is a binary file or the encoding is not supported.</value>
+  </data>
 </root>

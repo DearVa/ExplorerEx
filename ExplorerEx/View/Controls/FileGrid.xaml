@@ -1,16 +1,17 @@
 ﻿<Grid x:Class="ExplorerEx.View.Controls.FileGrid"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:u="clr-namespace:ExplorerEx.Utils"
-             xmlns:m="clr-namespace:ExplorerEx.Model"
-             xmlns:c="clr-namespace:ExplorerEx.Converter"
-             xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
-             xmlns:vw="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
-             d:DataContext="{d:DesignInstance ct:FileGrid}"
-             mc:Ignorable="d" AllowDrop="True">
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:e="clr-namespace:ExplorerEx"
+      xmlns:hc="https://handyorg.github.io/handycontrol"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:u="clr-namespace:ExplorerEx.Utils"
+      xmlns:m="clr-namespace:ExplorerEx.Model"
+      xmlns:c="clr-namespace:ExplorerEx.Converter"
+      xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
+      xmlns:vw="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+      d:DataContext="{d:DesignInstance ct:FileGrid}"
+      mc:Ignorable="d" AllowDrop="True">
     <Grid.Resources>
         <!--只能将Width设为自动，然后在Cell里Binding到FileDataGrid-->
         <DataTemplate x:Key="IconTemplate">
@@ -197,7 +198,7 @@
         </DataTemplate>
         <DataTemplate x:Key="FileSizeColumn">
             <TextBlock d:DataContext="{d:DesignInstance m:FileSystemItem}"
-                       Text="{Binding FileSizeString, Mode=OneWay}" 
+                       Text="{Binding FileSize, Mode=OneWay, Converter={StaticResource Bytes2StringConverter}}" 
                        VerticalAlignment="Center"
                        IsHitTestVisible="False"/>
         </DataTemplate>
@@ -292,26 +293,26 @@
             <MenuItem Height="45" Template="{StaticResource FileOperationsTemplate}"/>
             <Separator/>
 
-            <MenuItem Click="Open_OnClick"
+            <MenuItem Click="Open_OnClick" Header="{u:Lang Open}"
                       Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
-                      Icon="{Binding Icon}" Header="{u:Lang Open}"/>
-            <MenuItem Click="Open_OnClick"
+                      Icon="{Binding Icon}"/>
+            <MenuItem Click="Open_OnClick" Header="{u:Lang Run}"
                       Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                      Icon="{Binding Icon}" Header="{u:Lang Run}"/>
-            <MenuItem Click="OpenAsAdmin_OnClick"
+                      Icon="{Binding Icon}"/>
+            <MenuItem Click="OpenAsAdmin_OnClick" Header="{u:Lang Run_as_admin}"
                       Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                      Icon="{StaticResource UacDrawingImage}" Header="{u:Lang Run_as_admin}"/>
-            <MenuItem Command="{Binding EditCommand}"
+                      Icon="{StaticResource UacDrawingImage}"/>
+            <MenuItem Command="{Binding EditCommand}" Header="{u:Lang Edit}"
                       Visibility="{Binding IsEditable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                      Icon="{StaticResource EditDrawingImage}" Header="{u:Lang Edit}"/>
+                      Icon="{Binding TextEditor, Source={x:Static e:Settings.Instance}, Mode=OneWay, Converter={StaticResource FileName2IconConverter}}"/>
             <Separator/>
 
-            <MenuItem Click="AddToBookmarks_OnClick"
+            <MenuItem Click="AddToBookmarks_OnClick" Header="{u:Lang Add_to_bookmarks}"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
-                      Icon="{StaticResource StarDrawingImage}" Header="{u:Lang Add_to_bookmarks}"/>
-            <MenuItem Click="RemoveFromBookmarks_OnClick"
+                      Icon="{StaticResource StarDrawingImage}"/>
+            <MenuItem Click="RemoveFromBookmarks_OnClick" Header="{u:Lang Remove_from_bookmarks}"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                      Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang Remove_from_bookmarks}"/>
+                      Icon="{StaticResource UnstarDrawingImage}"/>
             <Separator/>
 
             <MenuItem Click="ShowProperties_OnClick"

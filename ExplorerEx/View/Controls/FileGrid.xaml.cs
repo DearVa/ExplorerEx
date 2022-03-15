@@ -159,6 +159,17 @@ public partial class FileGrid {
 		set => SetValue(FolderProperty, value);
 	}
 
+	public static readonly DependencyProperty MouseItemProperty = DependencyProperty.Register(
+		"MouseItem", typeof(FileViewBaseItem), typeof(FileGrid), new PropertyMetadata(default(FileViewBaseItem)));
+
+	/// <summary>
+	/// 鼠标所在的那一项，随着MouseMove事件更新
+	/// </summary>
+	public FileViewBaseItem MouseItem {
+		get => (FileViewBaseItem)GetValue(MouseItemProperty);
+		set => SetValue(MouseItemProperty, value);
+	}
+
 	/// <summary>
 	/// 当前的ItemsControl
 	/// </summary>
@@ -191,6 +202,7 @@ public partial class FileGrid {
 		SwitchViewCommand = new SimpleCommand(e => ViewModel?.OnSwitchView(e));
 		columnsConverter = (FileGridDataGridColumnsConverter)FindResource("ColumnsConverter");
 		((FileGridListBoxTemplateConverter)FindResource("ListBoxTemplateConverter")).FileGrid = this;
+		hoverTimer ??= new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Input, MouseHoverTimerWork, Dispatcher);
 	}
 
 	private static void OnViewChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
@@ -318,18 +330,6 @@ public partial class FileGrid {
 		}
 	}
 
-	private FileViewBaseItem GetClickedItem(object originalSource) {
-		if (originalSource is DependencyObject o) {
-			switch (ItemsControl.ContainerFromElement(ItemsControl, o)) {
-			case ListBoxItem i:
-				return (FileViewBaseItem)i.Content;
-			case DataGridRow r:
-				return (FileViewBaseItem)r.Item;
-			}
-		}
-		return null;
-	}
-
 	/// <summary>
 	/// 用于处理双击事件
 	/// </summary>
@@ -378,7 +378,7 @@ public partial class FileGrid {
 			}
 
 			startDragPosition = e.GetPosition(ContentGrid);
-			var item = GetClickedItem(e.OriginalSource);
+			var item = MouseItem;
 			if (item != null) {
 				mouseDownRowIndex = ItemsSource.IndexOf(item);
 				if (e.ChangedButton == MouseButton.Left) {
@@ -456,10 +456,26 @@ public partial class FileGrid {
 
 	/// <summary>
 	/// 鼠标移动时，分为以下几种情况
-	///    如果鼠标点击在项目上，那就进行拖放，如果不在项目上，那就进行框选
+	///    如果鼠标点击在项目上，那就进行拖放
+	///    如果不在项目上，那就进行框选
 	/// </summary>
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseMove(MouseEventArgs e) {
+		if (e.OriginalSource is DependencyObject o) {
+			var mouseItem = ItemsControl.ContainerFromElement(ItemsControl, o) switch {
+				ListBoxItem i => (FileViewBaseItem)i.Content,
+				DataGridRow r => (FileViewBaseItem)r.Item,
+				_ => null
+			};
+			if (MouseItem != mouseItem) {
+				MouseItem = mouseItem;
+				if (hoverTimer == null && (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))) {
+					hoverShowTime = DateTimeOffset.Now.AddMilliseconds(500);
+				}
+			}
+		} else {
+			MouseItem = null;
+		}
 		base.OnPreviewMouseMove(e);
 		if (!isMouseDown || isDoubleClicked || isDragDropping || renamingItem != null) {
 			return;
@@ -794,6 +810,45 @@ public partial class FileGrid {
 		e.Handled = true;
 	}
 
+	protected override void OnPreviewMouseWheel(MouseWheelEventArgs e) {
+		if (previewPopup is { IsOpen: true }) {
+			previewPopup.HandleMouseScroll(e);
+			e.Handled = true;
+		} else {
+			base.OnPreviewMouseWheel(e);
+		}
+	}
+
+	private static DispatcherTimer hoverTimer;
+	private static DateTimeOffset hoverShowTime;
+	private static PreviewPopup previewPopup;
+
+	private void MouseHoverTimerWork(object s, EventArgs e) {
+		var item = MouseItem;
+		// 如果鼠标处没有项目或者没有按下Alt
+		if (item == null || (Keyboard.IsKeyUp(Key.LeftAlt) && Keyboard.IsKeyUp(Key.RightAlt))) {
+			if (previewPopup != null) {  // 如果popup是打开状态，那就关闭
+				if (previewPopup.IsOpen) {
+					previewPopup.Close();
+				}
+				previewPopup = null;
+			}
+		} else if (hoverShowTime < DateTimeOffset.Now && previewPopup == null || previewPopup.FilePath != item.FullPath) {  // 有项目且按下了Alt
+			var newPopup = PreviewPopup.ChoosePopup(item.FullPath);
+			if (newPopup != null) {
+				if (newPopup != previewPopup) {
+					previewPopup?.Close();
+				}
+				previewPopup = newPopup;
+				previewPopup.PlacementTarget = this;
+				var mousePos = Mouse.GetPosition(this);
+				previewPopup.HorizontalOffset = mousePos.X + 20d;
+				previewPopup.VerticalOffset = mousePos.Y + 20d;
+				previewPopup.Load(item.FullPath);
+			}
+		}
+	}
+
 	public void ScrollIntoView(FileViewBaseItem item) {
 		if (!isRectSelecting && !isDragDropping) {
 			if (FileViewType == FileViewType.Detail) {
@@ -845,7 +900,7 @@ public partial class FileGrid {
 			e.Effects = DragDropEffects.None;
 			e.Handled = true;
 		} else {
-			var item = GetClickedItem(e.OriginalSource);
+			var item = MouseItem;
 			string path;
 			if (item != null) {
 				path = item.FullPath;
@@ -887,7 +942,7 @@ public partial class FileGrid {
 	protected override void OnDrop(DragEventArgs e) {
 		string path;
 		// 拖动文件到了项目上
-		var item = GetClickedItem(e.OriginalSource);
+		var item = MouseItem;
 		if (item != null) {
 			path = item.FullPath;
 		} else {

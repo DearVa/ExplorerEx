@@ -246,9 +246,9 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			ItemSize = new Size(0d, 70d);
 			break;
 		}
-		PropertyUpdateUI(nameof(ItemSize));
-		PropertyUpdateUI(nameof(FileViewType));
-		PropertyUpdateUI(nameof(ViewTypeIndex));
+		UpdateUI(nameof(ItemSize));
+		UpdateUI(nameof(FileViewType));
+		UpdateUI(nameof(ViewTypeIndex));
 
 		await SaveViewToDbAsync(null);
 		await LoadThumbnailsAsync();
@@ -302,7 +302,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	private void OnClipboardChanged() {
 		CanPaste = MainWindow.DataObjectContent.Type != DataObjectType.Unknown;
-		PropertyUpdateUI(nameof(CanPaste));
+		UpdateUI(nameof(CanPaste));
 	}
 
 	private void AddHistory(FileViewBaseItem item) {
@@ -337,21 +337,16 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 		var fullPath = Path.Combine(FullPath, name);
 		FileViewBaseItem item;
-		bool isFile;
 		if (File.Exists(fullPath)) {
 			item = new FileSystemItem(new FileInfo(fullPath));
-			isFile = true;
 		} else if (Directory.Exists(fullPath)) {
 			item = new FileSystemItem(new DirectoryInfo(fullPath));
-			isFile = false;
 		} else {
 			return null;
 		}
 		Items.Add(item);
 		UpdateFolderUI();
-		if (isFile) {
-			Task.Run(item.LoadIcon);
-		}
+		Task.Run(item.LoadIcon);
 		return item;
 	}
 
@@ -386,12 +381,13 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			Folder = Home.Instance;
 		} else if (path.Length <= 3) {
 			Folder = new DiskDrive(new DriveInfo(path[..1]));
-			await Task.Run(Folder.LoadIcon, token);
+			new Task(Folder.LoadIcon, token).Start();
 		} else {
 			Folder = new FileSystemItem(new DirectoryInfo(path));
+			new Task(Folder.LoadIcon, token).Start();
 		}
 
-		PropertyUpdateUI(nameof(Folder));
+		UpdateUI(nameof(Folder));
 		if (token.IsCancellationRequested) {
 			return false;
 		}
@@ -416,7 +412,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			DetailLists = null;
 			ItemSize = new Size(0d, 30d);
 		}
-		PropertyUpdateUI(nameof(FullPath));
+		UpdateUI(nameof(FullPath));
 		if (token.IsCancellationRequested) {
 			return false;
 		}
@@ -499,11 +495,11 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 		Items.Clear();
 		PathType = isLoadHome ? PathType.Home : PathType.Normal;  // TODO: 网络驱动器、OneDrive等
-		PropertyUpdateUI(nameof(ItemSize));
-		PropertyUpdateUI(nameof(PathType));  // 一旦调用这个，模板就会改变，所以要在清空之后，不然会导致排版混乱和绑定失败
-		PropertyUpdateUI(nameof(DetailLists));
-		PropertyUpdateUI(nameof(FileViewType));
-		PropertyUpdateUI(nameof(ViewTypeIndex));
+		UpdateUI(nameof(ItemSize));
+		UpdateUI(nameof(PathType));  // 一旦调用这个，模板就会改变，所以要在清空之后，不然会导致排版混乱和绑定失败
+		UpdateUI(nameof(DetailLists));
+		UpdateUI(nameof(FileViewType));
+		UpdateUI(nameof(ViewTypeIndex));
 
 		if (fileListBuffer.Count > 0) {
 			foreach (var fileViewBaseItem in fileListBuffer) {
@@ -532,12 +528,18 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 #endif
 
 		if (fileListBuffer.Count > 0) {
+			Parallel.ForEach(fileListBuffer, item => {
+				if (token.IsCancellationRequested) {
+					return;
+				}
+				item.LoadAttributes();  // 这个可以多线程获取
+			});
 			await Task.Run(() => {
-				foreach (var fileViewBaseItem in fileListBuffer.Where(item => item is DiskDrive || !item.IsFolder)) {
+				foreach (var fileViewBaseItem in fileListBuffer) {
 					if (token.IsCancellationRequested) {
 						return;
 					}
-					fileViewBaseItem.LoadIcon();
+					fileViewBaseItem.LoadIcon();  // 这个是用shell不能多线程
 				}
 			}, token);
 		}
@@ -695,12 +697,12 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// 和文件夹相关的UI，和是否选中文件无关
 	/// </summary>
 	private void UpdateFolderUI() {
-		PropertyUpdateUI(nameof(CanPaste));
-		PropertyUpdateUI(nameof(CanGoBack));
-		PropertyUpdateUI(nameof(CanGoForward));
-		PropertyUpdateUI(nameof(CanGoToUpperLevel));
-		PropertyUpdateUI(nameof(FileItemsCount));
-		PropertyUpdateUI(nameof(SearchPlaceholderText));
+		UpdateUI(nameof(CanPaste));
+		UpdateUI(nameof(CanGoBack));
+		UpdateUI(nameof(CanGoForward));
+		UpdateUI(nameof(CanGoToUpperLevel));
+		UpdateUI(nameof(FileItemsCount));
+		UpdateUI(nameof(SearchPlaceholderText));
 	}
 
 	/// <summary>
@@ -718,11 +720,11 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 				SelectedFileItemsSizeVisibility = Visibility.Visible;
 			}
 		}
-		PropertyUpdateUI(nameof(IsItemSelected));
-		PropertyUpdateUI(nameof(SelectedFileItemsCountVisibility));
-		PropertyUpdateUI(nameof(SelectedFileItemsCount));
-		PropertyUpdateUI(nameof(SelectedFileItemsSizeVisibility));
-		PropertyUpdateUI(nameof(SelectedFileItemsSizeText));
+		UpdateUI(nameof(IsItemSelected));
+		UpdateUI(nameof(SelectedFileItemsCountVisibility));
+		UpdateUI(nameof(SelectedFileItemsCount));
+		UpdateUI(nameof(SelectedFileItemsSizeVisibility));
+		UpdateUI(nameof(SelectedFileItemsSizeText));
 	}
 
 	public async Task Item_OnDoubleClicked(ItemClickEventArgs e) {
@@ -860,11 +862,8 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}, token);
 	}
 
-	private void Watcher_OnError(object sender, ErrorEventArgs e) {
-		if (PathType == PathType.Home) {
-			return;
-		}
-		throw new NotImplementedException();
+	private static void Watcher_OnError(object sender, ErrorEventArgs e) {
+		Logger.Error(e.GetException().Message);
 	}
 
 	private void Watcher_OnRenamed(object sender, RenamedEventArgs e) {
