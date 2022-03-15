@@ -14,13 +14,19 @@ Some time ago, when I was working on Minecraft mod, I needed to switch frequentl
 
 ### ExplorerEx has the following features:
 
-* **Swift**. My standard is that a middle-end computer (such as i5 Series CPU or AMD CPU with the same performance) can open a folder within 500ms. Even a folder with a large number of files like C:\Windows\system32 (I just looked at it, there were 4778 files) still needs to be opened quickly.
+* **Swift.** My standard is that a middle-end computer (such as i5 Series CPU or AMD CPU with the same performance) can open a folder within 500ms. Even a folder with a large number of files like C:\Windows\system32 (I just looked at it, there were 4778 files) still needs to be opened quickly.
 
-* **Multi-Tabbed**. It supports dragging files onto tabs, copying, moving, creating shortcuts, etc. You can also drag a tab to split the screen, just like in Visual Studio Code.
+* **Multi-Tabbed.** It supports dragging files onto tabs, copying, moving, creating shortcuts, etc. You can also drag a tab to split the screen, just like in Visual Studio Code.
 
   ![SplitScreen](https://github.com/DearVa/ExplorerEx/blob/master/Images/SplitScreen.png)
 
-* **Super bookmarks**. Windows built-in file manager not only cannot comment and add files, but also has only one "quick access" column, which cannot be classified. ExplorerEx can collect folders and even files directly! You can also add tags and categories to facilitate search, just like the Microsoft Edge or Google Chorme!
+* **Fast preview.** You can hold Alt and point to a video, a music, a picture even a text file. Then a preview Window will show up, letting you to preview the content of it. You can scroll your mouse to fast forward and rewind.
+
+  ![FastPreview0](https://github.com/DearVa/ExplorerEx/blob/master/Images/FastPreview0.png)
+
+  ![FastPreview1](https://github.com/DearVa/ExplorerEx/blob/master/Images/FastPreview1.png)
+
+* **Super bookmarks.** Windows built-in file manager not only cannot comment and add files, but also has only one "quick access" column, which cannot be classified. ExplorerEx can collect folders and even files directly! You can also add tags and categories to facilitate search, just like the Microsoft Edge or Google Chorme!
 
   ![Explorer can't](https://github.com/DearVa/ExplorerEx/blob/master/Images/ExplorerCantAddFile.jpg)
 
@@ -35,18 +41,19 @@ Some time ago, when I was working on Minecraft mod, I needed to switch frequentl
 ### Road map
 #### Basic function development
 
-√ Basic UI design  
-√ List files  
-√ List disk drives  
-√ Get thumbnails  
-√ Multi-tab  
-√ Clipboard  
-√ File copy, cut, paste, recycle and delete  
-√ File list interaction  
-√ File rename  
-√ File drag&drop  
-√ Free split screen  
-√ Super bookmarks  
+✓ Basic UI design  
+✓ List files  
+✓ List disk drives  
+✓ Get thumbnails  
+✓ Multi-tab  
+✓ Clipboard  
+✓ File copy, cut, paste, recycle and delete  
+✓ File list interaction  
+✓ File rename  
+✓ File drag&drop  
+✓ Free split screen  
+✓ Super bookmarks  
+→ Fast preview  
 → File view switching  
 → zip support  
 → bitlocker support  
