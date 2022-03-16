@@ -113,7 +113,17 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	public SimpleCommand ItemDoubleClickedCommand { get; }
 
-	public bool CanPaste { get; private set; }
+	public bool CanPaste {
+		get => canPaste;
+		private set {
+			if (canPaste != value) {
+				canPaste = value;
+				UpdateUI();
+			}
+		}
+	}
+
+	private bool canPaste;
 
 	public int FileItemsCount => Items.Count;
 
@@ -204,7 +214,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		watcher.Renamed += Watcher_OnRenamed;
 		watcher.Error += Watcher_OnError;
 
-		MainWindow.ClipboardChanged += OnClipboardChanged;
+		DataObjectContent.ClipboardChanged += OnClipboardChanged;
 	}
 
 	public void OnSwitchView(object e) {
@@ -301,8 +311,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	}
 
 	private void OnClipboardChanged() {
-		CanPaste = MainWindow.DataObjectContent.Type != DataObjectType.Unknown;
-		UpdateUI(nameof(CanPaste));
+		CanPaste = DataObjectContent.Clipboard.Type != DataObjectType.Unknown;
 	}
 
 	private void AddHistory(FileViewBaseItem item) {
@@ -697,7 +706,6 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// 和文件夹相关的UI，和是否选中文件无关
 	/// </summary>
 	private void UpdateFolderUI() {
-		UpdateUI(nameof(CanPaste));
 		UpdateUI(nameof(CanGoBack));
 		UpdateUI(nameof(CanGoForward));
 		UpdateUI(nameof(CanGoToUpperLevel));
@@ -939,7 +947,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	}
 
 	public void Dispose() {
-		MainWindow.ClipboardChanged -= OnClipboardChanged;
+		DataObjectContent.ClipboardChanged -= OnClipboardChanged;
 		Items.Clear();
 		watcher?.Dispose();
 		cts?.Dispose();

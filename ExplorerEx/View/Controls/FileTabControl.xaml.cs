@@ -16,7 +16,6 @@ using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
 using MessageBox = HandyControl.Controls.MessageBox;
 using System.Diagnostics;
 using System.IO;
-using HandyControl.Interactivity;
 
 namespace ExplorerEx.View.Controls;
 
@@ -168,23 +167,25 @@ public partial class FileTabControl {
 
 	private async void OnTabDuplicating(object args) {
 		var tab = (TabItem)((RoutedEventArgs)args).OriginalSource;
-		await OpenPathInNewTabAsync((string)tab.DragDropData);
+		await OpenPathInNewTabAsync((string)tab.FullPath);
 	}
 
+	/// <summary>
+	/// 当一个Tab被移动到别的TabControl上时触发
+	/// </summary>
+	/// <param name="args"></param>
 	private void OnTabMoved(object args) {
-		if (TabItems.Count == 0) {
+		if (TabItems.Count == 0) {  // 如果移走的是最后一个，那就要关闭当前的了
+			TabControls.Remove(this);
 			if (OwnerSplitGrid.AnyOtherTabs) {
-				TabControls.Remove(this);
 				OwnerSplitGrid.CancelSplit();
 			} else {  // 说明就剩这一个Tab了
-				TabControls.Remove(this);
 				MainWindow.Close();
 			}
-			MouseOverTabControl = null;
 			UpdateFocusedTabControl();
+			MouseOverTabControl = FocusedTabControl;
 		}
-		Trace.WriteLine(string.Join("\n", MainWindow.MainWindows.SelectMany(mw => mw.splitGrid).SelectMany(f => f.TabItems).Select(i => i.FullPath)));
-
+		// Trace.WriteLine(string.Join("\n", MainWindow.MainWindows.SelectMany(mw => mw.splitGrid).SelectMany(f => f.TabItems).Select(i => i.FullPath)));
 	}
 
 	private async void OnTabClosing(object args) {
@@ -287,7 +288,7 @@ public partial class FileTabControl {
 			if (!CanDragDrop(ti.DragEventArgs, tab)) {
 				return;
 			}
-			FileUtils.HandleDrop(new DataObjectContent(ti.DragEventArgs.Data), tab.FullPath, ti.DragEventArgs.Effects.GetFirstEffect());
+			FileUtils.HandleDrop(DataObjectContent.Parse(ti.DragEventArgs.Data), tab.FullPath, ti.DragEventArgs.Effects.GetFirstEffect());
 		} else {
 			var tb = (TabBorderDragEventArgs)args;
 			if (tb.DragEventArgs.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {

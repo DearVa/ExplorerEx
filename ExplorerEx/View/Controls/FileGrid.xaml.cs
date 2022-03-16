@@ -55,6 +55,7 @@ public partial class FileGrid {
 		if (e.NewValue is ObservableCollection<FileViewBaseItem> newList) {
 			newList.CollectionChanged += fileGrid.OnItemsChanged;
 		}
+		fileGrid.UpdateView();
 	}
 
 	public ObservableCollection<FileViewBaseItem> ItemsSource {
@@ -62,7 +63,7 @@ public partial class FileGrid {
 		set => SetValue(ItemsSourceProperty, value);
 	}
 
-	public FileGridViewModel ViewModel => (FileGridViewModel)DataContext;
+	public FileGridViewModel ViewModel { get; private set; }
 
 	public delegate void FileDropEventHandler(object sender, FileDropEventArgs e);
 
@@ -190,10 +191,12 @@ public partial class FileGrid {
 	public SimpleCommand SwitchViewCommand { get; }
 
 	private readonly FileGridDataGridColumnsConverter columnsConverter;
+	private readonly FileGridListBoxTemplateConverter listBoxTemplateConverter;
 
 	private ContextMenu openedContextMenu;
 
 	public FileGrid() {
+		DataContextChanged += OnDataContextChanged;
 		InitializeComponent();
 		DataGrid.DataContext = ListBox.DataContext = this;
 		EventManager.RegisterClassHandler(typeof(TextBox), GotFocusEvent, new RoutedEventHandler(OnRenameTextBoxGotFocus));
@@ -201,8 +204,15 @@ public partial class FileGrid {
 		StartRenameCommand = new SimpleCommand(e => StartRename((string)e));
 		SwitchViewCommand = new SimpleCommand(e => ViewModel?.OnSwitchView(e));
 		columnsConverter = (FileGridDataGridColumnsConverter)FindResource("ColumnsConverter");
+		listBoxTemplateConverter = (FileGridListBoxTemplateConverter)FindResource("ListBoxTemplateConverter");
 		((FileGridListBoxTemplateConverter)FindResource("ListBoxTemplateConverter")).FileGrid = this;
 		hoverTimer ??= new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Input, MouseHoverTimerWork, Dispatcher);
+	}
+
+	private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
+		if (e.NewValue is FileGridViewModel viewModel) {
+			ViewModel = viewModel;
+		}
 	}
 
 	private static void OnViewChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
@@ -225,6 +235,7 @@ public partial class FileGrid {
 		} else {
 			ItemsControl = ListBox;
 			DataGrid.ItemsSource = null;
+			ListBox.ItemTemplate = listBoxTemplateConverter.Convert();
 			ListBox.ItemsSource = ItemsSource;
 			ListBox.Visibility = Visibility.Visible;
 			DataGrid.Visibility = Visibility.Collapsed;
@@ -490,15 +501,13 @@ public partial class FileGrid {
 					var data = new DataObject(DataFormats.FileDrop, draggingItems.Select(item => item.FullPath).ToArray(), true);
 					var allowedEffects = draggingItems.Any(item => item is DiskDrive) ? DragDropEffects.Link : DragDropEffects.Copy | DragDropEffects.Link | DragDropEffects.Move;
 					DragFilesPreview = new DragFilesPreview(draggingItems.Select(item => item.Icon).ToArray());
-					dragDropWindow = new DragDropWindow(DragFilesPreview, new Point(50, 100), 0.8, false);
 					isDragDropping = true;
+					dragDropWindow = DragDropWindow.Show(DragFilesPreview, new Point(50, 100), 0.8, false);
 					DragDrop.DoDragDrop(this, data, allowedEffects);
 					draggingItems = null;
 					isDragDropping = false;
-					if (dragDropWindow != null) {
-						dragDropWindow.Close();
-						dragDropWindow = null;
-					}
+					dragDropWindow.Close();
+					dragDropWindow = null;
 					DragFilesPreview = null;
 				} else {
 					if (!isRectSelecting) {
@@ -1111,7 +1120,7 @@ public class FileDropEventArgs : RoutedEventArgs {
 	public FileDropEventArgs(RoutedEvent e, DragEventArgs args, string path) {
 		RoutedEvent = e;
 		DragEventArgs = args;
-		Content = new DataObjectContent(args.Data);
+		Content = DataObjectContent.Parse(args.Data);
 		Path = path;
 	}
 }

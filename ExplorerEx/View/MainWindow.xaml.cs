@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -26,12 +25,6 @@ using TextBox = HandyControl.Controls.TextBox;
 namespace ExplorerEx.View;
 
 public sealed partial class MainWindow {
-	/// <summary>
-	/// 当剪切板变化时触发，数据会放在<see cref="DataObjectContent"/>中
-	/// </summary>
-	public static event Action ClipboardChanged;
-	public static DataObjectContent DataObjectContent { get; private set; }
-
 	public event Action<uint, EverythingInterop.QueryReply> EverythingQueryReplied;
 
 	public static readonly List<MainWindow> MainWindows = new();
@@ -91,13 +84,17 @@ public sealed partial class MainWindow {
 	}
 
 	private async void StartupLoad() {
+#if DEBUG
 		Trace.WriteLine("StartupLoad: " + DateTime.Now);
+#endif
 		if (startupPath == null) {
 			await splitGrid.FileTabControl.StartUpLoad(App.Args.Paths.ToArray());
 		} else {
 			await splitGrid.FileTabControl.StartUpLoad(startupPath);
 		}
+#if DEBUG
 		Trace.WriteLine("Startup Finished: " + DateTime.Now);
+#endif
 	}
 
 	private void RegisterClipboard() {
@@ -107,7 +104,7 @@ public sealed partial class MainWindow {
 			Marshal.ThrowExceptionForHR(error);
 		}
 		isClipboardViewerSet = true;
-		OnClipboardChanged();
+		DataObjectContent.HandleClipboardChanged();
 	}
 
 	private void EnableMica(bool isDarkTheme) {
@@ -167,10 +164,10 @@ public sealed partial class MainWindow {
 			}
 			break;
 		case WinMessage.DrawClipboard:
-			OnClipboardChanged();
 			if (nextClipboardViewer != IntPtr.Zero && nextClipboardViewer != hwnd) {
 				SendMessage(nextClipboardViewer, msg, wParam, lParam);
 			}
+			DataObjectContent.HandleClipboardChanged();
 			break;
 		case WinMessage.ChangeCbChain:
 			if (wParam == nextClipboardViewer) {
@@ -369,15 +366,6 @@ public sealed partial class MainWindow {
 	}
 	#endregion
 
-	private static void OnClipboardChanged() {
-		try {
-			DataObjectContent = new DataObjectContent(Clipboard.GetDataObject());
-			ClipboardChanged?.Invoke();
-		} catch (Exception e) {
-			HandyControl.Controls.MessageBox.Error(e.ToString());
-		}
-	}
-
 	protected override void OnClosing(CancelEventArgs e) {
 		if (splitGrid.FileTabControl.TabItems.Count > 1 || splitGrid.AnyOtherTabs) {
 			if (!MessageBoxHelper.AskWithDefault("CloseMultiTabs", "You_have_opened_more_than_one_tab".L())) {
@@ -457,26 +445,28 @@ public sealed partial class MainWindow {
 	}
 
 	protected override void OnKeyDown(KeyEventArgs e) {
-		var mouseOverTab = FileTabControl.MouseOverTabControl.SelectedTab;
-		if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
-			switch (e.Key) {
-			case Key.Z:
-				break;
-			case Key.X:
-				mouseOverTab?.Copy(true);
-				break;
-			case Key.C:
-				mouseOverTab?.Copy(false);
-				break;
-			case Key.V:
-				mouseOverTab?.Paste();
-				break;
-			}
-		} else {
-			switch (e.Key) {
-			case Key.Delete:
-				mouseOverTab?.Delete();
-				break;
+		var mouseOverTab = FileTabControl.MouseOverTabControl?.SelectedTab;
+		if (mouseOverTab != null) {
+			if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
+				switch (e.Key) {
+				case Key.Z:
+					break;
+				case Key.X:
+					mouseOverTab.Copy(true);
+					break;
+				case Key.C:
+					mouseOverTab.Copy(false);
+					break;
+				case Key.V:
+					mouseOverTab.Paste();
+					break;
+				}
+			} else {
+				switch (e.Key) {
+				case Key.Delete:
+					mouseOverTab.Delete();
+					break;
+				}
 			}
 		}
 		base.OnKeyDown(e);

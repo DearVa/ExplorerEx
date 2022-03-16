@@ -1,13 +1,10 @@
 ﻿using ExplorerEx.Model;
-using System;
-using System.Globalization;
 using System.Windows;
-using System.Windows.Data;
 using ExplorerEx.View.Controls;
 
 namespace ExplorerEx.Converter; 
 
-internal class FileGridListBoxTemplateConverter : IValueConverter {
+internal class FileGridListBoxTemplateConverter {
 	public FileGrid FileGrid { get; set; }
 	/// <summary>
 	/// 图标模式
@@ -30,7 +27,7 @@ internal class FileGridListBoxTemplateConverter : IValueConverter {
 	/// </summary>
 	public DataTemplate TileHomeTemplate { get; set; }
 
-	public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+	public DataTemplate Convert() {
 		return FileGrid.FileViewType switch {
 			FileViewType.Icon => IconTemplate,
 			FileViewType.List => ListTemplate,
@@ -39,9 +36,5 @@ internal class FileGridListBoxTemplateConverter : IValueConverter {
 			FileViewType.Content => ContentTemplate,
 			_ => null
 		};
-	}
-
-	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-		throw new NotImplementedException();
 	}
 }

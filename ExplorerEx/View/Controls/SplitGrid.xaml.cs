@@ -138,54 +138,54 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 			return;
 		}
 		var contains = FileTabControl.TabItems.Contains(grid);  // 要分屏的tab是否包含在了当前TabControl中
-		var moreThan1 = FileTabControl.TabItems.Count > 1;
-		switch (orientation) {
-		case SplitOrientation.None:
-			if (!contains) {  // 这种就是将tab加入到当前TabControl中，只有不包括的时候才加入
+		if (orientation == SplitOrientation.None) {
+			if (!contains) {
 				FileTabControl.TabItems.Add(grid);
 				FileTabControl.SelectedIndex = FileTabControl.TabItems.Count - 1;
 				TabItem.MoveAfterDrag = true;
 			}
-			break;
-		case SplitOrientation.Left when !contains || moreThan1: {  // tab不在当前TabControl中或者TabControl中有超过一个Tab
-			ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1d) });  // Splitter
-			Splitter.SetValue(ColumnProperty, 1);
-			ColumnDefinitions.Add(new ColumnDefinition { MinWidth = 100 });
-			FirstSplit();
-			thisSplitGrid.SetValue(ColumnProperty, 2);
-			otherSplitGrid = new SplitGrid(MainWindow, this, grid);
-			otherSplitGrid.SetValue(ColumnProperty, 0);
-			Children.Insert(0, otherSplitGrid);
-			TabItem.MoveAfterDrag = true;
-			break;
-		}
-		case SplitOrientation.Bottom when !contains || moreThan1: {
-			RowDefinitions.Add(new RowDefinition { Height = new GridLength(1d) });
-			Splitter.SetValue(RowProperty, 1);
-			RowDefinitions.Add(new RowDefinition { MinHeight = 100 });
-			FirstSplit();
-			otherSplitGrid = new SplitGrid(MainWindow, this, grid);
-			otherSplitGrid.SetValue(RowProperty, 2);
-			Children.Insert(0, otherSplitGrid);
-			TabItem.MoveAfterDrag = true;
-			break;
-		}
-		case SplitOrientation.Right when !contains || moreThan1: {
-			ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1d) });  // Splitter
-			Splitter.SetValue(ColumnProperty, 1);
-			ColumnDefinitions.Add(new ColumnDefinition { MinWidth = 100 });
-			FirstSplit();
-			otherSplitGrid = new SplitGrid(MainWindow, this, grid);
-			if (isTopRightGrid) {
-				otherSplitGrid.isTopRightGrid = true;
-				isTopRightGrid = false;
-				FileTabControl.TabBorderRoot.Margin = new Thickness();
+		} else if (!contains || FileTabControl.TabItems.Count > 1) {  // 要么不包含，要么TabControl中有超过一个Tab才分屏
+			switch (orientation) {
+			case SplitOrientation.Left: {  // tab不在当前TabControl中或者TabControl中有超过一个Tab
+				ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1d) });  // Splitter
+				Splitter.SetValue(ColumnProperty, 1);
+				ColumnDefinitions.Add(new ColumnDefinition { MinWidth = 100 });
+				FirstSplit();
+				thisSplitGrid.SetValue(ColumnProperty, 2);
+				otherSplitGrid = new SplitGrid(MainWindow, this, grid);
+				otherSplitGrid.SetValue(ColumnProperty, 0);
+				Children.Insert(0, otherSplitGrid);
+				TabItem.MoveAfterDrag = true;
+				break;
 			}
-			otherSplitGrid.SetValue(ColumnProperty, 2);
-			Children.Insert(0, otherSplitGrid);
-			TabItem.MoveAfterDrag = true;
-			break;
-		}
+			case SplitOrientation.Bottom: {
+				RowDefinitions.Add(new RowDefinition { Height = new GridLength(1d) });
+				Splitter.SetValue(RowProperty, 1);
+				RowDefinitions.Add(new RowDefinition { MinHeight = 100 });
+				FirstSplit();
+				otherSplitGrid = new SplitGrid(MainWindow, this, grid);
+				otherSplitGrid.SetValue(RowProperty, 2);
+				Children.Insert(0, otherSplitGrid);
+				TabItem.MoveAfterDrag = true;
+				break;
+			}
+			case SplitOrientation.Right: {
+				ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1d) });  // Splitter
+				Splitter.SetValue(ColumnProperty, 1);
+				ColumnDefinitions.Add(new ColumnDefinition { MinWidth = 100 });
+				FirstSplit();
+				otherSplitGrid = new SplitGrid(MainWindow, this, grid);
+				if (isTopRightGrid) {
+					otherSplitGrid.isTopRightGrid = true;
+					isTopRightGrid = false;
+					FileTabControl.TabBorderRoot.Margin = new Thickness();
+				}
+				otherSplitGrid.SetValue(ColumnProperty, 2);
+				Children.Insert(0, otherSplitGrid);
+				TabItem.MoveAfterDrag = true;
+				break;
+			}
+			}
 		}
 	}
 
@@ -246,7 +246,9 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 	/// </summary>
 	/// <param name="splitGrid"></param>
 	private void MoveChildren(SplitGrid splitGrid) {
+#if DEBUG
 		Name = "Deleted" + Name;
+#endif
 		if (otherSplitGrid != null) {  // 说明自己分屏了
 			Children.RemoveRange(0, 2);  // 那就需要Remove两个SplitGrid
 										 // 下面需要将Column和Row定义设置成一样的
@@ -266,11 +268,14 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 			}
 			splitGrid.Children.Insert(0, thisSplitGrid);
 			splitGrid.thisSplitGrid = thisSplitGrid;
+			thisSplitGrid.OwnerSplitGrid = splitGrid;
 			splitGrid.Children.Insert(0, otherSplitGrid);
 			splitGrid.otherSplitGrid = otherSplitGrid;
+			otherSplitGrid.OwnerSplitGrid = splitGrid;
 		} else {
 			Children.RemoveAt(0);  // 把child0移除，即FileTabControl
 			splitGrid.Children.Insert(0, FileTabControl);  // 把FileTabControl加入child0，因为没有分屏，所以FileTabControl不用套SplitGrid
+			FileTabControl.OwnerSplitGrid = splitGrid;
 			splitGrid.thisSplitGrid = splitGrid.otherSplitGrid = null;
 			splitGrid.Splitter.Visibility = Visibility.Collapsed;
 			if (splitGrid.ColumnDefinitions.Count == 3) {

@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Collections.Generic;
+using System.Windows;
 
 namespace ExplorerEx.Win32;
 
@@ -10,35 +12,53 @@ public enum DataObjectType {
 /// 解析一个DataObject的数据类型
 /// </summary>
 public class DataObjectContent {
+	/// <summary>
+	/// 当剪切板变化时触发，数据会放在<see cref="Clipboard"/>中
+	/// </summary>
+	public static event Action ClipboardChanged;
+
+	public static DataObjectContent Clipboard { get; private set; }
+
 	public DataObjectType Type { get; }
 
-	public DataObject Data { get; }
+	public object Data { get; }
 
-	public DataObjectContent(IDataObject dataObject) {
-		if (dataObject is DataObject data) {
-			Data = data;
-			var formats = data.GetFormats();
-			if (formats != null) {
-				foreach (var format in formats) {
-					switch (format) {
-					case "FileDrop":
-						Type = DataObjectType.FileDrop;
-						return;  // 拿到一种就返回
-					case "Bitmap":
-						Type = DataObjectType.Bitmap;
-						return;
-					case "Text":
-						Type = DataObjectType.Text;
-						return;
-					case "UnicodeText":
-						Type = DataObjectType.UnicodeText;
-						return;
-					case "Html":
-						Type = DataObjectType.Html;
-						return;
+	private static readonly Dictionary<string, DataObjectType> TypePairs = new() {
+		{ DataFormats.FileDrop, DataObjectType.FileDrop },
+        { DataFormats.Bitmap, DataObjectType.Bitmap },
+        { DataFormats.Text, DataObjectType.Text },
+        { DataFormats.UnicodeText, DataObjectType.UnicodeText },
+        { DataFormats.Html, DataObjectType.Html }
+	};
+
+	private DataObjectContent(object data, DataObjectType type) {
+		Data = data;
+		Type = type;
+	}
+
+	/// <summary>
+	/// 解析，如果是支持的格式，返回true
+	/// </summary>
+	/// <param name="iDataObject"></param>
+	/// <returns></returns>
+	public static DataObjectContent Parse(IDataObject iDataObject) {
+		if (iDataObject is DataObject dataObject) {
+			foreach (var (key, type) in TypePairs) {
+				try {
+					var data = dataObject.GetData(key);
+					if (data != null) {
+						return new DataObjectContent(data, type); // 拿到第一种就停止
 					}
+				} catch {  // 有时候如果数据不受支持就会报异常，这是正确的情况，无视即可 https://stackoverflow.com/a/34092811/6116637
+					return null;
 				}
 			}
 		}
+		return null;
+	}
+
+	public static void HandleClipboardChanged() {
+		Clipboard = Parse(System.Windows.Clipboard.GetDataObject());
+		ClipboardChanged?.Invoke();
 	}
 }

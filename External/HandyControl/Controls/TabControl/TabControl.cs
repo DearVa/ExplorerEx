@@ -186,6 +186,7 @@ public class TabControl : System.Windows.Controls.TabControl {
 
 	private void TabBorder_OnDragEnter(object sender, DragEventArgs e) {
 		if (TabItem.DraggingTab != null) {
+			TabItem.DragToTabControl = this;
 			if (Items.Contains(TabItem.DraggingTab.DataContext)) {  // 当前正是这里边的
 				TabItem.MoveAfterDrag = false;
 			} else {
@@ -199,7 +200,7 @@ public class TabControl : System.Windows.Controls.TabControl {
 				} else {
 					tabWidth = TabItemWidth;
 				}
-				var insertIndex = (int)(mouseDownPoint.X / tabWidth);
+				var insertIndex = Math.Max(Math.Min((int)(mouseDownPoint.X / tabWidth), list.Count), 0);
 				var newTab = TabItem.DraggingTab;
 				list.Insert(insertIndex, newTab.DataContext);
 				SelectedIndex = insertIndex;

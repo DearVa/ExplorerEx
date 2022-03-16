@@ -100,7 +100,7 @@ public partial class App {
 				var msg = Encoding.UTF8.GetString(data).Split('|');
 				switch (msg[0]) {
 				case "Open":
-					View.MainWindow.OpenPath(msg.Length == 2 ? msg[1] : null);
+					Dispatcher.Invoke(() => View.MainWindow.OpenPath(msg.Length == 2 ? msg[1] : null));
 					break;
 				}
 			}

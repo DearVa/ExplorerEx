@@ -53,7 +53,7 @@
     </hc:TabControl.ItemTemplate>
     <hc:TabControl.ItemContainerStyle>
         <Style TargetType="hc:TabItem" BasedOn="{StaticResource TabItemPlusBaseStyle}">
-            <Setter Property="DragDropData" Value="{Binding Folder.FullPath}"/>
+            <Setter Property="FullPath" Value="{Binding Folder.FullPath}"/>
         </Style>
     </hc:TabControl.ItemContainerStyle>
     <hc:TabControl.ContentTemplate>

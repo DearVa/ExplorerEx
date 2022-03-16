@@ -206,7 +206,7 @@ internal static class FileUtils {
 				try {
 					Process.Start(new ProcessStartInfo {
 						FileName = destPath,
-						Arguments = string.Join(' ', content.Data.GetFileDropList()),
+						Arguments = string.Join(' ', (string[])content.Data),
 						UseShellExecute = true
 					});
 				} catch (Exception ex) {
@@ -220,7 +220,7 @@ internal static class FileUtils {
 			if (Directory.Exists(destPath)) {
 				switch (content.Type) {
 				case DataObjectType.FileDrop:
-					var filePaths = (string[])content.Data.GetData(DataFormats.FileDrop);
+					var filePaths = (string[])content.Data;
 					if (filePaths is { Length: > 0 }) {
 						var destPaths = filePaths.Select(p => Path.Combine(destPath, Path.GetFileName(p))).ToList();
 						try {
@@ -245,13 +245,13 @@ internal static class FileUtils {
 				case DataObjectType.Bitmap:
 					break;
 				case DataObjectType.Html:
-					new SaveDataObjectWindow(destPath, content.Data.GetData(DataFormats.Html)!.ToString()).Show();
+					new SaveDataObjectWindow(destPath, content.Data.ToString()).Show();
 					break;
 				case DataObjectType.Text:
-					new SaveDataObjectWindow(destPath, content.Data.GetData(DataFormats.Text)!.ToString()).Show();
+					new SaveDataObjectWindow(destPath, content.Data.ToString()).Show();
 					break;
 				case DataObjectType.UnicodeText:
-					new SaveDataObjectWindow(destPath, content.Data.GetData(DataFormats.UnicodeText)!.ToString()).Show();
+					new SaveDataObjectWindow(destPath, content.Data.ToString()).Show();
 					break;
 				}
 			}

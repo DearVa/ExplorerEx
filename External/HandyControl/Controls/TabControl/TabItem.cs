@@ -4,14 +4,12 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using HandyControl.Data;
 using HandyControl.Interactivity;
 using HandyControl.Tools;
-using HandyControl.Tools.Extension;
 using HandyControl.Tools.Interop;
 
 namespace HandyControl.Controls; 
@@ -26,24 +24,28 @@ public class TabItem : System.Windows.Controls.TabItem {
 	/// </summary>
 	public static bool MoveAfterDrag { get; set; }
 	/// <summary>
+	/// 拖动到了TabControl上
+	/// </summary>
+	internal static TabControl DragToTabControl { get; set; }
+	/// <summary>
 	/// 设为true结束DragDrop
 	/// </summary>
 	public static bool CancelDrag { get; set; }
 	/// <summary>
-	/// Drag结束时触发
+	/// Drag结束时触发，之后会清除所有事件
 	/// </summary>
 	public static event Action DragEnd;
 
 	public static DragDropWindow DragDropWindow { get; private set; }
 	/// <summary>
-	/// DoDragDrop时的Data
+	/// 当前Item的路径
 	/// </summary>
-	public static readonly DependencyProperty DragDropDataProperty = DependencyProperty.Register(
-		"DragDropData", typeof(object), typeof(TabItem), new PropertyMetadata(default(object)));
+	public static readonly DependencyProperty FullPathProperty = DependencyProperty.Register(
+		"FullPath", typeof(object), typeof(TabItem), new PropertyMetadata(default(object)));
 
-	public object DragDropData {
-		get => GetValue(DragDropDataProperty);
-		set => SetValue(DragDropDataProperty, value);
+	public object FullPath {
+		get => GetValue(FullPathProperty);
+		set => SetValue(FullPathProperty, value);
 	}
 	/// <summary>
 	///     动画速度
@@ -59,12 +61,6 @@ public class TabItem : System.Windows.Controls.TabItem {
 	///     选项卡是否处于拖动状态
 	/// </summary>
 	private static bool isItemDragging;
-
-	/// <summary>
-	///     是否显示上下文菜单
-	/// </summary>
-	public static readonly DependencyProperty ShowContextMenuProperty =
-		TabControl.ShowContextMenuProperty.AddOwner(typeof(TabItem), new FrameworkPropertyMetadata(OnShowContextMenuChanged));
 
 	public static readonly DependencyProperty MenuProperty = DependencyProperty.Register(
 		"Menu", typeof(ContextMenu), typeof(TabItem), new PropertyMetadata(default(ContextMenu), OnMenuChanged));
@@ -155,19 +151,19 @@ public class TabItem : System.Windows.Controls.TabItem {
 	private double maxMoveRight;
 
 	/// <summary>
-	///     鼠标按下时选项卡位置
-	/// </summary>
-	private int mouseDownIndex;
-
-	/// <summary>
 	///     鼠标按下时选项卡横向偏移
 	/// </summary>
 	private double mouseDownOffsetX;
 
 	/// <summary>
-	///     鼠标按下时的坐标
+	///     鼠标按下相对于TabBorder的坐标
 	/// </summary>
 	private Point mouseDownPoint;
+
+	/// <summary>
+	///     鼠标按下时相对于被拖动Tab的坐标
+	/// </summary>
+	private Point mouseDownTabPoint;
 
 	private TabPanel tabPanel;
 
@@ -236,37 +232,12 @@ public class TabItem : System.Windows.Controls.TabItem {
 		}
 	}
 
-	/// <summary>
-	///     是否显示上下文菜单
-	/// </summary>
-	public bool ShowContextMenu {
-		get => (bool)GetValue(ShowContextMenuProperty);
-		set => SetValue(ShowContextMenuProperty, ValueBoxes.BooleanBox(value));
-	}
-
 	public ContextMenu Menu {
 		get => (ContextMenu)GetValue(MenuProperty);
 		set => SetValue(MenuProperty, value);
 	}
 
 	private TabControl TabControlParent => ItemsControl.ItemsControlFromItemContainer(this) as TabControl;
-
-	private static void OnShowContextMenuChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-		var ctl = (TabItem)d;
-		if (ctl.Menu != null) {
-			var show = (bool)e.NewValue;
-			ctl.Menu.IsEnabled = show;
-			ctl.Menu.Show(show);
-		}
-	}
-
-	public static void SetShowContextMenu(DependencyObject element, bool value) {
-		element.SetValue(ShowContextMenuProperty, ValueBoxes.BooleanBox(value));
-	}
-
-	public static bool GetShowContextMenu(DependencyObject element) {
-		return (bool)element.GetValue(ShowContextMenuProperty);
-	}
 
 	private static void OnMenuChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		var ctl = (TabItem)d;
@@ -279,17 +250,7 @@ public class TabItem : System.Windows.Controls.TabItem {
 			if (parent == null) {
 				return;
 			}
-
-			var item = parent.ItemContainerGenerator.ItemFromContainer(this);
-
-			menu.DataContext = item;
-			menu.SetBinding(IsEnabledProperty, new Binding(ShowContextMenuProperty.Name) {
-				Source = this
-			});
-			menu.SetBinding(VisibilityProperty, new Binding(ShowContextMenuProperty.Name) {
-				Source = this,
-				Converter = ResourceHelper.GetResourceInternal<IValueConverter>(ResourceToken.Boolean2VisibilityConverter)
-			});
+			menu.DataContext = parent.ItemContainerGenerator.ItemFromContainer(this);
 		}
 	}
 
@@ -371,14 +332,16 @@ public class TabItem : System.Windows.Controls.TabItem {
 			mouseDownOffsetX = RenderTransform.Value.OffsetX;
 			var mx = TranslatePoint(new Point(), parent).X;
 			mouseDownPoint = e.GetPosition(parent);
+			mouseDownTabPoint = e.GetPosition(this);
 			StartDrag(parent, mouseDownPoint, CalLocationIndex(mx));
 		}
 	}
 
 	internal void StartDrag(Border parent, Point mouseDownPoint, int mouseDownIndex) {
-		maxMoveLeft = -mouseDownIndex * ItemWidth;
+		maxMoveLeft = -mouseDownIndex * ItemWidth - mouseDownOffsetX;
 		maxMoveRight = parent.ActualWidth - ActualWidth + maxMoveLeft;
 
+		Trace.WriteLine(maxMoveLeft + ", " + maxMoveRight);
 		isDragging = true;
 		isItemDragging = true;
 		isWaiting = true;
@@ -390,11 +353,12 @@ public class TabItem : System.Windows.Controls.TabItem {
 		base.OnMouseMove(e);
 
 		if (isItemDragging && isDragging) {
-			if (TabControlParent == null) {
+			var tabControl = TabControlParent;
+			if (tabControl == null) {
 				return;
 			}
 
-			var parent = TabControlParent.TabBorder;
+			var parent = tabControl.TabBorder;
 			var subX = TranslatePoint(new Point(), parent).X;
 			CurrentIndex = CalLocationIndex(subX);
 
@@ -409,7 +373,7 @@ public class TabItem : System.Windows.Controls.TabItem {
 
 			isWaiting = false;
 			isDragged = true;
-			TabControlParent.NewTabButton.Visibility = Visibility.Hidden;
+			tabControl.NewTabButton.Visibility = Visibility.Hidden;
 
 			double left;
 			var totalLeft = p.X - mouseDownPoint.X;
@@ -420,51 +384,67 @@ public class TabItem : System.Windows.Controls.TabItem {
 			} else {
 				left = subLeft + RenderTransform.Value.OffsetX;
 			}
+#if DEBUG
 			Trace.WriteLine($"{p.X} {left} {totalLeft} {maxMoveLeft} {maxMoveRight}");
-			
+#endif
+
 			RenderTransform = new TranslateTransform(left, 0);
 			dragPoint = p;
 
-			if (p.X < 0 || p.X > parent.ActualWidth || p.Y < 0 || p.Y > parent.ActualHeight) {
-				if (DraggingTab == null) {
-					DraggingTab = this;
-					var tab = (Grid)GetVisualChild(0)!;
-					DragDropWindow = new DragDropWindow(tab, mouseDownPoint);
-					Visibility = Visibility.Hidden;
-					isItemDragging = isDragging = MoveAfterDrag = CancelDrag = false;
-					System.Windows.DragDrop.DoDragDrop(this, DragDropData, DragDropEffects.Move);
-					TabControlParent.NewTabButton.Visibility = Visibility.Visible;
-					EndDragDrop();
-					DragEnd?.Invoke();
-					DragEnd = null;
-					if (MoveAfterDrag) {
-						var tabControl = TabControlParent;
-						IEditableCollectionView items = tabControl.Items;
-						if (items.CanRemove) {
-							items.Remove(DataContext);
-						}
-						tabControl.RaiseEvent(new RoutedEventArgs(MovedEvent, this));
+			if ((p.X < 0 || p.X > parent.ActualWidth || p.Y < 0 || p.Y > parent.ActualHeight) && DraggingTab == null) {
+				DraggingTab = this;
+				// 这里把Child给DragDropWindow显示，不然设为了Hidden显示不出来
+				Visibility = Visibility.Hidden;
+				DragDropWindow = DragDropWindow.Show((Grid)GetVisualChild(0), mouseDownTabPoint);
+				// isItemDragging = isDragging = false 防止继续响应Move事件
+				isItemDragging = isDragging = MoveAfterDrag = CancelDrag = false;
+				DragToTabControl = null;
+				System.Windows.DragDrop.DoDragDrop(this, FullPath, DragDropEffects.Move);
+
+				DraggingTab = null;
+				DragDropWindow.Close();
+				DragDropWindow = null;
+
+				if (MoveAfterDrag) {  // 为true就删掉当前的标签页
+					IEditableCollectionView items = tabControl.Items;
+					if (items.CanRemove) {
+						items.Remove(DataContext);
+					}
+					tabControl.NewTabButton.Visibility = Visibility.Visible;
+					tabControl.RaiseEvent(new RoutedEventArgs(MovedEvent, this));
+					if (DragToTabControl != null) {
+						ContinueDrag(e, DragToTabControl.TabBorder);
+					}
+				} else {
+					Visibility = Visibility.Visible;
+					if (DragToTabControl != null) {
+						ContinueDrag(e, parent);
 					} else {
-						Visibility = Visibility.Visible;
-						// 这里使用e.GetPosition(parent)获取到的是错误的结果，此时Mouse坐标被错误地认为位于屏幕的左上角
-						var mousePoint = InteropMethods.GetCursorPos();
-						var parentPoint = e.GetPosition(parent);
-						mouseDownPoint = new Point(mousePoint.X + parentPoint.X, mousePoint.Y + parentPoint.Y);
-						totalLeft = mouseDownPoint.X - ActualWidth / 2;
-						if (totalLeft < maxMoveLeft) {
-							left = maxMoveLeft + mouseDownOffsetX;
-						} else if (totalLeft > maxMoveRight) {
-							left = maxMoveRight + mouseDownOffsetX;
-						} else {
-							left = totalLeft;
-						}
-						CurrentIndex = CalLocationIndex(left);
-						RenderTransform = new TranslateTransform(left - currentIndex * ItemWidth, 0);
-						StartDrag(parent, mouseDownPoint, currentIndex);
+						EndDrag();
 					}
 				}
+				DragEnd?.Invoke();
+				DragEnd = null;
 			}
 		}
+	}
+
+	private void ContinueDrag(MouseEventArgs e, Border parent) {
+		// 这里使用e.GetPosition(parent)获取到的是错误的结果，此时Mouse坐标被错误地认为位于屏幕的左上角
+		var mousePoint = InteropMethods.GetCursorPos();
+		var parentPoint = e.GetPosition(parent);
+		mouseDownPoint = new Point(mousePoint.X + parentPoint.X, mousePoint.Y + parentPoint.Y);
+		var left = mouseDownPoint.X - ActualWidth / 2;
+		if (left < 0) {
+			left = 0;
+		} else if (left > parent.ActualWidth) {
+			left = parent.ActualWidth;
+		}
+		CurrentIndex = CalLocationIndex(left);
+		mouseDownOffsetX = left - currentIndex * ItemWidth;
+		RenderTransform = new TranslateTransform(mouseDownOffsetX, 0);
+		StartDrag(parent, mouseDownPoint, currentIndex);
+		isWaiting = false;
 	}
 
 	protected override void OnPreviewGiveFeedback(GiveFeedbackEventArgs e) {
@@ -478,19 +458,13 @@ public class TabItem : System.Windows.Controls.TabItem {
 		}
 	}
 
-	private static void EndDragDrop() {
-		DraggingTab = null;
-		if (DragDropWindow != null) {
-			DragDropWindow.Close();
-			DragDropWindow = null;
-		}
-	}
-
 	protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e) {
 		base.OnMouseLeftButtonUp(e);
-
 		ReleaseMouseCapture();
+		EndDrag();
+	}
 
+	private void EndDrag() {
 		if (isDragged) {
 			TabControlParent.NewTabButton.Visibility = Visibility.Visible;
 			var parent = TabControlParent;

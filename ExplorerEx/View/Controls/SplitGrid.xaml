@@ -10,6 +10,6 @@
 
     <GridSplitter x:Name="Splitter" Background="Transparent" Margin="-2" Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
     <Grid x:Name="DragArea" AllowDrop="true" IsHitTestVisible="False" Background="Transparent" Margin="0,50,0,0" DragEnter="DragArea_OnDragEnter" DragOver="DragArea_OnDragOver" DragLeave="DragArea_OnDragLeave" Drop="DragArea_OnDrop" MouseMove="DragArea_OnMouseMove">
-        <Rectangle x:Name="SplitPreviewRectangle" IsHitTestVisible="False" Fill="#66569cc6" Opacity="0"/>
+        <Grid x:Name="SplitPreviewRectangle" IsHitTestVisible="False" Background="#66569cc6" Opacity="0"/>
     </Grid>
 </Grid>

@@ -101,10 +101,10 @@ public class FileSystemItem : FileViewBaseItem {
 			Type = isEmptyFolder ? "Empty_folder".L() : "Folder".L();
 		} else {
 			Type = GetFileTypeDescription(Path.GetExtension(FileSystemInfo.Name));
-			LastWriteTime = FileSystemInfo.LastWriteTime;
-			CreationTime = FileSystemInfo.CreationTime;
 			FileSize = ((FileInfo)FileSystemInfo).Length;
 		}
+		LastWriteTime = FileSystemInfo.LastWriteTime;
+		CreationTime = FileSystemInfo.CreationTime;
 	}
 
 	public override void LoadIcon() {

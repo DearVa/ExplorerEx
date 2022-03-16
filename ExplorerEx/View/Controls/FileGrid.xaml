@@ -244,6 +244,8 @@
                                         AvailableSpace="{StaticResource AvailableSpaceColumn}" TotalSpace="{StaticResource TotalSpaceColumn}"
                                         FillRatio="{StaticResource FillRatioColumn}" FileSystem="{StaticResource FileSystemColumn}"/>
 
+        <!-- 该资源在C#逻辑中获取 -->
+        <!-- ReSharper disable once Xaml.RedundantResource -->
         <c:FileGridListBoxTemplateConverter x:Key="ListBoxTemplateConverter"
                                             IconTemplate="{StaticResource IconTemplate}" ListTemplate="{StaticResource ListTemplate}"
                                             TileTemplate="{StaticResource TileTemplate}" TileHomeTemplate="{StaticResource TileHomeTemplate}"/>
@@ -490,12 +492,8 @@
         </DataGrid.CellStyle>
     </DataGrid>
 
-    <ListBox x:Name="ListBox"
-             ItemTemplate="{Binding FileViewType, Mode=OneWay, Converter={StaticResource ListBoxTemplateConverter}}"
-             Foreground="{DynamicResource PrimaryTextBrush}"
-             hc:BorderElement.CornerRadius="5"
-             VirtualizingStackPanel.IsVirtualizing="True"
-             VirtualizingStackPanel.ScrollUnit="Pixel">
+    <ListBox x:Name="ListBox" Foreground="{DynamicResource PrimaryTextBrush}"
+             hc:BorderElement.CornerRadius="5" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.ScrollUnit="Pixel">
         <ListBox.ItemsPanel>
             <ItemsPanelTemplate>
                 <vw:VirtualizingWrapPanel CanHorizontallyScroll="False" VirtualizationMode="Recycling" SnapsToDevicePixels="True"/>
