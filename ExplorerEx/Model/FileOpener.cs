@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Media;
+using ExplorerEx.Shell32;
 using ExplorerEx.Win32;
 using Microsoft.Win32;
 
@@ -20,7 +21,7 @@ internal class FileOpener {
 	private FileOpener(string extension) {
 		var defineReg = Registry.ClassesRoot.OpenSubKey(extension);
 		if (defineReg == null) {
-			Icon = IconHelper.UnknownTypeFileDrawingImage;
+			Icon = IconHelper.UnknownFileDrawingImage;
 			return;
 		}
 		if (defineReg.OpenSubKey("OpenWithList") is { SubKeyCount: > 0 } owl) {

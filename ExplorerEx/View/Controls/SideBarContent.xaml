@@ -1,0 +1,59 @@
+﻿<Grid x:Class="ExplorerEx.View.Controls.SideBarContent"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:u="clr-namespace:ExplorerEx.Utils" 
+      xmlns:ct="clr-namespace:ExplorerEx.View.Controls" 
+      xmlns:hc="https://handyorg.github.io/handycontrol" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      mc:Ignorable="d" d:DataContext="{d:DesignInstance ct:SideBarContent}"
+      d:DesignHeight="1080" d:DesignWidth="400">
+    <Grid.RowDefinitions>
+        <RowDefinition Height="50"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition/>
+    </Grid.RowDefinitions>
+
+    <Grid.Triggers>
+        <EventTrigger SourceName="SearchToggleButton" RoutedEvent="ToggleButton.Checked">
+            <EventTrigger.Actions>
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetProperty="Height" Storyboard.TargetName="SearchBoxGrid" To="40" Duration="0:0:0.1"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger.Actions>
+        </EventTrigger>
+        <EventTrigger SourceName="SearchToggleButton" RoutedEvent="ToggleButton.Unchecked">
+            <EventTrigger.Actions>
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetProperty="Height" Storyboard.TargetName="SearchBoxGrid" To="0" Duration="0:0:0.1"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger.Actions>
+        </EventTrigger>
+    </Grid.Triggers>
+
+    <Grid x:Name="SearchBoxGrid" Grid.Row="1" Height="0" ClipToBounds="True">
+        <hc:TextBox x:Name="SearchTextBox" Margin="5,0,5,5" Height="30" VerticalAlignment="Bottom" ShowClearButton="True" 
+                    hc:InfoElement.Placeholder="{u:Lang Search}" TextChanged="SearchTextBox_OnTextChanged"/>
+    </Grid>
+
+    <Grid Grid.Row="0" Margin="0,10,0,0" Background="{DynamicResource PrimaryBrush}">
+        <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" Text="{Binding Header}" FontSize="14"/>
+        <ToggleButton x:Name="SearchToggleButton" hc:IconElement.Geometry="{StaticResource SearchGeometry}" 
+                      Background="Transparent" BorderThickness="0" Width="25" Height="25" Padding="5" 
+                      HorizontalAlignment="Right" Margin="0,0,10,0" ToolTip="{u:Lang Search}"
+                      Checked="SearchToggleButton_OnChecked" Unchecked="SearchToggleButton_OnUnchecked"/>
+    </Grid>
+
+    <Grid Grid.Row="2" Background="{DynamicResource SecondaryRegionBrush}">
+        <ContentPresenter Content="{Binding Content}" AllowDrop="true" Drop="DragArea_OnDrop" 
+                          DragEnter="DragArea_OnDragEnter" DragLeave="DragArea_OnDragLeave" DragOver="DragArea_OnDragOver"/>
+
+        <Grid x:Name="DragTipGrid" Opacity="0" IsHitTestVisible="False">
+            <ContentPresenter Content="{Binding DragTip}"/>
+        </Grid>
+    </Grid>
+</Grid>

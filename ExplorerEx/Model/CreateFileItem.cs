@@ -1,11 +1,10 @@
 ﻿using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using ExplorerEx.Utils;
-using static ExplorerEx.Win32.IconHelper;
+using static ExplorerEx.Shell32.IconHelper;
 
 namespace ExplorerEx.Model;
 
@@ -28,7 +27,7 @@ public class CreateFileItem : SimpleNotifyPropertyChanged {
 			Task.Run(() => {
 				Icon = GetPathIcon(extension, true);
 				UpdateUI(nameof(Icon));
-				Description = GetFileTypeDescription(extension);
+				Description = FileUtils.GetFileTypeDescription(extension);
 				UpdateUI(nameof(Description));
 			});
 		}
@@ -40,7 +39,7 @@ public class CreateFileItem : SimpleNotifyPropertyChanged {
 	/// <param name="path">文件夹路径</param>
 	/// <returns>创建的文件名，不包括路径</returns>
 	public virtual string Create(string path) {
-		var fileName = FileUtils.GetNewFileName(path, $"{"New".L()} {Description}");
+		var fileName = FileUtils.GetNewFileName(path, $"{"New".L()} {Description}{Extension}");
 		File.Create(Path.Combine(path, fileName)).Dispose();
 		return fileName;
 	}

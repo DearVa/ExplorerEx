@@ -4,7 +4,6 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:m="clr-namespace:ExplorerEx.Model"
-      xmlns:v="clr-namespace:ExplorerEx.View"
       xmlns:u="clr-namespace:ExplorerEx.Utils"
       xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
       xmlns:hc="https://handyorg.github.io/handycontrol"
@@ -26,13 +25,14 @@
                 <TextBlock Text="{u:Lang New}" VerticalAlignment="Center" Margin="10,0,0,0"/>
             </StackPanel>
             <hc:SplitButton.DropDownContent>
-                <ItemsControl Margin="4,0" ItemsSource="{Binding Source={x:Static m:CreateFileItem.Items}}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <MenuItem Icon="{Binding Icon}" Header="{Binding Description}"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <ContextMenu ItemsSource="{Binding Source={x:Static m:CreateFileItem.Items}}">
+                    <ContextMenu.ItemContainerStyle>
+                        <Style TargetType="MenuItem" BasedOn="{StaticResource MenuItemBaseStyle}">
+                            <Setter Property="Icon" Value="{Binding Icon}"/>
+                            <Setter Property="Header" Value="{Binding Description}"></Setter>
+                        </Style>
+                    </ContextMenu.ItemContainerStyle>
+                </ContextMenu>
             </hc:SplitButton.DropDownContent>
         </hc:SplitButton>
         <Rectangle Width="1" Height="30" Stroke="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
@@ -71,40 +71,70 @@
             <Rectangle Width="1" Height="30" Stroke="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
         </StackPanel>
 
-        <hc:SplitButton Padding="0" Height="35" HitMode="None">
+        <hc:SplitButton Padding="0" Height="35" HitMode="None" Command="{Binding SwitchViewCommand}">
             <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
                 <Image Margin="10,0,0,0" Width="20" Height="20" Source="{StaticResource SortDrawingImage}"/>
                 <TextBlock Text="{u:Lang Sort}" VerticalAlignment="Center" Margin="7,0,5,0"/>
             </StackPanel>
+            <hc:SplitButton.DropDownContent>
+                <ContextMenu>
+                    <ContextMenu.Items>
+                        <MenuItem CommandParameter="6" Header="{u:Lang Name}" 
+                                  IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
+                        <MenuItem CommandParameter="7" Header="{u:Lang Modification_date}"
+                                  IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
+                        <MenuItem CommandParameter="8" Header="{u:Lang Type}"
+                                  IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
+                        <MenuItem CommandParameter="9" Header="{u:Lang File_size}"
+                                  IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
+                        <Separator/>
+
+                        <MenuItem CommandParameter="10" Header="{u:Lang Ascending}"
+                                  IsChecked="{Binding IsAscending, Mode=OneWay}"/>
+                        <MenuItem CommandParameter="11" Header="{u:Lang Descending}"
+                                  IsChecked="{Binding IsAscending, Mode=OneWay, Converter={StaticResource Boolean2BooleanReConverter}}"/>
+                        <Separator/>
+
+                        <MenuItem Header="{u:Lang Group_by}">
+                            <MenuItem.Items>
+                                <MenuItem CommandParameter="12" Header="{u:Lang None}" 
+                                          IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=-1}"/>
+                                <MenuItem CommandParameter="13" Header="{u:Lang Name}" 
+                                          IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
+                                <MenuItem CommandParameter="14" Header="{u:Lang Modification_date}"
+                                          IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
+                                <MenuItem CommandParameter="15" Header="{u:Lang Type}"
+                                          IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
+                                <MenuItem CommandParameter="16" Header="{u:Lang File_size}"
+                                          IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
+                            </MenuItem.Items>
+                        </MenuItem>
+                    </ContextMenu.Items>
+                </ContextMenu>
+            </hc:SplitButton.DropDownContent>
         </hc:SplitButton>
-        <hc:SplitButton Padding="0" Height="35" Margin="10,0,0,0" HitMode="None"
-                        Command="{Binding SwitchViewCommand}">
+        <hc:SplitButton Padding="0" Height="35" Margin="10,0,0,0" HitMode="None" Command="{Binding SwitchViewCommand}">
             <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
                 <Image Margin="10,0,0,0" Width="20" Height="20" Source="{StaticResource ListDrawingImage}"/>
                 <TextBlock Text="{u:Lang View}" VerticalAlignment="Center" Margin="10,0,5,0"/>
             </StackPanel>
             <hc:SplitButton.DropDownContent>
-                <Menu Margin="4,0,4,0" Width="Auto" BorderBrush="{x:Null}" Background="Transparent">
-                    <Menu.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Vertical"/>
-                        </ItemsPanelTemplate>
-                    </Menu.ItemsPanel>
-                    <Menu.Items>
+                <ContextMenu>
+                    <ContextMenu.Items>
                         <MenuItem CommandParameter="0" Header="{u:Lang Big_icon}" 
-                                  IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
+                                  IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
                         <MenuItem CommandParameter="1" Header="{u:Lang Small_icon}"
-                                  IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
+                                  IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
                         <MenuItem CommandParameter="2" Header="{u:Lang List}"
-                                  IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
+                                  IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
                         <MenuItem CommandParameter="3" Header="{u:Lang Detail}"
-                                  IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
+                                  IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
                         <MenuItem CommandParameter="4" Header="{u:Lang Tile}"
-                                  IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=4}"/>
+                                  IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=4}"/>
                         <MenuItem CommandParameter="5" Header="{u:Lang Content}"
-                                  IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=5}"/>
-                    </Menu.Items>
-                </Menu>
+                                  IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=5}"/>
+                    </ContextMenu.Items>
+                </ContextMenu>
             </hc:SplitButton.DropDownContent>
         </hc:SplitButton>
         <Rectangle Width="1" Height="30" Stroke="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
@@ -172,12 +202,9 @@
                               Background="{DynamicResource RegionBrush}">
             <ct:FileGrid x:Name="FileGrid" d:DataContext="{d:DesignInstance vm:FileGridViewModel}"
                          ItemsSource="{Binding Items}" 
-                         ItemSize="{Binding ItemSize, Mode=OneWay}"
-                         FileViewType="{Binding FileViewType, Mode=OneWay}"
-                         PathType="{Binding PathType, Mode=OneWay}"
+                         FileView="{Binding FileView, Mode=OneWay}"
                          FullPath="{Binding FullPath, Mode=OneWay}"
                          Folder="{Binding Folder, Mode=OneWay}"
-                         DetailLists="{Binding DetailLists, Mode=OneWay}"
                          Background="{DynamicResource RegionBrush}"
                          Focusable="True">
                 <hc:Interaction.Triggers>

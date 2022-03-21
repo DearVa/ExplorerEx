@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using ExplorerEx.Annotations;
 using ExplorerEx.Utils;
-using ExplorerEx.View.Controls;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExplorerEx.Model;
@@ -42,7 +44,7 @@ public enum FileViewType {
 /// <summary>
 /// 选择详细信息中的显示列
 /// </summary>
-public enum DetailLists : byte {
+public enum DetailListType : byte {
 	/// <summary>
 	/// 名称
 	/// </summary>
@@ -109,42 +111,48 @@ public enum DetailLists : byte {
 	CreationDate,
 }
 
+/// <summary>
+/// 详细信息中的一列，包括列的类型和宽度
+/// </summary>
 public class DetailList : IByteCodec {
-	public DetailLists List { get; set; }
+	public DetailListType ListType { get; set; }
 
+	/// <summary>
+	/// 列宽，小于0表示自动宽度
+	/// </summary>
 	public double Width { get; set; }
 
 	private static readonly DetailList[] DefaultHomeDetailLists = {
-		new(DetailLists.Name, 300),
-		new(DetailLists.Type, 100),
-		new(DetailLists.AvailableSpace, 100),
-		new(DetailLists.TotalSpace, 100),
-		new(DetailLists.FillRatio, 150),
-		new(DetailLists.FileSystem, 100)
+		new(DetailListType.Name, 300),
+		new(DetailListType.Type, 100),
+		new(DetailListType.AvailableSpace, 100),
+		new(DetailListType.TotalSpace, 100),
+		new(DetailListType.FillRatio, 150),
+		new(DetailListType.FileSystem, 100)
 	};
 
 	private static readonly DetailList[] DefaultNormalDetailLists = {
-		new(DetailLists.Name, 300),
-		new(DetailLists.ModificationDate, 200),
-		new(DetailLists.Type, 100),
-		new(DetailLists.FileSize, 100)
+		new(DetailListType.Name, 300),
+		new(DetailListType.ModificationDate, 200),
+		new(DetailListType.Type, 200),
+		new(DetailListType.FileSize, 100)
 	};
 
 	private static readonly DetailList[] DefaultRecycleBinDetailLists = {
-		new(DetailLists.Name, 300),
-		new(DetailLists.OriginalLocation, 300),
-		new(DetailLists.DeleteDate, 100),
-		new(DetailLists.FileSize, 100),
-		new(DetailLists.Type, 100),
-		new(DetailLists.ModificationDate, 100)
+		new(DetailListType.Name, 300),
+		new(DetailListType.OriginalLocation, 300),
+		new(DetailListType.DeleteDate, 100),
+		new(DetailListType.FileSize, 100),
+		new(DetailListType.Type, 200),
+		new(DetailListType.ModificationDate, 100)
 	};
 
 	private static readonly DetailList[] DefaultSearchDetailLists = {
-		new(DetailLists.Name, 300),
-		new(DetailLists.ModificationDate, 100),
-		new(DetailLists.Type, 100),
-		new(DetailLists.FileSize, 100),
-		new(DetailLists.Folder, 300)
+		new(DetailListType.Name, 300),
+		new(DetailListType.ModificationDate, 100),
+		new(DetailListType.Type, 200),
+		new(DetailListType.FileSize, 100),
+		new(DetailListType.Folder, 300)
 	};
 
 	public static DetailList[] GetDefaultLists(PathType pathType) {
@@ -159,27 +167,27 @@ public class DetailList : IByteCodec {
 
 	public DetailList() { }
 
-	public DetailList(DetailLists list, double width) {
-		List = list;
+	public DetailList(DetailListType listType, double width) {
+		ListType = listType;
 		Width = width;
 	}
 
-	internal void Deconstruct(out DetailLists list, out double width) {
-		list = List;
+	internal void Deconstruct(out DetailListType listType, out double width) {
+		listType = ListType;
 		width = Width;
 	}
 
-	public int Length => sizeof(DetailLists) + sizeof(double);
+	public int Length => sizeof(DetailListType) + sizeof(double);
 
 	public void Encode(Span<byte> buf) {
-		buf[0] = (byte)List;
+		buf[0] = (byte)ListType;
 		var width = BitConverter.GetBytes(Width);
 		buf[1] = width[0];
 		buf[2] = width[1];
 	}
 
 	public void Decode(ReadOnlySpan<byte> buf) {
-		List = (DetailLists)buf[0];
+		ListType = (DetailListType)buf[0];
 		Width = BitConverter.ToDouble(buf.Slice(1, 2));
 	}
 }
@@ -208,35 +216,138 @@ public enum PathType {
 	/// 网络驱动器
 	/// </summary>
 	NetworkDisk,
+	OneDrive,
 }
 
 /// <summary>
-/// 记录一个文件夹的视图状态，即排序方式、分组依据和查看类型
+/// 记录一个文件夹的视图状态，即排序方式、分组依据和查看类型，还包括详细信息的列的项目大小
 /// </summary>
 [Serializable]
-public class FileView {
-	[Key]
-	public string FullPath { get; set; }
+public class FileView : INotifyPropertyChanged {
+	private readonly List<string> changedPropertiesName = new();
 
-	public FileViewType FileViewType { get; set; }
+	[Key]
+	public string FullPath { 
+        get => fullPath;
+        set {
+            if (fullPath != value) {
+                fullPath = value;
+                StageChange();
+            }
+        }
+    }
+    private string fullPath;
+
+	[NotMapped]
+	public PathType PathType {
+        get => pathType;
+        set {
+            if (pathType != value) {
+                pathType = value;
+				StageChange();
+			}
+        }
+    }
+    private PathType pathType;
+
+	public DetailListType SortBy {
+        get => sortBy;
+        set {
+            if (sortBy != value) {
+                sortBy = value;
+                StageChange();
+				UpdateUI(nameof(SortByIndex));
+            }
+        }
+    }
+    private DetailListType sortBy;
+
+    public int SortByIndex => SortBy switch {
+	    DetailListType.Name => 0,
+	    DetailListType.ModificationDate => 1,
+	    DetailListType.Type => 2,
+	    DetailListType.FileSize => 3,
+	    _ => 0
+    };
+
+	public bool IsAscending {
+        get => isAscending;
+        set {
+            if (isAscending != value) {
+                isAscending = value;
+                StageChange();
+				UpdateUI(nameof(IsAscending));
+            }
+        }
+    }
+    private bool isAscending;
+
+	public DetailListType? GroupBy { 
+        get => groupBy;
+        set {
+            if (groupBy != value) {
+                groupBy = value;
+				StageChange();
+				UpdateUI(nameof(GroupByIndex));
+			}
+        }
+    }
+    private DetailListType? groupBy;
+
+    public int GroupByIndex => GroupBy switch {
+	    DetailListType.Name => 0,
+	    DetailListType.ModificationDate => 1,
+	    DetailListType.Type => 2,
+	    DetailListType.FileSize => 3,
+	    _ => -1
+    };
+
+	public FileViewType FileViewType { 
+        get => fileViewType;
+        set {
+            if (fileViewType != value) {
+                fileViewType = value;
+				StageChange();
+				UpdateUI(nameof(FileViewTypeIndex));
+			}
+        }
+    }
+    private FileViewType fileViewType;
+
+    /// <summary>
+    /// 用于绑定到下拉按钮
+    /// </summary>
+    public int FileViewTypeIndex => FileViewType switch {
+	    FileViewType.Icon when ItemSize.Width > 100d && ItemSize.Height > 130d => 0,
+	    FileViewType.Icon => 1,
+	    FileViewType.List => 2,
+	    FileViewType.Detail => 3,
+	    FileViewType.Tile => 4,
+	    FileViewType.Content => 5,
+	    _ => -1
+    };
 
 	[NotMapped]
 	public Size ItemSize {
-		get => new(ItemWidth, ItemWHeight);
+		get => new(ItemWidth, ItemHeight);
 		set {
 			ItemWidth = value.Width;
-			ItemWHeight = value.Height;
+			ItemHeight = value.Height;
+			StageChange();
 		}
 	}
 
 	public double ItemWidth { get; set; }
 
-	public double ItemWHeight { get; set; }
+	public double ItemHeight { get; set; }
 
 	[NotMapped]
 	public List<DetailList> DetailLists {
 		get => DecodeData();
-		set => EncodeData(value);
+		set {
+            EncodeData(value);
+			StageChange();
+		}
 	}
 
 	public byte[] DetailListsData { get; set; }
@@ -268,6 +379,37 @@ public class FileView {
 		}
 		return detailLists;
 	}
+
+	public event Action Changed;
+
+	public void CommitChange() {
+		Changed?.Invoke();
+		lock (changedPropertiesName) {
+			for (var i = changedPropertiesName.Count - 1; i >= 0; i--) {
+				UpdateUI(changedPropertiesName[i]);
+				changedPropertiesName.RemoveAt(i);
+			}
+		}
+	}
+
+	public event PropertyChangedEventHandler PropertyChanged;
+
+	[NotifyPropertyChangedInvocator]
+	protected virtual void UpdateUI([CallerMemberName] string propertyName = null) {
+		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+	}
+
+	/// <summary>
+	/// 暂存更改
+	/// </summary>
+	/// <param name="propertyName"></param>
+	private void StageChange([CallerMemberName] string propertyName = null) {
+		lock (changedPropertiesName) {
+			if (!changedPropertiesName.Contains(propertyName)) {
+				changedPropertiesName.Add(propertyName);
+			}
+		}
+	}
 }
 
 public class FileViewDbContext : DbContext {
@@ -292,13 +434,13 @@ public class FileViewDbContext : DbContext {
 		dbPath = Path.Combine(path, "FileViews.db");
 	}
 
-	public async Task LoadOrMigrateAsync() {
+	public async Task LoadDataBase() {
 		try {
 			await Database.EnsureCreatedAsync();
 			await FolderViewDbSet.LoadAsync();
-		} catch {
-			await Database.MigrateAsync();
-			await FolderViewDbSet.LoadAsync();
+		} catch (Exception e) {
+			MessageBox.Show("无法加载数据库，可能是权限不够或者数据库版本过旧，请删除Data文件夹后再试一次。\n错误为：" + e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+			Logger.Exception(e, false);
 		}
 	}
 

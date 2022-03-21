@@ -59,7 +59,7 @@
   <data name="Open" xml:space="preserve">
     <value>Open</value>
   </data>
-  <data name="Open_in_new_Tab" xml:space="preserve">
+  <data name="OpenInNewTab" xml:space="preserve">
     <value>Open in new Tab</value>
   </data>
   <data name="Remember_my_choice_and_dont_ask_again" xml:space="preserve">
@@ -68,7 +68,7 @@
   <data name="Are_you_sure_to_recycle_these_files?" xml:space="preserve">
     <value>Are you sure to recycle these files?</value>
   </data>
-  <data name="Fail to open file" xml:space="preserve">
+  <data name="FailedToOpenFile" xml:space="preserve">
     <value>Filed to open file</value>
   </data>
   <data name="Check_your_input_and_try_again" xml:space="preserve">
@@ -80,7 +80,7 @@
   <data name="Are_you_sure_to_delete_these_files_Permanently?" xml:space="preserve">
     <value>Are you sure to delete these files Permanently?</value>
   </data>
-  <data name="Open_in_new_Window" xml:space="preserve">
+  <data name="OpenInNewWindow" xml:space="preserve">
     <value>Open in new Window</value>
   </data>
   <data name="Cut" xml:space="preserve">
@@ -250,7 +250,7 @@ Are you sure you want to change?</value>
   <data name="Default_bookmark" xml:space="preserve">
     <value>Default bookmark</value>
   </data>
-  <data name="Run_as_admin" xml:space="preserve">
+  <data name="RunAsAdmin" xml:space="preserve">
     <value>Run as admin</value>
   </data>
   <data name="Run" xml:space="preserve">
@@ -262,10 +262,10 @@ Are you sure you want to change?</value>
   <data name="Ok" xml:space="preserve">
     <value>OK</value>
   </data>
-  <data name="Remove_from_bookmarks" xml:space="preserve">
+  <data name="RemoveFromBookmarks" xml:space="preserve">
     <value>Remove from bookmarks</value>
   </data>
-  <data name="Edit_bookmark" xml:space="preserve">
+  <data name="EditBookmark" xml:space="preserve">
     <value>Edit bookmark</value>
   </data>
   <data name="Documents" xml:space="preserve">
@@ -313,5 +313,33 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name="#Unsupported_encoding" xml:space="preserve">
     <value>This file is a binary file or the encoding is not supported.</value>
+  </data>
+  <data name="Restore" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="Unknown_type" xml:space="preserve">
+    <value>Unknown type</value>
+  </data>
+  <data name="Release_to_move_to_recycle_bin" xml:space="preserve">
+    <value>Release to move to Recycle bin</value>
+  </data>
+  <data name="Ascending" xml:space="preserve">
+    <value>Ascending</value>
+  </data>
+  <data name="Descending" xml:space="preserve">
+    <value>Descending</value>
+  </data>
+  <data name="Group_by" xml:space="preserve">
+    <value>Group by</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="DriveIsNotReady" xml:space="preserve">
+    <value>Drive is not ready.</value>
+  </data>
+  <data name="#InvalidFileName" xml:space="preserve">
+    <value>The file name cannot contain the following characters:
+ \ / : * ? " &lt; &gt; |</value>
   </data>
 </root>

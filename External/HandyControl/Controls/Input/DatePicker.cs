@@ -62,13 +62,13 @@ namespace HandyControl.Controls
             set => SetValue(IsErrorProperty, ValueBoxes.BooleanBox(value));
         }
 
-        public static readonly DependencyProperty ErrorStrProperty = DependencyProperty.Register(
-            "ErrorStr", typeof(string), typeof(DatePicker), new PropertyMetadata(default(string)));
+        public static readonly DependencyProperty ErrorPromptProperty = DependencyProperty.Register(
+            "ErrorPrompt", typeof(string), typeof(DatePicker), new PropertyMetadata(default(string)));
 
-        public string ErrorStr
+        public string ErrorPrompt
         {
-            get => (string) GetValue(ErrorStrProperty);
-            set => SetValue(ErrorStrProperty, value);
+            get => (string) GetValue(ErrorPromptProperty);
+            set => SetValue(ErrorPromptProperty, value);
         }
 
         public static readonly DependencyProperty TextTypeProperty = DependencyProperty.Register(
@@ -157,19 +157,19 @@ namespace HandyControl.Controls
             if (isError)
             {
                 SetCurrentValue(IsErrorProperty, ValueBoxes.TrueBox);
-                SetCurrentValue(ErrorStrProperty, result.Message);
+                SetCurrentValue(ErrorPromptProperty, result.Message);
             }
             else
             {
                 isError = Validation.GetHasError(this);
                 if (isError)
                 {
-                    SetCurrentValue(ErrorStrProperty, Validation.GetErrors(this)[0].ErrorContent?.ToString());
+                    SetCurrentValue(ErrorPromptProperty, Validation.GetErrors(this)[0].ErrorContent?.ToString());
                 }
                 else
                 {
                     SetCurrentValue(IsErrorProperty, ValueBoxes.FalseBox);
-                    SetCurrentValue(ErrorStrProperty, default(string));
+                    SetCurrentValue(ErrorPromptProperty, default(string));
                 }
             }
             return !isError;

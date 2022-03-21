@@ -2,7 +2,6 @@
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using HandyControl.Data;
 using HandyControl.Data.Enum;
 using HandyControl.Tools;
 
@@ -25,21 +24,60 @@ public class SplitButton : ButtonBase {
 		set => SetValue(MaxDropDownHeightProperty, value);
 	}
 
-	public static readonly DependencyProperty IsDropDownOpenProperty = DependencyProperty.Register(
-		"IsDropDownOpen", typeof(bool), typeof(SplitButton), new PropertyMetadata(ValueBoxes.FalseBox));
+	public static readonly DependencyProperty DropDownContentProperty = DependencyProperty.Register(
+		"DropDownContent", typeof(object), typeof(SplitButton), new PropertyMetadata(default, OnDropDownContentChanged));
 
-	public bool IsDropDownOpen {
-		get => (bool)GetValue(IsDropDownOpenProperty);
-		set => SetValue(IsDropDownOpenProperty, ValueBoxes.BooleanBox(value));
+	private static void OnDropDownContentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		var button = (SplitButton)d;
+		if (e.NewValue is ContextMenu menu) {
+			button.isPopup = false;
+			menu.PlacementTarget = button;
+			menu.Placement = PlacementMode.Bottom;
+			menu.VerticalOffset = 6;
+			menu.Closed += (_, _) => button.IsDropDownOpen = false;
+			menu.PreviewMouseLeftButtonUp += button.OnMenuMouseLeftButtonUp;
+		} else {
+			button.isPopup = true;
+		}
 	}
 
-	public static readonly DependencyProperty DropDownContentProperty = DependencyProperty.Register(
-		"DropDownContent", typeof(object), typeof(SplitButton), new PropertyMetadata(default(object)));
+	private void OnMenuMouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+		if (Command != null) {
+			var item = e.OriginalSource.FindParent<MenuItem>();
+			if (item != null) {
+				Command.Execute(item);
+			}
+		}
+	}
 
 	public object DropDownContent {
 		get => GetValue(DropDownContentProperty);
 		set => SetValue(DropDownContentProperty, value);
 	}
+
+	public static readonly DependencyProperty IsDropDownOpenProperty = DependencyProperty.Register(
+		"IsDropDownOpen", typeof(bool), typeof(SplitButton), new PropertyMetadata(default(bool), OnIsDropDownOpenChanged));
+
+	private static void OnIsDropDownOpenChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		if (e.NewValue is true) {
+			var button = (SplitButton)d;
+			if (button.isPopup) {
+				button.popup.IsOpen = true;
+			} else {
+				var menu = (ContextMenu)button.DropDownContent;
+				menu.DataContext = button.DataContext;
+				menu.IsOpen = true;
+			}
+		}
+	}
+
+	public bool IsDropDownOpen {
+		get => (bool)GetValue(IsDropDownOpenProperty);
+		set => SetValue(IsDropDownOpenProperty, value);
+	}
+
+	private Popup popup;
+	private bool isPopup;
 
 	private ToggleButton arrowButton;
 
@@ -49,6 +87,7 @@ public class SplitButton : ButtonBase {
 		if (HitMode == HitMode.None) {  // 这种模式就是点击整个按钮就会打开菜单，按钮本身没有作用
 			arrowButton.IsHitTestVisible = false;  // 就不响应点击事件
 		}
+		popup = (Popup)GetTemplateChild("Popup");
 	}
 
 	protected override void OnClick() {
@@ -60,28 +99,29 @@ public class SplitButton : ButtonBase {
 
 	protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e) {
 		base.OnPreviewMouseLeftButtonUp(e);
-
-		if (IsDropDownOpen) {
-			var menuItem = e.OriginalSource.FindParent<MenuItem, SplitButton>();
-			if (menuItem != null) {
-				Command.Execute(menuItem);  // 点击到了MenuItem
-				IsDropDownOpen = false;
-			}
-		} else {
-			switch (HitMode) {
-			case HitMode.Hover:
-				e.Handled = true;
-				IsDropDownOpen = true;
-				break;
-			case HitMode.Click when e.OriginalSource.IsChildOf(arrowButton, this):
-				e.Handled = true;
-				if (IsDropDownOpen) {
-					SetCurrentValue(IsDropDownOpenProperty, ValueBoxes.FalseBox);
-					Mouse.Capture(null);
-				} else {
-					SetCurrentValue(IsDropDownOpenProperty, ValueBoxes.TrueBox);
+		if (isPopup) {
+			if (popup.IsOpen) {
+				var menuItem = e.OriginalSource.FindParent<MenuItem, SplitButton>();
+				if (menuItem != null) {
+					Command.Execute(menuItem);  // 点击到了MenuItem
+					popup.IsOpen = false;
 				}
-				break;
+			} else {
+				switch (HitMode) {
+				case HitMode.Hover:
+					e.Handled = true;
+					popup.IsOpen = true;
+					break;
+				case HitMode.Click when e.OriginalSource.IsChildOf(arrowButton, this):
+					e.Handled = true;
+					if (popup.IsOpen) {
+						popup.IsOpen = false;
+						Mouse.Capture(null);
+					} else {
+						popup.IsOpen = true;
+					}
+					break;
+				}
 			}
 		}
 	}
@@ -90,7 +130,7 @@ public class SplitButton : ButtonBase {
 		base.OnMouseEnter(e);
 
 		if (HitMode == HitMode.Hover) {
-			SetCurrentValue(IsDropDownOpenProperty, ValueBoxes.TrueBox);
+			IsDropDownOpen = true;
 		}
 	}
 }

@@ -106,10 +106,10 @@
   <data name="Open" xml:space="preserve">
     <value>打开</value>
   </data>
-  <data name="Fail to open file" xml:space="preserve">
+  <data name="FailedToOpenFile" xml:space="preserve">
     <value>打开文件失败</value>
   </data>
-  <data name="Open_in_new_Tab" xml:space="preserve">
+  <data name="OpenInNewTab" xml:space="preserve">
     <value>在新标签页中打开</value>
   </data>
   <data name="Remember_my_choice_and_dont_ask_again" xml:space="preserve">
@@ -127,7 +127,7 @@
   <data name="Are_you_sure_to_delete_these_files_Permanently?" xml:space="preserve">
     <value>您确定要永久删除选择的文件吗？</value>
   </data>
-  <data name="Open_in_new_Window" xml:space="preserve">
+  <data name="OpenInNewWindow" xml:space="preserve">
     <value>在新窗口中打开</value>
   </data>
   <data name="Cut" xml:space="preserve">
@@ -297,7 +297,7 @@
   <data name="Default_bookmark" xml:space="preserve">
     <value>默认收藏夹</value>
   </data>
-  <data name="Run_as_admin" xml:space="preserve">
+  <data name="RunAsAdmin" xml:space="preserve">
     <value>以管理员身份运行</value>
   </data>
   <data name="Run" xml:space="preserve">
@@ -309,10 +309,10 @@
   <data name="Ok" xml:space="preserve">
     <value>确定</value>
   </data>
-  <data name="Remove_from_bookmarks" xml:space="preserve">
+  <data name="RemoveFromBookmarks" xml:space="preserve">
     <value>从收藏夹移除</value>
   </data>
-  <data name="Edit_bookmark" xml:space="preserve">
+  <data name="EditBookmark" xml:space="preserve">
     <value>编辑收藏项</value>
   </data>
   <data name="Documents" xml:space="preserve">
@@ -362,5 +362,33 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name="#Unsupported_encoding" xml:space="preserve">
     <value>此文件是二进制文件或者使用了不支持的编码方式。</value>
+  </data>
+  <data name="Restore" xml:space="preserve">
+    <value>还原</value>
+  </data>
+  <data name="Unknown_type" xml:space="preserve">
+    <value>未知类型</value>
+  </data>
+  <data name="Release_to_move_to_recycle_bin" xml:space="preserve">
+    <value>松手移动到回收站</value>
+  </data>
+  <data name="Ascending" xml:space="preserve">
+    <value>升序（小的在上）</value>
+  </data>
+  <data name="Descending" xml:space="preserve">
+    <value>降序（大的在上）</value>
+  </data>
+  <data name="Group_by" xml:space="preserve">
+    <value>分组依据</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="DriveIsNotReady" xml:space="preserve">
+    <value>设备未就绪。</value>
+  </data>
+  <data name="#InvalidFileName" xml:space="preserve">
+    <value>文件名不能包含下列字符：
+ \ / : * ? " &lt; &gt; |</value>
   </data>
 </root>

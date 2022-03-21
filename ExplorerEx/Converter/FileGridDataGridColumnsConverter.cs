@@ -8,7 +8,7 @@ using ExplorerEx.Utils;
 namespace ExplorerEx.Converter;
 
 /// <summary>
-/// 根据<see cref="DetailLists"/>选择对应的Columns
+/// 根据<see cref="DetailListType"/>选择对应的Columns
 /// </summary>
 internal class FileGridDataGridColumnsConverter {
 	#region 详细信息 列
@@ -32,36 +32,37 @@ internal class FileGridDataGridColumnsConverter {
 		});
 	}
 
-	public void Convert(in ObservableCollection<DataGridColumn> columns, PathType pathType, IList<DetailList> detailLists) {
+	public void Convert(in ObservableCollection<DataGridColumn> columns, FileView fileView) {
 		columns.Clear();
-		detailLists ??= DetailList.GetDefaultLists(pathType);  // 如果为null，表示使用默认
+		IList<DetailList> detailLists = fileView.DetailLists;
+		detailLists ??= DetailList.GetDefaultLists(fileView.PathType);  // 如果为null，表示使用默认
 		foreach (var (list, width) in detailLists) {
 			switch (list) {
-			case DetailLists.Name:
+			case DetailListType.Name:
 				AddColumn(columns, Name, width, "Name".L());
 				break;
-			case DetailLists.AvailableSpace:
+			case DetailListType.AvailableSpace:
 				AddColumn(columns, AvailableSpace, width, "Available_space".L());
 				break;
-			case DetailLists.TotalSpace:
+			case DetailListType.TotalSpace:
 				AddColumn(columns, TotalSpace, width, "Total_space".L());
 				break;
-			case DetailLists.FileSystem:
+			case DetailListType.FileSystem:
 				AddColumn(columns, FileSystem, width, "File_system".L());
 				break;
-			case DetailLists.FillRatio:
+			case DetailListType.FillRatio:
 				AddColumn(columns, FillRatio, width, "Fill_ratio".L());
 				break;
-			case DetailLists.ModificationDate:
+			case DetailListType.ModificationDate:
 				AddColumn(columns, ModificationDate, width, "Modification_date".L());
 				break;
-			case DetailLists.Type:
+			case DetailListType.Type:
 				AddColumn(columns, Type, width, "Type".L());
 				break;
-			case DetailLists.FileSize:
+			case DetailListType.FileSize:
 				AddColumn(columns, FileSize, width, "File_size".L());
 				break;
-			case DetailLists.CreationDate:
+			case DetailListType.CreationDate:
 				AddColumn(columns, CreationDate, width, "Creation_date".L());
 				break;
 			}

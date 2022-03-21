@@ -81,6 +81,9 @@ public sealed partial class VideoPreviewPopup {
 	}
 
 	private void VideoPlayer_OnMediaOpened(object sender, RoutedEventArgs e) {
+		if (timeline == null || timeline.Source == null) {
+			return;
+		}
 		if (playHistory.TryGetValue(timeline.Source, out var ts)) {
 			controller.Seek(ts, TimeSeekOrigin.BeginTime);
 		}

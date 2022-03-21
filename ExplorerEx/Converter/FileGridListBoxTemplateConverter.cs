@@ -28,10 +28,10 @@ internal class FileGridListBoxTemplateConverter {
 	public DataTemplate TileHomeTemplate { get; set; }
 
 	public DataTemplate Convert() {
-		return FileGrid.FileViewType switch {
+		return FileGrid.FileView.FileViewType switch {
 			FileViewType.Icon => IconTemplate,
 			FileViewType.List => ListTemplate,
-			FileViewType.Tile when FileGrid.PathType == PathType.Home => TileHomeTemplate,
+			FileViewType.Tile when FileGrid.FileView.PathType == PathType.Home => TileHomeTemplate,
 			FileViewType.Tile => TileTemplate,
 			FileViewType.Content => ContentTemplate,
 			_ => null

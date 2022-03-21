@@ -5,8 +5,8 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
-using ExplorerEx.Win32;
 
 namespace ExplorerEx.View.Controls;
 
@@ -32,6 +32,9 @@ public sealed partial class MusicPreviewPopup {
 	}
 
 	private void MediaPlayer_OnMediaOpened(object sender, EventArgs e) {
+		if (timeline == null || timeline.Source == null) {
+			return;
+		}
 		if (playHistory.TryGetValue(timeline.Source, out var ts)) {
 			controller.Seek(ts, TimeSeekOrigin.BeginTime);
 		}

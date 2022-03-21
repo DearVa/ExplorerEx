@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using ExplorerEx.Converter;
 using ExplorerEx.Utils;
-using ExplorerEx.Win32;
 using Microsoft.EntityFrameworkCore;
-using static ExplorerEx.Win32.IconHelper;
+using static ExplorerEx.Shell32.IconHelper;
 
 namespace ExplorerEx.Model;
 
@@ -70,29 +69,13 @@ public class BookmarkItem : FileViewBaseItem, IFilterable {
 
 	public override string DisplayText => Name;
 
-	[NotMapped]
-	public bool IsExpanded { get; set; }
-
 	public string CategoryForeignKey { get; set; }
 
 	public BookmarkCategory Category { get; set; }
 
-	public SimpleCommand MouseLeftButtonDownCommand { get; }
+	public BookmarkItem() { }
 
-	public BookmarkItem() {
-		MouseLeftButtonDownCommand = new SimpleCommand(OnMouseLeftButtonDown);
-	}
-
-	private DateTimeOffset lastClickTime;
-
-	private async void OnMouseLeftButtonDown(object args) {
-		if (lastClickTime.Add(TimeSpan.FromMilliseconds(Win32Interop.GetDoubleClickTime())) >= DateTimeOffset.Now) {
-			await OpenAsync();
-		}
-		lastClickTime = DateTimeOffset.Now;
-	}
-
-	public BookmarkItem(string fullPath, string name, BookmarkCategory category) : this() {
+	public BookmarkItem(string fullPath, string name, BookmarkCategory category) {
 		// ReSharper disable once VirtualMemberCallInConstructor
 		FullPath = Path.GetFullPath(fullPath);
 		Name = name;
@@ -101,7 +84,7 @@ public class BookmarkItem : FileViewBaseItem, IFilterable {
 	}
 
 	public override void LoadAttributes() {
-		throw new NotImplementedException();
+		throw new InvalidOperationException();
 	}
 
 	public override void LoadIcon() {
@@ -114,11 +97,17 @@ public class BookmarkItem : FileViewBaseItem, IFilterable {
 		} else if (File.Exists(FullPath)) {
 			IsFolder = false;
 			Icon = GetPathIcon(FullPath, false);
+		} else {
+			Icon = MissingFileDrawingImage;
 		}
 	}
 
+	public override void StartRename() {
+		throw new InvalidOperationException();
+	}
+
 	protected override bool Rename() {
-		throw new NotImplementedException();
+		throw new InvalidOperationException();
 	}
 
 	public bool Filter(string filter) {
@@ -150,16 +139,12 @@ public class BookmarkDbContext : DbContext {
 		dbPath = Path.Combine(path, "BookMarks.db");
 	}
 
-	public async Task LoadOrMigrateAsync() {
+	public async Task LoadDataBase() {
 		try {
 			await Database.EnsureCreatedAsync();
 			await BookmarkCategoryDbSet.LoadAsync();
 			await BookmarkDbSet.LoadAsync();
-		} catch {
-			await Database.MigrateAsync();
-			await BookmarkCategoryDbSet.LoadAsync();
-			await BookmarkDbSet.LoadAsync();
-		} finally {
+
 			BookmarkCategories = BookmarkCategoryDbSet.Local.ToObservableCollection();
 			if (BookmarkCategories.Count == 0) {
 				var defaultCategory = new BookmarkCategory("Default_bookmark".L());
@@ -174,6 +159,9 @@ public class BookmarkDbContext : DbContext {
 					item.LoadIcon();
 				}
 			});
+		} catch (Exception e) {
+			MessageBox.Show("无法加载数据库，可能是权限不够或者数据库版本过旧，请删除Data文件夹后再试一次。\n错误为：" + e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+			Logger.Exception(e, false);
 		}
 	}
 

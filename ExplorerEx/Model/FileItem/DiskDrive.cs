@@ -5,6 +5,8 @@ using ExplorerEx.Win32;
 using System.Runtime.CompilerServices;
 using System;
 using System.Diagnostics;
+using ExplorerEx.Shell32;
+using HandyControl.Controls;
 
 namespace ExplorerEx.Model;
 
@@ -47,11 +49,7 @@ public sealed class DiskDrive : FileViewBaseItem {
 		Driver = driver;
 		IsFolder = true;
 		TotalSpace = -1;
-		if (driver.IsReady) {
-			Name = string.IsNullOrWhiteSpace(driver.VolumeLabel) ? Type : driver.VolumeLabel;
-		} else {
-			Name = Type;
-		}
+		Name = driver.Name;
 	}
 
 	public override void LoadAttributes() {
@@ -75,7 +73,15 @@ public sealed class DiskDrive : FileViewBaseItem {
 	}
 
 	public override void LoadIcon() {
-		Icon = IconHelper.GetPathThumbnail(Driver.Name);
+		Icon = IconHelper.GetDiskDriveThumbnail(Driver);
+	}
+
+	public override void StartRename() {
+		if (Driver.IsReady) {
+			EditingName = string.IsNullOrWhiteSpace(Driver.VolumeLabel) ? Type : Driver.VolumeLabel;
+		} else {
+			MessageBox.Error("DriveIsNotReady".L());
+		}
 	}
 
 	protected override bool Rename() {

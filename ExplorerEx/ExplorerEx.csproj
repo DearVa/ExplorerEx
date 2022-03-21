@@ -10,6 +10,7 @@
     <DebugType>embedded</DebugType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ApplicationIcon>Assets\ExplorerEx.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -27,10 +28,12 @@
     <None Remove="Assets\Picture\Logo.png" />
     <None Remove="Assets\Picture\Network.png" />
     <None Remove="Assets\Picture\RecycleBin.png" />
+    <None Remove="Assets\Picture\RecycleBinFull.png" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\ExplorerEx.ico" />
+    <Resource Include="Assets\Picture\RecycleBinFull.png" />
     <Resource Include="Assets\Picture\Computer.png" />
     <Resource Include="Assets\Picture\Network.png" />
     <Resource Include="Assets\Picture\RecycleBin.png" />

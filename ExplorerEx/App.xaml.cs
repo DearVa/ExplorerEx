@@ -5,6 +5,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using ExplorerEx.Model;
+using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 using ExplorerEx.View;
 using ExplorerEx.Win32;
@@ -15,6 +16,7 @@ namespace ExplorerEx;
 public partial class App {
 	public static App Instance { get; private set; }
 	public static Arguments Args { get; private set; }
+	public static int ProcessorCount { get; private set; }
 
 	private App() {
 		Instance = this;
@@ -71,9 +73,10 @@ public partial class App {
 			Current.Shutdown();
 			return;
 		}
+		Shell32Interop.Initialize();
 		IconHelper.InitializeDefaultIcons(Resources);
-		await BookmarkDbContext.Instance.LoadOrMigrateAsync();
-		await FileViewDbContext.Instance.LoadOrMigrateAsync();
+		await BookmarkDbContext.Instance.LoadDataBase();
+		await FileViewDbContext.Instance.LoadDataBase();
 		if (!Args.RunInBackground) {
 			new MainWindow().Show();
 		}

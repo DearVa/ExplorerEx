@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Data;
+using ExplorerEx.Shell32;
 using ExplorerEx.Win32;
 
 namespace ExplorerEx.Converter; 

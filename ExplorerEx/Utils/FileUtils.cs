@@ -8,13 +8,18 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
+using ExplorerEx.Shell32;
 using IWshRuntimeLibrary;
 using static ExplorerEx.Win32.Win32Interop;
 using File = System.IO.File;
 using Path = System.IO.Path;
+using System.Threading;
+using FileAttribute = ExplorerEx.Shell32.FileAttribute;
 
 namespace ExplorerEx.Utils;
 internal static class FileUtils {
+	private static readonly Dictionary<string, string> CachedDescriptions = new();
+
 	private static readonly HashSet<string> ProhibitedFileNames = new() {
 		"con",
 		"prn",
@@ -89,6 +94,37 @@ internal static class FileUtils {
 	}
 
 	/// <summary>
+	/// 根据拓展名获取文件类型的描述
+	/// </summary>
+	/// <param name="extension"></param>
+	/// <returns></returns>
+	public static string GetFileTypeDescription(string extension) {
+		if (string.IsNullOrEmpty(extension)) {
+			return null;
+		}
+		extension = extension.ToLower();
+		lock (CachedDescriptions) {
+			if (CachedDescriptions.TryGetValue(extension, out var desc)) {
+				return desc;
+			}
+		}
+
+		var shFileInfo = new ShFileInfo();
+		Monitor.Enter(Shell32Interop.ShellLock);
+		var res = Shell32Interop.SHGetFileInfo(extension, FileAttribute.Normal, ref shFileInfo, Marshal.SizeOf(shFileInfo), SHGFI.UseFileAttributes | SHGFI.TypeName);
+		Monitor.Exit(Shell32Interop.ShellLock);
+		if (res == 0 || shFileInfo.szTypeName == null) {
+			Trace.WriteLine($"无法获取 {extension} 的描述，Res: {res}");
+			return null;
+		}
+
+		lock (CachedDescriptions) {
+			CachedDescriptions[extension] = shFileInfo.szTypeName;
+		}
+		return shFileInfo.szTypeName;
+	}
+
+	/// <summary>
 	/// 枚举<see cref="destPath"/>，获取一个不重名的文件名
 	/// </summary>
 	/// <para>例如fileName为2.txt，文件夹里有2.txt, 2 (1).txt，那么就返回2 (2).txt</para>
@@ -122,12 +158,12 @@ internal static class FileUtils {
 		if (type != FileOpType.Delete && (destinationFiles == null || sourceFiles.Count != destinationFiles.Count)) {
 			throw new ArgumentException("原文件与目标文件个数不匹配");
 		}
-		var fFlags = FileOpFlags.FOF_NOCONFIRMMKDIR | FileOpFlags.FOF_ALLOWUNDO;
+		var fFlags = FileOpFlags.NoConfirmMkdir | FileOpFlags.AllowUndo;
 		if (sourceFiles.Count > 1) {
-			fFlags |= FileOpFlags.FOF_MULTIDESTFILES;
+			fFlags |= FileOpFlags.MultiDestFiles;
 		}
 		if (type == FileOpType.Delete) {
-			fFlags |= FileOpFlags.FOF_NOCONFIRMATION;
+			fFlags |= FileOpFlags.NoConformation;
 		}
 		var fo = new ShFileOpStruct {
 			fileOpType = type,
@@ -137,9 +173,9 @@ internal static class FileUtils {
 		if (type != FileOpType.Delete) {
 			fo.pTo = ParseFileList(destinationFiles);
 		}
-		var result = SHFileOperation(fo);
+		var result = Shell32Interop.SHFileOperation(fo);
 		if (result is not 0 and not 1223) {  // 1223: 用户取消了操作
-			throw new IOException(GetErrorString(result));
+			throw new IOException(GetErrorPrompting(result));
 		}
 	}
 
@@ -159,9 +195,9 @@ internal static class FileUtils {
 		if (type != FileOpType.Delete && destinationFile == null) {
 			throw new ArgumentNullException(nameof(destinationFile), "必须指定目标文件名");
 		}
-		var fFlags = FileOpFlags.FOF_NOCONFIRMMKDIR | FileOpFlags.FOF_ALLOWUNDO;
+		var fFlags = FileOpFlags.NoConfirmMkdir | FileOpFlags.AllowUndo;
 		if (type == FileOpType.Delete) {
-			fFlags |= FileOpFlags.FOF_NOCONFIRMATION;
+			fFlags |= FileOpFlags.NoConformation;
 		}
 		var fo = new ShFileOpStruct {
 			fileOpType = type,
@@ -171,9 +207,9 @@ internal static class FileUtils {
 		if (type != FileOpType.Delete) {
 			fo.pTo = destinationFile + '\0';
 		}
-		var result = SHFileOperation(fo);
+		var result = Shell32Interop.SHFileOperation(fo);
 		if (result != 0) {
-			throw new IOException(GetErrorString(result));
+			throw new IOException(GetErrorPrompting(result));
 		}
 	}
 
@@ -271,7 +307,7 @@ internal static class FileUtils {
 	/// </summary>
 	/// <param name="code"></param>
 	/// <returns></returns>
-	private static string GetErrorString(int code) {
+	private static string GetErrorPrompting(int code) {
 		return code switch {
 			0 => "Success",
 			0x74 => "The source is a root directory, which cannot be moved or renamed.",

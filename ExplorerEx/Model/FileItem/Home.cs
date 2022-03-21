@@ -1,6 +1,6 @@
 ﻿using System;
+using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
-using ExplorerEx.Win32;
 
 namespace ExplorerEx.Model; 
 
@@ -14,23 +14,29 @@ internal sealed class Home : FileViewBaseItem {
 	static Home() { }
 
 	private Home() {
+		Name = Uuid;
 		Type = "Home".L();
+		FullPath = DisplayText;
 		Icon = IconHelper.ComputerBitmapImage;
 	}
 
-	public override string FullPath { get; protected set; } = Uuid;
+	public override string FullPath { get; protected set; }
 
 	public override string DisplayText => "This_computer".L();
 	
 	public override void LoadAttributes() {
-		throw new NotImplementedException();
+		throw new InvalidOperationException();
 	}
 
 	public override void LoadIcon() {
-		throw new NotImplementedException();
+		throw new InvalidOperationException();
+	}
+
+	public override void StartRename() {
+		throw new InvalidOperationException();
 	}
 
 	protected override bool Rename() {
-		throw new NotImplementedException();
+		throw new InvalidOperationException();
 	}
 }

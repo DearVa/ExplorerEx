@@ -119,7 +119,7 @@ namespace HandyControl.Controls
             {
                 Value = 0;
 
-                SetCurrentValue(ErrorStrProperty, string.Empty);
+                SetCurrentValue(ErrorPromptProperty, string.Empty);
                 SetCurrentValue(IsErrorProperty, ValueBoxes.FalseBox);
             }
             else if (double.TryParse(_textBox.Text, out var value))
@@ -128,7 +128,7 @@ namespace HandyControl.Controls
 
                 if (Validation.GetHasError(this))
                 {
-                    SetCurrentValue(ErrorStrProperty, Validation.GetErrors(this)[0].ErrorContent?.ToString());
+                    SetCurrentValue(ErrorPromptProperty, Validation.GetErrors(this)[0].ErrorContent?.ToString());
                     SetCurrentValue(IsErrorProperty, ValueBoxes.TrueBox);
                 }
             }
@@ -381,13 +381,13 @@ namespace HandyControl.Controls
         /// <summary>
         ///     错误提示
         /// </summary>
-        public static readonly DependencyProperty ErrorStrProperty = DependencyProperty.Register(
-            "ErrorStr", typeof(string), typeof(NumericUpDown), new PropertyMetadata(default(string)));
+        public static readonly DependencyProperty ErrorPromptProperty = DependencyProperty.Register(
+            "ErrorPrompt", typeof(string), typeof(NumericUpDown), new PropertyMetadata(default(string)));
 
-        public string ErrorStr
+        public string ErrorPrompt
         {
-            get => (string) GetValue(ErrorStrProperty);
-            set => SetValue(ErrorStrProperty, value);
+            get => (string) GetValue(ErrorPromptProperty);
+            set => SetValue(ErrorPromptProperty, value);
         }
 
         public static readonly DependencyPropertyKey TextTypePropertyKey =
@@ -512,7 +512,7 @@ namespace HandyControl.Controls
                 }
             }
 
-            SetCurrentValue(ErrorStrProperty, result.Message);
+            SetCurrentValue(ErrorPromptProperty, result.Message);
             SetCurrentValue(IsErrorProperty, ValueBoxes.BooleanBox(!result.Data));
             return result.Data;
         }

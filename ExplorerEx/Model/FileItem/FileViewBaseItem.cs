@@ -97,10 +97,12 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 	/// </summary>
 	public abstract void LoadIcon();
 
+	public abstract void StartRename();
+
 	/// <summary>
 	/// 打开该文件或者文件夹
 	/// </summary>
-	/// <param name="runAs">以管理员身份运行，只对文件有效</param>
+	/// <param name="runAs">以管理员身份运行，只对可执行文件有效</param>
 	/// <returns></returns>
 	public async Task OpenAsync(bool runAs = false) {
 		if (IsFolder) {
@@ -111,19 +113,33 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 					FileName = FullPath,
 					UseShellExecute = true
 				};
-				if (runAs) {
+				if (runAs && this is FileSystemItem { IsExecutable: true }) {
 					psi.Verb = "runas";
 				}
 				Process.Start(psi);
 			} catch (Exception e) {
-				HandyControl.Controls.MessageBox.Error(e.Message, "Fail to open file".L());
+				HandyControl.Controls.MessageBox.Error(e.Message, "FailedToOpenFile".L());
 			}
 		}
 	}
 
 	#region 文件重命名
+
+	/// <summary>
+	/// 当前正在编辑中的名字，不为null就显示编辑的TextBox
+	/// </summary>
 	[NotMapped]
-	public string EditingName { get; set; }
+	public string EditingName {
+		get => editingName;
+		set {
+			if (editingName != value) {
+				editingName = value;
+				UpdateUI();
+			}
+		}
+	}
+
+	private string editingName;
 
 	/// <summary>
 	/// 校验文件名是否有效
@@ -137,14 +153,6 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 
 	public SimpleCommand LostFocusCommand { get; }
 
-	/// <summary>
-	/// 显示重命名的输入框
-	/// </summary>
-	public void BeginRename() {
-		EditingName = Name;
-		UpdateUI(nameof(EditingName));
-	}
-
 	public void StopRename() {
 		if (!IsErrorFileName && EditingName != Name) {
 			if (Rename()) {
@@ -153,7 +161,6 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 			}
 		}
 		EditingName = null;
-		UpdateUI(nameof(EditingName));
 	}
 
 	public void OnLostFocus(object args) {

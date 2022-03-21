@@ -274,7 +274,7 @@ public partial class FileTabControl {
 				var folderList = fileList.Select(Directory.Exists).ToImmutableList();
 				if (folderList.Count > 0) {
 					if (FileGrid.DragFilesPreview != null) {
-						FileGrid.DragFilesPreview.CustomOperation = "Open_in_new_Tab".L();
+						FileGrid.DragFilesPreview.CustomOperation = "OpenInNewTab".L();
 						FileGrid.DragFilesPreview.DragDropEffect = DragDropEffects.All;
 					}
 				}

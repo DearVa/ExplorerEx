@@ -1,20 +1,24 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using ExplorerEx.Annotations;
 using ExplorerEx.Converter;
 using ExplorerEx.Model;
+using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 using ExplorerEx.ViewModel;
 using ExplorerEx.Win32;
@@ -29,8 +33,8 @@ namespace ExplorerEx.View.Controls;
 /// <summary>
 /// 要能够响应鼠标事件，处理点选、框选、拖放、重命名和双击
 /// </summary>
-public partial class FileGrid {
-	private ScrollViewer ViewScrollViewer => FileViewType == FileViewType.Detail ? dataGridScrollViewer : listBoxScrollViewer;
+public partial class FileGrid : INotifyPropertyChanged {
+	private ScrollViewer ViewScrollViewer => FileView.FileViewType == FileViewType.Detail ? dataGridScrollViewer : listBoxScrollViewer;
 	private ScrollViewer dataGridScrollViewer, listBoxScrollViewer;
 
 	/// <summary>
@@ -85,55 +89,20 @@ public partial class FileGrid {
 		remove => RemoveHandler(ItemDoubleClickedEvent, value);
 	}
 
-	public static readonly DependencyProperty FileViewTypeProperty = DependencyProperty.Register(
-		"FileViewType", typeof(FileViewType), typeof(FileGrid), new PropertyMetadata(OnViewChanged));
+	public static readonly DependencyProperty FileViewProperty = DependencyProperty.Register(
+		"FileView", typeof(FileView), typeof(FileGrid), new PropertyMetadata(default(FileView), OnViewChanged));
 
-	public FileViewType FileViewType {
-		get => (FileViewType)GetValue(FileViewTypeProperty);
-		set => SetValue(FileViewTypeProperty, value);
+	public FileView FileView {
+		get => (FileView)GetValue(FileViewProperty);
+		set => SetValue(FileViewProperty, value);
 	}
 
-	public int ViewTypeIndex => FileViewType switch {
-		FileViewType.Icon when ItemSize.Width > 100d && ItemSize.Height > 130d => 0,
-		FileViewType.Icon => 1,
-		FileViewType.List => 2,
-		FileViewType.Detail => 3,
-		FileViewType.Tile => 4,
-		FileViewType.Content => 5,
-		_ => -1
-	};
-
-	public static readonly DependencyProperty PathTypeProperty = DependencyProperty.Register(
-		"PathType", typeof(PathType), typeof(FileGrid), new PropertyMetadata(OnViewChanged));
-
-	public PathType PathType {
-		get => (PathType)GetValue(PathTypeProperty);
-		set => SetValue(PathTypeProperty, value);
-	}
-
-	public static readonly DependencyProperty ItemSizeProperty = DependencyProperty.Register(
-		"ItemSize", typeof(Size), typeof(FileGrid), new PropertyMetadata(OnViewChanged));
-
-	/// <summary>
-	/// 项目大小
-	/// </summary>
-	public Size ItemSize {
-		get => (Size)GetValue(ItemSizeProperty);
-		set => SetValue(ItemSizeProperty, value);
-	}
-
-	public static readonly DependencyProperty DetailListsProperty = DependencyProperty.Register(
-		"DetailLists", typeof(List<DetailList>), typeof(FileGrid), new PropertyMetadata(OnViewChanged));
-
-	public List<DetailList> DetailLists {
-		get => (List<DetailList>)GetValue(DetailListsProperty);
-		set => SetValue(DetailListsProperty, value);
-	}
+	public Size ItemSize => FileView?.ItemSize ?? new Size(0, 30);
 
 	public static readonly DependencyProperty FullPathProperty = DependencyProperty.Register(
-		"FullPath", typeof(string), typeof(FileGrid), new PropertyMetadata(null, FullPath_OnChanged));
+		"FullPath", typeof(string), typeof(FileGrid), new PropertyMetadata(null, OnFullPathChanged));
 
-	private static void FullPath_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+	private static void OnFullPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		var fileDataGrid = (FileGrid)d;
 		fileDataGrid.isMouseDown = false;
 		fileDataGrid.isRectSelecting = false;
@@ -141,7 +110,6 @@ public partial class FileGrid {
 		fileDataGrid.isPreparedForRenaming = false;
 		fileDataGrid.lastBIndex = fileDataGrid.lastRIndex = -1;
 		fileDataGrid.lastTIndex = fileDataGrid.lastLIndex = 0;
-		fileDataGrid.UpdateView();
 	}
 
 	public string FullPath {
@@ -176,7 +144,7 @@ public partial class FileGrid {
 	/// </summary>
 	public ItemsControl ItemsControl { get; private set; }
 
-	public IList SelectedItems => FileViewType == FileViewType.Detail ? DataGrid.SelectedItems : ListBox.SelectedItems;
+	public IList SelectedItems => FileView.FileViewType == FileViewType.Detail ? DataGrid.SelectedItems : ListBox.SelectedItems;
 
 	/// <summary>
 	/// 选择一个文件，参数为string文件名，不含路径
@@ -197,35 +165,82 @@ public partial class FileGrid {
 
 	public FileGrid() {
 		DataContextChanged += OnDataContextChanged;
+		LostFocus += OnLostFocus;
 		InitializeComponent();
 		DataGrid.DataContext = ListBox.DataContext = this;
 		EventManager.RegisterClassHandler(typeof(TextBox), GotFocusEvent, new RoutedEventHandler(OnRenameTextBoxGotFocus));
+		EventManager.RegisterClassHandler(typeof(TextBox), KeyDownEvent, new RoutedEventHandler(OnRenameTextBoxKeyDown));
 		SelectCommand = new SimpleCommand(Select);
 		StartRenameCommand = new SimpleCommand(e => StartRename((string)e));
-		SwitchViewCommand = new SimpleCommand(e => ViewModel?.OnSwitchView(e));
+		SwitchViewCommand = new SimpleCommand(OnSwitchView);
 		columnsConverter = (FileGridDataGridColumnsConverter)FindResource("ColumnsConverter");
 		listBoxTemplateConverter = (FileGridListBoxTemplateConverter)FindResource("ListBoxTemplateConverter");
 		((FileGridListBoxTemplateConverter)FindResource("ListBoxTemplateConverter")).FileGrid = this;
 		hoverTimer ??= new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Input, MouseHoverTimerWork, Dispatcher);
 	}
 
+	private void OnSwitchView(object e) {
+		if (e is string param && int.TryParse(param, out var type)) {
+			ViewModel.SwitchViewType(type);
+		}
+	}
+
 	private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
 		if (e.NewValue is FileGridViewModel viewModel) {
 			ViewModel = viewModel;
+			ContextMenu!.DataContext = viewModel;
+		}
+	}
+
+	private void OnLostFocus(object sender, RoutedEventArgs e) {
+		if (renamingItem != null) {
+			renamingItem.StopRename();
+			renamingItem = null;
 		}
 	}
 
 	private static void OnViewChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-		((FileGrid)d).UpdateView();
+		var fileGrid = (FileGrid)d;
+		if (e.NewValue is FileView fileView) {
+			fileView.Changed += fileGrid.UpdateView;
+			fileView.PropertyChanged += fileGrid.OnFileViewPropertyChanged;
+			fileGrid.UpdateView();
+		}
+	}
+
+	private void OnFileViewPropertyChanged(object sender, PropertyChangedEventArgs e) {
+		var fileView = FileView;
+		switch (e.PropertyName) {
+		case "SortBy":
+		case "IsAscending":
+			var sorts = ItemsControl.Items.SortDescriptions;
+			sorts.Clear();
+			sorts.Add(new SortDescription("IsFolder", ListSortDirection.Descending));
+			sorts.Add(new SortDescription(fileView.SortBy.ToString(), fileView.IsAscending ? ListSortDirection.Ascending : ListSortDirection.Descending));
+			break;
+		case "GroupBy":
+			var groups = ItemsControl.Items.GroupDescriptions!;
+			groups.Clear();
+			if (fileView.GroupBy.HasValue) {
+				groups.Add(new PropertyGroupDescription(fileView.GroupBy.ToString()));
+			}
+			break;
+		case nameof(ItemSize):
+			UpdateUI(nameof(ItemSize));
+			break;
+		}
 	}
 
 	/// <summary>
-	/// 更新视图，包括<see cref="PathType"/>、<see cref="FileViewType"/>和<see cref="DetailLists"/>
+	/// 更新视图
 	/// </summary>
 	public void UpdateView() {
-		if (FileViewType == FileViewType.Detail) {
+		if (FileView == null) {
+			return;
+		}
+		if (FileView.FileViewType == FileViewType.Detail) {
 			ItemsControl = DataGrid;
-			columnsConverter.Convert(DataGrid.Columns, PathType, DetailLists);
+			columnsConverter.Convert(DataGrid.Columns, FileView);
 			ListBox.ItemsSource = null;
 			DataGrid.ItemsSource = ItemsSource;
 			DataGrid.Visibility = Visibility.Visible;  // 就不用了binding了
@@ -260,7 +275,7 @@ public partial class FileGrid {
 		}
 		ScrollIntoView(item);
 		item.IsSelected = true;
-		item.BeginRename();
+		item.StartRename();
 	}
 
 	private void OnRenameTextBoxGotFocus(object sender, RoutedEventArgs e) {
@@ -278,6 +293,13 @@ public partial class FileGrid {
 				}
 			}
 			e.Handled = true;
+		}
+	}
+
+	private void OnRenameTextBoxKeyDown(object sender, RoutedEventArgs e) {
+		if (renamingItem != null && ((KeyEventArgs)e).Key is Key.Enter or Key.Escape) {
+			renamingItem.StopRename();
+			renamingItem = null;
 		}
 	}
 
@@ -333,8 +355,22 @@ public partial class FileGrid {
 		}
 	}
 
+	public void SelectAll() {
+		if (FileView.FileViewType == FileViewType.Detail) {
+			DataGrid.SelectAll();
+		} else {
+			ListBox.SelectAll();
+		}
+	}
+
+	public void InverseSelection() {
+		foreach (var item in ItemsSource) {
+			item.IsSelected = !item.IsSelected;
+		}
+	}
+
 	public void UnselectAll() {
-		if (FileViewType == FileViewType.Detail) {
+		if (FileView.FileViewType == FileViewType.Detail) {
 			DataGrid.UnselectAll();
 		} else {
 			ListBox.UnselectAll();
@@ -378,9 +414,10 @@ public partial class FileGrid {
 				renameCts.Cancel();
 				renameCts = null;
 			}
-			if (renamingItem is { EditingName: not null }) {
-				if (e.OriginalSource.FindParent<TextBox, FileGrid>() == null) {
+			if (renamingItem != null) {
+				if (e.OriginalSource.FindParent<TextBox, FileGrid>() == null) {  // 没有点击在重命名TextBox内
 					renamingItem.StopRename();
+					renamingItem = null;
 				} else {
 					return;
 				}
@@ -457,7 +494,6 @@ public partial class FileGrid {
 			var scrollViewer = ViewScrollViewer;
 			startSelectionPoint = new Point(x + scrollViewer.HorizontalOffset, y + scrollViewer.VerticalOffset);
 		}
-		e.Handled = true;
 	}
 
 	/// <summary>
@@ -546,7 +582,6 @@ public partial class FileGrid {
 				}
 			}
 		}
-		e.Handled = true;
 	}
 
 	private int lastLIndex, lastRIndex, lastTIndex, lastBIndex;
@@ -581,8 +616,8 @@ public partial class FileGrid {
 
 		if (ItemsSource.Count > 0) {
 			var items = ItemsSource;
-			var itemWidth = ItemSize.Width;
-			var itemHeight = ItemSize.Height;
+			var itemWidth = FileView.ItemSize.Width;
+			var itemHeight = FileView.ItemSize.Height;
 			var dY = itemHeight + 4;  // 上下两项的y值之差，4是两项之间的间距，是固定的值
 			if (itemWidth > 0) {
 				var xCount = (int)(actualWidth / itemWidth);  // 横向能容纳多少个元素
@@ -704,7 +739,7 @@ public partial class FileGrid {
 				}
 			} else {  // 只计算纵向
 				var firstIndex = (int)(scrollViewer.VerticalOffset / dY);  // 视图中第一个元素的index，因为使用了虚拟化容器，所以不能找Items[0]，它可能不存在
-				var row0 = FileViewType == FileViewType.Detail ? (UIElement)DataGrid.ItemContainerGenerator.ContainerFromIndex(firstIndex) : (UIElement)ListBox.ItemContainerGenerator.ContainerFromIndex(firstIndex);
+				var row0 = FileView.FileViewType == FileViewType.Detail ? (UIElement)DataGrid.ItemContainerGenerator.ContainerFromIndex(firstIndex) : (UIElement)ListBox.ItemContainerGenerator.ContainerFromIndex(firstIndex);
 				if (row0 == null) {
 					return;
 				}
@@ -769,7 +804,7 @@ public partial class FileGrid {
 							Task.Run(() => {
 								Thread.Sleep(Win32Interop.GetDoubleClickTime());
 								if (!cts.IsCancellationRequested) {
-									item.BeginRename();
+									item.StartRename();
 								}
 							}, renameCts.Token);
 						} else {
@@ -816,7 +851,6 @@ public partial class FileGrid {
 			}
 		}
 		mouseDownRowIndex = -1;
-		e.Handled = true;
 	}
 
 	protected override void OnPreviewMouseWheel(MouseWheelEventArgs e) {
@@ -860,7 +894,7 @@ public partial class FileGrid {
 
 	public void ScrollIntoView(FileViewBaseItem item) {
 		if (!isRectSelecting && !isDragDropping) {
-			if (FileViewType == FileViewType.Detail) {
+			if (FileView.FileViewType == FileViewType.Detail) {
 				DataGrid.ScrollIntoView(item);
 			} else {
 				ListBox.ScrollIntoView(item);
@@ -877,7 +911,7 @@ public partial class FileGrid {
 
 	protected override void OnDragEnter(DragEventArgs e) {
 		isDragDropping = true;
-		if (PathType == PathType.Home && TabItem.DraggingTab == null) {
+		if (FileView.PathType == PathType.Home && TabItem.DraggingTab == null) {
 			e.Effects = DragDropEffects.None;
 			e.Handled = true;
 			return;
@@ -914,7 +948,7 @@ public partial class FileGrid {
 			if (item != null) {
 				path = item.FullPath;
 			} else {
-				if (PathType == PathType.Home) {
+				if (FileView.PathType == PathType.Home) {
 					e.Effects = DragDropEffects.None;
 					e.Handled = true;
 					return;
@@ -1083,7 +1117,7 @@ public partial class FileGrid {
 		if (ViewModel == null || ViewModel.SelectedItems.Count == 0) {
 			return;
 		}
-		FileTabControl.FocusedTabControl.MainWindow.AddToBookmark(ViewModel.SelectedItems.Select(i => i.FullPath).ToArray());
+		FileTabControl.FocusedTabControl.MainWindow.AddToBookmarks(ViewModel.SelectedItems.Select(i => i.FullPath).ToArray());
 	}
 
 	private void RemoveFromBookmarks_OnClick(object sender, RoutedEventArgs e) {
@@ -1099,14 +1133,21 @@ public partial class FileGrid {
 		}
 		var selectedItems = ViewModel.SelectedItems;
 		if (selectedItems.Count == 0) {
-			Win32Interop.ShowFileProperties(FullPath);
+			Shell32Interop.ShowFileProperties(FullPath);
 		} else {
 			foreach (var item in ViewModel.SelectedItems.Where(i => i.IsFolder)) {
-				Win32Interop.ShowFileProperties(item.FullPath);
+				Shell32Interop.ShowFileProperties(item.FullPath);
 			}
 		}
 	}
 	#endregion
+
+	public event PropertyChangedEventHandler PropertyChanged;
+
+	[NotifyPropertyChangedInvocator]
+	protected virtual void UpdateUI([CallerMemberName] string propertyName = null) {
+		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+	}
 }
 
 public class FileDropEventArgs : RoutedEventArgs {

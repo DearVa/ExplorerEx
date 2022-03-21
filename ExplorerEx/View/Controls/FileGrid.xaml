@@ -17,11 +17,11 @@
         <DataTemplate x:Key="IconTemplate">
             <!--https://www.cnblogs.com/wuty/p/15599045.html-->
             <!--此处必须写成Binding Path=xxx，如果省略Path=，语法上没有问题，也能正确绑定，但是会引发一次异常，导致加载速度变慢-->
-            <Grid Width="{Binding Path=(ct:FileGrid.ItemSize).Width, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileGrid}}"
-                  Height="{Binding Path=(ct:FileGrid.ItemSize).Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileGrid}}" 
+            <Grid Width="{Binding Path=DataContext.ItemSize.Width, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                  Height="{Binding Path=DataContext.ItemSize.Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
                   d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="{Binding Path=(ct:FileGrid.ItemSize).Width, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileGrid}}"/>
+                    <RowDefinition Height="{Binding Path=ActualWidth, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
                 <Image Grid.Row="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
@@ -33,7 +33,8 @@
                             hc:BorderElement.CornerRadius="3" TextWrapping="Wrap" HorizontalAlignment="Center"
                             Text="{Binding EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                             Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityConverter}}"
-                            VerifyFunc="{Binding VerifyFunc, Mode=OneTime}" IsError="{Binding IsErrorFileName, Mode=OneWayToSource}">
+                            VerifyFunc="{Binding VerifyFunc, Mode=OneTime}" IsError="{Binding IsErrorFileName, Mode=OneWayToSource}"
+                            ErrorPrompt="{u:Lang #InvalidFileName}">
                     <hc:Interaction.Triggers>
                         <hc:RoutedEventTrigger RoutedEvent="TextBox.LostFocus">
                             <hc:EventToCommand Command="{Binding LostFocusCommand}" PassEventArgsToCommand="True"/>
@@ -52,11 +53,11 @@
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="ListTemplate">
-            <Grid Width="{Binding Path=(ct:FileGrid.ItemSize).Width, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileGrid}}"
-                  Height="{Binding Path=(ct:FileGrid.ItemSize).Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileGrid}}" 
+            <Grid Width="{Binding Path=DataContext.ItemSize.Width, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                  Height="{Binding Path=DataContext.ItemSize.Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" 
                   HorizontalAlignment="Left" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="{Binding Path=(ct:FileGrid.ItemSize).Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileGrid}}"/>
+                    <ColumnDefinition Width="{Binding Path=Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Image Grid.Column="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
@@ -66,7 +67,8 @@
                 <hc:TextBox x:Name="RenameTextBox" Grid.Column="1" hc:BorderElement.CornerRadius="3" TextWrapping="Wrap" HorizontalAlignment="Center"
                             Text="{Binding EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" 
                             Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityConverter}}"
-                            VerifyFunc="{Binding VerifyFunc, Mode=OneTime}" IsError="{Binding IsErrorFileName, Mode=OneWayToSource}">
+                            VerifyFunc="{Binding VerifyFunc, Mode=OneTime}" IsError="{Binding IsErrorFileName, Mode=OneWayToSource}"
+                            ErrorPrompt="{u:Lang #InvalidFileName}">
                     <hc:Interaction.Triggers>
                         <hc:RoutedEventTrigger RoutedEvent="TextBox.LostFocus">
                             <hc:EventToCommand Command="{Binding LostFocusCommand}" PassEventArgsToCommand="True"/>
@@ -86,10 +88,10 @@
         </DataTemplate>
         <DataTemplate x:Key="TileTemplate">
             <Grid d:DataContext="{d:DesignInstance m:FileViewBaseItem}"
-                  Width="{Binding Path=(ct:FileGrid.ItemSize).Width, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileGrid}}"
-                  Height="{Binding Path=(ct:FileGrid.ItemSize).Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileGrid}}">
+                  Width="{Binding Path=DataContext.ItemSize.Width, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                  Height="{Binding Path=DataContext.ItemSize.Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="{Binding Path=(ct:FileGrid.ItemSize).Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileGrid}}"/>
+                    <ColumnDefinition Width="{Binding Path=Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Image Grid.Column="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
@@ -132,11 +134,11 @@
         <!--主页显示驱动器-->
         <DataTemplate x:Key="TileHomeTemplate">
             <Grid d:DataContext="{d:DesignInstance m:DiskDrive}"
-                  Width="{Binding Path=(ct:FileGrid.ItemSize).Width, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileGrid}}"
-                  Height="{Binding Path=(ct:FileGrid.ItemSize).Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileGrid}}">
+                  Width="{Binding Path=DataContext.ItemSize.Width, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                  Height="{Binding Path=DataContext.ItemSize.Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}">
                 <Grid Margin="5">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="{Binding Path=(ct:FileGrid.ItemSize).Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileGrid}}"/>
+                        <ColumnDefinition Width="{Binding Path=Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <Image Grid.Column="0" Source="{Binding Icon}" VerticalAlignment="Center" Margin="5"/>
@@ -166,7 +168,8 @@
                 <hc:TextBox x:Name="RenameTextBox" Grid.Column="1" hc:BorderElement.CornerRadius="3"
                             Text="{Binding EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" 
                             Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityConverter}}"
-                            VerifyFunc="{Binding VerifyFunc, Mode=OneTime}" IsError="{Binding IsErrorFileName, Mode=OneWayToSource}">
+                            VerifyFunc="{Binding VerifyFunc, Mode=OneTime}" IsError="{Binding IsErrorFileName, Mode=OneWayToSource}"
+                            ErrorPrompt="{u:Lang #InvalidFileName}">
                     <hc:Interaction.Triggers>
                         <hc:RoutedEventTrigger RoutedEvent="TextBox.LostFocus">
                             <hc:EventToCommand Command="{Binding LostFocusCommand}" PassEventArgsToCommand="True"/>
@@ -186,7 +189,7 @@
         </DataTemplate>
         <DataTemplate x:Key="ModificationDateColumn">
             <TextBlock d:DataContext="{d:DesignInstance m:FileSystemItem}"
-                       Text="{Binding LastWriteTime, Mode=OneWay}" 
+                       Text="{Binding ModificationDate, Mode=OneWay}" 
                        VerticalAlignment="Center"
                        IsHitTestVisible="False"/>
         </DataTemplate>
@@ -274,9 +277,9 @@
             <MenuItem Click="Open_OnClick"
                       Icon="{Binding Icon}" Header="{u:Lang Open}"/>
             <MenuItem Click="OpenInNewTab_OnClick" 
-                      Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Tab}"/>
+                      Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang OpenInNewTab}"/>
             <MenuItem Click="OpenInNewWindow_OnClick" 
-                      Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang Open_in_new_Window}"/>
+                      Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang OpenInNewWindow}"/>
             <Separator/>
 
             <MenuItem Click="AddToBookmarks_OnClick"
@@ -284,7 +287,7 @@
                       Icon="{StaticResource StarDrawingImage}" Header="{u:Lang Add_to_bookmarks}"/>
             <MenuItem Click="RemoveFromBookmarks_OnClick"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                      Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang Remove_from_bookmarks}"/>
+                      Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
             <Separator/>
 
             <MenuItem Click="ShowProperties_OnClick"
@@ -296,13 +299,13 @@
             <Separator/>
 
             <MenuItem Click="Open_OnClick" Header="{u:Lang Open}"
-                      Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                      Visibility="{Binding IsExecutable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
                       Icon="{Binding Icon}"/>
             <MenuItem Click="Open_OnClick" Header="{u:Lang Run}"
-                      Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                      Visibility="{Binding IsExecutable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{Binding Icon}"/>
-            <MenuItem Click="OpenAsAdmin_OnClick" Header="{u:Lang Run_as_admin}"
-                      Visibility="{Binding IsRunnable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+            <MenuItem Click="OpenAsAdmin_OnClick" Header="{u:Lang RunAsAdmin}"
+                      Visibility="{Binding IsExecutable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{StaticResource UacDrawingImage}"/>
             <MenuItem Command="{Binding EditCommand}" Header="{u:Lang Edit}"
                       Visibility="{Binding IsEditable, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
@@ -312,7 +315,7 @@
             <MenuItem Click="AddToBookmarks_OnClick" Header="{u:Lang Add_to_bookmarks}"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
                       Icon="{StaticResource StarDrawingImage}"/>
-            <MenuItem Click="RemoveFromBookmarks_OnClick" Header="{u:Lang Remove_from_bookmarks}"
+            <MenuItem Click="RemoveFromBookmarks_OnClick" Header="{u:Lang RemoveFromBookmarks}"
                       Visibility="{Binding IsBookmarked, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{StaticResource UnstarDrawingImage}"/>
             <Separator/>
@@ -333,17 +336,51 @@
             <MenuItem Icon="{StaticResource ListDrawingImage}" Header="{u:Lang View}">
                 <MenuItem.Items>
                     <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="0" Header="{u:Lang Big_icon}" 
-                              IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
                     <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="1" Header="{u:Lang Small_icon}"
-                              IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
                     <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="2" Header="{u:Lang List}"
-                              IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
                     <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="3" Header="{u:Lang Detail}"
-                              IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
                     <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="4" Header="{u:Lang Tile}"
-                              IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=4}"/>
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=4}"/>
                     <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="5" Header="{u:Lang Content}"
-                              IsChecked="{Binding ViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=5}"/>
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=5}"/>
+                </MenuItem.Items>
+            </MenuItem>
+            <MenuItem Icon="{StaticResource SortDrawingImage}" Header="{u:Lang Sort}">
+                <MenuItem.Items>
+                    <MenuItem CommandParameter="6" Command="{Binding SwitchViewCommand}" Header="{u:Lang Name}" 
+                              IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
+                    <MenuItem CommandParameter="7" Command="{Binding SwitchViewCommand}" Header="{u:Lang Modification_date}"
+                              IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
+                    <MenuItem CommandParameter="8" Command="{Binding SwitchViewCommand}" Header="{u:Lang Type}"
+                              IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
+                    <MenuItem CommandParameter="9" Command="{Binding SwitchViewCommand}" Header="{u:Lang File_size}"
+                              IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
+                    <Separator/>
+
+                    <MenuItem CommandParameter="10" Command="{Binding SwitchViewCommand}" Header="{u:Lang Ascending}"
+                                  IsChecked="{Binding FileView.IsAscending, Mode=OneWay}"/>
+                    <MenuItem CommandParameter="11" Command="{Binding SwitchViewCommand}" Header="{u:Lang Descending}"
+                                  IsChecked="{Binding FileView.IsAscending, Mode=OneWay, Converter={StaticResource Boolean2BooleanReConverter}}"/>
+                    <Separator/>
+
+                    <MenuItem Header="{u:Lang Group_by}">
+                        <MenuItem.Items>
+                            <MenuItem CommandParameter="12" Command="{Binding SwitchViewCommand}" Header="{u:Lang None}" 
+                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=-1}"/>
+                            <MenuItem CommandParameter="13" Command="{Binding SwitchViewCommand}" Header="{u:Lang Name}" 
+                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
+                            <MenuItem CommandParameter="14" Command="{Binding SwitchViewCommand}" Header="{u:Lang Modification_date}"
+                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
+                            <MenuItem CommandParameter="15" Command="{Binding SwitchViewCommand}" Header="{u:Lang Type}"
+                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
+                            <MenuItem CommandParameter="16" Command="{Binding SwitchViewCommand}" Header="{u:Lang File_size}"
+                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
+                        </MenuItem.Items>
+                    </MenuItem>
                 </MenuItem.Items>
             </MenuItem>
             <MenuItem Click="Refresh_OnClick"
@@ -436,60 +473,34 @@
         </DataGrid.RowStyle>
 
         <DataGrid.CellStyle>
-            <Style TargetType="DataGridCell">
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="BorderBrush" Value="Transparent"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="VerticalContentAlignment" Value="Center"/>
-                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                <Setter Property="Padding" Value="10,0"/>
+            <Style TargetType="DataGridCell" BasedOn="{StaticResource DataGridCellStyle}">
                 <Setter Property="Focusable" Value="False"/>
-                <Setter Property="hc:BorderElement.CornerRadius" Value="{StaticResource DefaultCornerRadius}"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="DataGridCell">
-                            <Border CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" Padding="{TemplateBinding Padding}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
-                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                            </Border>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-                <Style.Triggers>
-                    <MultiDataTrigger>
-                        <MultiDataTrigger.Conditions>
-                            <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="true"/>
-                            <Condition Binding="{Binding SelectionUnit, RelativeSource={RelativeSource FindAncestor, AncestorType=DataGrid}}" Value="Cell"/>
-                        </MultiDataTrigger.Conditions>
-                        <Setter Property="Foreground" Value="{DynamicResource TextIconBrush}"/>
-                        <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
-                    </MultiDataTrigger>
-                    <MultiDataTrigger>
-                        <MultiDataTrigger.Conditions>
-                            <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="true"/>
-                            <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="False"/>
-                            <Condition Binding="{Binding SelectionUnit, RelativeSource={RelativeSource FindAncestor, AncestorType=DataGrid}}" Value="CellOrRowHeader"/>
-                        </MultiDataTrigger.Conditions>
-                        <Setter Property="Foreground" Value="{DynamicResource TextIconBrush}"/>
-                        <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
-                    </MultiDataTrigger>
-                    <MultiDataTrigger>
-                        <MultiDataTrigger.Conditions>
-                            <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="true"/>
-                            <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True"/>
-                            <Condition Binding="{Binding SelectionUnit, RelativeSource={RelativeSource FindAncestor, AncestorType=DataGrid}}" Value="CellOrRowHeader"/>
-                        </MultiDataTrigger.Conditions>
-                        <Setter Property="Foreground" Value="{DynamicResource TextIconBrush}"/>
-                    </MultiDataTrigger>
-                    <MultiDataTrigger>
-                        <MultiDataTrigger.Conditions>
-                            <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="true"/>
-                            <Condition Binding="{Binding SelectionUnit, RelativeSource={RelativeSource FindAncestor, AncestorType=DataGrid}}" Value="FullRow"/>
-                        </MultiDataTrigger.Conditions>
-                        <Setter Property="Foreground" Value="{DynamicResource TextIconBrush}"/>
-                    </MultiDataTrigger>
-                </Style.Triggers>
             </Style>
         </DataGrid.CellStyle>
+
+        <!--<DataGrid.GroupStyle>
+            <GroupStyle>
+                <GroupStyle.ContainerStyle>
+                    <Style TargetType="{x:Type GroupItem}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type GroupItem}">
+                                    <Expander IsExpanded="True" ExpandDirection="Down">
+                                        <Expander.Header>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontSize="16"/>
+                                                <TextBlock Text="{Binding ItemCount, StringFormat=({0})}" VerticalAlignment="Center" Margin="5,0,0,0" FontSize="16"/>
+                                            </StackPanel>
+                                        </Expander.Header>
+                                        <ItemsPresenter />
+                                    </Expander>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </GroupStyle.ContainerStyle>
+            </GroupStyle>
+        </DataGrid.GroupStyle>-->
     </DataGrid>
 
     <ListBox x:Name="ListBox" Foreground="{DynamicResource PrimaryTextBrush}"
@@ -507,6 +518,30 @@
                 <Setter Property="Margin" Value="0,4"/>
             </Style>
         </ListBox.ItemContainerStyle>
+
+        <!--<ListBox.GroupStyle>
+            <GroupStyle>
+                <GroupStyle.ContainerStyle>
+                    <Style TargetType="{x:Type GroupItem}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type GroupItem}">
+                                    <Expander IsExpanded="True" ExpandDirection="Down">
+                                        <Expander.Header>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontSize="16"/>
+                                                <TextBlock Text="{Binding ItemCount, StringFormat=({0})}" VerticalAlignment="Center" Margin="5,0,0,0" FontSize="16"/>
+                                            </StackPanel>
+                                        </Expander.Header>
+                                        <ItemsPresenter />
+                                    </Expander>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </GroupStyle.ContainerStyle>
+            </GroupStyle>
+        </ListBox.GroupStyle>-->
     </ListBox>
 
     <Grid x:Name="ContentGrid" ClipToBounds="True">

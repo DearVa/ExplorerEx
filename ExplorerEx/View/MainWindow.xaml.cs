@@ -10,15 +10,15 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media.Animation;
-using ExplorerEx.Converter;
 using ExplorerEx.Model;
+using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 using ExplorerEx.View.Controls;
 using ExplorerEx.Win32;
 using Microsoft.EntityFrameworkCore;
 using HandyControl.Tools;
 using static ExplorerEx.Win32.Win32Interop;
+using static ExplorerEx.Shell32.Shell32Interop;
 using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
 using TextBox = HandyControl.Controls.TextBox;
 
@@ -27,7 +27,10 @@ namespace ExplorerEx.View;
 public sealed partial class MainWindow {
 	public event Action<uint, EverythingInterop.QueryReply> EverythingQueryReplied;
 
-	public static readonly List<MainWindow> MainWindows = new();
+	public static List<MainWindow> MainWindows { get; } = new();
+
+	public SimpleCommand SideBarItemPreviewMouseDownCommand { get; }
+	public SimpleCommand SideBarItemMouseDoubleClickCommand { get; }
 
 	public readonly SplitGrid splitGrid;
 	private readonly HwndSource hwnd;
@@ -42,13 +45,15 @@ public sealed partial class MainWindow {
 
 	private readonly string startupPath;
 
-	private readonly StringFilter2VisibilityConverter bookmarkFilter;
-
 	public MainWindow() : this(null) { }
 
 	public MainWindow(string startupPath) {
 		this.startupPath = startupPath;
 		MainWindows.Add(this);
+
+		SideBarItemPreviewMouseDownCommand = new SimpleCommand(SideBarItem_OnPreviewMouseDown);
+		SideBarItemMouseDoubleClickCommand = new SimpleCommand(SideBarItem_OnMouseDoubleClick);
+
 		Width = ConfigHelper.LoadInt("WindowWidth", 1200);
 		Height = ConfigHelper.LoadInt("WindowHeight", 800);
 		var left = ConfigHelper.LoadInt("WindowLeft");
@@ -63,8 +68,6 @@ public sealed partial class MainWindow {
 		DataContext = this;
 		InitializeComponent();
 
-		bookmarkFilter = (StringFilter2VisibilityConverter)FindResource("BookmarkFilter");
-
 		if (ConfigHelper.LoadBoolean("WindowMaximized")) {
 			WindowState = WindowState.Maximized;
 			RootGrid.Margin = new Thickness(6);
@@ -73,6 +76,7 @@ public sealed partial class MainWindow {
 		hwnd = HwndSource.FromHwnd(new WindowInteropHelper(this).EnsureHandle())!;
 		if (MainWindows.Count == 1) {  // 只在一个窗口上检测剪贴板变化事件
 			RegisterClipboard();
+			RecycleBinItem.Update();
 		}
 		hwnd.AddHook(WndProc);
 
@@ -81,6 +85,26 @@ public sealed partial class MainWindow {
 		ChangeThemeWithSystem();
 
 		StartupLoad();
+	}
+
+	private static void SideBarItem_OnMouseDoubleClick(object args) {
+		var e = (MouseEventArgs)args;
+		if (e.LeftButton != MouseButtonState.Pressed && e.RightButton != MouseButtonState.Pressed) {
+			return;
+		}
+		if (e.OriginalSource is FrameworkElement { DataContext: FileViewBaseItem item }) {
+			item.IsSelected = true;
+		}
+	}
+
+	private static void SideBarItem_OnPreviewMouseDown(object args) {
+		var e = (MouseEventArgs)args;
+		if (e.LeftButton != MouseButtonState.Pressed && e.RightButton != MouseButtonState.Pressed) {
+			return;
+		}
+		if (e.OriginalSource is FrameworkElement { DataContext: FileViewBaseItem item }) {
+			item.IsSelected = true;
+		}
 	}
 
 	private async void StartupLoad() {
@@ -97,6 +121,9 @@ public sealed partial class MainWindow {
 #endif
 	}
 
+	/// <summary>
+	/// 注册事件监视剪贴板变化
+	/// </summary>
 	private void RegisterClipboard() {
 		nextClipboardViewer = SetClipboardViewer(hwnd.Handle);
 		var error = Marshal.GetLastWin32Error();
@@ -105,6 +132,15 @@ public sealed partial class MainWindow {
 		}
 		isClipboardViewerSet = true;
 		DataObjectContent.HandleClipboardChanged();
+	}	
+	
+	/// <summary>
+	/// 注册事件监视回收站变化
+	/// </summary>
+	private void RegisterRecycleBin() {
+		var entry = new SHChangeNotifyEntry();
+		SHChangeNotifyRegister(hwnd.Handle, SHCNF.AcceptInterrupts | SHCNF.AcceptNonInterrupts, SHCNE.Rmdir | SHCNE.RenameFolder | SHCNE.Delete | SHCNE.RenameItem, (uint)WinMessage.ShellNotifyRBinDir, 1, ref entry);
+		RecycleBinItem.Update();
 	}
 
 	private void EnableMica(bool isDarkTheme) {
@@ -275,7 +311,7 @@ public sealed partial class MainWindow {
 	/// 添加到书签，如果已添加，则会提示编辑
 	/// </summary>
 	/// <param name="filePaths"></param>
-	public void AddToBookmark(params string[] filePaths) {
+	public void AddToBookmarks(params string[] filePaths) {
 		if (filePaths == null || filePaths.Length == 0) {
 			return;
 		}
@@ -296,12 +332,12 @@ public sealed partial class MainWindow {
 
 	private static async void IsAddToBookmarkShow_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		var window = (MainWindow)d;
-		var	bookmarkItem = window.bookmarkPaths[window.currentBookmarkIndex];
+		var bookmarkItem = window.bookmarkPaths[window.currentBookmarkIndex];
 		if ((bool)e.NewValue) {
 			var fullPath = Path.GetFullPath(bookmarkItem);
 			var dbBookmark = BookmarkDbContext.Instance.BookmarkDbSet.Local.FirstOrDefault(b => b.FullPath == fullPath);
 			if (dbBookmark != null) {
-				window.AddToBookmarkTipTextBlock.Text = "Edit_bookmark".L();
+				window.AddToBookmarkTipTextBlock.Text = "EditBookmark".L();
 				window.BookmarkName = dbBookmark.Name;
 				window.BookmarkCategoryComboBox.SelectedItem = dbBookmark.Category;
 			} else {
@@ -460,6 +496,12 @@ public sealed partial class MainWindow {
 				case Key.V:
 					mouseOverTab.Paste();
 					break;
+				case Key.A:
+					mouseOverTab.FileGrid.SelectAll();
+					break;
+				case Key.I:
+					mouseOverTab.FileGrid.InverseSelection();
+					break;
 				}
 			} else {
 				switch (e.Key) {
@@ -571,42 +613,34 @@ public sealed partial class MainWindow {
 		e.Handled = true;
 	}
 
-	private void SearchTextBox_OnTextChanged(object sender, TextChangedEventArgs e) {
-		bookmarkFilter.Filter = ((TextBox)sender).Text;
-		BookmarkTreeView.Items.Refresh();
-	}
-
-	private void BookmarkDragArea_OnDragEnter(object sender, DragEventArgs e) {
-		if (e.Data.GetData(DataFormats.FileDrop) == null) {
-			e.Effects = DragDropEffects.None;
-			return;
-		}
-		BookmarkDragTipGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(1d, TimeSpan.FromSeconds(0.1d)));
-	}
-
-	private void BookmarkDragArea_OnDragOver(object sender, DragEventArgs e) {
-		if (e.Data.GetData(DataFormats.FileDrop) == null) {
-			e.Effects = DragDropEffects.None;
-		}
-	}
-
-	private void BookmarkDragArea_OnDragLeave(object sender, DragEventArgs e) {
-		BookmarkDragTipGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0d, TimeSpan.FromSeconds(0.1d)));
-	}
-
-	private void BookmarkDragArea_OnDrop(object sender, DragEventArgs e) {
-		if (e.Data.GetData(DataFormats.FileDrop) is not string[] fileList) {
-			e.Effects = DragDropEffects.None;
-			return;
-		}
-		BookmarkDragTipGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0d, TimeSpan.FromSeconds(0.1d)));
-		AddToBookmark(fileList);
-	}
-
 	private void TabItem_OnDragEnter(object sender, DragEventArgs e) {
 		var tabItem = sender.FindParent<TabItem>();
 		if (tabItem != null) {
 			SidebarTabControl.SelectedItem = tabItem;
+		}
+	}
+
+	private void BookmarksSideBarContent_OnFileDrop(string[] filePaths) {
+		AddToBookmarks(filePaths);
+	}
+
+	private void RecycleBinSideBarContent_OnFileDrop(string[] filePaths) {
+		try {
+			FileUtils.FileOperation(FileOpType.Delete, filePaths);
+		} catch (Exception ex) {
+			Logger.Exception(ex);
+		}
+	}
+
+	/// <summary>
+	/// 清除TextBox的焦点
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	private void MainWindow_OnPreviewMouseDown(object sender, MouseButtonEventArgs e) {
+		if (Keyboard.FocusedElement is TextBox && e.OriginalSource.FindParent<TextBox>() == null) {
+			FocusManager.SetFocusedElement(this, null);
+			Keyboard.ClearFocus();
 		}
 	}
 }

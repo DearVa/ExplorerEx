@@ -28,7 +28,7 @@ namespace HandyControl.Controls
         /// <summary>
         ///     错误提示
         /// </summary>
-        string ErrorStr { get; set; }
+        string ErrorPrompt { get; set; }
 
         /// <summary>
         ///     文本类型

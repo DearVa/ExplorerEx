@@ -10,8 +10,8 @@ namespace HandyControl.Controls;
 
 public class TextBox : System.Windows.Controls.TextBox, IDataInput {
 	public TextBox() {
-		CommandBindings.Add(new CommandBinding(ControlCommands.Clear, (s, e) => {
-			SetCurrentValue(TextProperty, "");
+		CommandBindings.Add(new CommandBinding(ControlCommands.Clear, (_, _) => {
+			SetCurrentValue(TextProperty, string.Empty);
 		}));
 	}
 
@@ -42,12 +42,12 @@ public class TextBox : System.Windows.Controls.TextBox, IDataInput {
 	/// <summary>
 	///     错误提示
 	/// </summary>
-	public static readonly DependencyProperty ErrorStrProperty = DependencyProperty.Register(
-		"ErrorStr", typeof(string), typeof(TextBox), new PropertyMetadata(default(string)));
+	public static readonly DependencyProperty ErrorPromptProperty = DependencyProperty.Register(
+		"ErrorPrompt", typeof(string), typeof(TextBox), new PropertyMetadata(default(string)));
 
-	public string ErrorStr {
-		get => (string)GetValue(ErrorStrProperty);
-		set => SetValue(ErrorStrProperty, value);
+	public string ErrorPrompt {
+		get => (string)GetValue(ErrorPromptProperty);
+		set => SetValue(ErrorPromptProperty, value);
 	}
 
 	/// <summary>
@@ -101,14 +101,14 @@ public class TextBox : System.Windows.Controls.TextBox, IDataInput {
 		var isError = !result.Data;
 		if (isError) {
 			SetCurrentValue(IsErrorProperty, ValueBoxes.TrueBox);
-			SetCurrentValue(ErrorStrProperty, result.Message);
+			SetCurrentValue(ErrorPromptProperty, result.Message);
 		} else {
 			isError = Validation.GetHasError(this);
 			if (isError) {
-				SetCurrentValue(ErrorStrProperty, Validation.GetErrors(this)[0].ErrorContent?.ToString());
+				SetCurrentValue(ErrorPromptProperty, Validation.GetErrors(this)[0].ErrorContent?.ToString());
 			} else {
 				SetCurrentValue(IsErrorProperty, ValueBoxes.FalseBox);
-				SetCurrentValue(ErrorStrProperty, default(string));
+				SetCurrentValue(ErrorPromptProperty, default(string));
 			}
 		}
 

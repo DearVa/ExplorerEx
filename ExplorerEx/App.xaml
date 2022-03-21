@@ -19,6 +19,8 @@
                 <ResourceDictionary>
                     <c:Equality2BooleanConverter x:Key="Equality2BooleanConverter"/>
                     <c:Int2BooleanConverter x:Key="Int2BooleanConverter"/>
+                    <c:Int2VisibilityConverter x:Key="Int2VisibilityConverter"/>
+                    <c:Int2VisibilityReConverter x:Key="Int2VisibilityReConverter"/>
                     <c:FileName2IconConverter x:Key="FileName2IconConverter"/>
                     <c:FullPath2FileNameConverter x:Key="FullPath2FileNameConverter"/>
                     <c:Bytes2StringConverter x:Key="Bytes2StringConverter"/>
