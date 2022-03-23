@@ -202,6 +202,17 @@ namespace HandyControl.Properties.Langs
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to 双击自动调整列宽.
+        /// </summary>
+        public static string DoubleClickForAutoResize
+        {
+            get
+            {
+                return ResourceManager.GetString("DoubleClickForAutoResize", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to 间隔10分钟.
         /// </summary>
         public static string Interval10m

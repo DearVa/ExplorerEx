@@ -22,7 +22,7 @@ public enum FileViewType {
 	/// <summary>
 	/// 图标，表现为WarpPanel，每个小格上边是缩略图下边是文件名
 	/// </summary>
-	Icon,
+	Icons,
 	/// <summary>
 	/// 列表，表现为WarpPanel，每个小格左边是缩略图右边是文件名
 	/// </summary>
@@ -30,11 +30,11 @@ public enum FileViewType {
 	/// <summary>
 	/// 详细信息，表现为DataGrid，上面有Header，一列一列的
 	/// </summary>
-	Detail,
+	Details,
 	/// <summary>
 	/// 平铺，表现为WarpPanel，每个小格左边是缩略图右边从上到下依次是文件名、文件类型描述、文件大小
 	/// </summary>
-	Tile,
+	Tiles,
 	/// <summary>
 	/// 内容，表现为DataGrid，但Header不可见，左边是图标、文件名、大小，右边是详细信息
 	/// </summary>
@@ -318,11 +318,11 @@ public class FileView : INotifyPropertyChanged {
     /// 用于绑定到下拉按钮
     /// </summary>
     public int FileViewTypeIndex => FileViewType switch {
-	    FileViewType.Icon when ItemSize.Width > 100d && ItemSize.Height > 130d => 0,
-	    FileViewType.Icon => 1,
+	    FileViewType.Icons when ItemSize.Width > 100d && ItemSize.Height > 130d => 0,
+	    FileViewType.Icons => 1,
 	    FileViewType.List => 2,
-	    FileViewType.Detail => 3,
-	    FileViewType.Tile => 4,
+	    FileViewType.Details => 3,
+	    FileViewType.Tiles => 4,
 	    FileViewType.Content => 5,
 	    _ => -1
     };

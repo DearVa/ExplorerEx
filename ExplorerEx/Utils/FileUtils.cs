@@ -337,29 +337,15 @@ internal static class FileUtils {
 		var rawLength = fileStream.Read(rawData, 0, rawData.Length);
 		fileStream.Seek(0, SeekOrigin.Begin);
 
-		switch (rawData[0]) {
 		// Detect encoding correctly (from Rick Strahl's blog)
 		// http://www.west-wind.com/weblog/posts/2007/Nov/28/Detecting-Text-Encoding-for-StreamReader
-		case 0xef when rawData[1] == 0xbb && rawData[2] == 0xbf:
-			encoding = Encoding.UTF8;
-			break;
-		case 0xfe when rawData[1] == 0xff:
-			encoding = Encoding.Unicode;
-			break;
-		case 0 when rawData[1] == 0 && rawData[2] == 0xfe && rawData[3] == 0xff:
-			encoding = Encoding.UTF32;
-			break;
-		case 0x2b when rawData[1] == 0x2f && rawData[2] == 0x76:
-#pragma warning disable SYSLIB0001 // 类型或成员已过时
-#pragma warning disable CS0618
-			encoding = Encoding.UTF7;
-#pragma warning restore CS0618
-#pragma warning restore SYSLIB0001 // 类型或成员已过时
-			break;
-		default:
-			encoding = Encoding.Default;
-			break;
-		}
+		encoding = rawData[0] switch {
+			0x00 when rawData[1] == 0x00 && rawData[2] == 0xfe && rawData[3] == 0xff => Encoding.UTF32,
+			// 0x2b when rawData[1] == 0x2f && rawData[2] == 0x76 => Encoding.UTF7,
+			0xef when rawData[1] == 0xbb && rawData[2] == 0xbf => Encoding.UTF8,
+			0xfe when rawData[1] == 0xff => Encoding.Unicode,
+			_ => Encoding.Default
+		};
 
 		// Read text and detect the encoding
 		using (var streamReader = new StreamReader(fileStream)) {

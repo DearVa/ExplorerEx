@@ -9,13 +9,12 @@
         mc:Ignorable="d" d:DataContext="{d:DesignInstance v:NotifyIconWindow}"
         ShowInTaskbar="False">
     <hc:NotifyIcon x:Name="NotifyIconContextContent" Visibility="Visible" Text="ExplorerEx" Icon="/ExplorerEx;component/Assets/Picture/Logo.ico">
-        <hc:NotifyIcon.ContextContent>
-            <Border Background="{DynamicResource BackgroundBrush}">
-                <StackPanel VerticalAlignment="Center" Margin="5" Width="80">
-                    <Button Content="{u:Lang Show_window}" Click="ShowWindow" HorizontalAlignment="Stretch" Margin="0,0,0,5"/>
-                    <Button Content="{u:Lang Exit}" Style="{StaticResource ButtonDanger}" HorizontalAlignment="Stretch" Click="ExitButton_OnClick"/>
-                </StackPanel>
-            </Border>
-        </hc:NotifyIcon.ContextContent>
+        <hc:NotifyIcon.ContextMenu>
+            <ContextMenu>
+                <MenuItem Icon="{StaticResource EyeOpenGeometry}" Header="{u:Lang Show_window}" Click="ShowWindow"/>
+                <Separator/>
+                <MenuItem Icon="{StaticResource ExitDrawingImage}" Header="{u:Lang Exit}" Click="ExitButton_OnClick"/>
+            </ContextMenu>
+        </hc:NotifyIcon.ContextMenu>
     </hc:NotifyIcon>
 </Window>

@@ -180,9 +180,7 @@ public sealed partial class MainWindow {
 						foreach (var tabItem in fileTabControl.TabItems) {
 							switch (tabItem.PathType) {
 							case PathType.Home:
-#pragma warning disable CS4014
 								tabItem.Refresh();
-#pragma warning restore CS4014
 								break;
 							case PathType.Normal: {
 								if (tabItem.FullPath[0] == drive) {
@@ -497,10 +495,10 @@ public sealed partial class MainWindow {
 					mouseOverTab.Paste();
 					break;
 				case Key.A:
-					mouseOverTab.FileGrid.SelectAll();
+					mouseOverTab.FileListView.SelectAll();
 					break;
 				case Key.I:
-					mouseOverTab.FileGrid.InverseSelection();
+					mouseOverTab.FileListView.InverseSelection();
 					break;
 				}
 			} else {

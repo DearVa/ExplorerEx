@@ -74,7 +74,7 @@ public enum FileOpFlags {
 	/// <summary>
 	/// 不再使用
 	/// </summary>
-	[Obsolete]
+	[Obsolete("不再使用")]
 	ConfirmMouse = 0x2,
 	/// <summary>
 	/// 不显示一个进度对话框

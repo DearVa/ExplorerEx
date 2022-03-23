@@ -290,7 +290,7 @@ public class GifImage : Image, IDisposable {
 			}
 
 			if (count <= 0) {
-				return new Guid[0];
+				return Array.Empty<Guid>();
 			}
 
 			var size = Marshal.SizeOf(typeof(Guid));

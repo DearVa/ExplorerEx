@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace ExplorerEx.Utils;
@@ -6,10 +7,20 @@ namespace ExplorerEx.Utils;
 public class SimpleCommand : ICommand {
 	public event Action<object> Action;
 
-	public SimpleCommand() { }
+	public SimpleCommand(Action action) {
+		Action += _ => action();
+	}
 
 	public SimpleCommand(Action<object> action) {
 		Action += action;
+	}
+
+	public SimpleCommand(Func<Task> asyncAction) {
+		Action += _ => asyncAction();
+	}
+
+	public SimpleCommand(Func<object, Task> asyncAction) {
+		Action += o => asyncAction(o);
 	}
 
 	public bool CanExecute(object parameter) => true;

@@ -49,6 +49,7 @@ namespace HandyControl.Properties.Langs
             OnPropertyChanged(nameof(ErrorImgSize));
             OnPropertyChanged(nameof(Find));
             OnPropertyChanged(nameof(FormatError));
+            OnPropertyChanged(nameof(DoubleClickForAutoResize));
             OnPropertyChanged(nameof(Interval10m));
             OnPropertyChanged(nameof(Interval1h));
             OnPropertyChanged(nameof(Interval1m));
@@ -138,6 +139,11 @@ namespace HandyControl.Properties.Langs
         ///   查找类似 格式错误 的本地化字符串。
         /// </summary>
 		public string FormatError => Lang.FormatError;
+
+                /// <summary>
+        ///   查找类似 双击自动调整列宽 的本地化字符串。
+        /// </summary>
+		public string DoubleClickForAutoResize = Lang.DoubleClickForAutoResize;
 
         /// <summary>
         ///   查找类似 间隔10分钟 的本地化字符串。
@@ -347,6 +353,11 @@ namespace HandyControl.Properties.Langs
         ///   查找类似 格式错误 的本地化字符串。
         /// </summary>
 		public static string FormatError = nameof(FormatError);
+
+        /// <summary>
+        ///   查找类似 双击自动调整列宽 的本地化字符串。
+        /// </summary>
+		public static string DoubleClickForAutoResize = nameof(DoubleClickForAutoResize);
 
         /// <summary>
         ///   查找类似 间隔10分钟 的本地化字符串。

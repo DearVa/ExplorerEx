@@ -5,7 +5,7 @@ using ExplorerEx.View.Controls;
 namespace ExplorerEx.Converter; 
 
 internal class FileGridListBoxTemplateConverter {
-	public FileGrid FileGrid { get; set; }
+	public FileListView FileListView { get; set; }
 	/// <summary>
 	/// 图标模式
 	/// </summary>
@@ -28,11 +28,11 @@ internal class FileGridListBoxTemplateConverter {
 	public DataTemplate TileHomeTemplate { get; set; }
 
 	public DataTemplate Convert() {
-		return FileGrid.FileView.FileViewType switch {
-			FileViewType.Icon => IconTemplate,
+		return FileListView.FileView.FileViewType switch {
+			FileViewType.Icons => IconTemplate,
 			FileViewType.List => ListTemplate,
-			FileViewType.Tile when FileGrid.FileView.PathType == PathType.Home => TileHomeTemplate,
-			FileViewType.Tile => TileTemplate,
+			FileViewType.Tiles when FileListView.FileView.PathType == PathType.Home => TileHomeTemplate,
+			FileViewType.Tiles => TileTemplate,
 			FileViewType.Content => ContentTemplate,
 			_ => null
 		};

@@ -35,7 +35,7 @@ public partial class FileViewGrid {
 	private void DataContext_OnChanged(object sender, DependencyPropertyChangedEventArgs e) {
 		GridViewModel = (FileGridViewModel)e.NewValue;
 		if (GridViewModel != null) {
-			GridViewModel.FileGrid = FileGrid;
+			GridViewModel.FileListView = FileGrid;
 		}
 	}
 

@@ -33,9 +33,57 @@
               MouseLeftButtonDown="DragArea_OnMouseLeftButtonDown" SizeChanged="Sidebar_OnSizeChanged">
             <TabControl x:Name="SidebarTabControl" TabStripPlacement="Left" Focusable="False"
                         SelectionChanged="Sidebar_OnSelectionChanged" PreviewMouseLeftButtonDown="Sidebar_OnPreviewMouseLeftButtonDown">
-                <TabItem Margin="0,50,0,-50" Width="50" Padding="0">
+                <TabControl.ItemContainerStyle>
+                    <Style TargetType="TabItem" BasedOn="{StaticResource TabItemStyle}">
+                        <Style.Resources>
+                            <SineEase x:Key="SineEaseIn" EasingMode="EaseIn"/>
+                            <SineEase x:Key="SineEaseOut" EasingMode="EaseOut"/>
+                        </Style.Resources>
+                        <Setter Property="HeaderTemplate">
+                            <Setter.Value>
+                                <ItemContainerTemplate>
+                                    <ContentPresenter Content="{Binding}" Height="40" AllowDrop="True"
+                                                      ToolTipService.InitialShowDelay="300" DragEnter="TabItem_OnDragEnter">
+                                    </ContentPresenter>
+                                </ItemContainerTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                        <Setter Property="RenderTransform">
+                            <Setter.Value>
+                                <ScaleTransform ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="(TabItem.RenderTransform).(ScaleTransform.ScaleX)"
+                                                             To="1.3" Duration="0:0:0.1" EasingFunction="{StaticResource SineEaseIn}"/>
+                                            <DoubleAnimation Storyboard.TargetProperty="(TabItem.RenderTransform).(ScaleTransform.ScaleY)"
+                                                             To="1.3" Duration="0:0:0.1" EasingFunction="{StaticResource SineEaseIn}"/>
+                                            <DoubleAnimation Storyboard.TargetProperty="(TabItem.RenderTransform).(ScaleTransform.ScaleX)"
+                                                             To="1.1" BeginTime="0:0:0.1" Duration="0:0:0.1" EasingFunction="{StaticResource SineEaseOut}"/>
+                                            <DoubleAnimation Storyboard.TargetProperty="(TabItem.RenderTransform).(ScaleTransform.ScaleY)"
+                                                             To="1.1" BeginTime="0:0:0.1" Duration="0:0:0.1" EasingFunction="{StaticResource SineEaseOut}"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </TabControl.ItemContainerStyle>
+                <TabItem x:Name="StarTabItem" Margin="0,52,2,-52" Width="50" Padding="0">
                     <TabItem.Header>
-                        <Grid x:Name="StarTabItemGrid" Height="40" ToolTip="{u:Lang Bookmarks}" ToolTipService.InitialShowDelay="300"
+                        <Grid Height="40" ToolTip="{u:Lang Bookmarks}" ToolTipService.InitialShowDelay="300"
                               AllowDrop="True" DragEnter="TabItem_OnDragEnter">
                             <Image Width="24" Height="24" Source="{StaticResource StarDrawingImage}"/>
                         </Grid>
@@ -151,7 +199,7 @@
                         </ct:SideBarContent.DragTip>
                     </ct:SideBarContent>
                 </TabItem>
-                <TabItem Width="50" Margin="0,50,0,-50" Padding="0">
+                <TabItem Width="50" Margin="0,52,2,-52" Padding="0">
                     <TabItem.Header>
                         <Grid Height="40" ToolTip="{u:Lang This_computer}" ToolTipService.InitialShowDelay="300"
                               AllowDrop="True" DragEnter="TabItem_OnDragEnter">
@@ -171,7 +219,7 @@
                         </Grid>
                     </Grid>
                 </TabItem>
-                <TabItem Width="50" Margin="0,50,0,-50" Padding="0">
+                <TabItem Width="50" Margin="0,52,2,-52" Padding="0">
                     <TabItem.Header>
                         <Grid Height="40" ToolTip="{u:Lang Network}" ToolTipService.InitialShowDelay="300"
                               AllowDrop="True" DragEnter="TabItem_OnDragEnter">
@@ -191,7 +239,7 @@
                         </Grid>
                     </Grid>
                 </TabItem>
-                <TabItem Width="50" Margin="0,50,0,-50" Padding="0">
+                <TabItem Width="50" Margin="0,52,2,-52" Padding="0">
                     <TabItem.Header>
                         <Grid Height="40" ToolTip="{u:Lang Recycle_bin}" ToolTipService.InitialShowDelay="300" 
                               AllowDrop="True" DragEnter="TabItem_OnDragEnter">
@@ -260,7 +308,7 @@
                         </ct:SideBarContent.DragTip>
                     </ct:SideBarContent>
                 </TabItem>
-                <TabItem Width="50" Margin="0,50,0,-50" Padding="0">
+                <TabItem Width="50" Margin="0,52,2,-52" Padding="0">
                     <TabItem.Header>
                         <Grid Height="40" ToolTip="OneDrive" ToolTipService.InitialShowDelay="300" 
                               AllowDrop="True" DragEnter="TabItem_OnDragEnter">
@@ -283,7 +331,7 @@
             </TabControl>
 
             <Popup IsOpen="{Binding IsAddToBookmarkShow, Mode=TwoWay}" PopupAnimation="Fade" AllowsTransparency="True" 
-                   PlacementTarget="{Binding ElementName=StarTabItemGrid}" StaysOpen="False" Placement="Right"
+                   PlacementTarget="{Binding ElementName=StarTabItem}" StaysOpen="False" Placement="Right"
                    hc:BlurPopup.Enabled="True">
                 <Border Background="{DynamicResource BackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2">
                     <StackPanel Orientation="Vertical" Width="300" Margin="10">

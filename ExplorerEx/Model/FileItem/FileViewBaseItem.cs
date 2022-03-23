@@ -11,7 +11,7 @@ using HandyControl.Data;
 namespace ExplorerEx.Model; 
 
 /// <summary>
-/// 所有可以显示在<see cref="FileGrid"/>中的项目的基类
+/// 所有可以显示在<see cref="FileListView"/>中的项目的基类
 /// </summary>
 public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 	/// <summary>

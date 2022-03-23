@@ -1,25 +1,27 @@
-﻿<Grid x:Class="ExplorerEx.View.Controls.FileGrid"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:e="clr-namespace:ExplorerEx"
-      xmlns:hc="https://handyorg.github.io/handycontrol"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:u="clr-namespace:ExplorerEx.Utils"
-      xmlns:m="clr-namespace:ExplorerEx.Model"
-      xmlns:c="clr-namespace:ExplorerEx.Converter"
-      xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
-      xmlns:vw="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
-      d:DataContext="{d:DesignInstance ct:FileGrid}"
-      mc:Ignorable="d" AllowDrop="True">
-    <Grid.Resources>
+﻿<ListView x:Class="ExplorerEx.View.Controls.FileListView"
+          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+          xmlns:e="clr-namespace:ExplorerEx"
+          xmlns:hc="https://handyorg.github.io/handycontrol"
+          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+          xmlns:u="clr-namespace:ExplorerEx.Utils"
+          xmlns:m="clr-namespace:ExplorerEx.Model"
+          xmlns:c="clr-namespace:ExplorerEx.Converter"
+          xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
+          xmlns:vw="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+          d:DataContext="{d:DesignInstance ct:FileListView}"
+          mc:Ignorable="d" AllowDrop="True" SelectionMode="Extended"
+          VirtualizingStackPanel.IsVirtualizing="True"
+          VirtualizingStackPanel.ScrollUnit="Pixel">
+    <ListView.Resources>
         <!--只能将Width设为自动，然后在Cell里Binding到FileDataGrid-->
         <DataTemplate x:Key="IconTemplate">
             <!--https://www.cnblogs.com/wuty/p/15599045.html-->
             <!--此处必须写成Binding Path=xxx，如果省略Path=，语法上没有问题，也能正确绑定，但是会引发一次异常，导致加载速度变慢-->
             <Grid Width="{Binding Path=DataContext.ItemSize.Width, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-                  Height="{Binding Path=DataContext.ItemSize.Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-                  d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
+                  MaxHeight="{Binding Path=DataContext.ItemSize.Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                  VerticalAlignment="Top" d:DataContext="{d:DesignInstance m:FileViewBaseItem}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="{Binding Path=ActualWidth, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
                     <RowDefinition/>
@@ -27,7 +29,7 @@
                 <Image Grid.Row="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
                        VerticalAlignment="Center" Margin="10"/>
                 <TextBlock Grid.Row="1" Text="{Binding DisplayText, Mode=OneWay}" HorizontalAlignment="Center" 
-                           TextAlignment="Center" TextTrimming="WordEllipsis" TextWrapping="Wrap"
+                           TextAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="Wrap"
                            Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityReConverter}}"/>
                 <hc:TextBox x:Name="RenameTextBox" Grid.Row="1"
                             hc:BorderElement.CornerRadius="3" TextWrapping="Wrap" HorizontalAlignment="Center"
@@ -63,7 +65,7 @@
                 <Image Grid.Column="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
                        VerticalAlignment="Center" Margin="5"/>
                 <TextBlock Grid.Column="1" Text="{Binding DisplayText, Mode=OneWay}" VerticalAlignment="Center" 
-                           TextTrimming="WordEllipsis" Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityReConverter}}"/>
+                           TextTrimming="CharacterEllipsis" Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityReConverter}}"/>
                 <hc:TextBox x:Name="RenameTextBox" Grid.Column="1" hc:BorderElement.CornerRadius="3" TextWrapping="Wrap" HorizontalAlignment="Center"
                             Text="{Binding EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" 
                             Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityConverter}}"
@@ -104,7 +106,7 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Row="0" Text="{Binding DisplayText, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Center"
-                               TextTrimming="WordEllipsis" Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityReConverter}}"/>
+                               TextTrimming="CharacterEllipsis" Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityReConverter}}"/>
                     <hc:TextBox x:Name="RenameTextBox" Grid.Row="0" hc:BorderElement.CornerRadius="3" HorizontalAlignment="Left"
                                 Text="{Binding EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"
                                 Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityConverter}}"
@@ -164,7 +166,8 @@
                 </Grid.ColumnDefinitions>
                 <Image Grid.Column="0" Source="{Binding Icon}" VerticalAlignment="Center" Margin="5"/>
                 <TextBlock Grid.Column="1" Text="{Binding DisplayText, Mode=OneWay}" VerticalAlignment="Center" 
-                           Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityReConverter}}"/>
+                           Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityReConverter}}"
+                           TextTrimming="CharacterEllipsis"/>
                 <hc:TextBox x:Name="RenameTextBox" Grid.Column="1" hc:BorderElement.CornerRadius="3"
                             Text="{Binding EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" 
                             Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityConverter}}"
@@ -327,23 +330,49 @@
         <c:FileSystemItemContextMenuConverter x:Key="FileSystemItemContextMenuConverter"
                                               FolderContextMenu="{StaticResource FolderItemContextMenu}"
                                               FileContextMenu="{StaticResource FileItemContextMenu}"/>
-    </Grid.Resources>
 
-    <Grid.ContextMenu>
+        <ControlTemplate x:Key="ListViewItemTemplate" TargetType="ListViewItem">
+            <Border CornerRadius="4" x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                <ContentPresenter/>
+            </Border>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="GridViewItemTemplate" TargetType="ListViewItem">
+            <Border CornerRadius="4" Margin="2,0" x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true" HorizontalAlignment="Left">
+                <GridViewRowPresenter Content="{TemplateBinding Content}" Columns="{TemplateBinding GridView.ColumnCollection}" HorizontalAlignment="Left"/>
+            </Border>
+        </ControlTemplate>
+
+        <c:Object2ObjectConverter x:Key="ItemTemplateConverter" Object1="{StaticResource ListViewItemTemplate}" Object2="{StaticResource GridViewItemTemplate}"/>
+        
+        <!-- 该资源在C#逻辑中获取 -->
+        <!-- ReSharper disable once Xaml.RedundantResource -->
+        <ItemsPanelTemplate x:Key="VirtualizingWrapPanel">
+            <vw:VirtualizingWrapPanel CanHorizontallyScroll="False" VirtualizationMode="Recycling" SnapsToDevicePixels="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ListView}}"/>
+        </ItemsPanelTemplate>
+
+        <!-- 该资源在C#逻辑中获取 -->
+        <!-- ReSharper disable once Xaml.RedundantResource -->
+        <ItemsPanelTemplate x:Key="VirtualizingStackPanel">
+            <VirtualizingStackPanel VirtualizationMode="Recycling" SnapsToDevicePixels="True" Margin="2,0"/>
+        </ItemsPanelTemplate>
+    </ListView.Resources>
+
+    <ListView.ContextMenu>
         <ContextMenu>
             <MenuItem Click="NewFolder_OnClick"
                       Icon="{StaticResource NewFolderDrawingImage}" Header="{u:Lang New_folder}"/>
             <MenuItem Icon="{StaticResource ListDrawingImage}" Header="{u:Lang View}">
                 <MenuItem.Items>
-                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="0" Header="{u:Lang Big_icon}" 
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="0" Header="{u:Lang Big_icons}" 
                               IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
-                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="1" Header="{u:Lang Small_icon}"
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="1" Header="{u:Lang Small_icons}"
                               IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
                     <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="2" Header="{u:Lang List}"
                               IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
-                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="3" Header="{u:Lang Detail}"
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="3" Header="{u:Lang Details}"
                               IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
-                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="4" Header="{u:Lang Tile}"
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="4" Header="{u:Lang Tiles}"
                               IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=4}"/>
                     <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="5" Header="{u:Lang Content}"
                               IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=5}"/>
@@ -365,7 +394,7 @@
                                   IsChecked="{Binding FileView.IsAscending, Mode=OneWay}"/>
                     <MenuItem CommandParameter="11" Command="{Binding SwitchViewCommand}" Header="{u:Lang Descending}"
                                   IsChecked="{Binding FileView.IsAscending, Mode=OneWay, Converter={StaticResource Boolean2BooleanReConverter}}"/>
-                    <Separator/>
+                    <!--<Separator/>
 
                     <MenuItem Header="{u:Lang Group_by}">
                         <MenuItem.Items>
@@ -380,7 +409,7 @@
                             <MenuItem CommandParameter="16" Command="{Binding SwitchViewCommand}" Header="{u:Lang File_size}"
                                       IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
                         </MenuItem.Items>
-                    </MenuItem>
+                    </MenuItem>-->
                 </MenuItem.Items>
             </MenuItem>
             <MenuItem Click="Refresh_OnClick"
@@ -390,161 +419,49 @@
             <MenuItem Click="ShowProperties_OnClick"
                       Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
         </ContextMenu>
-    </Grid.ContextMenu>
+    </ListView.ContextMenu>
 
-    <DataGrid x:Name="DataGrid"
-              Background="{x:Null}" SelectionMode="Extended" 
-              AutoGenerateColumns="False" ColumnHeaderHeight="25"
-              RowHeight="{Binding ItemSize.Height, Mode=OneWay}"
-              Foreground="{DynamicResource PrimaryTextBrush}"
-              VirtualizingStackPanel.IsVirtualizing="True"
-              VirtualizingStackPanel.ScrollUnit="Pixel">
-        <DataGrid.Template>
-            <ControlTemplate TargetType="DataGrid">
-                <ControlTemplate.Resources>
-                    <Storyboard x:Key="Storyboard1">
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" Storyboard.TargetName="PART_VerticalScrollBar">
-                            <EasingDoubleKeyFrame KeyTime="0:0:.2" Value=".8"/>
-                        </DoubleAnimationUsingKeyFrames>
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" Storyboard.TargetName="PART_HorizontalScrollBar">
-                            <EasingDoubleKeyFrame KeyTime="0:0:.2" Value=".8"/>
-                        </DoubleAnimationUsingKeyFrames>
-                    </Storyboard>
-                    <Storyboard x:Key="Storyboard2">
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" Storyboard.TargetName="PART_VerticalScrollBar">
-                            <EasingDoubleKeyFrame KeyTime="0:0:.2" Value="0"/>
-                        </DoubleAnimationUsingKeyFrames>
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" Storyboard.TargetName="PART_HorizontalScrollBar">
-                            <EasingDoubleKeyFrame KeyTime="0:0:.2" Value="0"/>
-                        </DoubleAnimationUsingKeyFrames>
-                    </Storyboard>
-                </ControlTemplate.Resources>
-                <Grid>
-                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
-                        <ScrollViewer x:Name="DG_ScrollViewer" Focusable="false">
-                            <ScrollViewer.Template>
-                                <ControlTemplate TargetType="ScrollViewer">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="*"/>
-                                        </Grid.RowDefinitions>
-                                        <DataGridColumnHeadersPresenter x:Name="PART_ColumnHeadersPresenter" Grid.ColumnSpan="2" Grid.Row="0" Grid.Column="1" Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.Column}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
-                                        <hc:ToggleBlock IsChecked="{Binding HasItems,RelativeSource={RelativeSource AncestorType=DataGrid},Mode=OneWay}" Grid.ColumnSpan="3" 
-                                                        Grid.Column="0" Grid.Row="1" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" 
-                                                        DataContext="{Binding Folder, RelativeSource={RelativeSource AncestorType=ct:FileGrid}}">
-                                            <hc:ToggleBlock.CheckedContent>
-                                                <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanContentScroll="{TemplateBinding CanContentScroll}"/>
-                                            </hc:ToggleBlock.CheckedContent>
-                                            <hc:ToggleBlock.UnCheckedContent>
-                                                <hc:Empty />
-                                            </hc:ToggleBlock.UnCheckedContent>
-                                        </hc:ToggleBlock>
-                                        <ScrollBar Style="{StaticResource ScrollBarBaseStyle}" Opacity="0" x:Name="PART_VerticalScrollBar" Grid.Column="2" Maximum="{TemplateBinding ScrollableHeight}" Orientation="Vertical" Grid.Row="1" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}"/>
-                                        <ScrollBar Style="{StaticResource ScrollBarBaseStyle}" Opacity="0" x:Name="PART_HorizontalScrollBar" Grid.Column="1" Maximum="{TemplateBinding ScrollableWidth}" Orientation="Horizontal" VerticalAlignment="Bottom" Grid.Row="1" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}"/>
-                                    </Grid>
-                                    <ControlTemplate.Triggers>
-                                        <EventTrigger RoutedEvent="MouseEnter">
-                                            <BeginStoryboard Storyboard="{StaticResource Storyboard1}"/>
-                                        </EventTrigger>
-                                        <EventTrigger RoutedEvent="MouseLeave">
-                                            <BeginStoryboard Storyboard="{StaticResource Storyboard2}"/>
-                                        </EventTrigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </ScrollViewer.Template>
-                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                        </ScrollViewer>
-                    </Border>
-                </Grid>
-            </ControlTemplate>
-        </DataGrid.Template>
+    <ListView.Template>
+        <ControlTemplate TargetType="ListView">
+            <hc:SimplePanel>
+                <hc:ToggleBlock IsChecked="{Binding HasItems, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <hc:ToggleBlock.CheckedContent>
+                        <Grid SnapsToDevicePixels="True">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <GridViewHeaderRowPresenter Grid.Row="0" Visibility="{Binding View, Converter={StaticResource Object2VisibilityConverter}, RelativeSource={RelativeSource TemplatedParent}}"
+                                                        ColumnHeaderContainerStyle="{Binding View.ColumnHeaderContainerStyle, RelativeSource={RelativeSource TemplatedParent}}" 
+                                                        ColumnHeaderToolTip="{Binding View.ColumnHeaderToolTip, RelativeSource={RelativeSource TemplatedParent}}" 
+                                                        ColumnHeaderContextMenu="{Binding View.ColumnHeaderContextMenu, RelativeSource={RelativeSource TemplatedParent}}" 
+                                                        ColumnHeaderTemplate="{Binding View.ColumnHeaderTemplate, RelativeSource={RelativeSource TemplatedParent}}" 
+                                                        Columns="{Binding View.Columns, RelativeSource={RelativeSource TemplatedParent}}" 
+                                                        Margin="2,2,2,0" SnapsToDevicePixels="True"/>
+                            <ScrollViewer x:Name="ViewScrollViewer" Grid.Row="1" CanContentScroll="True">
+                                <ItemsPresenter/>
+                            </ScrollViewer>
+                        </Grid>
+                    </hc:ToggleBlock.CheckedContent>
+                    <hc:ToggleBlock.UnCheckedContent>
+                        <TextBlock Text="{u:Lang ThisIsAnEmptyFolder}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14"/>
+                    </hc:ToggleBlock.UnCheckedContent>
+                </hc:ToggleBlock>
+                <hc:SimplePanel x:Name="ContentPanel" ClipToBounds="True">
+                    <Border x:Name="SelectionRect" CornerRadius="3" Background="#66326cf3" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1" Visibility="Collapsed" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                </hc:SimplePanel>
+            </hc:SimplePanel>
+        </ControlTemplate>
+    </ListView.Template>
 
-        <DataGrid.RowStyle>
-            <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle}">
-                <Setter Property="ContextMenu" Value="{Binding IsFolder, Converter={StaticResource FileSystemItemContextMenuConverter}}"/>
-                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-            </Style>
-        </DataGrid.RowStyle>
-
-        <DataGrid.CellStyle>
-            <Style TargetType="DataGridCell" BasedOn="{StaticResource DataGridCellStyle}">
-                <Setter Property="Focusable" Value="False"/>
-            </Style>
-        </DataGrid.CellStyle>
-
-        <!--<DataGrid.GroupStyle>
-            <GroupStyle>
-                <GroupStyle.ContainerStyle>
-                    <Style TargetType="{x:Type GroupItem}">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type GroupItem}">
-                                    <Expander IsExpanded="True" ExpandDirection="Down">
-                                        <Expander.Header>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontSize="16"/>
-                                                <TextBlock Text="{Binding ItemCount, StringFormat=({0})}" VerticalAlignment="Center" Margin="5,0,0,0" FontSize="16"/>
-                                            </StackPanel>
-                                        </Expander.Header>
-                                        <ItemsPresenter />
-                                    </Expander>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </GroupStyle.ContainerStyle>
-            </GroupStyle>
-        </DataGrid.GroupStyle>-->
-    </DataGrid>
-
-    <ListBox x:Name="ListBox" Foreground="{DynamicResource PrimaryTextBrush}"
-             hc:BorderElement.CornerRadius="5" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.ScrollUnit="Pixel">
-        <ListBox.ItemsPanel>
-            <ItemsPanelTemplate>
-                <vw:VirtualizingWrapPanel CanHorizontallyScroll="False" VirtualizationMode="Recycling" SnapsToDevicePixels="True"/>
-            </ItemsPanelTemplate>
-        </ListBox.ItemsPanel>
-
-        <ListBox.ItemContainerStyle>
-            <Style TargetType="ListBoxItem" BasedOn="{StaticResource ListBoxItemBaseStyle}">
-                <Setter Property="ContextMenu" Value="{Binding IsFolder, Converter={StaticResource FileSystemItemContextMenuConverter}}"/>
-                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                <Setter Property="Margin" Value="0,4"/>
-            </Style>
-        </ListBox.ItemContainerStyle>
-
-        <!--<ListBox.GroupStyle>
-            <GroupStyle>
-                <GroupStyle.ContainerStyle>
-                    <Style TargetType="{x:Type GroupItem}">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type GroupItem}">
-                                    <Expander IsExpanded="True" ExpandDirection="Down">
-                                        <Expander.Header>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontSize="16"/>
-                                                <TextBlock Text="{Binding ItemCount, StringFormat=({0})}" VerticalAlignment="Center" Margin="5,0,0,0" FontSize="16"/>
-                                            </StackPanel>
-                                        </Expander.Header>
-                                        <ItemsPresenter />
-                                    </Expander>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </GroupStyle.ContainerStyle>
-            </GroupStyle>
-        </ListBox.GroupStyle>-->
-    </ListBox>
-
-    <Grid x:Name="ContentGrid" ClipToBounds="True">
-        <Border x:Name="SelectionRect" CornerRadius="3" Background="#66326cf3" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1" Visibility="Collapsed" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-    </Grid>
-</Grid>
+    <ListView.ItemContainerStyle>
+        <Style TargetType="ListViewItem" BasedOn="{StaticResource ListViewItemBaseStyle}">
+            <Setter Property="ContextMenu" Value="{Binding IsFolder, Converter={StaticResource FileSystemItemContextMenuConverter}}"/>
+            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template" Value="{Binding View, Converter={StaticResource ItemTemplateConverter}, RelativeSource={RelativeSource AncestorType=ListView}}"/>
+        </Style>
+    </ListView.ItemContainerStyle>
+</ListView>

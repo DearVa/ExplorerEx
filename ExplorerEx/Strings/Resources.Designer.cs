@@ -184,9 +184,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 大图标 的本地化字符串。
         /// </summary>
-        internal static string Big_icon {
+        internal static string Big_icons {
             get {
-                return ResourceManager.GetString("Big_icon", resourceCulture);
+                return ResourceManager.GetString("Big_icons", resourceCulture);
             }
         }
         
@@ -904,9 +904,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 小图标 的本地化字符串。
         /// </summary>
-        internal static string Small_icon {
+        internal static string Small_icons {
             get {
-                return ResourceManager.GetString("Small_icon", resourceCulture);
+                return ResourceManager.GetString("Small_icons", resourceCulture);
             }
         }
         
@@ -947,11 +947,20 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 此文件夹为空。 的本地化字符串。
+        /// </summary>
+        internal static string ThisIsAnEmptyFolder {
+            get {
+                return ResourceManager.GetString("ThisIsAnEmptyFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 平铺 的本地化字符串。
         /// </summary>
-        internal static string Tile {
+        internal static string Tiles {
             get {
-                return ResourceManager.GetString("Tile", resourceCulture);
+                return ResourceManager.GetString("Tiles", resourceCulture);
             }
         }
         

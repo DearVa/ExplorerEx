@@ -19,7 +19,7 @@ using ExplorerEx.View.Controls;
 using ExplorerEx.Win32;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using static ExplorerEx.View.Controls.FileGrid;
+using static ExplorerEx.View.Controls.FileListView;
 using hc = HandyControl.Controls;
 
 namespace ExplorerEx.ViewModel;
@@ -32,7 +32,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	public MainWindow OwnerWindow => OwnerTabControl.MainWindow;
 
-	public FileGrid FileGrid { get; set; }
+	public FileListView FileListView { get; set; }
 
 	/// <summary>
 	/// 当前路径的FileViewBaseItem
@@ -197,7 +197,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	private int nextHistoryIndex, historyCount;
 
-	private readonly FileSystemWatcher watcher = new();
+	private readonly FileSystemWatcher watcher;
 
 	private readonly Dispatcher dispatcher;
 
@@ -205,32 +205,32 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	public FileGridViewModel(FileTabControl ownerTabControl) {
 		OwnerTabControl = ownerTabControl;
-		OwnerWindow.EverythingQueryReplied += OnEverythingQueryReplied;
+		OwnerWindow.EverythingQueryReplied += (i, r) => OnEverythingQueryReplied(i, r);
 
-		GoBackCommand = new SimpleCommand(_ => GoBackAsync());
-		GoForwardCommand = new SimpleCommand(_ => GoForwardAsync());
-		GoToUpperLevelCommand = new SimpleCommand(_ => GoToUpperLevelAsync());
-		SelectionChangedCommand = new SimpleCommand(e => OnSelectionChanged((SelectionChangedEventArgs)e));
+		GoBackCommand = new SimpleCommand(GoBackAsync);
+		GoForwardCommand = new SimpleCommand(GoForwardAsync);
+		GoToUpperLevelCommand = new SimpleCommand(GoToUpperLevelAsync);
+		SelectionChangedCommand = new SimpleCommand(OnSelectionChanged);
 
 		CutCommand = new SimpleCommand(_ => Copy(true));
 		CopyCommand = new SimpleCommand(_ => Copy(false));
-		PasteCommand = new SimpleCommand(_ => Paste());
-		RenameCommand = new SimpleCommand(_ => Rename());
+		PasteCommand = new SimpleCommand(Paste);
+		RenameCommand = new SimpleCommand(Rename);
 		//ShareCommand = new SimpleCommand(_ => Copy(false));
-		DeleteCommand = new SimpleCommand(_ => Delete());
+		DeleteCommand = new SimpleCommand(Delete);
 
 		SwitchViewCommand = new SimpleCommand(OnSwitchView);
 
-		FileDropCommand = new SimpleCommand(e => OnDrop((FileDropEventArgs)e));
-		// ReSharper disable once AsyncVoidLambda
-		ItemDoubleClickedCommand = new SimpleCommand(async e => await Item_OnDoubleClicked((ItemClickEventArgs)e));
+		FileDropCommand = new SimpleCommand(OnDrop);
+		ItemDoubleClickedCommand = new SimpleCommand(Item_OnDoubleClicked);
 
 		dispatcher = Application.Current.Dispatcher;
 
-		watcher.NotifyFilter = NotifyFilters.Attributes | NotifyFilters.CreationTime | NotifyFilters.DirectoryName |
-							   NotifyFilters.FileName | NotifyFilters.LastAccess | NotifyFilters.LastWrite |
-							   NotifyFilters.Security | NotifyFilters.Size;
-
+		watcher = new FileSystemWatcher {
+			NotifyFilter = NotifyFilters.CreationTime | NotifyFilters.DirectoryName |
+			               NotifyFilters.FileName | NotifyFilters.LastWrite |
+			               NotifyFilters.Size
+		};
 		watcher.Changed += Watcher_OnChanged;
 		watcher.Created += Watcher_OnCreated;
 		watcher.Deleted += Watcher_OnDeleted;
@@ -240,9 +240,9 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		DataObjectContent.ClipboardChanged += OnClipboardChanged;
 	}
 
-	private void OnSwitchView(object e) {
+	private async void OnSwitchView(object e) {
 		if (e is MenuItem { CommandParameter: string param } && int.TryParse(param, out var type)) {
-			SwitchViewType(type);
+			await SwitchViewType(type);
 		}
 	}
 
@@ -252,14 +252,14 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// </summary>
 	private CancellationTokenSource switchIconCts;
 
-	public async void SwitchViewType(int type) {
+	public async Task SwitchViewType(int type) {
 		switch (type) {
 		case 0:  // 大图标
-			FileViewType = FileViewType.Icon;
+			FileViewType = FileViewType.Icons;
 			ItemSize = new Size(120d, 170d);
 			break;
 		case 1:  // 小图标
-			FileViewType = FileViewType.Icon;
+			FileViewType = FileViewType.Icons;
 			ItemSize = new Size(80d, 170d);
 			break;
 		case 2:  // 列表，size.Width为0代表横向填充
@@ -267,11 +267,11 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			ItemSize = new Size(260d, 30d);
 			break;
 		case 3:  // 详细信息
-			FileViewType = FileViewType.Detail;
+			FileViewType = FileViewType.Details;
 			ItemSize = new Size(0d, 30d);
 			break;
 		case 4:  // 平铺
-			FileViewType = FileViewType.Tile;
+			FileViewType = FileViewType.Tiles;
 			ItemSize = new Size(280d, 70d);
 			break;
 		case 5:  // 内容
@@ -331,7 +331,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// <returns></returns>
 	private async Task LoadThumbnailsAsync() {
 		if (PathType == PathType.Normal) {
-			var useLargeIcon = FileViewType is FileViewType.Icon or FileViewType.Tile or FileViewType.Content;
+			var useLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content;
 			if (useLargeIcon != isLastViewTypeUseLargeIcon) {
 				switchIconCts?.Cancel();
 				var list = Items.Where(item => item is FileSystemItem && !item.IsFolder).Cast<FileSystemItem>().Where(item => item.UseLargeIcon != useLargeIcon).ToArray();
@@ -398,8 +398,8 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		historyCount = nextHistoryIndex;
 	}
 
-	public async Task<bool> Refresh() {
-		return await LoadDirectoryAsync(FullPath, false);
+	public Task<bool> Refresh() {
+		return LoadDirectoryAsync(FullPath, false);
 	}
 
 	/// <summary>
@@ -415,7 +415,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		FileViewBaseItem item;
 		if (File.Exists(fullPath)) {
 			item = new FileSystemItem(new FileInfo(fullPath)) {
-				UseLargeIcon = FileViewType is FileViewType.Icon or FileViewType.Tile or FileViewType.Content
+				UseLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content
 			};
 		} else if (Directory.Exists(fullPath)) {
 			item = new FileSystemItem(new DirectoryInfo(fullPath));
@@ -451,6 +451,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		cts?.Cancel();
 		cts = new CancellationTokenSource();
 		var token = cts.Token;
+		Items.Clear();
 
 #if DEBUG
 		var sw = Stopwatch.StartNew();
@@ -483,7 +484,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			IsAscending = savedView.IsAscending;
 			GroupBy = savedView.GroupBy;
 			FileViewType = savedView.FileViewType;
-			if (FileViewType == FileViewType.Detail) {
+			if (FileViewType == FileViewType.Details) {
 				DetailLists = savedView.DetailLists;
 				ItemSize = new Size(0d, 30d);
 			} else {
@@ -493,7 +494,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			SortBy = DetailListType.Name;
 			IsAscending = true;
 			GroupBy = null;
-			FileViewType = FileViewType.Detail;  // 没有保存，默认使用详细信息
+			FileViewType = FileViewType.Details;  // 没有保存，默认使用详细信息
 			DetailLists = null;
 			ItemSize = new Size(0d, 30d);
 		}
@@ -539,7 +540,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 				return false;
 			}
 
-			var useLargeIcon = FileViewType is FileViewType.Icon or FileViewType.Tile or FileViewType.Content;
+			var useLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content;
 			await Task.Run(() => {
 				foreach (var directory in Directory.EnumerateDirectories(path)) {
 					if (token.IsCancellationRequested) {
@@ -577,8 +578,6 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		Trace.WriteLine($"Enumerate {path} costs: {sw.ElapsedMilliseconds}ms");
 		sw.Restart();
 #endif
-
-		Items.Clear();
 		PathType = isLoadHome ? PathType.Home : PathType.Normal;  // TODO: 网络驱动器、OneDrive等
 		FileView.CommitChange();  // 一旦调用这个，模板就会改变，所以要在清空之后，不然会导致排版混乱和绑定失败
 
@@ -590,7 +589,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 				scrollIntoViewItem = fileListBuffer[0];
 			}
 #pragma warning disable CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
-			dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => FileGrid.ScrollIntoView(scrollIntoViewItem));
+			dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => FileListView.ScrollIntoView(scrollIntoViewItem));
 #pragma warning restore CS4014
 		}
 
@@ -636,28 +635,30 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// <summary>
 	/// 回到上一页
 	/// </summary>
-	public async void GoBackAsync() {
+	public Task GoBackAsync() {
 		if (CanGoBack) {
 			nextHistoryIndex--;
-			await LoadDirectoryAsync(HistoryList[nextHistoryIndex - 1].FullPath, false, HistoryList[nextHistoryIndex].FullPath);
+			return LoadDirectoryAsync(HistoryList[nextHistoryIndex - 1].FullPath, false, HistoryList[nextHistoryIndex].FullPath);
 		}
+		return Task.FromResult(false);
 	}
 
 	/// <summary>
 	/// 前进一页
 	/// </summary>
-	public async void GoForwardAsync() {
+	public Task GoForwardAsync() {
 		if (CanGoForward) {
 			nextHistoryIndex++;
-			await LoadDirectoryAsync(HistoryList[nextHistoryIndex - 1].FullPath, false);
+			return LoadDirectoryAsync(HistoryList[nextHistoryIndex - 1].FullPath, false);
 		}
+		return Task.FromResult(false);
 	}
 
 	/// <summary>
 	/// 向上一级
 	/// </summary>
 	/// <returns></returns>
-	public async void GoToUpperLevelAsync() {
+	public async Task GoToUpperLevelAsync() {
 		if (CanGoToUpperLevel) {
 			if (FullPath.Length == 3) {
 				await LoadDirectoryAsync(null);
@@ -808,11 +809,11 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		UpdateUI(nameof(SelectedFileItemsSizeText));
 	}
 
-	public async Task Item_OnDoubleClicked(ItemClickEventArgs e) {
+	public async Task Item_OnDoubleClicked(object args) {
 		var isCtrlPressed = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
 		var isShiftPressed = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
 		var isAltPressed = Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt);
-		switch (e.Item) {
+		switch (((ItemClickEventArgs)args).Item) {
 		// 双击事件
 		case DiskDrive ddi:
 			if (isCtrlPressed) {
@@ -845,7 +846,8 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 	}
 
-	private void OnSelectionChanged(SelectionChangedEventArgs e) {
+	private void OnSelectionChanged(object args) {
+		var e = (SelectionChangedEventArgs)args;
 		foreach (FileViewBaseItem addedItem in e.AddedItems) {
 			SelectedItems.Add(addedItem);
 			addedItem.IsSelected = true;
@@ -858,7 +860,8 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	}
 
 
-	private void OnDrop(FileDropEventArgs e) {
+	private void OnDrop(object args) {
+		var e = (FileDropEventArgs)args;
 		var path = e.Path ?? FullPath;
 		FileUtils.HandleDrop(e.Content, path, e.DragEventArgs.Effects.GetFirstEffect());
 	}
@@ -868,32 +871,32 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// <summary>
 	/// 当用户更改SearchTextBox时触发
 	/// </summary>
-	private async void UpdateSearch() {
+	private Task UpdateSearch() {
 		everythingReplyCts?.Cancel();
 		if (searchText == null) {
-			await LoadDirectoryAsync(FullPath);
-		} else {
-			if (EverythingInterop.IsAvailable) {
-				Items.Clear();  // 清空文件列表，进入搜索模式
-
-				// EverythingInterop.Reset();
-				EverythingInterop.Search = PathType == PathType.Normal ? FullPath + ' ' + searchText : searchText;
-				EverythingInterop.Max = 999;
-				// EverythingInterop.SetRequestFlags(EverythingInterop.RequestType.FullPathAndFileName | EverythingInterop.RequestType.DateModified | EverythingInterop.RequestType.Size);
-				// EverythingInterop.SetSort(EverythingInterop.SortMode.NameAscending);
-				var mainWindow = OwnerTabControl.MainWindow;
-				mainWindow.UnRegisterEverythingQuery(everythingQueryId);
-				everythingQueryId = mainWindow.RegisterEverythingQuery();
-				EverythingInterop.Query(false);
-			} else {
-				hc.MessageBox.Error("Everything_is_not_available".L());
-			}
+			return LoadDirectoryAsync(FullPath);
 		}
+		if (EverythingInterop.IsAvailable) {
+			Items.Clear();  // 清空文件列表，进入搜索模式
+
+			// EverythingInterop.Reset();
+			EverythingInterop.Search = PathType == PathType.Normal ? FullPath + ' ' + searchText : searchText;
+			EverythingInterop.Max = 999;
+			// EverythingInterop.SetRequestFlags(EverythingInterop.RequestType.FullPathAndFileName | EverythingInterop.RequestType.DateModified | EverythingInterop.RequestType.Size);
+			// EverythingInterop.SetSort(EverythingInterop.SortMode.NameAscending);
+			var mainWindow = OwnerTabControl.MainWindow;
+			mainWindow.UnRegisterEverythingQuery(everythingQueryId);
+			everythingQueryId = mainWindow.RegisterEverythingQuery();
+			EverythingInterop.Query(false);
+		} else {
+			hc.MessageBox.Error("Everything_is_not_available".L());
+		}
+		return Task.FromResult(true);
 	}
 
 	private CancellationTokenSource everythingReplyCts;
 
-	private async void OnEverythingQueryReplied(uint id, EverythingInterop.QueryReply reply) {
+	private async Task OnEverythingQueryReplied(uint id, EverythingInterop.QueryReply reply) {
 		if (id != everythingQueryId) {
 			return;
 		}

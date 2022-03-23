@@ -265,17 +265,17 @@ public partial class FileTabControl {
 			if (!CanDragDrop(ti.DragEventArgs, tab)) {
 				return;
 			}
-			if (FileGrid.DragFilesPreview != null) {
-				FileGrid.DragFilesPreview.Destination = tab.FullPath;
+			if (FileListView.DragFilesPreview != null) {
+				FileListView.DragFilesPreview.Destination = tab.FullPath;
 			}
 		} else {
 			var tb = (TabBorderDragEventArgs)args;
 			if (tb.DragEventArgs.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {
 				var folderList = fileList.Select(Directory.Exists).ToImmutableList();
 				if (folderList.Count > 0) {
-					if (FileGrid.DragFilesPreview != null) {
-						FileGrid.DragFilesPreview.CustomOperation = "OpenInNewTab".L();
-						FileGrid.DragFilesPreview.DragDropEffect = DragDropEffects.All;
+					if (FileListView.DragFilesPreview != null) {
+						FileListView.DragFilesPreview.CustomOperation = "OpenInNewTab".L();
+						FileListView.DragFilesPreview.DragDropEffect = DragDropEffects.All;
 					}
 				}
 			}

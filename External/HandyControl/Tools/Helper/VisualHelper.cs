@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Interop;
 using System.Windows.Media;
 using HandyControl.Tools.Extension;
@@ -96,10 +97,16 @@ namespace HandyControl.Tools {
 
 		public static T FindParent<T>(this DependencyObject child) where T : class {
 			while (child is not null and not Window) {
-				if (child is T t) {
+				switch (child) {
+				case T t:
 					return t;
+				case Run run:
+					child = run.Parent;
+					break;
+				default:
+					child = VisualTreeHelper.GetParent(child);
+					break;
 				}
-				child = VisualTreeHelper.GetParent(child);
 			}
 			return null;
 		}
@@ -134,6 +141,9 @@ namespace HandyControl.Tools {
 					return null;
 				case T t:
 					return t;
+				case Run run:
+					child = run.Parent;
+					break;
 				default:
 					child = VisualTreeHelper.GetParent(child);
 					break;

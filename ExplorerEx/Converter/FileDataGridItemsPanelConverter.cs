@@ -15,7 +15,7 @@ internal class FileDataGridItemsPanelConverter : IValueConverter {
 
 	public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
 		return (FileViewType)value! switch {
-			FileViewType.Detail => StackPanelTemplate,
+			FileViewType.Details => StackPanelTemplate,
 			FileViewType.Content => StackPanelTemplate,
 			_ => WrapPanelTemplate
 		};

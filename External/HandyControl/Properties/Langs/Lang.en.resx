@@ -237,4 +237,7 @@
   <data name="NoData" xml:space="preserve">
     <value>No Data</value>
   </data>
+  <data name="DoubleClickForAutoResize" xml:space="preserve">
+    <value>Double click for auto resize</value>
+  </data>
 </root>

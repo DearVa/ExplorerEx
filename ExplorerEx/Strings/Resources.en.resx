@@ -27,7 +27,7 @@
     <value>Selected </value>
   </data>
   <data name="This_computer" xml:space="preserve">
-    <value>This computer</value>
+    <value>This PC</value>
   </data>
   <data name="New_folder" xml:space="preserve">
     <value>New Folder</value>
@@ -187,26 +187,26 @@ Are you sure you want to change?</value>
   <data name="Other_type_disk" xml:space="preserve">
     <value>Other type disk</value>
   </data>
-  <data name="Big_icon" xml:space="preserve">
-    <value>Big icon</value>
+  <data name="Big_icons" xml:space="preserve">
+    <value>Big icons</value>
   </data>
-  <data name="Small_icon" xml:space="preserve">
-    <value>Small icon</value>
+  <data name="Small_icons" xml:space="preserve">
+    <value>Small icons</value>
   </data>
   <data name="List" xml:space="preserve">
     <value>List</value>
   </data>
-  <data name="Detail" xml:space="preserve">
-    <value>Detail</value>
+  <data name="Details" xml:space="preserve">
+    <value>Details</value>
   </data>
-  <data name="Tile" xml:space="preserve">
-    <value>Tile</value>
+  <data name="Tiles" xml:space="preserve">
+    <value>Tiles</value>
   </data>
   <data name="Content" xml:space="preserve">
     <value>Content</value>
   </data>
   <data name="Available_space" xml:space="preserve">
-    <value>Available space</value>
+    <value>Free space</value>
   </data>
   <data name="Total_space" xml:space="preserve">
     <value>Total space</value>
@@ -341,5 +341,8 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="#InvalidFileName" xml:space="preserve">
     <value>The file name cannot contain the following characters:
  \ / : * ? " &lt; &gt; |</value>
+  </data>
+  <data name="ThisIsAnEmptyFolder" xml:space="preserve">
+    <value>This is an empty folder.</value>
   </data>
 </root>

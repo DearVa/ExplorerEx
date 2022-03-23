@@ -24,15 +24,15 @@ internal class FileGridDataGridColumnsConverter {
 	public DataTemplate FileSystem { get; set; }
 	#endregion
 
-	private static void AddColumn(in ObservableCollection<DataGridColumn> columns, DataTemplate template, DataGridLength width, string header = null) {
-		columns.Add(new DataGridTemplateColumn {
+	private static void AddColumn(in GridViewColumnCollection columns, DataTemplate template, double width, string header = null) {
+		columns.Add(new GridViewColumn() {
 			CellTemplate = template,
 			Width = width,
 			Header = header
 		});
 	}
 
-	public void Convert(in ObservableCollection<DataGridColumn> columns, FileView fileView) {
+	public void Convert(in GridViewColumnCollection columns, FileView fileView) {
 		columns.Clear();
 		IList<DetailList> detailLists = fileView.DetailLists;
 		detailLists ??= DetailList.GetDefaultLists(fileView.PathType);  // 如果为null，表示使用默认

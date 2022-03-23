@@ -237,4 +237,7 @@
   <data name="NoData" xml:space="preserve">
     <value>暂无数据</value>
   </data>
+  <data name="DoubleClickForAutoResize" xml:space="preserve">
+    <value>双击自动调整列宽</value>
+  </data>
 </root>

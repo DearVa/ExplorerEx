@@ -234,19 +234,19 @@
   <data name="Other_type_disk" xml:space="preserve">
     <value>其他类型磁盘</value>
   </data>
-  <data name="Big_icon" xml:space="preserve">
+  <data name="Big_icons" xml:space="preserve">
     <value>大图标</value>
   </data>
-  <data name="Small_icon" xml:space="preserve">
+  <data name="Small_icons" xml:space="preserve">
     <value>小图标</value>
   </data>
   <data name="List" xml:space="preserve">
     <value>列表</value>
   </data>
-  <data name="Detail" xml:space="preserve">
+  <data name="Details" xml:space="preserve">
     <value>详细信息</value>
   </data>
-  <data name="Tile" xml:space="preserve">
+  <data name="Tiles" xml:space="preserve">
     <value>平铺</value>
   </data>
   <data name="Content" xml:space="preserve">
@@ -390,5 +390,8 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="#InvalidFileName" xml:space="preserve">
     <value>文件名不能包含下列字符：
  \ / : * ? " &lt; &gt; |</value>
+  </data>
+  <data name="ThisIsAnEmptyFolder" xml:space="preserve">
+    <value>此文件夹为空。</value>
   </data>
 </root>

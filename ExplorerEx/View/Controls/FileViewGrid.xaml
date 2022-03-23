@@ -93,7 +93,7 @@
                                   IsChecked="{Binding IsAscending, Mode=OneWay}"/>
                         <MenuItem CommandParameter="11" Header="{u:Lang Descending}"
                                   IsChecked="{Binding IsAscending, Mode=OneWay, Converter={StaticResource Boolean2BooleanReConverter}}"/>
-                        <Separator/>
+                        <!--<Separator/>
 
                         <MenuItem Header="{u:Lang Group_by}">
                             <MenuItem.Items>
@@ -108,7 +108,7 @@
                                 <MenuItem CommandParameter="16" Header="{u:Lang File_size}"
                                           IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
                             </MenuItem.Items>
-                        </MenuItem>
+                        </MenuItem>-->
                     </ContextMenu.Items>
                 </ContextMenu>
             </hc:SplitButton.DropDownContent>
@@ -121,15 +121,15 @@
             <hc:SplitButton.DropDownContent>
                 <ContextMenu>
                     <ContextMenu.Items>
-                        <MenuItem CommandParameter="0" Header="{u:Lang Big_icon}" 
+                        <MenuItem CommandParameter="0" Header="{u:Lang Big_icons}" 
                                   IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
-                        <MenuItem CommandParameter="1" Header="{u:Lang Small_icon}"
+                        <MenuItem CommandParameter="1" Header="{u:Lang Small_icons}"
                                   IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
                         <MenuItem CommandParameter="2" Header="{u:Lang List}"
                                   IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
-                        <MenuItem CommandParameter="3" Header="{u:Lang Detail}"
+                        <MenuItem CommandParameter="3" Header="{u:Lang Details}"
                                   IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
-                        <MenuItem CommandParameter="4" Header="{u:Lang Tile}"
+                        <MenuItem CommandParameter="4" Header="{u:Lang Tiles}"
                                   IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=4}"/>
                         <MenuItem CommandParameter="5" Header="{u:Lang Content}"
                                   IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=5}"/>
@@ -198,27 +198,26 @@
         </Grid.RowDefinitions>
 
         <ct:ClippingBorder Grid.Row="0" Margin="10,0,10,5" CornerRadius="8" 
-                              BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
-                              Background="{DynamicResource RegionBrush}">
-            <ct:FileGrid x:Name="FileGrid" d:DataContext="{d:DesignInstance vm:FileGridViewModel}"
-                         ItemsSource="{Binding Items}" 
+                           BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
+                           Background="{DynamicResource RegionBrush}">
+            <ct:FileListView x:Name="FileGrid" d:DataContext="{d:DesignInstance vm:FileGridViewModel}"
+                         ItemsCollection="{Binding Items, Mode=OneWay}" 
                          FileView="{Binding FileView, Mode=OneWay}"
                          FullPath="{Binding FullPath, Mode=OneWay}"
                          Folder="{Binding Folder, Mode=OneWay}"
-                         Background="{DynamicResource RegionBrush}"
-                         Focusable="True">
+                         Background="{DynamicResource RegionBrush}">
                 <hc:Interaction.Triggers>
                     <hc:RoutedEventTrigger RoutedEvent="ListBox.SelectionChanged">
                         <hc:EventToCommand Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True"/>
                     </hc:RoutedEventTrigger>
-                    <hc:RoutedEventTrigger RoutedEvent="ct:FileGrid.FileDrop">
+                    <hc:RoutedEventTrigger RoutedEvent="ct:FileListView.FileDrop">
                         <hc:EventToCommand Command="{Binding FileDropCommand}" PassEventArgsToCommand="True"/>
                     </hc:RoutedEventTrigger>
-                    <hc:RoutedEventTrigger RoutedEvent="ct:FileGrid.ItemDoubleClicked">
+                    <hc:RoutedEventTrigger RoutedEvent="ct:FileListView.ItemDoubleClicked">
                         <hc:EventToCommand Command="{Binding ItemDoubleClickedCommand}" PassEventArgsToCommand="True"/>
                     </hc:RoutedEventTrigger>
                 </hc:Interaction.Triggers>
-            </ct:FileGrid>
+            </ct:FileListView>
         </ct:ClippingBorder>
 
         <Border Grid.Row="1" Padding="20,0,0,0">
