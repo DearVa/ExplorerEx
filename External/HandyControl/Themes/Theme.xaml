@@ -689,12 +689,6 @@
 	<ItemsPanelTemplate x:Key="StepBarVerticalItemsPanelTemplate">
 		<UniformGrid Columns="1" />
 	</ItemsPanelTemplate>
-	<ContextMenu x:Key="TabItemMenu" x:Shared="False">
-		<MenuItem Command="interactivity:ControlCommands.DuplicateTab" Header="{x:Static langs:Lang.DuplicateTab}" />
-		<Separator />
-		<MenuItem Command="interactivity:ControlCommands.Close" Header="{x:Static langs:Lang.Close}" />
-		<MenuItem Command="interactivity:ControlCommands.CloseOther" Header="{x:Static langs:Lang.CloseOther}" />
-	</ContextMenu>
 	<Style x:Key="ToolBarTrayBaseStyle" TargetType="ToolBarTray">
 		<Setter Property="Background" Value="Transparent" />
 	</Style>
@@ -6067,7 +6061,7 @@
 					<Border x:Name="Bd" MinWidth="120" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True" CornerRadius="5">
 						<Grid x:Name="Grid" HorizontalAlignment="Left" Margin="4">
 							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="{TemplateBinding Height}" />
+								<ColumnDefinition Width="30" />
 								<ColumnDefinition Width="*" />
 								<ColumnDefinition Width="30" />
 								<ColumnDefinition SharedSizeGroup="MenuItemIGTColumnGroup" Width="Auto" />
@@ -6208,7 +6202,7 @@
 							<Border x:Name="Bd" MinWidth="120" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True" CornerRadius="5">
 								<Grid x:Name="Grid" Margin="4">
 									<Grid.ColumnDefinitions>
-										<ColumnDefinition Width="18" />
+										<ColumnDefinition Width="30" />
 										<ColumnDefinition Width="*" />
 										<ColumnDefinition Width="30" />
 										<ColumnDefinition SharedSizeGroup="MenuItemIGTColumnGroup" Width="Auto" />
@@ -10222,7 +10216,7 @@
 		</Style.Triggers>
 	</Style>
 	<Style x:Key="SeparatorBaseStyle" TargetType="Separator">
-		<Setter Property="Background" Value="{DynamicResource BorderBrush}" />
+		<Setter Property="Background" Value="{DynamicResource SecondaryBorderBrush}" />
 		<Setter Property="Margin" Value="-30,3,0,3" />
 	</Style>
 	<Style x:Key="SideMenuItemBaseStyle" BasedOn="{StaticResource BaseStyle}" TargetType="hc:SideMenuItem">
@@ -10798,6 +10792,12 @@
 			</Trigger>
 		</Style.Triggers>
 	</Style>
+	<ContextMenu x:Key="TabItemMenu" x:Shared="False">
+		<MenuItem Command="interactivity:ControlCommands.DuplicateTab" Header="{x:Static langs:Lang.DuplicateTab}" />
+		<Separator Style="{DynamicResource SeparatorBaseStyle}" />
+		<MenuItem Command="interactivity:ControlCommands.Close" Header="{x:Static langs:Lang.Close}" />
+		<MenuItem Command="interactivity:ControlCommands.CloseOther" Header="{x:Static langs:Lang.CloseOther}" />
+	</ContextMenu>
 	<Style x:Key="TabItemPlusBaseStyle" TargetType="hc:TabItem">
 		<Setter Property="FocusVisualStyle" Value="{x:Null}" />
 		<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />

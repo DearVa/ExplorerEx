@@ -192,7 +192,7 @@
 
     <ContextMenu x:Key="TabItemMenu" x:Shared="False">
         <MenuItem Command="interactivity:ControlCommands.DuplicateTab" Header="{x:Static langs:Lang.DuplicateTab}"/>
-        <Separator/>
+        <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
         <MenuItem Command="interactivity:ControlCommands.Close" Header="{x:Static langs:Lang.Close}"/>
         <MenuItem Command="interactivity:ControlCommands.CloseOther" Header="{x:Static langs:Lang.CloseOther}"/>
     </ContextMenu>

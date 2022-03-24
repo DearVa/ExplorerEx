@@ -80,7 +80,7 @@ public enum DetailListType : byte {
 	/// <summary>
 	/// 删除日期
 	/// </summary>
-	DeleteDate,
+	DateDeleted,
 
 	#endregion
 
@@ -96,7 +96,7 @@ public enum DetailListType : byte {
 	/// <summary>
 	/// 修改日期
 	/// </summary>
-	ModificationDate,
+	DateModified,
 	/// <summary>
 	/// 类型
 	/// </summary>
@@ -133,7 +133,7 @@ public class DetailList : IByteCodec {
 
 	private static readonly DetailList[] DefaultNormalDetailLists = {
 		new(DetailListType.Name, 300),
-		new(DetailListType.ModificationDate, 200),
+		new(DetailListType.DateModified, 200),
 		new(DetailListType.Type, 200),
 		new(DetailListType.FileSize, 100)
 	};
@@ -141,15 +141,15 @@ public class DetailList : IByteCodec {
 	private static readonly DetailList[] DefaultRecycleBinDetailLists = {
 		new(DetailListType.Name, 300),
 		new(DetailListType.OriginalLocation, 300),
-		new(DetailListType.DeleteDate, 100),
+		new(DetailListType.DateDeleted, 100),
 		new(DetailListType.FileSize, 100),
 		new(DetailListType.Type, 200),
-		new(DetailListType.ModificationDate, 100)
+		new(DetailListType.DateModified, 100)
 	};
 
 	private static readonly DetailList[] DefaultSearchDetailLists = {
 		new(DetailListType.Name, 300),
-		new(DetailListType.ModificationDate, 100),
+		new(DetailListType.DateModified, 100),
 		new(DetailListType.Type, 200),
 		new(DetailListType.FileSize, 100),
 		new(DetailListType.Folder, 300)
@@ -264,7 +264,7 @@ public class FileView : INotifyPropertyChanged {
 
     public int SortByIndex => SortBy switch {
 	    DetailListType.Name => 0,
-	    DetailListType.ModificationDate => 1,
+	    DetailListType.DateModified => 1,
 	    DetailListType.Type => 2,
 	    DetailListType.FileSize => 3,
 	    _ => 0
@@ -296,7 +296,7 @@ public class FileView : INotifyPropertyChanged {
 
     public int GroupByIndex => GroupBy switch {
 	    DetailListType.Name => 0,
-	    DetailListType.ModificationDate => 1,
+	    DetailListType.DateModified => 1,
 	    DetailListType.Type => 2,
 	    DetailListType.FileSize => 3,
 	    _ => -1

@@ -13,7 +13,7 @@ namespace ExplorerEx.Converter;
 internal class FileGridDataGridColumnsConverter {
 	#region 详细信息 列
 	public DataTemplate Name { get; set; }
-	public DataTemplate ModificationDate { get; set; }
+	public DataTemplate DateModified { get; set; }
 	public DataTemplate Type { get; set; }
 	public DataTemplate FileSize { get; set; }
 	public DataTemplate CreationDate { get; set; }
@@ -45,7 +45,7 @@ internal class FileGridDataGridColumnsConverter {
 				AddColumn(columns, AvailableSpace, width, "Available_space".L());
 				break;
 			case DetailListType.TotalSpace:
-				AddColumn(columns, TotalSpace, width, "Total_space".L());
+				AddColumn(columns, TotalSpace, width, "TotalSpace".L());
 				break;
 			case DetailListType.FileSystem:
 				AddColumn(columns, FileSystem, width, "File_system".L());
@@ -53,8 +53,8 @@ internal class FileGridDataGridColumnsConverter {
 			case DetailListType.FillRatio:
 				AddColumn(columns, FillRatio, width, "Fill_ratio".L());
 				break;
-			case DetailListType.ModificationDate:
-				AddColumn(columns, ModificationDate, width, "Modification_date".L());
+			case DetailListType.DateModified:
+				AddColumn(columns, DateModified, width, "DateModified".L());
 				break;
 			case DetailListType.Type:
 				AddColumn(columns, Type, width, "Type".L());

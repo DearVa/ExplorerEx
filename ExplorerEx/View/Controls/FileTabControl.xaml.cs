@@ -14,8 +14,8 @@ using ExplorerEx.Win32;
 using HandyControl.Controls;
 using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
 using MessageBox = HandyControl.Controls.MessageBox;
-using System.Diagnostics;
 using System.IO;
+using ExplorerEx.Command;
 
 namespace ExplorerEx.View.Controls;
 
@@ -212,7 +212,7 @@ public partial class FileTabControl {
 						Button = MessageBoxButton.OKCancel,
 						OkButtonText = "Exit_application".L(),
 						CancelButtonText = "Back_to_home".L(),
-						Message = "You_closed_the_last_tab_what_do_you_want?".L(),
+						Message = "#YouClosedTheLastTab".L(),
 						CheckBoxText = "Remember_my_choice_and_dont_ask_again".L(),
 						IsChecked = false,
 						Image = MessageBoxImage.Question

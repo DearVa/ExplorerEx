@@ -73,7 +73,7 @@
   <data name="Run_SelectedItemsCount" xml:space="preserve">
     <value>选择了 </value>
   </data>
-  <data name="This_computer" xml:space="preserve">
+  <data name="ThisPC" xml:space="preserve">
     <value>此电脑</value>
   </data>
   <data name="New_folder" xml:space="preserve">
@@ -115,7 +115,7 @@
   <data name="Remember_my_choice_and_dont_ask_again" xml:space="preserve">
     <value>记住我的选择，下次不再询问</value>
   </data>
-  <data name="Are_you_sure_to_recycle_these_files?" xml:space="preserve">
+  <data name="#AreYouSureToRecycleTheseFiles" xml:space="preserve">
     <value>您确定要将选择的文件移动到回收站吗？</value>
   </data>
   <data name="Check_your_input_and_try_again" xml:space="preserve">
@@ -124,7 +124,7 @@
   <data name="Cannot open path" xml:space="preserve">
     <value>无法打开此路径</value>
   </data>
-  <data name="Are_you_sure_to_delete_these_files_Permanently?" xml:space="preserve">
+  <data name="#AreYouSureToDeleteTheseFilesPermanently" xml:space="preserve">
     <value>您确定要永久删除选择的文件吗？</value>
   </data>
   <data name="OpenInNewWindow" xml:space="preserve">
@@ -148,7 +148,7 @@
   <data name="Delete" xml:space="preserve">
     <value>删除</value>
   </data>
-  <data name="You_closed_the_last_tab_what_do_you_want?" xml:space="preserve">
+  <data name="#YouClosedTheLastTab" xml:space="preserve">
     <value>您关闭了最后一个标签页，请问您希望？</value>
   </data>
   <data name="Exit_application" xml:space="preserve">
@@ -157,13 +157,13 @@
   <data name="Back_to_home" xml:space="preserve">
     <value>回到首页</value>
   </data>
-  <data name="Unknown_error" xml:space="preserve">
+  <data name="UnknownError" xml:space="preserve">
     <value>未知错误</value>
   </data>
   <data name="More" xml:space="preserve">
     <value>更多</value>
   </data>
-  <data name="The_following_files_failed_to_delete" xml:space="preserve">
+  <data name="TheFollowingFilesFailedToDelete" xml:space="preserve">
     <value>以下文件删除失败：</value>
   </data>
   <data name="Save_as_file" xml:space="preserve">
@@ -196,13 +196,13 @@
   <data name="Cannot_access_directory" xml:space="preserve">
     <value>无法访问文件夹</value>
   </data>
-  <data name="Access_denied" xml:space="preserve">
+  <data name="AccessDenied" xml:space="preserve">
     <value>拒绝访问</value>
   </data>
   <data name="Name" xml:space="preserve">
     <value>名称</value>
   </data>
-  <data name="Modification_date" xml:space="preserve">
+  <data name="DateModified" xml:space="preserve">
     <value>修改日期</value>
   </data>
   <data name="File_size" xml:space="preserve">
@@ -214,7 +214,7 @@
   <data name="Empty_folder" xml:space="preserve">
     <value>空文件夹</value>
   </data>
-  <data name="Are_you_sure_to_change_extension" xml:space="preserve">
+  <data name="#AreYouSureToChangeExtension" xml:space="preserve">
     <value>如果改变文件拓展名，则可能导致文件不可用。
 
 确定要更改吗？</value>
@@ -237,7 +237,7 @@
   <data name="Big_icons" xml:space="preserve">
     <value>大图标</value>
   </data>
-  <data name="Small_icons" xml:space="preserve">
+  <data name="SmallIcons" xml:space="preserve">
     <value>小图标</value>
   </data>
   <data name="List" xml:space="preserve">
@@ -255,7 +255,7 @@
   <data name="Available_space" xml:space="preserve">
     <value>可用空间</value>
   </data>
-  <data name="Total_space" xml:space="preserve">
+  <data name="TotalSpace" xml:space="preserve">
     <value>总容量</value>
   </data>
   <data name="Fill_ratio" xml:space="preserve">
@@ -264,7 +264,7 @@
   <data name="File_system" xml:space="preserve">
     <value>文件系统</value>
   </data>
-  <data name="You_have_opened_more_than_one_tab" xml:space="preserve">
+  <data name="#YouHaveOpenedMoreThanOneTab" xml:space="preserve">
     <value>你打开了多个标签页，确定要关闭吗？</value>
   </data>
   <data name="Tip" xml:space="preserve">
@@ -288,7 +288,7 @@
   <data name="Settings" xml:space="preserve">
     <value>设置</value>
   </data>
-  <data name="Add_to_bookmarks" xml:space="preserve">
+  <data name="AddToBookmarks" xml:space="preserve">
     <value>添加到收藏夹</value>
   </data>
   <data name="Category" xml:space="preserve">
@@ -333,13 +333,13 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
     <comment>Usage：
 ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requireDebugger] Path1, Path2, ...</comment>
   </data>
-  <data name="Unknown_argument" xml:space="preserve">
+  <data name="UnknownArgument" xml:space="preserve">
     <value>未知的参数：</value>
   </data>
   <data name="Exit" xml:space="preserve">
     <value>退出</value>
   </data>
-  <data name="Show_window" xml:space="preserve">
+  <data name="ShowWindow" xml:space="preserve">
     <value>显示窗口</value>
   </data>
   <data name="Recycle_bin" xml:space="preserve">
@@ -366,7 +366,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="Restore" xml:space="preserve">
     <value>还原</value>
   </data>
-  <data name="Unknown_type" xml:space="preserve">
+  <data name="UnknownType" xml:space="preserve">
     <value>未知类型</value>
   </data>
   <data name="Release_to_move_to_recycle_bin" xml:space="preserve">
@@ -393,5 +393,17 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name="ThisIsAnEmptyFolder" xml:space="preserve">
     <value>此文件夹为空。</value>
+  </data>
+  <data name="FormatDrive" xml:space="preserve">
+    <value>格式化驱动器</value>
+  </data>
+  <data name="#CannotFormatDrive" xml:space="preserve">
+    <value>无法格式化所选驱动器。</value>
+  </data>
+  <data name="#FormatDriveError" xml:space="preserve">
+    <value>格式化驱动器时发生错误，这并不表示所选驱动器不可格式化。</value>
+  </data>
+  <data name="OpenFileLocation" xml:space="preserve">
+    <value>打开文件位置</value>
   </data>
 </root>

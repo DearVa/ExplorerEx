@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using ExplorerEx.Command;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 using static ExplorerEx.Shell32.IconHelper;
 
 namespace ExplorerEx.Model;
 
-public class FileSystemItem : FileViewBaseItem {
+public class FileSystemItem : FileItem {
 	/// <summary>
 	/// 将已经加载过的Folder判断完是否为空缓存下来
 	/// </summary>
@@ -18,7 +19,7 @@ public class FileSystemItem : FileViewBaseItem {
 	/// <summary>
 	/// 自动更新UI
 	/// </summary>
-	public DateTime ModificationDate {
+	public DateTime DateModified {
 		get => modificationDate;
 		private set {
 			if (modificationDate != value) {
@@ -89,7 +90,6 @@ public class FileSystemItem : FileViewBaseItem {
 		IsFolder = false;
 		FileSize = -1;
 		Icon = UnknownFileDrawingImage;
-		EditCommand = new SimpleCommand(_ => OpenWith(Settings.Instance.TextEditor));
 	}
 
 	public FileSystemItem(DirectoryInfo directoryInfo) {
@@ -116,13 +116,13 @@ public class FileSystemItem : FileViewBaseItem {
 		} else {
 			var type = FileUtils.GetFileTypeDescription(Path.GetExtension(Name));
 			if (string.IsNullOrEmpty(type)) {
-				Type = "Unknown_type".L();
+				Type = "UnknownType".L();
 			} else {
 				Type = type;
 			}
 			FileSize = ((FileInfo)FileSystemInfo).Length;
 		}
-		ModificationDate = FileSystemInfo.LastWriteTime;
+		DateModified = FileSystemInfo.LastWriteTime;
 		CreationTime = FileSystemInfo.CreationTime;
 	}
 
@@ -152,7 +152,7 @@ public class FileSystemItem : FileViewBaseItem {
 		}
 		var basePath = Path.GetDirectoryName(FullPath);
 		if (Path.GetExtension(FullPath) != Path.GetExtension(EditingName)) {
-			if (!MessageBoxHelper.AskWithDefault("RenameExtension", "Are_you_sure_to_change_extension".L())) {
+			if (!MessageBoxHelper.AskWithDefault("RenameExtension", "#AreYouSureToChangeExtension".L())) {
 				return false;
 			}
 		}
@@ -171,21 +171,5 @@ public class FileSystemItem : FileViewBaseItem {
 		}
 		UpdateUI(nameof(Icon));
 		LoadAttributes();
-	}
-
-	/// <summary>
-	/// 用某应用打开此文件
-	/// </summary>
-	/// <param name="app"></param>
-	public void OpenWith(string app) {
-		try {
-			Process.Start(new ProcessStartInfo {
-				FileName = app,
-				Arguments = FullPath,
-				UseShellExecute = true
-			});
-		} catch (Exception e) {
-			HandyControl.Controls.MessageBox.Error(e.Message, "Fail to open file".L());
-		}
 	}
 }

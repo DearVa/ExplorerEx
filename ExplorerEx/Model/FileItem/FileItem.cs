@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
+using ExplorerEx.Command;
 using ExplorerEx.Utils;
 using ExplorerEx.View.Controls;
 using HandyControl.Data;
@@ -13,7 +13,7 @@ namespace ExplorerEx.Model;
 /// <summary>
 /// 所有可以显示在<see cref="FileListView"/>中的项目的基类
 /// </summary>
-public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
+public abstract class FileItem : SimpleNotifyPropertyChanged {
 	/// <summary>
 	/// 图标，自动更新UI
 	/// </summary>
@@ -83,7 +83,7 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 
 	private bool isSelected;
 
-	protected FileViewBaseItem() {
+	protected FileItem() {
 		LostFocusCommand = new SimpleCommand(OnLostFocus);
 	}
 
@@ -98,30 +98,6 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 	public abstract void LoadIcon();
 
 	public abstract void StartRename();
-
-	/// <summary>
-	/// 打开该文件或者文件夹
-	/// </summary>
-	/// <param name="runAs">以管理员身份运行，只对可执行文件有效</param>
-	/// <returns></returns>
-	public async Task OpenAsync(bool runAs = false) {
-		if (IsFolder) {
-			await FileTabControl.FocusedTabControl.SelectedTab.LoadDirectoryAsync(FullPath);
-		} else {
-			try {
-				var psi = new ProcessStartInfo {
-					FileName = FullPath,
-					UseShellExecute = true
-				};
-				if (runAs && this is FileSystemItem { IsExecutable: true }) {
-					psi.Verb = "runas";
-				}
-				Process.Start(psi);
-			} catch (Exception e) {
-				HandyControl.Controls.MessageBox.Error(e.Message, "FailedToOpenFile".L());
-			}
-		}
-	}
 
 	#region 文件重命名
 
@@ -177,4 +153,17 @@ public abstract class FileViewBaseItem : SimpleNotifyPropertyChanged {
 	}
 
 	#endregion
+}
+
+public class FileItemAttach {
+	public static readonly DependencyProperty FileItemProperty = DependencyProperty.RegisterAttached(
+		"FileItem", typeof(FileItem), typeof(FileItemAttach), new PropertyMetadata(default(FileItem)));
+
+	public static void SetFileItem(DependencyObject element, FileItem value) {
+		element.SetValue(FileItemProperty, value);
+	}
+
+	public static FileItem GetFileItem(DependencyObject element) {
+		return (FileItem)element.GetValue(FileItemProperty);
+	}
 }

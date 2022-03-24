@@ -23,6 +23,8 @@ public class DataObjectContent {
 
 	public object Data { get; }
 
+	private static readonly DataObjectContent Default = new(null, DataObjectType.Unknown);
+
 	private static readonly Dictionary<string, DataObjectType> TypePairs = new() {
 		{ DataFormats.FileDrop, DataObjectType.FileDrop },
         { DataFormats.Bitmap, DataObjectType.Bitmap },
@@ -50,11 +52,11 @@ public class DataObjectContent {
 						return new DataObjectContent(data, type); // 拿到第一种就停止
 					}
 				} catch {  // 有时候如果数据不受支持就会报异常，这是正确的情况，无视即可 https://stackoverflow.com/a/34092811/6116637
-					return null;
+					return Default;
 				}
 			}
 		}
-		return null;
+		return Default;
 	}
 
 	public static void HandleClipboardChanged() {

@@ -11,8 +11,8 @@
     <hc:NotifyIcon x:Name="NotifyIconContextContent" Visibility="Visible" Text="ExplorerEx" Icon="/ExplorerEx;component/Assets/Picture/Logo.ico">
         <hc:NotifyIcon.ContextMenu>
             <ContextMenu>
-                <MenuItem Icon="{StaticResource EyeOpenGeometry}" Header="{u:Lang Show_window}" Click="ShowWindow"/>
-                <Separator/>
+                <MenuItem Header="{u:Lang ShowWindow}" Click="ShowWindow"/>
+                <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
                 <MenuItem Icon="{StaticResource ExitDrawingImage}" Header="{u:Lang Exit}" Click="ExitButton_OnClick"/>
             </ContextMenu>
         </hc:NotifyIcon.ContextMenu>

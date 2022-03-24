@@ -26,7 +26,7 @@
   <data name="Run_SelectedItemsCount" xml:space="preserve">
     <value>Selected </value>
   </data>
-  <data name="This_computer" xml:space="preserve">
+  <data name="ThisPC" xml:space="preserve">
     <value>This PC</value>
   </data>
   <data name="New_folder" xml:space="preserve">
@@ -65,7 +65,7 @@
   <data name="Remember_my_choice_and_dont_ask_again" xml:space="preserve">
     <value>Remember my choice and don't ask again</value>
   </data>
-  <data name="Are_you_sure_to_recycle_these_files?" xml:space="preserve">
+  <data name="#AreYouSureToRecycleTheseFiles" xml:space="preserve">
     <value>Are you sure to recycle these files?</value>
   </data>
   <data name="FailedToOpenFile" xml:space="preserve">
@@ -77,7 +77,7 @@
   <data name="Cannot open path" xml:space="preserve">
     <value>Cannot open path</value>
   </data>
-  <data name="Are_you_sure_to_delete_these_files_Permanently?" xml:space="preserve">
+  <data name="#AreYouSureToDeleteTheseFilesPermanently" xml:space="preserve">
     <value>Are you sure to delete these files Permanently?</value>
   </data>
   <data name="OpenInNewWindow" xml:space="preserve">
@@ -101,7 +101,7 @@
   <data name="Delete" xml:space="preserve">
     <value>Delete</value>
   </data>
-  <data name="You_closed_the_last_tab_what_do_you_want?" xml:space="preserve">
+  <data name="#YouClosedTheLastTab" xml:space="preserve">
     <value>You closed the last tab, what do you want?</value>
   </data>
   <data name="Exit_application" xml:space="preserve">
@@ -110,13 +110,13 @@
   <data name="Back_to_home" xml:space="preserve">
     <value>Back to home</value>
   </data>
-  <data name="Unknown_error" xml:space="preserve">
+  <data name="UnknownError" xml:space="preserve">
     <value>Unknown error</value>
   </data>
   <data name="More" xml:space="preserve">
     <value>More</value>
   </data>
-  <data name="The_following_files_failed_to_delete" xml:space="preserve">
+  <data name="TheFollowingFilesFailedToDelete" xml:space="preserve">
     <value>The following file(s) failed to delete:</value>
   </data>
   <data name="Save_as_file" xml:space="preserve">
@@ -149,14 +149,14 @@
   <data name="Cannot_access_directory" xml:space="preserve">
     <value>Cannot access directory</value>
   </data>
-  <data name="Access_denied" xml:space="preserve">
+  <data name="AccessDenied" xml:space="preserve">
     <value>Access denied</value>
   </data>
   <data name="Name" xml:space="preserve">
     <value>Name</value>
   </data>
-  <data name="Modification_date" xml:space="preserve">
-    <value>Modification date</value>
+  <data name="DateModified" xml:space="preserve">
+    <value>Date modified</value>
   </data>
   <data name="File_size" xml:space="preserve">
     <value>File size</value>
@@ -167,7 +167,7 @@
   <data name="Empty_folder" xml:space="preserve">
     <value>Empty folder</value>
   </data>
-  <data name="Are_you_sure_to_change_extension" xml:space="preserve">
+  <data name="#AreYouSureToChangeExtension" xml:space="preserve">
     <value>If you change the file extension, the file may become unavailable.
 
 Are you sure you want to change?</value>
@@ -190,7 +190,7 @@ Are you sure you want to change?</value>
   <data name="Big_icons" xml:space="preserve">
     <value>Big icons</value>
   </data>
-  <data name="Small_icons" xml:space="preserve">
+  <data name="SmallIcons" xml:space="preserve">
     <value>Small icons</value>
   </data>
   <data name="List" xml:space="preserve">
@@ -208,7 +208,7 @@ Are you sure you want to change?</value>
   <data name="Available_space" xml:space="preserve">
     <value>Free space</value>
   </data>
-  <data name="Total_space" xml:space="preserve">
+  <data name="TotalSpace" xml:space="preserve">
     <value>Total space</value>
   </data>
   <data name="Fill_ratio" xml:space="preserve">
@@ -217,7 +217,7 @@ Are you sure you want to change?</value>
   <data name="File_system" xml:space="preserve">
     <value>File system</value>
   </data>
-  <data name="You_have_opened_more_than_one_tab" xml:space="preserve">
+  <data name="#YouHaveOpenedMoreThanOneTab" xml:space="preserve">
     <value>You have opened more than one tab. Are you sure you want to close?</value>
   </data>
   <data name="Tip" xml:space="preserve">
@@ -241,7 +241,7 @@ Are you sure you want to change?</value>
   <data name="Settings" xml:space="preserve">
     <value>Settings</value>
   </data>
-  <data name="Add_to_bookmarks" xml:space="preserve">
+  <data name="AddToBookmarks" xml:space="preserve">
     <value>Add to bookmarks</value>
   </data>
   <data name="Category" xml:space="preserve">
@@ -280,7 +280,7 @@ Are you sure you want to change?</value>
   <data name="Cannot_open" xml:space="preserve">
     <value>Cannot open</value>
   </data>
-  <data name="Unknown_argument" xml:space="preserve">
+  <data name="UnknownArgument" xml:space="preserve">
     <value>Unknown argument: </value>
   </data>
   <data name="#App_help" xml:space="preserve">
@@ -290,11 +290,11 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="Exit" xml:space="preserve">
     <value>Exit</value>
   </data>
-  <data name="Show_window" xml:space="preserve">
+  <data name="ShowWindow" xml:space="preserve">
     <value>Show window</value>
   </data>
   <data name="Recycle_bin" xml:space="preserve">
-    <value>Recycle bin</value>
+    <value>Recycle Bin</value>
   </data>
   <data name="Network" xml:space="preserve">
     <value>Network</value>
@@ -317,7 +317,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="Restore" xml:space="preserve">
     <value>Restore</value>
   </data>
-  <data name="Unknown_type" xml:space="preserve">
+  <data name="UnknownType" xml:space="preserve">
     <value>Unknown type</value>
   </data>
   <data name="Release_to_move_to_recycle_bin" xml:space="preserve">
@@ -344,5 +344,17 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name="ThisIsAnEmptyFolder" xml:space="preserve">
     <value>This is an empty folder.</value>
+  </data>
+  <data name="FormatDrive" xml:space="preserve">
+    <value>Format Drive</value>
+  </data>
+  <data name="#CannotFormatDrive" xml:space="preserve">
+    <value>The drive cannot be formatted.</value>
+  </data>
+  <data name="#FormatDriveError" xml:space="preserve">
+    <value>An error occurred during the last format. This does not indicate that the drive is unformattable.</value>
+  </data>
+  <data name="OpenFileLocation" xml:space="preserve">
+    <value>Open file location</value>
   </data>
 </root>

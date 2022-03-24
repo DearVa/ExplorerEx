@@ -7,6 +7,7 @@ using System.Windows.Media.Imaging;
 using ExplorerEx.Win32;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using ExplorerEx.Command;
 
 namespace ExplorerEx.View;
 

@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Windows.Controls;
 using System.Windows.Data;
+using ExplorerEx.Model;
 
 namespace ExplorerEx.Converter; 
 
@@ -13,8 +14,15 @@ internal class FileSystemItemContextMenuConverter : IValueConverter {
 
 	public ContextMenu FolderContextMenu { get; set; }
 
-	public object Convert(object isDirectory, Type targetType, object parameter, CultureInfo culture) {
-		return (bool)isDirectory! ? FolderContextMenu : FileContextMenu;
+	public ContextMenu DiskDriveContextMenu { get; set; }
+
+	public object Convert(object item, Type targetType, object parameter, CultureInfo culture) {
+		return item switch {
+			FileSystemItem fs => fs.IsFolder ? FolderContextMenu : FileContextMenu,
+			DiskDrive => DiskDriveContextMenu,
+			BookmarkItem bm => bm.IsFolder ? FolderContextMenu : FileContextMenu, 
+			_ => null
+		};
 	}
 
 	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {

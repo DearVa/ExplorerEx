@@ -30,7 +30,7 @@
 
     <Color x:Key="BorderColor">#553f3f46</Color>
     <Color x:Key="SecondaryBorderColor">#555555</Color>
-    <Color x:Key="BackgroundColor">#55222222</Color>
+    <Color x:Key="BackgroundColor">#77111111</Color>
     <Color x:Key="RegionColor">#2c2c2c</Color>
     <Color x:Key="SecondaryRegionColor">#3d3d40</Color>
     <Color x:Key="ThirdlyRegionColor">#bb525252</Color>

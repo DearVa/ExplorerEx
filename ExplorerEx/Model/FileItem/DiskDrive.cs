@@ -13,17 +13,17 @@ namespace ExplorerEx.Model;
 /// <summary>
 /// 硬盘驱动器
 /// </summary>
-public sealed class DiskDrive : FileViewBaseItem {
-	public DriveInfo Driver { get; private set; }
+public sealed class DiskDrive : FileItem {
+	public DriveInfo Drive { get; private set; }
 
 	public override string FullPath {
-		get => Driver.Name;
-		protected set => Driver = new DriveInfo(value);
+		get => Drive.Name;
+		protected set => Drive = new DriveInfo(value);
 	}
 
 	public override string DisplayText {
 		get {
-			var driver = Driver;
+			var driver = Drive;
 			if (driver.IsReady) {
 				return $"{(string.IsNullOrWhiteSpace(driver.VolumeLabel) ? Type : driver.VolumeLabel)} ({driver.Name[..1]})";
 			}
@@ -45,23 +45,23 @@ public sealed class DiskDrive : FileViewBaseItem {
 
 	private static readonly Gradient GradientColor = new(Colors.ForestGreen, Colors.Orange, Colors.Red);
 
-	public DiskDrive(DriveInfo driver) {
-		Driver = driver;
+	public DiskDrive(DriveInfo drive) {
+		Drive = drive;
 		IsFolder = true;
 		TotalSpace = -1;
-		Name = driver.Name;
+		Name = drive.Name;
 	}
 
 	public override void LoadAttributes() {
-		Type = Driver.DriveType switch {
+		Type = Drive.DriveType switch {
 			DriveType.Removable => "Removable_disk".L(),
 			DriveType.CDRom => "CD_drive".L(),
 			DriveType.Fixed => "Local_disk".L(),
 			_ => "Other_type_disk".L()
 		};
-		if (Driver.IsReady) {
-			TotalSpace = Driver.TotalSize;
-			FreeSpace = Driver.AvailableFreeSpace; // 考虑用户配额
+		if (Drive.IsReady) {
+			TotalSpace = Drive.TotalSize;
+			FreeSpace = Drive.AvailableFreeSpace; // 考虑用户配额
 		} else {
 			TotalSpace = -1;
 		}
@@ -73,12 +73,12 @@ public sealed class DiskDrive : FileViewBaseItem {
 	}
 
 	public override void LoadIcon() {
-		Icon = IconHelper.GetDiskDriveThumbnail(Driver);
+		Icon = IconHelper.GetDiskDriveThumbnail(Drive);
 	}
 
 	public override void StartRename() {
-		if (Driver.IsReady) {
-			EditingName = string.IsNullOrWhiteSpace(Driver.VolumeLabel) ? Type : Driver.VolumeLabel;
+		if (Drive.IsReady) {
+			EditingName = string.IsNullOrWhiteSpace(Drive.VolumeLabel) ? Type : Drive.VolumeLabel;
 		} else {
 			MessageBox.Error("DriveIsNotReady".L());
 		}
@@ -86,7 +86,7 @@ public sealed class DiskDrive : FileViewBaseItem {
 
 	protected override bool Rename() {
 		try {
-			Driver.VolumeLabel = EditingName;
+			Drive.VolumeLabel = EditingName;
 			return true;
 		} catch (Exception e) {
 			Logger.Error(e.Message);

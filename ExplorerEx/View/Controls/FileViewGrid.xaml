@@ -40,22 +40,22 @@
         <StackPanel Orientation="Horizontal" Visibility="{Binding IsFileUtilsVisible, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}, RelativeSource={RelativeSource AncestorType=ct:FileTabControl}}">
             <Button VerticalAlignment="Stretch" Height="35" ToolTip="{u:Lang Cut}"
                     IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
-                    Command="{Binding CutCommand}">
+                    Command="{Binding FileItemCommand}" CommandParameter="Cut">
                 <Image Width="20" Height="20" Source="{StaticResource CutDrawingImage}"/>
             </Button>
             <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Copy}"
                     IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
-                    Command="{Binding CopyCommand}">
+                    Command="{Binding FileItemCommand}" CommandParameter="Copy">
                 <Image Width="20" Height="20" Source="{StaticResource CopyDrawingImage}"/>
             </Button>
             <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Paste}"
                     IsEnabled="{Binding CanPaste, Mode=OneWay}"
-                    Command="{Binding PasteCommand}">
+                    Command="{Binding FileItemCommand}" CommandParameter="Paste">
                 <Image Width="20" Height="20" Source="{StaticResource PasteDrawingImage}"/>
             </Button>
             <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Rename}"
                     IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
-                    Command="{Binding RenameCommand}">
+                    Command="{Binding FileItemCommand}" CommandParameter="Rename">
                 <Image Width="20" Height="20" Source="{StaticResource RenameDrawingImage}"/>
             </Button>
             <!--<Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Share}"
@@ -65,7 +65,7 @@
                                 </Button>-->
             <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Delete}"
                     IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
-                    Command="{Binding DeleteCommand}">
+                    Command="{Binding FileItemCommand}" CommandParameter="Delete">
                 <Image Width="20" Height="20" Source="{StaticResource DeleteDrawingImage}"/>
             </Button>
             <Rectangle Width="1" Height="30" Stroke="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
@@ -81,19 +81,19 @@
                     <ContextMenu.Items>
                         <MenuItem CommandParameter="6" Header="{u:Lang Name}" 
                                   IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
-                        <MenuItem CommandParameter="7" Header="{u:Lang Modification_date}"
+                        <MenuItem CommandParameter="7" Header="{u:Lang DateModified}"
                                   IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
                         <MenuItem CommandParameter="8" Header="{u:Lang Type}"
                                   IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
                         <MenuItem CommandParameter="9" Header="{u:Lang File_size}"
                                   IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
-                        <Separator/>
+                        <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
 
                         <MenuItem CommandParameter="10" Header="{u:Lang Ascending}"
                                   IsChecked="{Binding IsAscending, Mode=OneWay}"/>
                         <MenuItem CommandParameter="11" Header="{u:Lang Descending}"
                                   IsChecked="{Binding IsAscending, Mode=OneWay, Converter={StaticResource Boolean2BooleanReConverter}}"/>
-                        <!--<Separator/>
+                        <!--<Separator Style="{DynamicResource SeparatorBaseStyle}"/>
 
                         <MenuItem Header="{u:Lang Group_by}">
                             <MenuItem.Items>
@@ -101,7 +101,7 @@
                                           IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=-1}"/>
                                 <MenuItem CommandParameter="13" Header="{u:Lang Name}" 
                                           IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
-                                <MenuItem CommandParameter="14" Header="{u:Lang Modification_date}"
+                                <MenuItem CommandParameter="14" Header="{u:Lang DateModified}"
                                           IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
                                 <MenuItem CommandParameter="15" Header="{u:Lang Type}"
                                           IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
@@ -123,7 +123,7 @@
                     <ContextMenu.Items>
                         <MenuItem CommandParameter="0" Header="{u:Lang Big_icons}" 
                                   IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
-                        <MenuItem CommandParameter="1" Header="{u:Lang Small_icons}"
+                        <MenuItem CommandParameter="1" Header="{u:Lang SmallIcons}"
                                   IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
                         <MenuItem CommandParameter="2" Header="{u:Lang List}"
                                   IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
@@ -201,11 +201,11 @@
                            BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
                            Background="{DynamicResource RegionBrush}">
             <ct:FileListView x:Name="FileGrid" d:DataContext="{d:DesignInstance vm:FileGridViewModel}"
-                         ItemsCollection="{Binding Items, Mode=OneWay}" 
-                         FileView="{Binding FileView, Mode=OneWay}"
-                         FullPath="{Binding FullPath, Mode=OneWay}"
-                         Folder="{Binding Folder, Mode=OneWay}"
-                         Background="{DynamicResource RegionBrush}">
+                             ItemsCollection="{Binding Items, Mode=OneWay}" 
+                             FileView="{Binding FileView, Mode=OneWay}"
+                             FullPath="{Binding FullPath, Mode=OneWay}"
+                             Folder="{Binding Folder, Mode=OneWay}"
+                             Background="{DynamicResource RegionBrush}">
                 <hc:Interaction.Triggers>
                     <hc:RoutedEventTrigger RoutedEvent="ListBox.SelectionChanged">
                         <hc:EventToCommand Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True"/>

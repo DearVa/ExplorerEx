@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using ExplorerEx.Command;
+using ExplorerEx.Converter;
 using ExplorerEx.Model;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
@@ -30,10 +32,13 @@ public sealed partial class MainWindow {
 	public static List<MainWindow> MainWindows { get; } = new();
 
 	public SimpleCommand SideBarItemPreviewMouseDownCommand { get; }
+	public SimpleCommand SideBarItemPreviewMouseUpCommand { get; }
 	public SimpleCommand SideBarItemMouseDoubleClickCommand { get; }
+	public FileItemCommand BookmarkItemCommand { get; }
+	public SimpleCommand EditBookmarkCommand { get; }
+	public SplitGrid SplitGrid { get; }
+	public HwndSource Hwnd { get; }
 
-	public readonly SplitGrid splitGrid;
-	private readonly HwndSource hwnd;
 	private IntPtr nextClipboardViewer;
 	private bool isClipboardViewerSet;
 
@@ -45,14 +50,13 @@ public sealed partial class MainWindow {
 
 	private readonly string startupPath;
 
+	private FileSystemItemContextMenuConverter bookmarkConverter;
+
 	public MainWindow() : this(null) { }
 
 	public MainWindow(string startupPath) {
 		this.startupPath = startupPath;
 		MainWindows.Add(this);
-
-		SideBarItemPreviewMouseDownCommand = new SimpleCommand(SideBarItem_OnPreviewMouseDown);
-		SideBarItemMouseDoubleClickCommand = new SimpleCommand(SideBarItem_OnMouseDoubleClick);
 
 		Width = ConfigHelper.LoadInt("WindowWidth", 1200);
 		Height = ConfigHelper.LoadInt("WindowHeight", 800);
@@ -68,64 +72,87 @@ public sealed partial class MainWindow {
 		DataContext = this;
 		InitializeComponent();
 
+		bookmarkConverter = (FileSystemItemContextMenuConverter)Resources["FileSystemItemContextMenuConverter"];
+		SideBarItemPreviewMouseDownCommand = new SimpleCommand(OnSideBarItemPreviewMouseDown);
+		SideBarItemPreviewMouseUpCommand = new SimpleCommand(OnSideBarItemPreviewMouseUp);
+		SideBarItemMouseDoubleClickCommand = new SimpleCommand(OnSideBarItemMouseDoubleClick);
+
+		BookmarkItemCommand = new FileItemCommand {
+			SelectedItemsProvider = () => {
+				var selectedItem = BookmarkItem.SelectedItem;
+				return selectedItem != null ? new[] { selectedItem } : Array.Empty<FileItem>();
+			},
+			TabControlProvider = () => FileTabControl.MouseOverTabControl
+		};
+		EditBookmarkCommand = new SimpleCommand(_ => {
+			var selectedItem = BookmarkItem.SelectedItem;
+			if (selectedItem != null) {
+				AddToBookmarks(selectedItem.FullPath);
+			}
+		});
+
 		if (ConfigHelper.LoadBoolean("WindowMaximized")) {
 			WindowState = WindowState.Maximized;
 			RootGrid.Margin = new Thickness(6);
 		}
 
-		hwnd = HwndSource.FromHwnd(new WindowInteropHelper(this).EnsureHandle())!;
+		Hwnd = HwndSource.FromHwnd(new WindowInteropHelper(this).EnsureHandle())!;
 		if (MainWindows.Count == 1) {  // 只在一个窗口上检测剪贴板变化事件
 			RegisterClipboard();
 			RecycleBinItem.Update();
 		}
-		hwnd.AddHook(WndProc);
+		Hwnd.AddHook(WndProc);
 
-		splitGrid = new SplitGrid(this, null);
-		ContentGrid.Children.Add(splitGrid);
+		SplitGrid = new SplitGrid(this, null);
+		ContentGrid.Children.Add(SplitGrid);
 		ChangeThemeWithSystem();
 
 		StartupLoad();
 	}
 
-	private static void SideBarItem_OnMouseDoubleClick(object args) {
+	private static void OnSideBarItemMouseDoubleClick(object args) {
 		var e = (MouseEventArgs)args;
 		if (e.LeftButton != MouseButtonState.Pressed && e.RightButton != MouseButtonState.Pressed) {
 			return;
 		}
-		if (e.OriginalSource is FrameworkElement { DataContext: FileViewBaseItem item }) {
+		if (e.OriginalSource is FrameworkElement { DataContext: FileItem item }) {
 			item.IsSelected = true;
 		}
 	}
 
-	private static void SideBarItem_OnPreviewMouseDown(object args) {
-		var e = (MouseEventArgs)args;
-		if (e.LeftButton != MouseButtonState.Pressed && e.RightButton != MouseButtonState.Pressed) {
-			return;
-		}
-		if (e.OriginalSource is FrameworkElement { DataContext: FileViewBaseItem item }) {
-			item.IsSelected = true;
+	private static void OnSideBarItemPreviewMouseDown(object args) {
+		var e = (MouseButtonEventArgs)args;
+		if (e.ChangedButton is MouseButton.Left or MouseButton.Right) {
+			if (e.OriginalSource is FrameworkElement { DataContext: FileItem item }) {
+				item.IsSelected = true;
+			}
 		}
 	}
 
-	private async void StartupLoad() {
-#if DEBUG
-		Trace.WriteLine("StartupLoad: " + DateTime.Now);
-#endif
+	private void OnSideBarItemPreviewMouseUp(object args) {
+		var e = (MouseButtonEventArgs)args;
+		if (e.ChangedButton == MouseButton.Right && e.OriginalSource is FrameworkElement { DataContext: BookmarkItem bookmarkItem } item ) {
+			var menu = (ContextMenu)bookmarkConverter.Convert(bookmarkItem, null, null, null)!;
+			menu.DataContext = this;
+			menu.SetValue(FileItemAttach.FileItemProperty, bookmarkItem);
+			menu.IsOpen = true;
+			e.Handled = true;
+		}
+	}
+
+	private void StartupLoad() {
 		if (startupPath == null) {
-			await splitGrid.FileTabControl.StartUpLoad(App.Args.Paths.ToArray());
+			_ = SplitGrid.FileTabControl.StartUpLoad(App.Args.Paths.ToArray());
 		} else {
-			await splitGrid.FileTabControl.StartUpLoad(startupPath);
+			_ = SplitGrid.FileTabControl.StartUpLoad(startupPath);
 		}
-#if DEBUG
-		Trace.WriteLine("Startup Finished: " + DateTime.Now);
-#endif
 	}
 
 	/// <summary>
 	/// 注册事件监视剪贴板变化
 	/// </summary>
 	private void RegisterClipboard() {
-		nextClipboardViewer = SetClipboardViewer(hwnd.Handle);
+		nextClipboardViewer = SetClipboardViewer(Hwnd.Handle);
 		var error = Marshal.GetLastWin32Error();
 		if (error != 0) {
 			Marshal.ThrowExceptionForHR(error);
@@ -139,16 +166,16 @@ public sealed partial class MainWindow {
 	/// </summary>
 	private void RegisterRecycleBin() {
 		var entry = new SHChangeNotifyEntry();
-		SHChangeNotifyRegister(hwnd.Handle, SHCNF.AcceptInterrupts | SHCNF.AcceptNonInterrupts, SHCNE.Rmdir | SHCNE.RenameFolder | SHCNE.Delete | SHCNE.RenameItem, (uint)WinMessage.ShellNotifyRBinDir, 1, ref entry);
+		SHChangeNotifyRegister(Hwnd.Handle, SHCNF.AcceptInterrupts | SHCNF.AcceptNonInterrupts, SHCNE.Rmdir | SHCNE.RenameFolder | SHCNE.Delete | SHCNE.RenameItem, (uint)WinMessage.ShellNotifyRBinDir, 1, ref entry);
 		RecycleBinItem.Update();
 	}
 
 	private void EnableMica(bool isDarkTheme) {
 		if (Environment.OSVersion.Version >= Version.Parse("10.0.22000.0")) {
 			var isDark = isDarkTheme ? 1 : 0;
-			DwmSetWindowAttribute(hwnd.Handle, DwmWindowAttribute.UseImmersiveDarkMode, ref isDark, sizeof(uint));
+			DwmSetWindowAttribute(Hwnd.Handle, DwmWindowAttribute.UseImmersiveDarkMode, ref isDark, sizeof(uint));
 			var trueValue = 1;
-			DwmSetWindowAttribute(hwnd.Handle, DwmWindowAttribute.MicaEffect, ref trueValue, sizeof(uint));
+			DwmSetWindowAttribute(Hwnd.Handle, DwmWindowAttribute.MicaEffect, ref trueValue, sizeof(uint));
 		}
 	}
 
@@ -176,7 +203,7 @@ public sealed partial class MainWindow {
 				case 0x8000:  // DBT_DEVICEARRIVAL
 				case 0x8004:  // DBT_DEVICEREMOVECOMPLETE
 					var drive = DriveMaskToLetter(vol.unitMask);
-					foreach (var fileTabControl in splitGrid) {
+					foreach (var fileTabControl in SplitGrid) {
 						foreach (var tabItem in fileTabControl.TabItems) {
 							switch (tabItem.PathType) {
 							case PathType.Home:
@@ -267,7 +294,7 @@ public sealed partial class MainWindow {
 		lock (everythingQueryIds) {
 			var id = Interlocked.Increment(ref globalEverythingQueryId);
 			everythingQueryIds.Add(id);
-			EverythingInterop.SetReplyWindow(hwnd.Handle);
+			EverythingInterop.SetReplyWindow(Hwnd.Handle);
 			EverythingInterop.SetReplyID(id);
 			return id;
 		}
@@ -281,7 +308,7 @@ public sealed partial class MainWindow {
 
 	#region 收藏夹
 	public static readonly DependencyProperty IsAddToBookmarkShowProperty = DependencyProperty.Register(
-		"IsAddToBookmarkShow", typeof(bool), typeof(MainWindow), new PropertyMetadata(false, IsAddToBookmarkShow_OnChanged));
+		"IsAddToBookmarkShow", typeof(bool), typeof(MainWindow), new PropertyMetadata(false, OnIsAddToBookmarkShowChanged));
 
 	public bool IsAddToBookmarkShow {
 		get => (bool)GetValue(IsAddToBookmarkShowProperty);
@@ -318,17 +345,17 @@ public sealed partial class MainWindow {
 		IsAddToBookmarkShow = true;
 	}
 
-	private void AddToBookmarkConfirm_OnClick(object sender, RoutedEventArgs e) {
+	private void OnAddToBookmarkConfirmClick(object sender, RoutedEventArgs e) {
 		isDeleteBookmark = false;
 		IsAddToBookmarkShow = false;
 	}
 
-	private void AddToBookmarkDelete_OnClick(object sender, RoutedEventArgs e) {
+	private void OnAddToBookmarkDeleteClick(object sender, RoutedEventArgs e) {
 		isDeleteBookmark = true;
 		IsAddToBookmarkShow = false;
 	}
 
-	private static async void IsAddToBookmarkShow_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+	private static async void OnIsAddToBookmarkShowChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		var window = (MainWindow)d;
 		var bookmarkItem = window.bookmarkPaths[window.currentBookmarkIndex];
 		if ((bool)e.NewValue) {
@@ -339,7 +366,7 @@ public sealed partial class MainWindow {
 				window.BookmarkName = dbBookmark.Name;
 				window.BookmarkCategoryComboBox.SelectedItem = dbBookmark.Category;
 			} else {
-				window.AddToBookmarkTipTextBlock.Text = "Add_to_bookmarks".L();
+				window.AddToBookmarkTipTextBlock.Text = "AddToBookmarks".L();
 				window.BookmarkName = fullPath.Length == 3 ? fullPath : Path.GetFileName(fullPath);
 				window.BookmarkCategoryComboBox.SelectedIndex = 0;
 			}
@@ -369,7 +396,7 @@ public sealed partial class MainWindow {
 						await bookmarkDb.SaveChangesAsync();
 						item.LoadIcon();
 					}
-					foreach (var updateItem in MainWindows.SelectMany(mw => mw.splitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
+					foreach (var updateItem in MainWindows.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
 						updateItem.UpdateUI(nameof(updateItem.IsBookmarked));
 					}
 				}
@@ -381,7 +408,7 @@ public sealed partial class MainWindow {
 		}
 	}
 
-	public static async void RemoveFromBookmark(params string[] filePaths) {
+	public static async Task RemoveFromBookmark(params string[] filePaths) {
 		if (filePaths == null || filePaths.Length == 0) {
 			return;
 		}
@@ -392,7 +419,7 @@ public sealed partial class MainWindow {
 			if (item != null) {
 				bookmarkDb.BookmarkDbSet.Remove(item);
 				await bookmarkDb.SaveChangesAsync();
-				foreach (var updateItem in MainWindows.SelectMany(mw => mw.splitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
+				foreach (var updateItem in MainWindows.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
 					updateItem.UpdateUI(nameof(updateItem.IsBookmarked));
 				}
 			}
@@ -401,8 +428,8 @@ public sealed partial class MainWindow {
 	#endregion
 
 	protected override void OnClosing(CancelEventArgs e) {
-		if (splitGrid.FileTabControl.TabItems.Count > 1 || splitGrid.AnyOtherTabs) {
-			if (!MessageBoxHelper.AskWithDefault("CloseMultiTabs", "You_have_opened_more_than_one_tab".L())) {
+		if (SplitGrid.FileTabControl.TabItems.Count > 1 || SplitGrid.AnyOtherTabs) {
+			if (!MessageBoxHelper.AskWithDefault("CloseMultiTabs", "#YouHaveOpenedMoreThanOneTab".L())) {
 				e.Cancel = true;
 			}
 		}
@@ -411,10 +438,10 @@ public sealed partial class MainWindow {
 
 	protected override void OnClosed(EventArgs e) {
 		MainWindows.Remove(this);
-		splitGrid.Close();
+		SplitGrid.Close();
 		if (isClipboardViewerSet) {
 			if (nextClipboardViewer != IntPtr.Zero) {
-				ChangeClipboardChain(hwnd.Handle, nextClipboardViewer);
+				ChangeClipboardChain(Hwnd.Handle, nextClipboardViewer);
 			}
 			if (MainWindows.Count > 0) { // 通知下一个Window进行Hook
 				MainWindows[0].RegisterClipboard();
@@ -486,13 +513,13 @@ public sealed partial class MainWindow {
 				case Key.Z:
 					break;
 				case Key.X:
-					mouseOverTab.Copy(true);
+					mouseOverTab.FileItemCommand.Execute("Cut");
 					break;
 				case Key.C:
-					mouseOverTab.Copy(false);
+					mouseOverTab.FileItemCommand.Execute("Copy");
 					break;
 				case Key.V:
-					mouseOverTab.Paste();
+					mouseOverTab.FileItemCommand.Execute("Paste");
 					break;
 				case Key.A:
 					mouseOverTab.FileListView.SelectAll();
@@ -504,7 +531,7 @@ public sealed partial class MainWindow {
 			} else {
 				switch (e.Key) {
 				case Key.Delete:
-					mouseOverTab.Delete();
+					mouseOverTab.FileItemCommand.Execute("Delete");
 					break;
 				}
 			}

@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
@@ -63,7 +64,9 @@ public class BookmarkCategory : SimpleNotifyPropertyChanged {
 /// 书签项
 /// </summary>
 [Serializable]
-public class BookmarkItem : FileViewBaseItem, IFilterable {
+public class BookmarkItem : FileItem, IFilterable {
+	public static BookmarkItem SelectedItem => BookmarkDbContext.Instance.BookmarkDbSet.Local.FirstOrDefault(i => i.IsSelected);
+
 	[Key]
 	public override string FullPath { get; protected set; }
 

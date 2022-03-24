@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Style x:Key="SeparatorBaseStyle" TargetType="Separator">
-        <Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SecondaryBorderBrush}"/>
         <Setter Property="Margin" Value="-30,3,0,3" />
     </Style>
 

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace ExplorerEx.Utils;
+namespace ExplorerEx.Command;
 
 public class SimpleCommand : ICommand {
 	public event Action<object> Action;

@@ -1,6 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
+using ExplorerEx.Model;
+using System.Windows.Documents;
+using ExplorerEx.Utils;
 
 namespace ExplorerEx.Shell32; 
 
@@ -96,26 +102,33 @@ internal static class Shell32Interop {
 	[DllImport(Shell32, SetLastError = true, CharSet = CharSet.Unicode, EntryPoint = "CommandLineToArgvW")]
 	public static extern IntPtr CommandLineToArgv(string lpCmdLine, out int pNumArgs);
 
-	[DllImport("shell32.dll", SetLastError = true, EntryPoint = "#2", CharSet = CharSet.Auto)]
-	public static extern uint SHChangeNotifyRegister(IntPtr hWnd, SHCNF fSources, SHCNE fEvents, uint wMsg, int cEntries, ref SHChangeNotifyEntry pFsne);
+	[DllImport(Shell32, SetLastError = true, EntryPoint = "#2", CharSet = CharSet.Auto)]
+	public static extern uint SHChangeNotifyRegister(IntPtr hwnd, SHCNF fSources, SHCNE fEvents, uint wMsg, int cEntries, ref SHChangeNotifyEntry pFsne);
 
-
-	private const int SW_SHOW = 5;
-	private const uint SEE_MASK_INVOKEIDLIST = 12;
+	[DllImport(Shell32)]
+	public static extern uint SHFormatDrive(IntPtr hwnd, uint drive, uint fmtID, uint options);
 
 	/// <summary>
 	/// 显示文件的属性面板
 	/// </summary>
 	/// <param name="filePath"></param>
 	/// <returns></returns>
-	public static bool ShowFileProperties(string filePath) {
+	public static void ShowFileProperties(string filePath) {
 		var info = new ShellExecuteInfo();
 		info.cbSize = Marshal.SizeOf(info);
 		info.lpVerb = "properties";
-		info.lpFile = filePath;
-		info.nShow = SW_SHOW;
-		info.fMask = SEE_MASK_INVOKEIDLIST;
-		return ShellExecuteEx(ref info);
+		info.lpFile = filePath ?? string.Empty;
+		info.nShow = 5;
+		info.fMask = 12;
+		ShellExecuteEx(ref info);
+	}
+
+	/// <summary>
+	/// 显示一个格式化驱动器的对话框
+	/// </summary>
+	/// <param name="drive"></param>
+	public static Task ShowFormatDriveDialog(DriveInfo drive) {
+		return Task.Run(() => SHFormatDrive(IntPtr.Zero, (uint)(drive.Name[0] - 'A'), 0xFFFF, 0));
 	}
 
 	public static IMalloc Malloc { get; private set; }

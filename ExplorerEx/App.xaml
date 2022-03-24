@@ -24,6 +24,25 @@
                     <c:FileName2IconConverter x:Key="FileName2IconConverter"/>
                     <c:FullPath2FileNameConverter x:Key="FullPath2FileNameConverter"/>
                     <c:Bytes2StringConverter x:Key="Bytes2StringConverter"/>
+
+                    <Style x:Key="ButtonLikeMenuItem" TargetType="MenuItem">
+                        <Setter Property="Width" Value="40"/>
+                        <Setter Property="Height" Value="35"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="MenuItem">
+                                    <Border x:Name="Border" CornerRadius="5" Background="{TemplateBinding Background}">
+                                        <Image Width="20" Height="20" Source="{TemplateBinding Icon}"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger SourceName="Border" Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

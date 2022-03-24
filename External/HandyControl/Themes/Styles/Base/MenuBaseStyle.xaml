@@ -20,7 +20,7 @@
                     <Border x:Name="Bd" MinWidth="120" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True" CornerRadius="5">
                         <Grid x:Name="Grid" HorizontalAlignment="Left" Margin="4">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="{TemplateBinding Height}"/>
+                                <ColumnDefinition Width="30"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="30"/>
                                 <ColumnDefinition SharedSizeGroup="MenuItemIGTColumnGroup" Width="Auto"/>
@@ -161,7 +161,7 @@
                             <Border x:Name="Bd" MinWidth="120" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True" CornerRadius="5">
                                 <Grid x:Name="Grid" Margin="4">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="18" />
+                                        <ColumnDefinition Width="30" />
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="30" />
                                         <ColumnDefinition SharedSizeGroup="MenuItemIGTColumnGroup" Width="Auto" />

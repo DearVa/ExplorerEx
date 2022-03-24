@@ -28,7 +28,7 @@ public static class Logger {
 		if (e.ExceptionObject is Exception ex) {
 			Exception(ex);
 		} else {
-			Error("Unknown_error".L());
+			Error("UnknownError".L());
 		}
 	}
 

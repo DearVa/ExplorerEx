@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using ExplorerEx.Command;
 using ExplorerEx.Model;
 using ExplorerEx.Utils;
 using ExplorerEx.ViewModel;
@@ -63,6 +64,6 @@ public partial class FileViewGrid {
 	}
 
 	private async void History_OnClick(object sender, RoutedEventArgs e) {
-		await GridViewModel.LoadDirectoryAsync(((FileViewBaseItem)((MenuItem)sender).DataContext).FullPath);
+		await GridViewModel.LoadDirectoryAsync(((FileItem)((MenuItem)sender).DataContext).FullPath);
 	}
 }

@@ -47,7 +47,7 @@ public partial class App {
 		try {
 			Args = new Arguments(e.Args);
 		} catch (ArgumentException ae) {
-			Console.WriteLine("Unknown_argument".L() + ae.Message);
+			Console.WriteLine("UnknownArgument".L() + ae.Message);
 			Current.Shutdown();
 			return;
 		}

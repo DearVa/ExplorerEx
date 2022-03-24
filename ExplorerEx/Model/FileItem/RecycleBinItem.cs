@@ -11,7 +11,7 @@ namespace ExplorerEx.Model;
 /// <summary>
 /// 回收站的一项文件
 /// </summary>
-public sealed class RecycleBinItem : FileViewBaseItem {
+public sealed class RecycleBinItem : FileItem {
 	public override string FullPath { get; protected set; }
 
 	public override string DisplayText => Name;
