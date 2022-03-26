@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -200,6 +201,9 @@ public class FileItemCommand : ICommand {
 				}
 				Process.Start(psi);
 			} catch (Exception e) {
+				if (e is Win32Exception { ErrorCode: -2147467259 }) {  // 操作被用户取消
+					return;
+				}
 				hc.MessageBox.Error(e.Message, "FailedToOpenFile".L());
 			}
 		}

@@ -293,7 +293,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="ShowWindow" xml:space="preserve">
     <value>Show window</value>
   </data>
-  <data name="Recycle_bin" xml:space="preserve">
+  <data name="RecycleBin" xml:space="preserve">
     <value>Recycle Bin</value>
   </data>
   <data name="Network" xml:space="preserve">
@@ -320,7 +320,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="UnknownType" xml:space="preserve">
     <value>Unknown type</value>
   </data>
-  <data name="Release_to_move_to_recycle_bin" xml:space="preserve">
+  <data name="Release_to_move_to_RecycleBin" xml:space="preserve">
     <value>Release to move to Recycle bin</value>
   </data>
   <data name="Ascending" xml:space="preserve">

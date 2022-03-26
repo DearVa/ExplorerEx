@@ -274,7 +274,7 @@
             </StackPanel>
         </ControlTemplate>
 
-        <ct:StaysOpenContextMenu x:Key="DiskDriveItemContextMenu" StaysOpen="True" d:DataContext="{d:DesignInstance ct:FileListView}" Style="{StaticResource ContextMenuBaseStyle}">
+        <ContextMenu x:Key="DiskDriveItemContextMenu" StaysOpen="True" d:DataContext="{d:DesignInstance ct:FileListView}" Style="{StaticResource ContextMenuBaseStyle}">
             <MenuItem Height="35">
                 <MenuItem.Template>
                     <ControlTemplate>
@@ -318,7 +318,7 @@
             <MenuItem CommandParameter="Properties"
                       Command="{Binding ViewModel.FileItemCommand}"
                       Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
-        </ct:StaysOpenContextMenu>
+        </ContextMenu>
 
         <ContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance ct:FileListView}">
             <MenuItem Height="35" Template="{StaticResource FileOperationsTemplate}"/>

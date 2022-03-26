@@ -890,8 +890,12 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	public void ScrollIntoView(FileItem item) {
 		if (!isRectSelecting && !isDragDropping) {
-			scrollViewer.ScrollToBottom();  // 确保在最上面
-			ScrollIntoView((object)item);
+			if (item == null) {
+				scrollViewer.ScrollToTop();
+			} else {
+				scrollViewer.ScrollToBottom(); // 确保在最上面
+				ScrollIntoView((object)item);
+			}
 		}
 	}
 

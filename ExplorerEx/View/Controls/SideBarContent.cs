@@ -1,12 +1,19 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media.Animation;
 using ExplorerEx.Converter;
+using HandyControl.Controls;
+using TextBox = System.Windows.Controls.TextBox;
 
-namespace ExplorerEx.View.Controls; 
+namespace ExplorerEx.View.Controls;
 
-public partial class SideBarContent {
+[TemplatePart(Name = SearchToggleButtonKey, Type = typeof(ToggleButton))]
+[TemplatePart(Name = SearchTextBoxKey, Type = typeof(TextBox))]
+[TemplatePart(Name = DragAreaKey, Type = typeof(ContentPresenter))]
+[TemplatePart(Name = DragTipPanelKey, Type = typeof(SimplePanel))]
+public class SideBarContent : Control {
 	public static readonly DependencyProperty HeaderProperty = DependencyProperty.Register(
 		"Header", typeof(string), typeof(SideBarContent), new PropertyMetadata(default(string)));
 
@@ -59,21 +66,42 @@ public partial class SideBarContent {
 	}
 
 	public event Action<string[]> FileDrop;
-	
+
+	private const string SearchTextBoxKey = "SearchTextBox";
+	private const string SearchToggleButtonKey = "SearchToggleButton";
+	private const string DragAreaKey = "DragArea";
+	private const string DragTipPanelKey = "DragTipPanel";
+
+	private TextBox searchTextBox;
+	private SimplePanel dragTipPanel;
 
 	public SideBarContent() {
 		DataContext = this;
-		InitializeComponent();
+	}
+
+	public override void OnApplyTemplate() {
+		base.OnApplyTemplate();
+		var searchToggleButton = (ToggleButton)GetTemplateChild(SearchToggleButtonKey)!;
+		searchToggleButton.Checked += SearchToggleButton_OnChecked;
+		searchToggleButton.Unchecked += SearchToggleButton_OnUnchecked;
+		searchTextBox = (TextBox)GetTemplateChild(SearchTextBoxKey)!;
+		searchTextBox.TextChanged += SearchTextBox_OnTextChanged;
+		var dragArea = (ContentPresenter)GetTemplateChild(DragAreaKey)!;
+		dragArea.Drop += DragArea_OnDrop;
+		dragArea.DragEnter += DragArea_OnDragEnter;
+		dragArea.DragLeave += DragArea_OnDragLeave;
+		dragArea.DragOver += DragArea_OnDragOver;
+		dragTipPanel = (SimplePanel)GetTemplateChild(DragTipPanelKey)!;
 	}
 
 	private void SearchToggleButton_OnChecked(object sender, RoutedEventArgs e) {
-		SearchTextBox.Visibility = Visibility.Visible;
-		SearchTextBox.Focus();
-		SearchTextBox.SelectAll();
+		searchTextBox.Visibility = Visibility.Visible;
+		searchTextBox.Focus();
+		searchTextBox.SelectAll();
 	}
 
 	private void SearchToggleButton_OnUnchecked(object sender, RoutedEventArgs e) {
-		SearchTextBox.Visibility = Visibility.Collapsed;
+		searchTextBox.Visibility = Visibility.Collapsed;
 	}
 
 	private void SearchTextBox_OnTextChanged(object sender, TextChangedEventArgs e) {
@@ -86,7 +114,7 @@ public partial class SideBarContent {
 			e.Effects = DragDropEffects.None;
 			return;
 		}
-		DragTipGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0d, TimeSpan.FromSeconds(0.1d)));
+		dragTipPanel.BeginAnimation(OpacityProperty, new DoubleAnimation(0d, TimeSpan.FromSeconds(0.1d)));
 		FileDrop?.Invoke(fileList);
 	}
 
@@ -95,14 +123,14 @@ public partial class SideBarContent {
 			e.Effects = DragDropEffects.None;
 			return;
 		}
-		DragTipGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(1d, TimeSpan.FromSeconds(0.1d)));
+		dragTipPanel.BeginAnimation(OpacityProperty, new DoubleAnimation(1d, TimeSpan.FromSeconds(0.1d)));
 	}
 
 	private void DragArea_OnDragLeave(object sender, DragEventArgs e) {
-		DragTipGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0d, TimeSpan.FromSeconds(0.1d)));
+		dragTipPanel.BeginAnimation(OpacityProperty, new DoubleAnimation(0d, TimeSpan.FromSeconds(0.1d)));
 	}
 
-	private void DragArea_OnDragOver(object sender, DragEventArgs e) {
+	private static void DragArea_OnDragOver(object sender, DragEventArgs e) {
 		if (e.Data.GetData(DataFormats.FileDrop) == null) {
 			e.Effects = DragDropEffects.None;
 		}

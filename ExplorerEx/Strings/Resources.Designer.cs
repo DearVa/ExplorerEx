@@ -787,9 +787,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 回收站 的本地化字符串。
         /// </summary>
-        internal static string Recycle_bin {
+        internal static string RecycleBin {
             get {
-                return ResourceManager.GetString("Recycle_bin", resourceCulture);
+                return ResourceManager.GetString("RecycleBin", resourceCulture);
             }
         }
         
@@ -814,9 +814,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 松手移动到回收站 的本地化字符串。
         /// </summary>
-        internal static string Release_to_move_to_recycle_bin {
+        internal static string Release_to_move_to_RecycleBin {
             get {
-                return ResourceManager.GetString("Release_to_move_to_recycle_bin", resourceCulture);
+                return ResourceManager.GetString("Release_to_move_to_RecycleBin", resourceCulture);
             }
         }
         

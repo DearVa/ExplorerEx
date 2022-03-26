@@ -18,7 +18,7 @@
         <c:StringFilter2VisibilityConverter x:Key="BookmarkFilter"/>
         <c:StringFilter2VisibilityConverter x:Key="RecycleBinFilter"/>
 
-        <ContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance v:MainWindow}">
+        <ContextMenu x:Key="BookmarkFolderItemContextMenu" d:DataContext="{d:DesignInstance v:MainWindow}">
             <MenuItem CommandParameter="Open"
                       Command="{Binding BookmarkItemCommand}"
                       Icon="{Binding Path=(m:FileItemAttach.FileItem).Icon, RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay}" Header="{u:Lang Open}"/>
@@ -46,7 +46,7 @@
                       Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
         </ContextMenu>
 
-        <ContextMenu x:Key="FileItemContextMenu" d:DataContext="{d:DesignInstance v:MainWindow}">
+        <ContextMenu x:Key="BookmarkFileItemContextMenu" d:DataContext="{d:DesignInstance v:MainWindow}">
             <MenuItem CommandParameter="Open"
                       Command="{Binding BookmarkItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileSystemItem.IsExecutable), Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
@@ -79,9 +79,62 @@
         </ContextMenu>
 
         <!-- ReSharper disable once Xaml.RedundantResource -->
-        <c:FileSystemItemContextMenuConverter x:Key="FileSystemItemContextMenuConverter"
-                                              FolderContextMenu="{StaticResource FolderItemContextMenu}"
-                                              FileContextMenu="{StaticResource FileItemContextMenu}"/>
+        <c:FileSystemItemContextMenuConverter x:Key="BookmarkItemContextMenuConverter"
+                                              FolderContextMenu="{StaticResource BookmarkFolderItemContextMenu}"
+                                              FileContextMenu="{StaticResource BookmarkFileItemContextMenu}"/>
+
+        <!-- ReSharper disable once Xaml.RedundantResource -->
+        <ContextMenu x:Key="SideBarPcItemContextMenu" d:DataContext="{d:DesignInstance v:MainWindow}">
+            <MenuItem Height="35">
+                <MenuItem.Template>
+                    <ControlTemplate>
+                        <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance v:MainWindow}">
+                            <MenuItem ToolTip="{u:Lang Cut}" CommandParameter="Cut"
+                                      Command="{Binding SideBarPcItemCommand}"
+                                      Icon="{StaticResource CutDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                            <MenuItem Margin="3,0,0,0" ToolTip="{u:Lang Copy}" CommandParameter="Copy"
+                                      Command="{Binding SideBarPcItemCommand}"
+                                      Icon="{StaticResource CopyDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                            <MenuItem Margin="3,0,0,0" ToolTip="{u:Lang Rename}" CommandParameter="Rename"
+                                      Command="{Binding SideBarPcItemCommand}"
+                                      Icon="{StaticResource RenameDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                            <MenuItem Margin="3,0,0,0" ToolTip="{u:Lang Delete}" CommandParameter="Delete"
+                                      Command="{Binding SideBarPcItemCommand}"
+                                      Icon="{StaticResource DeleteDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                        </StackPanel>
+                    </ControlTemplate>
+                </MenuItem.Template>
+            </MenuItem>
+            <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
+
+            <MenuItem CommandParameter="Open"
+                      Command="{Binding SideBarPcItemCommand}"
+                      Icon="{Binding Path=(m:FileItemAttach.FileItem).Icon, RelativeSource={RelativeSource AncestorType=ContextMenu}}" Header="{u:Lang Open}"/>
+            <MenuItem CommandParameter="OpenInNewTab"
+                      Command="{Binding SideBarPcItemCommand}" 
+                      Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang OpenInNewTab}"/>
+            <MenuItem CommandParameter="OpenInNewWindow"
+                      Command="{Binding SideBarPcItemCommand}" 
+                      Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang OpenInNewWindow}"/>
+            <MenuItem Header="{u:Lang CopyAsPath}" CommandParameter="CopyAsPath"
+                      Command="{Binding Path=SideBarPcItemCommand}"
+                      Icon="{StaticResource CopyDrawingImage}"/>
+            <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
+
+            <MenuItem CommandParameter="AddToBookmarks"
+                      Command="{Binding SideBarPcItemCommand}"
+                      Visibility="{Binding Path=(m:FileItemAttach.FileItem).IsBookmarked, RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                      Icon="{StaticResource StarDrawingImage}" Header="{u:Lang AddToBookmarks}"/>
+            <MenuItem CommandParameter="RemoveFromBookmarks"
+                      Command="{Binding SideBarPcItemCommand}"
+                      Visibility="{Binding Path=(m:FileItemAttach.FileItem).IsBookmarked, RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                      Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
+            <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
+
+            <MenuItem CommandParameter="Properties"
+                      Command="{Binding SideBarPcItemCommand}"
+                      Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
+        </ContextMenu>
     </Window.Resources>
 
     <WindowChrome.WindowChrome>
@@ -96,57 +149,9 @@
         </Grid.ColumnDefinitions>
         <hc:SimplePanel Grid.Column="0" Background="{DynamicResource RegionBrush}" 
                         MouseLeftButtonDown="OnDragAreaMouseLeftButtonDown" SizeChanged="Sidebar_OnSizeChanged">
-            <TabControl x:Name="SidebarTabControl" TabStripPlacement="Left" Focusable="False"
-                        SelectionChanged="Sidebar_OnSelectionChanged" PreviewMouseLeftButtonDown="Sidebar_OnPreviewMouseLeftButtonDown">
-                <TabControl.ItemContainerStyle>
-                    <Style TargetType="TabItem" BasedOn="{StaticResource TabItemStyle}">
-                        <Style.Resources>
-                            <SineEase x:Key="SineEaseIn" EasingMode="EaseIn"/>
-                            <SineEase x:Key="SineEaseOut" EasingMode="EaseOut"/>
-                        </Style.Resources>
-                        <Setter Property="HeaderTemplate">
-                            <Setter.Value>
-                                <ItemContainerTemplate>
-                                    <ContentPresenter Content="{Binding}" Height="40" AllowDrop="True"
-                                                      ToolTipService.InitialShowDelay="300" DragEnter="TabItem_OnDragEnter">
-                                    </ContentPresenter>
-                                </ItemContainerTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-                        <Setter Property="RenderTransform">
-                            <Setter.Value>
-                                <ScaleTransform ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
-                            </Setter.Value>
-                        </Setter>
-                        <Style.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Trigger.EnterActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetProperty="(TabItem.RenderTransform).(ScaleTransform.ScaleX)"
-                                                             To="1.3" Duration="0:0:0.1" EasingFunction="{StaticResource SineEaseIn}"/>
-                                            <DoubleAnimation Storyboard.TargetProperty="(TabItem.RenderTransform).(ScaleTransform.ScaleY)"
-                                                             To="1.3" Duration="0:0:0.1" EasingFunction="{StaticResource SineEaseIn}"/>
-                                            <DoubleAnimation Storyboard.TargetProperty="(TabItem.RenderTransform).(ScaleTransform.ScaleX)"
-                                                             To="1.1" BeginTime="0:0:0.1" Duration="0:0:0.1" EasingFunction="{StaticResource SineEaseOut}"/>
-                                            <DoubleAnimation Storyboard.TargetProperty="(TabItem.RenderTransform).(ScaleTransform.ScaleY)"
-                                                             To="1.1" BeginTime="0:0:0.1" Duration="0:0:0.1" EasingFunction="{StaticResource SineEaseOut}"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </Trigger.EnterActions>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </TabControl.ItemContainerStyle>
-                <TabItem x:Name="StarTabItem" Margin="0,52,2,-52" Width="50" Padding="0">
+            <ct:TabControlEx x:Name="SidebarTabControl" Focusable="False" Padding="0,52,0,0"
+                             CanDeselect="True" SelectionChanged="OnSidebarSelectionChanged">
+                <TabItem x:Name="BookmarksTabItem" Width="50" Padding="0">
                     <TabItem.Header>
                         <Grid Height="40" ToolTip="{u:Lang Bookmarks}" ToolTipService.InitialShowDelay="300"
                               AllowDrop="True" DragEnter="TabItem_OnDragEnter">
@@ -155,7 +160,7 @@
                     </TabItem.Header>
                     <ct:SideBarContent Header="{u:Lang Bookmarks}" Filter="{StaticResource BookmarkFilter}" FileDrop="BookmarksSideBarContent_OnFileDrop">
                         <ct:SideBarContent.Content>
-                            <TreeView BorderThickness="0"
+                            <TreeView x:Name="SideBarBookmarksTreeView" BorderThickness="0"
                                       ItemsSource="{Binding Source={x:Static m:BookmarkDbContext.BookmarkCategories}}">
                                 <TreeView.ItemContainerStyle>
                                     <Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemBaseStyle}">
@@ -173,35 +178,61 @@
                                                 <Setter Property="IsSelected" Value="{Binding Path=(m:BookmarkItem.IsSelected), Mode=TwoWay}"/>
                                             </Style>
                                         </HierarchicalDataTemplate.ItemContainerStyle>
-                                        <Grid Height="30">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="30"/>
-                                                <ColumnDefinition/>
-                                            </Grid.ColumnDefinitions>
 
-                                            <Image Grid.Column="0" Margin="5" Stretch="Uniform" Source="{Binding Icon}"/>
-                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" FontSize="13"/>
-                                        </Grid>
-                                    </HierarchicalDataTemplate>
-                                    <DataTemplate DataType="{x:Type m:BookmarkItem}">
-                                        <Grid Height="30" ToolTip="{Binding FullPath, Mode=OneWay}" ToolTipService.InitialShowDelay="300">
+                                        <hc:SimplePanel Background="Transparent">
                                             <hc:Interaction.Triggers>
-                                                <hc:RoutedEventTrigger RoutedEvent="TreeViewItem.PreviewMouseDown">
-                                                    <hc:EventToCommand Command="{Binding SideBarItemPreviewMouseDownCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
-                                                </hc:RoutedEventTrigger>
-                                                <hc:RoutedEventTrigger RoutedEvent="TreeViewItem.PreviewMouseUp">
+                                                <hc:RoutedEventTrigger RoutedEvent="Control.PreviewMouseUp">
                                                     <hc:EventToCommand Command="{Binding SideBarItemPreviewMouseUpCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
                                                 </hc:RoutedEventTrigger>
                                             </hc:Interaction.Triggers>
 
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="30"/>
-                                                <ColumnDefinition/>
-                                            </Grid.ColumnDefinitions>
+                                            <Button Cursor="Hand" VerticalAlignment="Center" HorizontalAlignment="Left" BorderThickness="0" 
+                                                    Background="Transparent" Padding="0">
+                                                <hc:Interaction.Triggers>
+                                                    <hc:RoutedEventTrigger RoutedEvent="Button.Click">
+                                                        <hc:EventToCommand Command="{Binding SideBarItemClickCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
+                                                    </hc:RoutedEventTrigger>
+                                                </hc:Interaction.Triggers>
 
-                                            <Image Grid.Column="0" Margin="5" Stretch="Uniform" Source="{Binding Icon}"/>
-                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding DisplayText}" FontSize="13"/>
-                                        </Grid>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="30"/>
+                                                        <ColumnDefinition/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Image Grid.Column="0" Margin="5" Stretch="Uniform" Source="{Binding Icon}"/>
+                                                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" FontSize="13" Margin="0,0,10,0"/>
+                                                </Grid>
+                                            </Button>
+                                        </hc:SimplePanel>
+                                    </HierarchicalDataTemplate>
+                                    <DataTemplate DataType="{x:Type m:BookmarkItem}">
+                                        <hc:SimplePanel Background="Transparent">
+                                            <hc:Interaction.Triggers>
+                                                <hc:RoutedEventTrigger RoutedEvent="Control.PreviewMouseUp">
+                                                    <hc:EventToCommand Command="{Binding SideBarItemPreviewMouseUpCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
+                                                </hc:RoutedEventTrigger>
+                                            </hc:Interaction.Triggers>
+
+                                            <Button Cursor="Hand" VerticalAlignment="Center" HorizontalAlignment="Left" BorderThickness="0" 
+                                                    Background="Transparent" Padding="0">
+                                                <hc:Interaction.Triggers>
+                                                    <hc:RoutedEventTrigger RoutedEvent="Button.Click">
+                                                        <hc:EventToCommand Command="{Binding SideBarItemClickCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
+                                                    </hc:RoutedEventTrigger>
+                                                </hc:Interaction.Triggers>
+
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="30"/>
+                                                        <ColumnDefinition/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Image Grid.Column="0" Margin="5" Stretch="Uniform" Source="{Binding Icon}"/>
+                                                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" FontSize="13" Margin="0,0,10,0"/>
+                                                </Grid>
+                                            </Button>
+                                        </hc:SimplePanel>
                                     </DataTemplate>
                                 </TreeView.Resources>
                             </TreeView>
@@ -214,7 +245,7 @@
                         </ct:SideBarContent.DragTip>
                     </ct:SideBarContent>
                 </TabItem>
-                <TabItem Width="50" Margin="0,52,2,-52" Padding="0">
+                <TabItem Width="50" Padding="0">
                     <TabItem.Header>
                         <hc:SimplePanel Height="40" ToolTip="{u:Lang ThisPC}" ToolTipService.InitialShowDelay="300"
                                         AllowDrop="True" DragEnter="TabItem_OnDragEnter">
@@ -223,24 +254,43 @@
                     </TabItem.Header>
                     <ct:SideBarContent Header="{u:Lang ThisPC}" ShowSearchButton="False">
                         <ct:SideBarContent.Content>
-                            <TreeView BorderThickness="0"
+                            <TreeView x:Name="SideBarThisPcTreeView" BorderThickness="0"
                                       ItemsSource="{Binding Source={x:Static m:SideBarPcItem.RootItems}}">
                                 <TreeView.ItemTemplate>
                                     <HierarchicalDataTemplate ItemsSource="{Binding Children, Mode=OneWay}">
-                                        <Grid Height="30">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="30"/>
-                                                <ColumnDefinition/>
-                                            </Grid.ColumnDefinitions>
+                                        <hc:SimplePanel Background="Transparent">
+                                            <hc:Interaction.Triggers>
+                                                <hc:RoutedEventTrigger RoutedEvent="Control.PreviewMouseUp">
+                                                    <hc:EventToCommand Command="{Binding SideBarItemPreviewMouseUpCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
+                                                </hc:RoutedEventTrigger>
+                                            </hc:Interaction.Triggers>
 
-                                            <Image Grid.Column="0" Margin="5" Stretch="Uniform" Source="{Binding Icon}"/>
-                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" FontSize="13"/>
-                                        </Grid>
+                                            <Button Cursor="Hand" VerticalAlignment="Center" HorizontalAlignment="Left" BorderThickness="0" 
+                                                    Background="Transparent" Padding="0">
+                                                <hc:Interaction.Triggers>
+                                                    <hc:RoutedEventTrigger RoutedEvent="Button.Click">
+                                                        <hc:EventToCommand Command="{Binding SideBarItemClickCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
+                                                    </hc:RoutedEventTrigger>
+                                                </hc:Interaction.Triggers>
+
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="30"/>
+                                                        <ColumnDefinition/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Image Grid.Column="0" Margin="5" Stretch="Uniform" Source="{Binding Icon}"/>
+                                                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" FontSize="13" Margin="0,0,10,0"/>
+                                                </Grid>
+                                            </Button>
+                                        </hc:SimplePanel>
                                     </HierarchicalDataTemplate>
                                 </TreeView.ItemTemplate>
                                 <TreeView.ItemContainerStyle>
                                     <Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemBaseStyle}">
                                         <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                                        <Setter Property="hc:BorderElement.CornerRadius" Value="4"/>
                                     </Style>
                                 </TreeView.ItemContainerStyle>
                             </TreeView>
@@ -253,7 +303,7 @@
                         </ct:SideBarContent.DragTip>
                     </ct:SideBarContent>
                 </TabItem>
-                <TabItem Width="50" Margin="0,52,2,-52" Padding="0">
+                <TabItem Width="50" Padding="0">
                     <TabItem.Header>
                         <hc:SimplePanel Height="40" ToolTip="{u:Lang Network}" ToolTipService.InitialShowDelay="300"
                                         AllowDrop="True" DragEnter="TabItem_OnDragEnter">
@@ -273,9 +323,9 @@
                         </Grid>
                     </Grid>
                 </TabItem>
-                <TabItem Width="50" Margin="0,52,2,-52" Padding="0">
+                <TabItem Width="50" Padding="0">
                     <TabItem.Header>
-                        <hc:SimplePanel Height="40" ToolTip="{u:Lang Recycle_bin}" ToolTipService.InitialShowDelay="300" 
+                        <hc:SimplePanel Height="40" ToolTip="{u:Lang RecycleBin}" ToolTipService.InitialShowDelay="300" 
                                         AllowDrop="True" DragEnter="TabItem_OnDragEnter">
                             <Image Width="24" Height="24" Source="../Assets/Picture/RecycleBin.png"
                                    Visibility="{Binding Count, Source={x:Static m:RecycleBinItem.Items}, Converter={StaticResource Int2VisibilityReConverter}}"/>
@@ -283,7 +333,7 @@
                                    Visibility="{Binding Count, Source={x:Static m:RecycleBinItem.Items}, Converter={StaticResource Int2VisibilityConverter}}"/>
                         </hc:SimplePanel>
                     </TabItem.Header>
-                    <ct:SideBarContent Header="{u:Lang Recycle_bin}" Filter="{StaticResource RecycleBinFilter}" FileDrop="RecycleBinSideBarContent_OnFileDrop">
+                    <ct:SideBarContent Header="{u:Lang RecycleBin}" Filter="{StaticResource RecycleBinFilter}" FileDrop="RecycleBinSideBarContent_OnFileDrop">
                         <ct:SideBarContent.HeaderContent>
                             <StackPanel Orientation="Horizontal">
                                 <Button Width="25" Height="25" Margin="0,0,5,0" ToolTip="{u:Lang DeleteAll}"
@@ -305,12 +355,13 @@
                                 <ListBox.ItemContainerStyle>
                                     <Style TargetType="ListBoxItem" BasedOn="{StaticResource ListBoxItemBaseStyle}">
                                         <Setter Property="Visibility" Value="{Binding Converter={StaticResource RecycleBinFilter}}"/>
+                                        <Setter Property="hc:BorderElement.CornerRadius" Value="4"/>
                                     </Style>
                                 </ListBox.ItemContainerStyle>
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="{x:Type m:RecycleBinItem}">
-                                        <Grid Height="30" ToolTip="{Binding DisplayText, Mode=OneWay}" ToolTipService.InitialShowDelay="300">
-                                            <Grid.ContextMenu>
+                                        <hc:SimplePanel Background="Transparent">
+                                            <hc:SimplePanel.ContextMenu>
                                                 <ContextMenu d:DataContext="{d:DesignInstance m:RecycleBinItem}">
                                                     <MenuItem Icon="{Binding Icon}" Header="{u:Lang Restore}"/>
                                                     <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
@@ -323,37 +374,37 @@
 
                                                     <MenuItem Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
                                                 </ContextMenu>
-                                            </Grid.ContextMenu>
+                                            </hc:SimplePanel.ContextMenu>
+
                                             <hc:Interaction.Triggers>
-                                                <hc:RoutedEventTrigger RoutedEvent="ListBoxItem.PreviewMouseDown">
-                                                    <hc:EventToCommand Command="{Binding SideBarItemPreviewMouseDownCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
-                                                </hc:RoutedEventTrigger>
-                                                <hc:RoutedEventTrigger RoutedEvent="ListBoxItem.PreviewMouseUp">
+                                                <hc:RoutedEventTrigger RoutedEvent="Control.PreviewMouseUp">
                                                     <hc:EventToCommand Command="{Binding SideBarItemPreviewMouseUpCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
                                                 </hc:RoutedEventTrigger>
                                             </hc:Interaction.Triggers>
 
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="30"/>
-                                                <ColumnDefinition/>
-                                            </Grid.ColumnDefinitions>
+                                            <Grid VerticalAlignment="Center" HorizontalAlignment="Left" Background="Transparent">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition/>
+                                                </Grid.ColumnDefinitions>
 
-                                            <Image Grid.Column="0" Margin="5" Stretch="Uniform" Source="{Binding Icon}"/>
-                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding DisplayText}" FontSize="13"/>
-                                        </Grid>
+                                                <Image Grid.Column="0" Margin="5" Stretch="Uniform" Source="{Binding Icon}"/>
+                                                <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" FontSize="13" Margin="0,0,10,0"/>
+                                            </Grid>
+                                        </hc:SimplePanel>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
                         </ct:SideBarContent.Content>
                         <ct:SideBarContent.DragTip>
                             <hc:SimplePanel Background="#66ff0000">
-                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{u:Lang Release_to_move_to_recycle_bin}" 
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{u:Lang Release_to_move_to_RecycleBin}" 
                                            TextAlignment="Center" FontSize="24"/>
                             </hc:SimplePanel>
                         </ct:SideBarContent.DragTip>
                     </ct:SideBarContent>
                 </TabItem>
-                <TabItem Width="50" Margin="0,52,2,-52" Padding="0">
+                <TabItem Width="50" Padding="0">
                     <TabItem.Header>
                         <hc:SimplePanel Height="40" ToolTip="OneDrive" ToolTipService.InitialShowDelay="300" 
                                         AllowDrop="True" DragEnter="TabItem_OnDragEnter">
@@ -373,10 +424,10 @@
                         </Grid>
                     </Grid>
                 </TabItem>
-            </TabControl>
+            </ct:TabControlEx>
 
             <Popup IsOpen="{Binding IsAddToBookmarkShow, Mode=TwoWay}" PopupAnimation="Fade" AllowsTransparency="True" 
-                   PlacementTarget="{Binding ElementName=StarTabItem}" StaysOpen="False" Placement="Right"
+                   PlacementTarget="{Binding ElementName=BookmarksTabItem}" StaysOpen="False" Placement="Right"
                    hc:BlurPopup.Enabled="True">
                 <Border Background="{DynamicResource BackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2">
                     <StackPanel Orientation="Vertical" Width="300" Margin="10">

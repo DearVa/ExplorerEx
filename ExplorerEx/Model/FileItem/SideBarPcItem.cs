@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
-using ExplorerEx.Win32;
 
 namespace ExplorerEx.Model;
 
@@ -69,13 +68,13 @@ internal sealed class SideBarPcItem : FileSystemItem {
 						var dispatcher = Application.Current.Dispatcher;
 						try {
 							foreach (var directoryPath in Directory.EnumerateDirectories(FullPath)) {
-								var item = new SideBarPcItem(new DirectoryInfo(directoryPath));
-								item.LoadIcon();
-								dispatcher.Invoke(() => Children.Add(item));
+								try {
+									var item = new SideBarPcItem(new DirectoryInfo(directoryPath));
+									item.LoadIcon();
+									dispatcher.Invoke(() => Children.Add(item));
+								} catch { }
 							}
-						} catch {
-							dispatcher.Invoke(Children.Clear);
-						}
+						} catch { }
 					});
 				}
 			}

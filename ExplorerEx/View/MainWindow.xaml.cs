@@ -22,10 +22,11 @@ using HandyControl.Tools;
 using static ExplorerEx.Win32.Win32Interop;
 using static ExplorerEx.Shell32.Shell32Interop;
 using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
-using Point = System.Windows.Point;
 using TextBox = HandyControl.Controls.TextBox;
 using System.Windows.Media.Animation;
 using System.Windows.Media;
+using System.Diagnostics;
+using hc = HandyControl.Controls;
 
 namespace ExplorerEx.View;
 
@@ -34,9 +35,10 @@ public sealed partial class MainWindow {
 
 	public static List<MainWindow> MainWindows { get; } = new();
 
-	public SimpleCommand SideBarItemPreviewMouseDownCommand { get; }
 	public SimpleCommand SideBarItemPreviewMouseUpCommand { get; }
+	public SimpleCommand SideBarItemClickCommand { get; }
 	public FileItemCommand BookmarkItemCommand { get; }
+	public FileItemCommand SideBarPcItemCommand { get; }
 	public SimpleCommand EditBookmarkCommand { get; }
 	public SplitGrid SplitGrid { get; }
 	public HwndSource Hwnd { get; }
@@ -52,7 +54,8 @@ public sealed partial class MainWindow {
 
 	private readonly string startupPath;
 
-	private readonly FileSystemItemContextMenuConverter bookmarkConverter;
+	private readonly FileSystemItemContextMenuConverter bookmarkItemContextMenuConverter;
+	private readonly ContextMenu sideBarPcItemContextMenu;
 
 	public MainWindow() : this(null) { }
 
@@ -74,21 +77,23 @@ public sealed partial class MainWindow {
 		DataContext = this;
 		InitializeComponent();
 
-		bookmarkConverter = (FileSystemItemContextMenuConverter)Resources["FileSystemItemContextMenuConverter"];
+		bookmarkItemContextMenuConverter = (FileSystemItemContextMenuConverter)Resources["BookmarkItemContextMenuConverter"];
+		sideBarPcItemContextMenu = (ContextMenu)Resources["SideBarPcItemContextMenu"];
+		sideBarPcItemContextMenu.DataContext = this;
 
-		SideBarItemPreviewMouseDownCommand = new SimpleCommand(OnSideBarItemPreviewMouseDown);
-		SideBarItemPreviewMouseUpCommand = new SimpleCommand(OnSideBarItemPreviewMouseUp);
+		SideBarItemPreviewMouseUpCommand = new SimpleCommand(SideBarItem_OnPreviewMouseUp);
+		SideBarItemClickCommand = new SimpleCommand(SideBarItem_OnClick);
 
 		BookmarkItemCommand = new FileItemCommand {
-			SelectedItemsProvider = () => {
-				var selectedItem = BookmarkItem.SelectedItem;
-				return selectedItem != null ? new[] { selectedItem } : Array.Empty<FileItem>();
-			},
+			SelectedItemsProvider = () => SideBarBookmarksTreeView.SelectedItem is BookmarkItem selectedItem ? new[] { selectedItem } : Array.Empty<FileItem>(),
+			TabControlProvider = () => FileTabControl.MouseOverTabControl
+		};
+		SideBarPcItemCommand = new FileItemCommand {
+			SelectedItemsProvider = () => SideBarThisPcTreeView.SelectedItem is SideBarPcItem selectedItem ? new[] { selectedItem } : Array.Empty<FileItem>(),
 			TabControlProvider = () => FileTabControl.MouseOverTabControl
 		};
 		EditBookmarkCommand = new SimpleCommand(_ => {
-			var selectedItem = BookmarkItem.SelectedItem;
-			if (selectedItem != null) {
+			if (SideBarBookmarksTreeView.SelectedItem is BookmarkItem selectedItem) {
 				AddToBookmarks(selectedItem.FullPath);
 			}
 		});
@@ -118,41 +123,57 @@ public sealed partial class MainWindow {
 		StartupLoad();
 	}
 
-	private static DateTimeOffset sideBarItemMouseUpTime;
-	private static Point sideBarItemMouseUpPoint;
-
-	private void OnSideBarItemPreviewMouseDown(object args) {
+	private void SideBarItem_OnPreviewMouseUp(object args) {
 		var e = (MouseButtonEventArgs)args;
-		if (e.ChangedButton is MouseButton.Left or MouseButton.Right) {
-			if (e.OriginalSource is FrameworkElement { DataContext: FileItem item }) {
-				item.IsSelected = true;
-
-				if (e.ChangedButton == MouseButton.Left) {
-					var point = e.GetPosition(this);
-					if ((DateTimeOffset.Now - sideBarItemMouseUpTime).TotalMilliseconds < GetDoubleClickTime() &&
-						Math.Abs(point.Y - sideBarItemMouseUpPoint.Y) < SystemParameters.MinimumVerticalDragDistance &&
-						Math.Abs(point.X - sideBarItemMouseUpPoint.X) < SystemParameters.MinimumHorizontalDragDistance) {
-						_ = FileTabControl.FocusedTabControl.SelectedTab.LoadDirectoryAsync(item.FullPath);
-					}
-				}
+		if (e.ChangedButton == MouseButton.Right && e.OriginalSource is FrameworkElement { DataContext: FileItem fileItem }) {
+			fileItem.IsSelected = true;
+			switch (fileItem) {
+			case BookmarkItem bookmarkItem:
+				var menu = (ContextMenu)bookmarkItemContextMenuConverter.Convert(bookmarkItem, null, null, null)!;
+				menu.DataContext = this;
+				menu.SetValue(FileItemAttach.FileItemProperty, bookmarkItem);
+				menu.IsOpen = true;
+				e.Handled = true;
+				break;
+			case SideBarPcItem pcItem:
+				sideBarPcItemContextMenu.SetValue(FileItemAttach.FileItemProperty, pcItem);
+				sideBarPcItemContextMenu.IsOpen = true;
+				e.Handled = true;
+				break;
 			}
 		}
 	}
 
-	private void OnSideBarItemPreviewMouseUp(object args) {
-		var e = (MouseButtonEventArgs)args;
-		switch (e.ChangedButton) {
-		case MouseButton.Left:
-			sideBarItemMouseUpTime = DateTimeOffset.Now;
-			sideBarItemMouseUpPoint = e.GetPosition(this);
-			break;
-		case MouseButton.Right when e.OriginalSource is FrameworkElement { DataContext: BookmarkItem bookmarkItem }:
-			var menu = (ContextMenu)bookmarkConverter.Convert(bookmarkItem, null, null, null)!;
-			menu.DataContext = this;
-			menu.SetValue(FileItemAttach.FileItemProperty, bookmarkItem);
-			menu.IsOpen = true;
-			e.Handled = true;
-			break;
+	private void SideBarItem_OnClick(object args) {
+		var e = (RoutedEventArgs)args;
+		if (e.OriginalSource is FrameworkElement element) {
+			switch (element.DataContext) {
+			case FileItem fileItem:
+				fileItem.IsSelected = true;
+				if (fileItem.IsFolder) {
+					_ = FileTabControl.FocusedTabControl.SelectedTab.LoadDirectoryAsync(fileItem.FullPath);
+				} else {
+					try {
+						var psi = new ProcessStartInfo {
+							FileName = fileItem.FullPath,
+							UseShellExecute = true
+						};
+						if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) && fileItem is FileSystemItem { IsExecutable: true }) {
+							psi.Verb = "runas";
+						}
+						Process.Start(psi);
+					} catch (Exception ex) {
+						if (ex is Win32Exception { ErrorCode: -2147467259 }) {  // 操作被用户取消
+							return;
+						}
+						hc.MessageBox.Error(ex.Message, "FailedToOpenFile".L());
+					}
+				}
+				break;
+			case BookmarkCategory bc:
+				bc.IsExpanded = !bc.IsExpanded;
+				break;
+			}
 		}
 	}
 
@@ -592,7 +613,7 @@ public sealed partial class MainWindow {
 	private bool loaded;
 	private const double SidebarDefaultWidth = 300;
 
-	private void Sidebar_OnSelectionChanged(object sender, SelectionChangedEventArgs e) {
+	private void OnSidebarSelectionChanged(object sender, SelectionChangedEventArgs e) {
 		void UpdateSidebarColumnDefinitionWidth() {
 			var width = (double)ConfigHelper.LoadInt("SidebarWidth");
 			if (width < SidebarMinWidth) {
@@ -620,18 +641,6 @@ public sealed partial class MainWindow {
 				SidebarColumnDefinition.Width = new GridLength(0, GridUnitType.Auto);
 			}
 			loaded = true;
-		}
-	}
-
-	private void Sidebar_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-		var tabItem = e.OriginalSource.FindParent<TabItem>();
-		if (tabItem != null) {
-			if (tabItem.IsSelected) {
-				SidebarTabControl.SelectedIndex = -1;
-			} else {
-				SidebarTabControl.SelectedItem = tabItem;
-			}
-			e.Handled = true;
 		}
 	}
 

@@ -65,8 +65,6 @@ public class BookmarkCategory : SimpleNotifyPropertyChanged {
 /// </summary>
 [Serializable]
 public class BookmarkItem : FileItem, IFilterable {
-	public static BookmarkItem SelectedItem => BookmarkDbContext.Instance.BookmarkDbSet.Local.FirstOrDefault(i => i.IsSelected);
-
 	[Key]
 	public override string FullPath { get; protected set; }
 

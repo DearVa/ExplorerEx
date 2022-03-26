@@ -342,7 +342,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="ShowWindow" xml:space="preserve">
     <value>显示窗口</value>
   </data>
-  <data name="Recycle_bin" xml:space="preserve">
+  <data name="RecycleBin" xml:space="preserve">
     <value>回收站</value>
   </data>
   <data name="Network" xml:space="preserve">
@@ -369,7 +369,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="UnknownType" xml:space="preserve">
     <value>未知类型</value>
   </data>
-  <data name="Release_to_move_to_recycle_bin" xml:space="preserve">
+  <data name="Release_to_move_to_RecycleBin" xml:space="preserve">
     <value>松手移动到回收站</value>
   </data>
   <data name="Ascending" xml:space="preserve">

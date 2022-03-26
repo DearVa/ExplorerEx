@@ -574,12 +574,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			foreach (var fileViewBaseItem in fileListBuffer) {
 				Items.Add(fileViewBaseItem);
 			}
-			if (selectedPath == null) {
-				scrollIntoItem = fileListBuffer[0];
-			}
-#pragma warning disable CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
-			dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => FileListView.ScrollIntoView(scrollIntoItem));
-#pragma warning restore CS4014
+			_ = dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => FileListView.ScrollIntoView(scrollIntoItem));
 		}
 
 		if (recordHistory) {
