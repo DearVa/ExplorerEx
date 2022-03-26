@@ -147,7 +147,7 @@ internal static class Win32Interop {
 		/// <summary>
 		/// 系统主题色改变
 		/// </summary>
-		DwmColorizationCOlorChanged = 0x0320,
+		DwmColorizationColorChanged = 0x0320,
 		User = 0x0400,
 		ShellNotify = 0x0405,
 		/// <summary>

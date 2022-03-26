@@ -15,6 +15,7 @@ namespace HandyControl.Controls;
 [TemplatePart(Name = TabBorderRootKey, Type = typeof(Border))]
 [TemplatePart(Name = TabBorderKey, Type = typeof(Border))]
 [TemplatePart(Name = NewTabButtonKey, Type = typeof(Button))]
+[TemplatePart(Name = ContentPanelKey, Type = typeof(Border))]
 public class TabControl : System.Windows.Controls.TabControl {
 	private const string HeaderPanelKey = "PART_HeaderPanel";
 
@@ -31,6 +32,8 @@ public class TabControl : System.Windows.Controls.TabControl {
 	private const string TabBorderKey = "PART_TabBorder";
 
 	private const string NewTabButtonKey = "NewTabButton";
+
+	private const string ContentPanelKey = "contentPanel";
 
 	/// <summary>
 	///     是否显示上下文菜单
@@ -57,6 +60,8 @@ public class TabControl : System.Windows.Controls.TabControl {
 	public Border TabBorderRoot { get; private set; }
 
 	public Button NewTabButton { get; private set; }
+
+	public Border ContentPanel { get; private set; }
 
 	/// <summary>
 	///     是否为内部操作
@@ -118,7 +123,7 @@ public class TabControl : System.Windows.Controls.TabControl {
 		remove => RemoveHandler(DragDropEvent, value);
 	}
 
-	public TabControl() {
+	protected TabControl() {
 		// 新建标签页
 		CommandBindings.Add(new CommandBinding(ControlCommands.Open, (_, _) => RaiseEvent(new RoutedEventArgs(NewTabEvent))));
 	}
@@ -182,6 +187,7 @@ public class TabControl : System.Windows.Controls.TabControl {
 		TabBorderRoot = (Border)GetTemplateChild(TabBorderRootKey);
 		headerBorder = (Border)GetTemplateChild(HeaderBorderKey);
 		NewTabButton = (Button)GetTemplateChild(NewTabButtonKey);
+		ContentPanel = (Border)GetTemplateChild(ContentPanelKey);
 	}
 
 	private void TabBorder_OnDragEnter(object sender, DragEventArgs e) {

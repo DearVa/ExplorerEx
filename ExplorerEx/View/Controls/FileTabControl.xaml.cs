@@ -117,12 +117,12 @@ public partial class FileTabControl {
 		TabItems.Clear();
 	}
 
-	public async Task OpenPathInNewTabAsync(string path) {
+	public async Task OpenPathInNewTabAsync(string path, string selectedPath = null) {
 		var newTabIndex = Math.Max(Math.Min(SelectedIndex + 1, TabItems.Count), 0);
 		var item = new FileGridViewModel(this);
 		TabItems.Insert(newTabIndex, item);
 		SelectedIndex = newTabIndex;
-		if (!await SelectedTab.LoadDirectoryAsync(path)) {
+		if (!await SelectedTab.LoadDirectoryAsync(path, true, selectedPath)) {
 			if (TabItems.Count > 1) {
 				TabItems.Remove(item);
 			} else {

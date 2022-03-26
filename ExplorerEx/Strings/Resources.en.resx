@@ -357,4 +357,16 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="OpenFileLocation" xml:space="preserve">
     <value>Open file location</value>
   </data>
+  <data name="CopyAsPath" xml:space="preserve">
+    <value>Copy as path</value>
+  </data>
+  <data name="RestoreAll" xml:space="preserve">
+    <value>Restore all</value>
+  </data>
+  <data name="OpenOnTheRight" xml:space="preserve">
+    <value>Open on the right</value>
+  </data>
+  <data name="DeleteAll" xml:space="preserve">
+    <value>Delete all</value>
+  </data>
 </root>

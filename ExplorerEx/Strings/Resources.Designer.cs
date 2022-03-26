@@ -326,6 +326,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 复制文件路径 的本地化字符串。
+        /// </summary>
+        internal static string CopyAsPath {
+            get {
+                return ResourceManager.GetString("CopyAsPath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 剪切 的本地化字符串。
         /// </summary>
         internal static string Cut {
@@ -358,6 +367,15 @@ namespace ExplorerEx.Strings {
         internal static string Delete {
             get {
                 return ResourceManager.GetString("Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 删除所有 的本地化字符串。
+        /// </summary>
+        internal static string DeleteAll {
+            get {
+                return ResourceManager.GetString("DeleteAll", resourceCulture);
             }
         }
         
@@ -722,6 +740,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 在右侧打开 的本地化字符串。
+        /// </summary>
+        internal static string OpenOnTheRight {
+            get {
+                return ResourceManager.GetString("OpenOnTheRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 其他类型磁盘 的本地化字符串。
         /// </summary>
         internal static string Other_type_disk {
@@ -835,6 +862,15 @@ namespace ExplorerEx.Strings {
         internal static string Restore {
             get {
                 return ResourceManager.GetString("Restore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 全部恢复 的本地化字符串。
+        /// </summary>
+        internal static string RestoreAll {
+            get {
+                return ResourceManager.GetString("RestoreAll", resourceCulture);
             }
         }
         

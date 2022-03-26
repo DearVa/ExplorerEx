@@ -210,6 +210,7 @@
         <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
         <Setter Property="Menu" Value="{StaticResource TabItemMenu}"/>
         <Setter Property="Effect" Value="{StaticResource EffectShadow4}"/>
+        <Setter Property="Opacity" Value="0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="hc:TabItem">

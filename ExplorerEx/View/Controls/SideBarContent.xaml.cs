@@ -15,12 +15,31 @@ public partial class SideBarContent {
 		set => SetValue(HeaderProperty, value);
 	}
 
+	public static readonly DependencyProperty HeaderContentProperty = DependencyProperty.Register(
+		"HeaderContent", typeof(object), typeof(SideBarContent), new PropertyMetadata(default(object)));
+
+	public object HeaderContent {
+		get => GetValue(HeaderContentProperty);
+		set => SetValue(HeaderContentProperty, value);
+	}
+
 	public static readonly DependencyProperty ContentProperty = DependencyProperty.Register(
 		"Content", typeof(ItemsControl), typeof(SideBarContent), new PropertyMetadata(default(ItemsControl)));
 
 	public ItemsControl Content {
 		get => (ItemsControl)GetValue(ContentProperty);
 		set => SetValue(ContentProperty, value);
+	}
+
+	public static readonly DependencyProperty ShowSearchButtonProperty = DependencyProperty.Register(
+		"ShowSearchButton", typeof(bool), typeof(SideBarContent), new PropertyMetadata(true));
+
+	/// <summary>
+	/// 是否显示搜索按钮
+	/// </summary>
+	public bool ShowSearchButton {
+		get => (bool)GetValue(ShowSearchButtonProperty);
+		set => SetValue(ShowSearchButtonProperty, value);
 	}
 
 	public static readonly DependencyProperty DragTipProperty = DependencyProperty.Register(

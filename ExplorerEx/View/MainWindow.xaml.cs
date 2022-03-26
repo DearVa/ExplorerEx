@@ -22,7 +22,10 @@ using HandyControl.Tools;
 using static ExplorerEx.Win32.Win32Interop;
 using static ExplorerEx.Shell32.Shell32Interop;
 using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
+using Point = System.Windows.Point;
 using TextBox = HandyControl.Controls.TextBox;
+using System.Windows.Media.Animation;
+using System.Windows.Media;
 
 namespace ExplorerEx.View;
 
@@ -33,7 +36,6 @@ public sealed partial class MainWindow {
 
 	public SimpleCommand SideBarItemPreviewMouseDownCommand { get; }
 	public SimpleCommand SideBarItemPreviewMouseUpCommand { get; }
-	public SimpleCommand SideBarItemMouseDoubleClickCommand { get; }
 	public FileItemCommand BookmarkItemCommand { get; }
 	public SimpleCommand EditBookmarkCommand { get; }
 	public SplitGrid SplitGrid { get; }
@@ -50,7 +52,7 @@ public sealed partial class MainWindow {
 
 	private readonly string startupPath;
 
-	private FileSystemItemContextMenuConverter bookmarkConverter;
+	private readonly FileSystemItemContextMenuConverter bookmarkConverter;
 
 	public MainWindow() : this(null) { }
 
@@ -73,9 +75,9 @@ public sealed partial class MainWindow {
 		InitializeComponent();
 
 		bookmarkConverter = (FileSystemItemContextMenuConverter)Resources["FileSystemItemContextMenuConverter"];
+
 		SideBarItemPreviewMouseDownCommand = new SimpleCommand(OnSideBarItemPreviewMouseDown);
 		SideBarItemPreviewMouseUpCommand = new SimpleCommand(OnSideBarItemPreviewMouseUp);
-		SideBarItemMouseDoubleClickCommand = new SimpleCommand(OnSideBarItemMouseDoubleClick);
 
 		BookmarkItemCommand = new FileItemCommand {
 			SelectedItemsProvider = () => {
@@ -93,7 +95,7 @@ public sealed partial class MainWindow {
 
 		if (ConfigHelper.LoadBoolean("WindowMaximized")) {
 			WindowState = WindowState.Maximized;
-			RootGrid.Margin = new Thickness(6);
+			BorderThickness = new Thickness(8);
 		}
 
 		Hwnd = HwndSource.FromHwnd(new WindowInteropHelper(this).EnsureHandle())!;
@@ -105,38 +107,52 @@ public sealed partial class MainWindow {
 
 		SplitGrid = new SplitGrid(this, null);
 		ContentGrid.Children.Add(SplitGrid);
-		ChangeThemeWithSystem();
+		ChangeTheme(App.IsDarkTheme, false);
+
+		if (SideBarPcItem.RootItems.Count == 0) {
+			foreach (var driveInfo in DriveInfo.GetDrives()) {
+				SideBarPcItem.RootItems.Add(new SideBarPcItem(driveInfo));
+			}
+		}
 
 		StartupLoad();
 	}
 
-	private static void OnSideBarItemMouseDoubleClick(object args) {
-		var e = (MouseEventArgs)args;
-		if (e.LeftButton != MouseButtonState.Pressed && e.RightButton != MouseButtonState.Pressed) {
-			return;
-		}
-		if (e.OriginalSource is FrameworkElement { DataContext: FileItem item }) {
-			item.IsSelected = true;
-		}
-	}
+	private static DateTimeOffset sideBarItemMouseUpTime;
+	private static Point sideBarItemMouseUpPoint;
 
-	private static void OnSideBarItemPreviewMouseDown(object args) {
+	private void OnSideBarItemPreviewMouseDown(object args) {
 		var e = (MouseButtonEventArgs)args;
 		if (e.ChangedButton is MouseButton.Left or MouseButton.Right) {
 			if (e.OriginalSource is FrameworkElement { DataContext: FileItem item }) {
 				item.IsSelected = true;
+
+				if (e.ChangedButton == MouseButton.Left) {
+					var point = e.GetPosition(this);
+					if ((DateTimeOffset.Now - sideBarItemMouseUpTime).TotalMilliseconds < GetDoubleClickTime() &&
+						Math.Abs(point.Y - sideBarItemMouseUpPoint.Y) < SystemParameters.MinimumVerticalDragDistance &&
+						Math.Abs(point.X - sideBarItemMouseUpPoint.X) < SystemParameters.MinimumHorizontalDragDistance) {
+						_ = FileTabControl.FocusedTabControl.SelectedTab.LoadDirectoryAsync(item.FullPath);
+					}
+				}
 			}
 		}
 	}
 
 	private void OnSideBarItemPreviewMouseUp(object args) {
 		var e = (MouseButtonEventArgs)args;
-		if (e.ChangedButton == MouseButton.Right && e.OriginalSource is FrameworkElement { DataContext: BookmarkItem bookmarkItem } item ) {
+		switch (e.ChangedButton) {
+		case MouseButton.Left:
+			sideBarItemMouseUpTime = DateTimeOffset.Now;
+			sideBarItemMouseUpPoint = e.GetPosition(this);
+			break;
+		case MouseButton.Right when e.OriginalSource is FrameworkElement { DataContext: BookmarkItem bookmarkItem }:
 			var menu = (ContextMenu)bookmarkConverter.Convert(bookmarkItem, null, null, null)!;
 			menu.DataContext = this;
 			menu.SetValue(FileItemAttach.FileItemProperty, bookmarkItem);
 			menu.IsOpen = true;
 			e.Handled = true;
+			break;
 		}
 	}
 
@@ -159,8 +175,8 @@ public sealed partial class MainWindow {
 		}
 		isClipboardViewerSet = true;
 		DataObjectContent.HandleClipboardChanged();
-	}	
-	
+	}
+
 	/// <summary>
 	/// 注册事件监视回收站变化
 	/// </summary>
@@ -199,7 +215,8 @@ public sealed partial class MainWindow {
 			}
 			var vol = Marshal.PtrToStructure<DevBroadcastVolume>(lParam);
 			if (vol.deviceType == 0x2) {  // DBT_DEVTYPVOLUME
-				switch (wParam.ToInt32()) {
+				var param = wParam.ToInt32();
+				switch (param) {
 				case 0x8000:  // DBT_DEVICEARRIVAL
 				case 0x8004:  // DBT_DEVICEREMOVECOMPLETE
 					var drive = DriveMaskToLetter(vol.unitMask);
@@ -220,6 +237,15 @@ public sealed partial class MainWindow {
 							}
 						}
 					}
+					for (var i = 0; i < SideBarPcItem.RootItems.Count; i++) {
+						if (SideBarPcItem.RootItems[i].FullPath[0] == drive) {
+							SideBarPcItem.RootItems.RemoveAt(i);
+							break;
+						}
+					}
+					if (param == 0x8000) {
+						SideBarPcItem.RootItems.Add(new SideBarPcItem(new DriveInfo(drive.ToString())));
+					}
 					break;
 				}
 			}
@@ -237,7 +263,7 @@ public sealed partial class MainWindow {
 				SendMessage(nextClipboardViewer, msg, wParam, lParam);
 			}
 			break;
-		case WinMessage.DwmColorizationCOlorChanged:
+		case WinMessage.DwmColorizationColorChanged:
 			ChangeThemeWithSystem();
 			break;
 		}
@@ -248,13 +274,13 @@ public sealed partial class MainWindow {
 	/// 打开给定的路径，如果没有窗口就打开一个新的，如果有窗口就会在FocusedTabControl打开新标签页，需要在UI线程调用
 	/// </summary>
 	/// <param name="path"></param>
-	public static async void OpenPath(string path) {
+	public static void OpenPath(string path) {
 		if (MainWindows.Count == 0) {  // 窗口都关闭了
 			new MainWindow(path).Show();
 		} else {
 			var tabControl = FileTabControl.FocusedTabControl;
 			tabControl.MainWindow.BringToFront();
-			await tabControl.OpenPathInNewTabAsync(path);
+			_ = tabControl.OpenPathInNewTabAsync(path);
 		}
 	}
 
@@ -454,27 +480,38 @@ public sealed partial class MainWindow {
 		ChangeTheme(App.IsDarkTheme);
 	}
 
-	private void ChangeTheme(bool isDarkTheme, bool useBlur = true) {
-		var dictionaries = Application.Current.Resources.MergedDictionaries[0].MergedDictionaries;
-		dictionaries.Clear();
-		try {
-			dictionaries.Add(new ResourceDictionary {
-				Source = new Uri($"pack://application:,,,/HandyControl;component/Themes/Skin{(isDarkTheme ? "Dark" : string.Empty)}{(useBlur ? "Blur" : string.Empty)}.xaml", UriKind.Absolute)
-			});
-		} catch (Exception e) {
-			Logger.Exception(e);
-			dictionaries.Add(new ResourceDictionary {
-				Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Skin.xaml", UriKind.Absolute)
-			});
+	private void ChangeTheme(bool isDarkTheme, bool useAnimation = true) {
+		var brushes = new ResourceDictionary {
+			Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Basic/Brushes.xaml", UriKind.Absolute)
+		};
+		var newColors = new ResourceDictionary {
+			Source = new Uri(isDarkTheme ? "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/ColorsDark.xaml" : "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Colors.xaml", UriKind.Absolute)
+		};
+		var resources = Application.Current.Resources;
+		foreach (string brushName in brushes.Keys) {
+			if (resources[brushName] is SolidColorBrush sc) {
+				var newColorName = brushName[..^5] + "Color";
+				if (sc.IsFrozen) {
+					sc = sc.Clone();
+					if (useAnimation) {
+						sc.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation((Color)newColors[newColorName], new Duration(TimeSpan.FromMilliseconds(300))));
+					} else {
+						sc.SetValue(SolidColorBrush.ColorProperty, newColors[newColorName]);
+					}
+					resources[brushName] = sc;
+				} else {
+					if (useAnimation) {
+						sc.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation((Color)newColors[newColorName], new Duration(TimeSpan.FromMilliseconds(300))));
+					} else {
+						sc.SetValue(SolidColorBrush.ColorProperty, newColors[newColorName]);
+					}
+				}
+			}
 		}
-		dictionaries.Add(new ResourceDictionary {
-			Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Theme.xaml", UriKind.Absolute)
-		});
-
 		EnableMica(isDarkTheme);
 	}
 
-	private void DragArea_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+	private void OnDragAreaMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
 		DragMove();
 	}
 
@@ -483,9 +520,9 @@ public sealed partial class MainWindow {
 		var isMaximized = WindowState == WindowState.Maximized;
 		ConfigHelper.Save("WindowMaximized", isMaximized);
 		if (isMaximized) {
-			RootGrid.Margin = new Thickness(6);
+			BorderThickness = new Thickness(8);
 		} else {
-			RootGrid.Margin = new Thickness(0, 3, 3, 3);
+			BorderThickness = new Thickness();
 		}
 	}
 
@@ -505,7 +542,7 @@ public sealed partial class MainWindow {
 		}
 	}
 
-	protected override void OnKeyDown(KeyEventArgs e) {
+	protected override void OnPreviewKeyDown(KeyEventArgs e) {
 		var mouseOverTab = FileTabControl.MouseOverTabControl?.SelectedTab;
 		if (mouseOverTab != null) {
 			if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
@@ -533,10 +570,16 @@ public sealed partial class MainWindow {
 				case Key.Delete:
 					mouseOverTab.FileItemCommand.Execute("Delete");
 					break;
+				case Key.Left:
+					ChangeTheme(true);
+					break;
+				case Key.Right:
+					ChangeTheme(false);
+					break;
 				}
 			}
 		}
-		base.OnKeyDown(e);
+		base.OnPreviewKeyDown(e);
 	}
 
 	private void Sidebar_OnSizeChanged(object sender, SizeChangedEventArgs e) {

@@ -21,15 +21,7 @@ public sealed class DiskDrive : FileItem {
 		protected set => Drive = new DriveInfo(value);
 	}
 
-	public override string DisplayText {
-		get {
-			var driver = Drive;
-			if (driver.IsReady) {
-				return $"{(string.IsNullOrWhiteSpace(driver.VolumeLabel) ? Type : driver.VolumeLabel)} ({driver.Name[..1]})";
-			}
-			return $"{Type} ({driver.Name[..1]})";
-		}
-	}
+	public override string DisplayText => DriveUtils.GetFriendlyName(Drive);
 
 	public long FreeSpace { get; private set; }
 
@@ -53,12 +45,7 @@ public sealed class DiskDrive : FileItem {
 	}
 
 	public override void LoadAttributes() {
-		Type = Drive.DriveType switch {
-			DriveType.Removable => "Removable_disk".L(),
-			DriveType.CDRom => "CD_drive".L(),
-			DriveType.Fixed => "Local_disk".L(),
-			_ => "Other_type_disk".L()
-		};
+		Type = DriveUtils.GetTypeDescription(Drive);
 		if (Drive.IsReady) {
 			TotalSpace = Drive.TotalSize;
 			FreeSpace = Drive.AvailableFreeSpace; // 考虑用户配额
@@ -73,7 +60,7 @@ public sealed class DiskDrive : FileItem {
 	}
 
 	public override void LoadIcon() {
-		Icon = IconHelper.GetDiskDriveThumbnail(Drive);
+		Icon = IconHelper.GetDriveThumbnail(Drive);
 	}
 
 	public override void StartRename() {

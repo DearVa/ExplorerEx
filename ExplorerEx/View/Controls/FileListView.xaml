@@ -12,7 +12,7 @@
           xmlns:vw="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
           xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
           d:DataContext="{d:DesignInstance ct:FileListView}"
-          mc:Ignorable="d" AllowDrop="True" SelectionMode="Extended"
+          mc:Ignorable="d" AllowDrop="True" SelectionMode="Extended" IsTabStop="False"
           VirtualizingStackPanel.IsVirtualizing="True"
           VirtualizingStackPanel.ScrollUnit="Pixel">
     <ListView.Resources>
@@ -274,7 +274,7 @@
             </StackPanel>
         </ControlTemplate>
 
-        <ContextMenu x:Key="DiskDriveItemContextMenu" StaysOpen="True" d:DataContext="{d:DesignInstance ct:FileListView}" Style="{StaticResource ContextMenuBaseStyle}">
+        <ct:StaysOpenContextMenu x:Key="DiskDriveItemContextMenu" StaysOpen="True" d:DataContext="{d:DesignInstance ct:FileListView}" Style="{StaticResource ContextMenuBaseStyle}">
             <MenuItem Height="35">
                 <MenuItem.Template>
                     <ControlTemplate>
@@ -318,7 +318,7 @@
             <MenuItem CommandParameter="Properties"
                       Command="{Binding ViewModel.FileItemCommand}"
                       Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
-        </ContextMenu>
+        </ct:StaysOpenContextMenu>
 
         <ContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance ct:FileListView}">
             <MenuItem Height="35" Template="{StaticResource FileOperationsTemplate}"/>
@@ -333,6 +333,9 @@
             <MenuItem CommandParameter="OpenInNewWindow"
                       Command="{Binding ViewModel.FileItemCommand}" 
                       Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang OpenInNewWindow}"/>
+            <MenuItem Header="{u:Lang CopyAsPath}" CommandParameter="CopyAsPath"
+                      Command="{Binding Path=ViewModel.FileItemCommand}"
+                      Icon="{StaticResource CopyDrawingImage}"/>
             <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
 
             <MenuItem CommandParameter="AddToBookmarks"
@@ -357,11 +360,11 @@
             <MenuItem Header="{u:Lang Open}" CommandParameter="Open"
                       Command="{Binding ViewModel.FileItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileSystemItem.IsExecutable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
-                      Icon="{Binding (m:FileItem.Icon)}"/>
+                      Icon="{Binding Path=(m:FileItemAttach.FileItem).Icon, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
             <MenuItem Header="{u:Lang Run}" CommandParameter="Open"
                       Command="{Binding ViewModel.FileItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileSystemItem.IsExecutable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                      Icon="{Binding Path=(m:FileItem.Icon)}"/>
+                      Icon="{Binding Path=(m:FileItemAttach.FileItem).Icon, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
             <MenuItem Header="{u:Lang RunAsAdmin}" CommandParameter="RunAs"
                       Command="{Binding Path=ViewModel.FileItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileSystemItem.IsExecutable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
@@ -370,6 +373,15 @@
                       Command="{Binding Path=ViewModel.FileItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileSystemItem.IsEditable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{Binding TextEditor, Source={x:Static e:Settings.Instance}, Mode=OneWay, Converter={StaticResource FileName2IconConverter}}"/>
+            <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
+
+            <MenuItem Header="{u:Lang OpenFileLocation}" CommandParameter="OpenFileLocation"
+                      Command="{Binding Path=ViewModel.FileItemCommand}"
+                      Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileSystemItem.IsLink), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                      Icon="{StaticResource ShareDrawingImage}"/>
+            <MenuItem Header="{u:Lang CopyAsPath}" CommandParameter="CopyAsPath"
+                      Command="{Binding Path=ViewModel.FileItemCommand}"
+                      Icon="{StaticResource CopyDrawingImage}"/>
             <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
 
             <MenuItem CommandParameter="AddToBookmarks"
@@ -415,7 +427,7 @@
         <!-- 该资源在C#逻辑中获取 -->
         <!-- ReSharper disable once Xaml.RedundantResource -->
         <ItemsPanelTemplate x:Key="VirtualizingStackPanel">
-            <VirtualizingStackPanel VirtualizationMode="Recycling" SnapsToDevicePixels="True" Margin="2,0"/>
+            <VirtualizingStackPanel VirtualizationMode="Recycling" SnapsToDevicePixels="True"/>
         </ItemsPanelTemplate>
     </ListView.Resources>
 
@@ -488,7 +500,7 @@
             <hc:SimplePanel>
                 <hc:ToggleBlock IsChecked="{Binding HasItems, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
                     <hc:ToggleBlock.CheckedContent>
-                        <Grid SnapsToDevicePixels="True">
+                        <Grid SnapsToDevicePixels="True" Margin="2">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition/>

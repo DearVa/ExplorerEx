@@ -173,7 +173,14 @@ public class TabItem : System.Windows.Controls.TabItem {
 		CommandBindings.Add(new CommandBinding(ControlCommands.Close, (_, _) => Close()));
 		CommandBindings.Add(new CommandBinding(ControlCommands.CloseOther, (_, _) => TabControlParent.CloseOtherItems(this)));
 		CommandBindings.Add(new CommandBinding(ControlCommands.DuplicateTab, (_, _) => RaiseEvent(new RoutedEventArgs(DuplicatingEvent, this))));
-		Loaded += (_, _) => OnMenuChanged(Menu);
+		Loaded += (s, _) => {
+			OnMenuChanged(Menu);
+			((TabItem)s).BeginAnimation(OpacityProperty, new DoubleAnimation(1d, new Duration(TimeSpan.FromMilliseconds(300))) {
+				EasingFunction = new SineEase {
+					EasingMode = EasingMode.EaseIn
+				}
+			});
+		};
 	}
 
 	public override void OnApplyTemplate() {

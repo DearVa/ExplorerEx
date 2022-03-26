@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using ExplorerEx.Model;
@@ -66,10 +67,23 @@ public class FileItemCommand : ICommand {
 			if (items.Count == 0) {
 				return;
 			}
-			await tabControl.SelectedTab.LoadDirectoryAsync(Path.GetDirectoryName(items[0].FullPath));  // 第一个在选中的标签页打开
+			await tabControl.SelectedTab.LoadDirectoryAsync(FileUtils.GetFileLocation(items[0].FullPath), true, items[0].FullPath);  // 第一个在选中的标签页打开
 			for (var i = 1; i < items.Count; i++) {
-				await tabControl.OpenPathInNewTabAsync(Path.GetDirectoryName(items[i].FullPath));  // 如果还有，就新建标签页打开
+				await tabControl.OpenPathInNewTabAsync(FileUtils.GetFileLocation(items[i].FullPath), items[i].FullPath);  // 如果还有，就新建标签页打开
 			}
+			break;
+		}
+		case "CopyAsPath": {
+			var items = Items;
+			if (items.Count == 0) {
+				return;
+			}
+			var sb = new StringBuilder();
+			for (var i = 0; i < items.Count - 1; i++) {
+				sb.Append('"').Append(items[i].FullPath).Append("\" ");
+			}
+			sb.Append('"').Append(items[^1].FullPath).Append('"');
+			Clipboard.SetText(sb.ToString());
 			break;
 		}
 		case "Copy":
@@ -165,7 +179,7 @@ public class FileItemCommand : ICommand {
 			break;
 		}
 		case "Edit":
-			foreach (var item in Items.Where(i => !i.IsFolder)) {
+			foreach (var item in Items.Where(i => i is FileSystemItem { IsEditable: true })) {
 				OpenFileWith(item, Settings.Instance.TextEditor);
 			}
 			break;

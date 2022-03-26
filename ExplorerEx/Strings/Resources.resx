@@ -406,4 +406,16 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="OpenFileLocation" xml:space="preserve">
     <value>打开文件位置</value>
   </data>
+  <data name="CopyAsPath" xml:space="preserve">
+    <value>复制文件路径</value>
+  </data>
+  <data name="RestoreAll" xml:space="preserve">
+    <value>全部恢复</value>
+  </data>
+  <data name="OpenOnTheRight" xml:space="preserve">
+    <value>在右侧打开</value>
+  </data>
+  <data name="DeleteAll" xml:space="preserve">
+    <value>删除所有</value>
+  </data>
 </root>

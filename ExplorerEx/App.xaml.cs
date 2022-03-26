@@ -4,12 +4,16 @@ using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using ExplorerEx.Model;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 using ExplorerEx.View;
 using ExplorerEx.Win32;
 using Microsoft.Win32;
+using static ExplorerEx.Win32.Win32Interop;
 
 namespace ExplorerEx;
 
@@ -36,9 +40,10 @@ public partial class App {
 		}
 	}
 
-	private bool running;
-	private Mutex mutex;
-	private NotifyIconWindow notifyIconWindow;
+	private static bool isRunning;
+	private static Mutex mutex;
+	private static NotifyIconWindow notifyIconWindow;
+	private static DispatcherTimer dispatcherTimer;
 
 	protected override async void OnStartup(StartupEventArgs e) {
 		Logger.Initialize();
@@ -62,7 +67,7 @@ public partial class App {
 		Trace.WriteLine("Startup: " + DateTime.Now);
 		mutex = new Mutex(true, "ExplorerEx", out var createdNew);
 		if (createdNew) {  // 说明没有开启ExplorerEx
-			running = true;
+			isRunning = true;
 			new Thread(IPCWork) {
 				IsBackground = true
 			}.Start();
@@ -81,6 +86,8 @@ public partial class App {
 			new MainWindow().Show();
 		}
 		notifyIconWindow = new NotifyIconWindow();
+		//dispatcherTimer = new DispatcherTimer(TimeSpan.FromSeconds(5), DispatcherPriority.Background, LowFrequencyWork, Dispatcher);
+		//dispatcherTimer.Start();
 
 #if DEBUG
 		EventManager.RegisterClassHandler(typeof(UIElement), UIElement.PreviewKeyDownEvent, new KeyEventHandler((_, args) => {
@@ -90,13 +97,33 @@ public partial class App {
 		}));
 #endif
 	}
-	
+
+	/// <summary>
+	/// 使用DispatcherTimer调用的低频工作，10s一次
+	/// </summary>
+	private void LowFrequencyWork(object s, EventArgs e) {
+		if (DateTime.Now.TimeOfDay > new TimeSpan(20, 10, 0)) {
+			var brushes = new ResourceDictionary {
+				Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Basic/Brushes.xaml", UriKind.Absolute)
+			};
+			var newColors = new ResourceDictionary {
+				Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Basic/Colors/ColorsDark.xaml", UriKind.Absolute)
+			};
+			foreach (string brushName in brushes.Keys) {
+				if (Resources[brushName] is SolidColorBrush brush) {
+					var newColorName = brushName[..^5] + "Color";
+					brush.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation((Color)newColors[newColorName], new Duration(TimeSpan.FromMilliseconds(500))));
+				}
+			}
+		}
+	}
+
 	/// <summary>
 	/// 进程间消息传递线程
 	/// </summary>
 	private void IPCWork() {
 		using var nmmf = new NotifyMemoryMappedFile("ExplorerExIPC", 1024, true);
-		while (running) {
+		while (isRunning) {
 			nmmf.WaitForModified();
 			var data = nmmf.Read();
 			if (data != null) {
@@ -111,8 +138,8 @@ public partial class App {
 	}
 
 	protected override void OnExit(ExitEventArgs e) {
-		if (running) {
-			running = false;
+		if (isRunning) {
+			isRunning = false;
 			BookmarkDbContext.Instance.SaveChanges();
 			notifyIconWindow?.NotifyIconContextContent.Dispose();
 			mutex.Dispose();

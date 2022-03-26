@@ -10,7 +10,7 @@
                ItemsSource="{Binding TabItems}" Style="{StaticResource TabControlPlusBaseStyle}"
                TabItemHeight="35" IsSynchronizedWithCurrentItem="True"
                SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
-               Background="{DynamicResource BackgroundBrush}" BorderBrush="{x:Null}" Margin="0,10,0,0">
+               BorderBrush="{x:Null}" Margin="0,10,0,0">
     <hc:Interaction.Triggers>
         <hc:RoutedEventTrigger RoutedEvent="hc:TabItem.Closing">
             <hc:EventToCommand Command="{Binding TabClosingCommand}" PassEventArgsToCommand="True"/>

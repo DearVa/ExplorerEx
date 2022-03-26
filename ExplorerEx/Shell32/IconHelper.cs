@@ -127,7 +127,7 @@ internal static class IconHelper {
 		return result;
 	}
 
-	public static ImageSource GetDiskDriveThumbnail(DriveInfo drive) {
+	public static ImageSource GetDriveThumbnail(DriveInfo drive) {
 		if (!drive.IsReady) {
 			return UnknownFileDrawingImage;
 		}

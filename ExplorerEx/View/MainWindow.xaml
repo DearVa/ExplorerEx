@@ -85,17 +85,17 @@
     </Window.Resources>
 
     <WindowChrome.WindowChrome>
-        <WindowChrome GlassFrameThickness="-1" ResizeBorderThickness="1" UseAeroCaptionButtons="True"/>
+        <WindowChrome GlassFrameThickness="-1" ResizeBorderThickness="2"/>
     </WindowChrome.WindowChrome>
 
-    <Grid x:Name="RootGrid" Margin="0,3,3,3">
+    <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition x:Name="SidebarColumnDefinition" Width="300"/>
             <ColumnDefinition Width="1"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0" Background="{DynamicResource RegionBrush}" 
-              MouseLeftButtonDown="DragArea_OnMouseLeftButtonDown" SizeChanged="Sidebar_OnSizeChanged">
+        <hc:SimplePanel Grid.Column="0" Background="{DynamicResource RegionBrush}" 
+                        MouseLeftButtonDown="OnDragAreaMouseLeftButtonDown" SizeChanged="Sidebar_OnSizeChanged">
             <TabControl x:Name="SidebarTabControl" TabStripPlacement="Left" Focusable="False"
                         SelectionChanged="Sidebar_OnSelectionChanged" PreviewMouseLeftButtonDown="Sidebar_OnPreviewMouseLeftButtonDown">
                 <TabControl.ItemContainerStyle>
@@ -162,14 +162,15 @@
                                         <Setter Property="Focusable" Value="False"/>
                                         <Setter Property="IsSelected" Value="False"/>
                                         <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                                        <Setter Property="hc:BorderElement.CornerRadius" Value="4"/>
                                     </Style>
                                 </TreeView.ItemContainerStyle>
                                 <TreeView.Resources>
-                                    <HierarchicalDataTemplate ItemsSource="{Binding Children}" DataType="{x:Type m:BookmarkCategory}">
+                                    <HierarchicalDataTemplate ItemsSource="{Binding Children, Mode=OneWay}" DataType="{x:Type m:BookmarkCategory}">
                                         <HierarchicalDataTemplate.ItemContainerStyle>
                                             <Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemBaseStyle}">
-                                                <Setter Property="Visibility" Value="{Binding Converter={StaticResource BookmarkFilter}}"/>
-                                                <Setter Property="IsSelected" Value="{Binding Path=(m:BookmarkItem.IsSelected)}"/>
+                                                <Setter Property="Visibility" Value="{Binding Converter={StaticResource BookmarkFilter}, Mode=OneWay}"/>
+                                                <Setter Property="IsSelected" Value="{Binding Path=(m:BookmarkItem.IsSelected), Mode=TwoWay}"/>
                                             </Style>
                                         </HierarchicalDataTemplate.ItemContainerStyle>
                                         <Grid Height="30">
@@ -191,9 +192,6 @@
                                                 <hc:RoutedEventTrigger RoutedEvent="TreeViewItem.PreviewMouseUp">
                                                     <hc:EventToCommand Command="{Binding SideBarItemPreviewMouseUpCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
                                                 </hc:RoutedEventTrigger>
-                                                <hc:RoutedEventTrigger RoutedEvent="TreeViewItem.MouseDoubleClick">
-                                                    <hc:EventToCommand Command="{Binding SideBarItemMouseDoubleClickCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
-                                                </hc:RoutedEventTrigger>
                                             </hc:Interaction.Triggers>
 
                                             <Grid.ColumnDefinitions>
@@ -209,39 +207,58 @@
                             </TreeView>
                         </ct:SideBarContent.Content>
                         <ct:SideBarContent.DragTip>
-                            <Grid Background="#66ffca28">
+                            <hc:SimplePanel Background="#66ffca28">
                                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{u:Lang Release_to_add_to_bookmark}" 
                                            TextAlignment="Center" FontSize="24"/>
-                            </Grid>
+                            </hc:SimplePanel>
                         </ct:SideBarContent.DragTip>
                     </ct:SideBarContent>
                 </TabItem>
                 <TabItem Width="50" Margin="0,52,2,-52" Padding="0">
                     <TabItem.Header>
-                        <Grid Height="40" ToolTip="{u:Lang ThisPC}" ToolTipService.InitialShowDelay="300"
-                              AllowDrop="True" DragEnter="TabItem_OnDragEnter">
+                        <hc:SimplePanel Height="40" ToolTip="{u:Lang ThisPC}" ToolTipService.InitialShowDelay="300"
+                                        AllowDrop="True" DragEnter="TabItem_OnDragEnter">
                             <Image Width="24" Height="24" Source="../Assets/Picture/Computer.png"/>
-                        </Grid>
+                        </hc:SimplePanel>
                     </TabItem.Header>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="50"/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
+                    <ct:SideBarContent Header="{u:Lang ThisPC}" ShowSearchButton="False">
+                        <ct:SideBarContent.Content>
+                            <TreeView BorderThickness="0"
+                                      ItemsSource="{Binding Source={x:Static m:SideBarPcItem.RootItems}}">
+                                <TreeView.ItemTemplate>
+                                    <HierarchicalDataTemplate ItemsSource="{Binding Children, Mode=OneWay}">
+                                        <Grid Height="30">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="30"/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
 
-                        <Grid Grid.Row="0" Margin="0,10,0,0" Background="{DynamicResource PrimaryBrush}">
-                            <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" Text="{u:Lang ThisPC}" FontSize="14"/>
-                        </Grid>
-                        <Grid Grid.Row="1" Background="{DynamicResource SecondaryRegionBrush}">
-                        </Grid>
-                    </Grid>
+                                            <Image Grid.Column="0" Margin="5" Stretch="Uniform" Source="{Binding Icon}"/>
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" FontSize="13"/>
+                                        </Grid>
+                                    </HierarchicalDataTemplate>
+                                </TreeView.ItemTemplate>
+                                <TreeView.ItemContainerStyle>
+                                    <Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemBaseStyle}">
+                                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                                    </Style>
+                                </TreeView.ItemContainerStyle>
+                            </TreeView>
+                        </ct:SideBarContent.Content>
+                        <ct:SideBarContent.DragTip>
+                            <hc:SimplePanel Background="#66ffca28">
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{u:Lang Release_to_add_to_bookmark}" 
+                                           TextAlignment="Center" FontSize="24"/>
+                            </hc:SimplePanel>
+                        </ct:SideBarContent.DragTip>
+                    </ct:SideBarContent>
                 </TabItem>
                 <TabItem Width="50" Margin="0,52,2,-52" Padding="0">
                     <TabItem.Header>
-                        <Grid Height="40" ToolTip="{u:Lang Network}" ToolTipService.InitialShowDelay="300"
-                              AllowDrop="True" DragEnter="TabItem_OnDragEnter">
+                        <hc:SimplePanel Height="40" ToolTip="{u:Lang Network}" ToolTipService.InitialShowDelay="300"
+                                        AllowDrop="True" DragEnter="TabItem_OnDragEnter">
                             <Image Width="24" Height="24" Source="../Assets/Picture/Network.png"/>
-                        </Grid>
+                        </hc:SimplePanel>
                     </TabItem.Header>
                     <Grid>
                         <Grid.RowDefinitions>
@@ -258,15 +275,30 @@
                 </TabItem>
                 <TabItem Width="50" Margin="0,52,2,-52" Padding="0">
                     <TabItem.Header>
-                        <Grid Height="40" ToolTip="{u:Lang Recycle_bin}" ToolTipService.InitialShowDelay="300" 
-                              AllowDrop="True" DragEnter="TabItem_OnDragEnter">
+                        <hc:SimplePanel Height="40" ToolTip="{u:Lang Recycle_bin}" ToolTipService.InitialShowDelay="300" 
+                                        AllowDrop="True" DragEnter="TabItem_OnDragEnter">
                             <Image Width="24" Height="24" Source="../Assets/Picture/RecycleBin.png"
                                    Visibility="{Binding Count, Source={x:Static m:RecycleBinItem.Items}, Converter={StaticResource Int2VisibilityReConverter}}"/>
                             <Image Width="24" Height="24" Source="../Assets/Picture/RecycleBinFull.png"
                                    Visibility="{Binding Count, Source={x:Static m:RecycleBinItem.Items}, Converter={StaticResource Int2VisibilityConverter}}"/>
-                        </Grid>
+                        </hc:SimplePanel>
                     </TabItem.Header>
                     <ct:SideBarContent Header="{u:Lang Recycle_bin}" Filter="{StaticResource RecycleBinFilter}" FileDrop="RecycleBinSideBarContent_OnFileDrop">
+                        <ct:SideBarContent.HeaderContent>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Width="25" Height="25" Margin="0,0,5,0" ToolTip="{u:Lang DeleteAll}"
+                                        Style="{StaticResource ButtonTransparent}"
+                                        hc:IconElement.Geometry="{StaticResource DeleteGeometry}"/>
+                                <Button Width="25" Height="25" Padding="3" ToolTip="{u:Lang RestoreAll}"
+                                        Style="{StaticResource ButtonTransparent}">
+                                    <Image Source="{StaticResource RestoreDrawingImage}"/>
+                                </Button>
+                                <Rectangle Width="1" Height="18" Fill="{DynamicResource ThirdlyTextBrush}" Margin="5,1,5,1"/>
+                                <Button Width="25" Height="25" ToolTip="{u:Lang OpenOnTheRight}"
+                                        Style="{StaticResource ButtonTransparent}"
+                                        hc:IconElement.Geometry="{StaticResource RightArrowGeometry}"/>
+                            </StackPanel>
+                        </ct:SideBarContent.HeaderContent>
                         <ct:SideBarContent.Content>
                             <ListBox BorderThickness="0" SelectionMode="Extended"
                                      ItemsSource="{Binding Source={x:Static m:RecycleBinItem.Items}}">
@@ -296,8 +328,8 @@
                                                 <hc:RoutedEventTrigger RoutedEvent="ListBoxItem.PreviewMouseDown">
                                                     <hc:EventToCommand Command="{Binding SideBarItemPreviewMouseDownCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
                                                 </hc:RoutedEventTrigger>
-                                                <hc:RoutedEventTrigger RoutedEvent="ListBoxItem.MouseDoubleClick">
-                                                    <hc:EventToCommand Command="{Binding SideBarItemMouseDoubleClickCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
+                                                <hc:RoutedEventTrigger RoutedEvent="ListBoxItem.PreviewMouseUp">
+                                                    <hc:EventToCommand Command="{Binding SideBarItemPreviewMouseUpCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
                                                 </hc:RoutedEventTrigger>
                                             </hc:Interaction.Triggers>
 
@@ -314,19 +346,19 @@
                             </ListBox>
                         </ct:SideBarContent.Content>
                         <ct:SideBarContent.DragTip>
-                            <Grid Background="#66ff0000">
+                            <hc:SimplePanel Background="#66ff0000">
                                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{u:Lang Release_to_move_to_recycle_bin}" 
                                            TextAlignment="Center" FontSize="24"/>
-                            </Grid>
+                            </hc:SimplePanel>
                         </ct:SideBarContent.DragTip>
                     </ct:SideBarContent>
                 </TabItem>
                 <TabItem Width="50" Margin="0,52,2,-52" Padding="0">
                     <TabItem.Header>
-                        <Grid Height="40" ToolTip="OneDrive" ToolTipService.InitialShowDelay="300" 
-                              AllowDrop="True" DragEnter="TabItem_OnDragEnter">
+                        <hc:SimplePanel Height="40" ToolTip="OneDrive" ToolTipService.InitialShowDelay="300" 
+                                        AllowDrop="True" DragEnter="TabItem_OnDragEnter">
                             <Image Width="24" Height="24" Source="{StaticResource OneDriveDrawingImage}"/>
-                        </Grid>
+                        </hc:SimplePanel>
                     </TabItem.Header>
                     <Grid>
                         <Grid.RowDefinitions>
@@ -370,10 +402,10 @@
                                          ItemsSource="{Binding Source={x:Static m:BookmarkDbContext.BookmarkCategories}}"
                                          Text="{Binding BookmarkCategory, Mode=OneWayToSource}" Margin="5,0,0,0" SelectedIndex="0"/>
                         </Grid>
-                        <Grid Margin="0,20,0,0">
+                        <hc:SimplePanel Margin="0,20,0,0">
                             <Button HorizontalAlignment="Left" Width="100" Content="{u:Lang Ok}" Style="{DynamicResource ButtonSuccess}" Click="OnAddToBookmarkConfirmClick"/>
                             <Button HorizontalAlignment="Right" Width="100" Content="{u:Lang Delete}" Style="{DynamicResource ButtonDanger}" Click="OnAddToBookmarkDeleteClick"/>
-                        </Grid>
+                        </hc:SimplePanel>
                     </StackPanel>
                 </Border>
             </Popup>
@@ -385,13 +417,13 @@
                     ToolTip="{u:Lang Settings}" ToolTipService.InitialShowDelay="300" Padding="0" BorderBrush="{x:Null}">
                 <Image Width="24" Height="24" Source="{StaticResource SettingsDrawingImage}"/>
             </Button>
-        </Grid>
+        </hc:SimplePanel>
 
         <GridSplitter Grid.Column="1" Margin="-2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                       PreviewMouseDown="SidebarSplitter_OnPreviewMouseDown" PreviewMouseMove="SidebarSplitter_OnPreviewMouseMove" PreviewMouseUp="SidebarSplitter_OnPreviewMouseUp"/>
 
-        <Grid x:Name="ContentGrid" Grid.Column="2">
-            <Border MouseDown="DragArea_OnMouseLeftButtonDown" Background="#22FFFFFF"/>
-        </Grid>
+        <hc:SimplePanel x:Name="ContentGrid" Grid.Column="2">
+            <Border MouseDown="OnDragAreaMouseLeftButtonDown" Background="{DynamicResource BackgroundBrush}"/>
+        </hc:SimplePanel>
     </Grid>
 </Window>

@@ -10,7 +10,6 @@ using System.Text;
 using System.Windows;
 using ExplorerEx.Shell32;
 using IWshRuntimeLibrary;
-using static ExplorerEx.Win32.Win32Interop;
 using File = System.IO.File;
 using Path = System.IO.Path;
 using System.Threading;
@@ -141,6 +140,35 @@ internal static class FileUtils {
 			newFileName = $"{fileName} ({++sameNameCount}){extension}";
 		}
 		return newFileName;
+	}
+
+	/// <summary>
+	/// 获取.lnk文件的目标位置
+	/// </summary>
+	/// <param name="shortcutPath"></param>
+	/// <returns></returns>
+	public static string GetShortcutTarget(string shortcutPath) {
+		try {
+			var shell = new WshShell();
+			return ((IWshShortcut)shell.CreateShortcut(shortcutPath)).TargetPath;
+		} catch {
+			return null;
+		}
+	}
+
+	/// <summary>
+	/// 获取一个文件的位置，如果是.lnk文件就获取目标位置
+	/// </summary>
+	/// <param name="filePath"></param>
+	/// <returns></returns>
+	public static string GetFileLocation(string filePath) {
+		if (filePath.Length <= 3) {
+			return null;
+		}
+		if (filePath[^4..] == ".lnk") {
+			return Path.GetDirectoryName(GetShortcutTarget(filePath));
+		}
+		return Path.GetDirectoryName(filePath);
 	}
 
 	/// <summary>

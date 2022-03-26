@@ -35,7 +35,7 @@
                 </ContextMenu>
             </hc:SplitButton.DropDownContent>
         </hc:SplitButton>
-        <Rectangle Width="1" Height="30" Stroke="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
+        <Rectangle Width="1" Height="30" Fill="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
 
         <StackPanel Orientation="Horizontal" Visibility="{Binding IsFileUtilsVisible, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}, RelativeSource={RelativeSource AncestorType=ct:FileTabControl}}">
             <Button VerticalAlignment="Stretch" Height="35" ToolTip="{u:Lang Cut}"
@@ -68,7 +68,7 @@
                     Command="{Binding FileItemCommand}" CommandParameter="Delete">
                 <Image Width="20" Height="20" Source="{StaticResource DeleteDrawingImage}"/>
             </Button>
-            <Rectangle Width="1" Height="30" Stroke="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
+            <Rectangle Width="1" Height="30" Fill="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
         </StackPanel>
 
         <hc:SplitButton Padding="0" Height="35" HitMode="None" Command="{Binding SwitchViewCommand}">
@@ -137,7 +137,7 @@
                 </ContextMenu>
             </hc:SplitButton.DropDownContent>
         </hc:SplitButton>
-        <Rectangle Width="1" Height="30" Stroke="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
+        <Rectangle Width="1" Height="30" Fill="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
 
         <Button VerticalAlignment="Stretch" Width="45" Height="35" Padding="0" ToolTip="{u:Lang More}">
             <Image Width="24" Height="24" Source="{StaticResource MoreDrawingImage}"/>
@@ -226,7 +226,7 @@
                     <Run Text="{Binding FileItemsCount, Mode=OneWay}"/>
                     <Run Text="{u:Lang Run_ItemsCount}"/>
                 </TextBlock>
-                <Rectangle Width="1" Height="18" Stroke="{DynamicResource ThirdlyTextBrush}" Margin="10,-2,10,3"/>
+                <Rectangle Width="1" Height="18" Fill="{DynamicResource ThirdlyTextBrush}" Margin="10,-1,10,2"/>
 
                 <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" Visibility="{Binding SelectedFileItemsCountVisibility, Mode=OneWay}">
                     <Run Text="{u:Lang Run_SelectedItemsCount}"/>

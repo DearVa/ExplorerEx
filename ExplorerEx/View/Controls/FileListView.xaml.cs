@@ -216,6 +216,9 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	private void OnFileViewPropertyChanged(object sender, PropertyChangedEventArgs e) {
 		var fileView = FileView;
+		if (fileView == null) {
+			return;
+		}
 		switch (e.PropertyName) {
 		case nameof(fileView.SortBy):
 		case nameof(fileView.IsAscending):
@@ -251,13 +254,14 @@ public partial class FileListView : INotifyPropertyChanged {
 			columnsConverter.Convert(view.Columns, FileView);
 			View = view;
 			var padding = Padding;
-			contentPanel.Margin = new Thickness(padding.Left, 25d + padding.Top, padding.Right, padding.Bottom);
+			contentPanel.Margin = new Thickness(padding.Left, 30d + padding.Top, padding.Right, padding.Bottom);
 		} else {
 			ItemsPanel = virtualizingWrapPanel;
 			ItemTemplate = listBoxTemplateConverter.Convert();
 			View = null;
 			contentPanel.Margin = Padding;
 		}
+		Focus();
 	}
 
 	public override void OnApplyTemplate() {
@@ -267,6 +271,10 @@ public partial class FileListView : INotifyPropertyChanged {
 		selectionRect = (Border)GetTemplateChild("SelectionRect");
 	}
 
+	/// <summary>
+	/// 选择某一项
+	/// </summary>
+	/// <param name="fileName"></param>
 	public void Select(object fileName) {
 		var item = ItemsCollection.FirstOrDefault(item => item.Name == (string)fileName);
 		if (item != null) {
@@ -882,6 +890,7 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	public void ScrollIntoView(FileItem item) {
 		if (!isRectSelecting && !isDragDropping) {
+			scrollViewer.ScrollToBottom();  // 确保在最上面
 			ScrollIntoView((object)item);
 		}
 	}

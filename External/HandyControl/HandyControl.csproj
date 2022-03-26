@@ -363,16 +363,16 @@
     <None Include="Themes\Styles\Window.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Themes\Basic\Colors\ColorsBlur.xaml">
+    <PackageReference Include="Costura.Fody" Version="5.7.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Themes\Basic\Colors\Colors.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>
-    <Page Update="Themes\Basic\Colors\ColorsDarkBlur.xaml">
-      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-    </Page>
-    <Page Update="Themes\SkinDarkBlur.xaml">
-      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-    </Page>
-    <Page Update="Themes\SkinBlur.xaml">
+    <Page Update="Themes\Basic\Colors\ColorsDark.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>
   </ItemGroup>

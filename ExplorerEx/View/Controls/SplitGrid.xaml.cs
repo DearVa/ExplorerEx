@@ -75,7 +75,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 	private static readonly CubicEase CubicEase = new() { EasingMode = EasingMode.EaseInOut };
 
 	private SplitGrid(MainWindow mainWindow, SplitGrid ownerSplitGrid) {
-		showAnimation ??= new DoubleAnimation(1d, new Duration(TimeSpan.FromMilliseconds(100))) { EasingFunction = CubicEase };
+		showAnimation ??= new DoubleAnimation(0.5d, new Duration(TimeSpan.FromMilliseconds(100))) { EasingFunction = CubicEase };
 		hideAnimation ??= new DoubleAnimation(0d, new Duration(TimeSpan.FromMilliseconds(100))) { EasingFunction = CubicEase };
 
 		MainWindow = mainWindow;

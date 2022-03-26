@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
-using ExplorerEx.Command;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 using static ExplorerEx.Shell32.IconHelper;
@@ -49,17 +47,17 @@ public class FileSystemItem : FileItem {
 	/// <summary>
 	/// 是否是可执行文件
 	/// </summary>
-	public bool IsExecutable => !IsFolder && Path.GetExtension(Name) is ".exe" or ".com" or ".cmd" or ".bat";
+	public bool IsExecutable => !IsFolder && FullPath[^4..] is ".exe" or ".com" or ".cmd" or ".bat";
 
 	/// <summary>
 	/// 是否为文本文件
 	/// </summary>
-	public bool IsEditable => !IsFolder && Path.GetExtension(Name) is ".txt" or ".log" or ".ini" or ".inf" or ".cmd" or ".bat" or ".ps1";
+	public bool IsEditable => !IsFolder && FullPath[^4..] is ".txt" or ".log" or ".ini" or ".inf" or ".cmd" or ".bat" or ".ps1";
 
 	/// <summary>
-	/// 点击“编辑”选项
+	/// 是否为.lnk文件
 	/// </summary>
-	public SimpleCommand EditCommand { get; }
+	public bool IsLink => !IsFolder && FullPath[^4..] == ".lnk";
 
 	public override string FullPath {
 		get => FileSystemInfo.FullName;
@@ -83,6 +81,8 @@ public class FileSystemItem : FileItem {
 	public bool UseLargeIcon { get; set; }
 
 	private bool isEmptyFolder;
+
+	protected FileSystemItem() { }
 
 	public FileSystemItem(FileInfo fileInfo) {
 		FileSystemInfo = fileInfo;

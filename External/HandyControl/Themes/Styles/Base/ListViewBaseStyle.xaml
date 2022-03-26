@@ -70,27 +70,25 @@
         </Setter>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="true">
-                <Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}" />
+                <Setter Property="Background" Value="{DynamicResource LightPrimaryBrush}" />
             </Trigger>
             <Trigger Property="IsSelected" Value="True">
                 <Setter Property="Background" Value="{DynamicResource PrimaryBrush}" />
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource TextIconBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource DarkPrimaryBrush}" />
             </Trigger>
             <MultiTrigger>
                 <MultiTrigger.Conditions>
                     <Condition Property="IsSelected" Value="true" />
                     <Condition Property="Selector.IsSelectionActive" Value="false" />
                 </MultiTrigger.Conditions>
-                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
-                <Setter Property="Background" Value="Transparent" />
-                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                <Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}" />
             </MultiTrigger>
             <MultiTrigger>
                 <MultiTrigger.Conditions>
                     <Condition Property="IsMouseOver" Value="true" />
                     <Condition Property="Selector.IsSelectionActive" Value="false" />
                 </MultiTrigger.Conditions>
-                <Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}" />
+                <Setter Property="Background" Value="{DynamicResource LightPrimaryBrush}" />
             </MultiTrigger>
         </Style.Triggers>
     </Style>
