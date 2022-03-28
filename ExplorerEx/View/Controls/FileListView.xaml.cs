@@ -170,7 +170,6 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	public FileListView() {
 		DataContextChanged += OnDataContextChanged;
-		LostFocus += OnLostFocus;
 		InitializeComponent();
 		EventManager.RegisterClassHandler(typeof(TextBox), GotFocusEvent, new RoutedEventHandler(OnRenameTextBoxGotFocus));
 		EventManager.RegisterClassHandler(typeof(TextBox), KeyDownEvent, new RoutedEventHandler(OnRenameTextBoxKeyDown));
@@ -195,13 +194,6 @@ public partial class FileListView : INotifyPropertyChanged {
 		if (e.NewValue is FileGridViewModel viewModel) {
 			ViewModel = viewModel;
 			ContextMenu!.DataContext = viewModel;
-		}
-	}
-
-	private void OnLostFocus(object sender, RoutedEventArgs e) {
-		if (renamingItem != null) {
-			renamingItem.StopRename();
-			renamingItem = null;
 		}
 	}
 
@@ -315,7 +307,7 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	private void OnRenameTextBoxKeyDown(object sender, RoutedEventArgs e) {
 		if (renamingItem != null && ((KeyEventArgs)e).Key is Key.Enter or Key.Escape) {
-			renamingItem.StopRename();
+			renamingItem.FinishRename();
 			renamingItem = null;
 		}
 	}
@@ -350,7 +342,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	private DispatcherTimer timer;
 
 	private FileItem renamingItem;
-	private CancellationTokenSource renameCts;
+	private bool shouldRename;
 
 	private void OnItemsChanged(object sender, NotifyCollectionChangedEventArgs e) {
 		if (e.OldStartingIndex == lastMouseDownRowIndex) {
@@ -392,30 +384,22 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
 		base.OnPreviewMouseDown(e);
-		Focus();
 		isDoubleClicked = false;
-		if (e.OriginalSource is not ScrollViewer && e.OriginalSource.FindParent<VirtualizingPanel, ListView>() == null) {
+		if (e.OriginalSource.FindParent<VirtualizingPanel, ListView>() == null) {
+			if (renamingItem != null) {  // 如果正在重命名就停止
+				renamingItem.FinishRename();
+				renamingItem = null;
+			}
+			return;  // 如果没有点击在VirtualizingPanel或者点击在了TextBox内就不处理事件，直接返回
+		}
+		if (e.OriginalSource.FindParent<TextBox, VirtualizingPanel>() != null) {
 			return;
 		}
 
+		Focus();
 		if (e.ChangedButton is MouseButton.Left or MouseButton.Right) {
 			isMouseDown = true;
-
-			if (renameCts != null) {
-				renameCts.Cancel();
-				renameCts = null;
-			}
-			if (renamingItem != null) {
-				if (e.OriginalSource.FindParent<TextBox, FileListView>() == null) {  // 没有点击在重命名TextBox内
-					renamingItem.StopRename();
-					renamingItem = null;
-				} else {
-					return;
-				}
-			} else {
-				renamingItem = null;
-			}
-
+			shouldRename = false;
 			startDragPosition = e.GetPosition(contentPanel);
 			var item = MouseItem;
 			if (item != null) {
@@ -426,9 +410,11 @@ public partial class FileListView : INotifyPropertyChanged {
 						Math.Abs(startDragPosition.Y - lastMouseUpPoint.Y) < SystemParameters.MinimumVerticalDragDistance &&
 						DateTimeOffset.Now <= lastMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime())) {
 						isDoubleClicked = true;
-						renameCts?.Cancel();
-						renameCts = null;
-						UnselectAll();
+						if (ViewModel.SelectedItems.Count > 1) {
+							foreach (var fileItem in ViewModel.SelectedItems.Where(i => i != item)) {
+								fileItem.IsSelected = false;
+							}
+						}
 						RaiseEvent(new ItemClickEventArgs(ItemDoubleClickedEvent, item));
 					} else {
 						if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) {
@@ -462,7 +448,7 @@ public partial class FileListView : INotifyPropertyChanged {
 							} else if (!item.IsSelected) {
 								UnselectAll();
 								item.IsSelected = true;
-							} else if (selectedItems.Count == 1) {
+							} else if (selectedItems.Count == 1 && renamingItem == null) {
 								isPreparedForRenaming = true;
 							}
 						}
@@ -479,6 +465,10 @@ public partial class FileListView : INotifyPropertyChanged {
 				}
 			} else {
 				mouseDownRowIndex = -1;
+			}
+			if (renamingItem != null) {  // 如果正在重命名就停止
+				renamingItem.FinishRename();
+				renamingItem = null;
 			}
 			var x = Math.Min(Math.Max(startDragPosition.X, 0), contentPanel.ActualWidth);
 			var y = Math.Min(Math.Max(startDragPosition.Y, 0), contentPanel.ActualHeight);
@@ -772,81 +762,84 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
 		base.OnPreviewMouseUp(e);
-		if (!isMouseDown || isDoubleClicked || renamingItem != null) {
-			return;
-		}
-		// 只有isMouseDown（即OnPreviewMouseDown触发过）为true，这个才有用
-		if (isMouseDown && e.ChangedButton is MouseButton.Left or MouseButton.Right) {
+		do {
+			if (!isMouseDown) {  // 只有isMouseDown（即OnPreviewMouseDown触发过）为true，这个才有用
+				break;
+			}
 			isMouseDown = false;
-			var isClickOnItem = mouseDownRowIndex >= 0 && mouseDownRowIndex < ItemsCollection.Count;
-			if (isRectSelecting) {
-				isRectSelecting = false;
-				selectionRect.Visibility = Visibility.Collapsed;
-				Mouse.Capture(null);
-				timer?.Stop();
-			} else if (isPreparedForRenaming) {
-				isPreparedForRenaming = false;
-				if (mouseDownRowIndex >= 0 && mouseDownRowIndex < ItemsCollection.Count && DateTimeOffset.Now > lastMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime() * 1.5)) {
-					var item = ItemsCollection[mouseDownRowIndex];
-					if (item != renamingItem) {  // 上次命名的这次点击就不命名了
-						if (renameCts == null) {
-							var cts = renameCts = new CancellationTokenSource();
+			if (isDoubleClicked || renamingItem != null) {  // 如果双击了或者正在重命名就不处理
+				break;
+			}
+			if (e.ChangedButton is MouseButton.Left or MouseButton.Right) {
+				if (isRectSelecting) {  // 如果正在框选，那就取消框选
+					isRectSelecting = false;
+					selectionRect.Visibility = Visibility.Collapsed;
+					Mouse.Capture(null);
+					timer?.Stop();
+					break;
+				}
+
+				if (e.OriginalSource.FindParent<VirtualizingPanel, ListView>() == null || e.OriginalSource.FindParent<TextBox, VirtualizingPanel>() != null) {
+					break; // 如果没有点击在VirtualizingPanel或者点击在了TextBox内就不处理事件，直接返回
+				}
+				var isClickOnItem = mouseDownRowIndex >= 0 && mouseDownRowIndex < ItemsCollection.Count;
+				if (isPreparedForRenaming) {
+					isPreparedForRenaming = false;
+					if (mouseDownRowIndex >= 0 && mouseDownRowIndex < ItemsCollection.Count && DateTimeOffset.Now > lastMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime() * 1.5)) {
+						var item = ItemsCollection[mouseDownRowIndex];
+						if (!shouldRename) {
+							shouldRename = true;
 							Task.Run(() => {
 								Thread.Sleep(Win32Interop.GetDoubleClickTime());
-								if (!cts.IsCancellationRequested) {
+								if (shouldRename) {
+									Trace.WriteLine(item);
+									renamingItem = item;
 									item.StartRename();
 								}
-							}, renameCts.Token);
+							});
 						} else {
-							renameCts = null;
+							shouldRename = false;
 						}
-					} else {
-						renamingItem = null;
 					}
-				}
-			} else if (renamingItem != null) {
-				if (e.OriginalSource.FindParent<TextBox, FileListView>() != null) {  // 点击在重命名TextBox内
-					return;
-				}
-			} else {
-				var isCtrlOrShiftPressed = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ||
-										   Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
-				switch (e.ChangedButton) {
-				case MouseButton.Left:
-					if (isClickOnItem) {
-						var item = ItemsCollection[mouseDownRowIndex];
-						if (!isCtrlOrShiftPressed && SelectedItems.Count > 1) {
+				} else {
+					var isCtrlOrShiftPressed = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) || Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
+					switch (e.ChangedButton) {
+					case MouseButton.Left:
+						if (isClickOnItem) {
+							var item = ItemsCollection[mouseDownRowIndex];
+							if (!isCtrlOrShiftPressed && SelectedItems.Count > 1) {
+								UnselectAll();
+							}
+							item.IsSelected = true;
+						} else if (!isCtrlOrShiftPressed) {
 							UnselectAll();
 						}
-						item.IsSelected = true;
-					} else if (!isCtrlOrShiftPressed) {
-						UnselectAll();
+						break;
+					case MouseButton.Right:
+						if (isClickOnItem && e.OriginalSource is DependencyObject o) {
+							var item = ItemsCollection[mouseDownRowIndex];
+							openedContextMenu = ((FrameworkElement)ContainerFromElement(o))!.ContextMenu!;
+							openedContextMenu.SetValue(FileItemAttach.FileItemProperty, item);
+							openedContextMenu.DataContext = this;
+							openedContextMenu.IsOpen = true;
+						} else if (Folder != null) {
+							openedContextMenu = ContextMenu;
+							openedContextMenu!.IsOpen = true;
+						}
+						break;
 					}
-					break;
-				case MouseButton.Right:
-					if (isClickOnItem && e.OriginalSource is DependencyObject o) {
-						var item = ItemsCollection[mouseDownRowIndex];
-						openedContextMenu = ((FrameworkElement)ContainerFromElement(o))!.ContextMenu!;
-						openedContextMenu.SetValue(FileItemAttach.FileItemProperty, item);
-						openedContextMenu.DataContext = this;
-						openedContextMenu.IsOpen = true;
-					} else if (Folder != null) {
-						openedContextMenu = ContextMenu;
-						openedContextMenu!.IsOpen = true;
-					}
-					break;
 				}
+				if (isClickOnItem) {
+					lastMouseUpItem = ItemsCollection[mouseDownRowIndex];
+					lastMouseUpTime = DateTimeOffset.Now;
+					lastMouseUpPoint = e.GetPosition(contentPanel);
+				} else {
+					lastMouseUpItem = null;
+				}
+				e.Handled = true;
 			}
-			if (isClickOnItem) {
-				lastMouseUpItem = ItemsCollection[mouseDownRowIndex];
-				lastMouseUpTime = DateTimeOffset.Now;
-				lastMouseUpPoint = e.GetPosition(contentPanel);
-			} else {
-				lastMouseUpItem = null;
-			}
-		}
+		} while (false);
 		mouseDownRowIndex = -1;
-		e.Handled = true;
 	}
 
 	protected override void OnPreviewMouseWheel(MouseWheelEventArgs e) {
@@ -1015,7 +1008,10 @@ public partial class FileListView : INotifyPropertyChanged {
 	}
 
 	protected override void OnLostFocus(RoutedEventArgs e) {
-		renamingItem?.StopRename();
+		if (!IsKeyboardFocusWithin && renamingItem != null) {
+			renamingItem.FinishRename();
+			renamingItem = null;
+		}
 		base.OnLostFocus(e);
 	}
 

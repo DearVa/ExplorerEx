@@ -84,7 +84,7 @@ public abstract class FileItem : SimpleNotifyPropertyChanged {
 	private bool isSelected;
 
 	protected FileItem() {
-		LostFocusCommand = new SimpleCommand(OnLostFocus);
+		LostFocusCommand = new SimpleCommand(FinishRename);
 	}
 
 	/// <summary>
@@ -97,6 +97,9 @@ public abstract class FileItem : SimpleNotifyPropertyChanged {
 	/// </summary>
 	public abstract void LoadIcon();
 
+	/// <summary>
+	/// 开始重命名，就是把EditingName设为非null的初始值
+	/// </summary>
 	public abstract void StartRename();
 
 	#region 文件重命名
@@ -108,6 +111,9 @@ public abstract class FileItem : SimpleNotifyPropertyChanged {
 	public string EditingName {
 		get => editingName;
 		set {
+			if (editingName == null) {
+				originalName = value;  // 刚开始重命名记录一下原始的名字
+			}
 			if (editingName != value) {
 				editingName = value;
 				UpdateUI();
@@ -116,6 +122,11 @@ public abstract class FileItem : SimpleNotifyPropertyChanged {
 	}
 
 	private string editingName;
+
+	/// <summary>
+	/// 重命名之前的名字
+	/// </summary>
+	private string originalName;
 
 	/// <summary>
 	/// 校验文件名是否有效
@@ -129,22 +140,19 @@ public abstract class FileItem : SimpleNotifyPropertyChanged {
 
 	public SimpleCommand LostFocusCommand { get; }
 
-	public void StopRename() {
-		if (!IsErrorFileName && EditingName != Name) {
+	public void FinishRename() {
+		if (!IsErrorFileName && EditingName != originalName) {
 			if (Rename()) {
 				Name = EditingName;
 				UpdateUI(nameof(Name));
 			}
 		}
-		EditingName = null;
-	}
-
-	public void OnLostFocus(object args) {
-		StopRename();
+		originalName = EditingName = null;
 	}
 
 	/// <summary>
 	/// 重命名，此时EditingName是新的名字
+	/// <returns>成功返回true</returns>
 	/// </summary>
 	protected abstract bool Rename();
 

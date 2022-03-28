@@ -8,11 +8,14 @@ namespace ExplorerEx.Utils;
 /// </summary>
 public static class ConfigHelper {
 	private static readonly RegistryKey RegRoot = Registry.CurrentUser.OpenSubKey(@"Software\Dear.Va\ExplorerEx", true) ?? Registry.CurrentUser.CreateSubKey(@"Software\Dear.Va\ExplorerEx", true);
+	private static uint saveCount;
 
 	public static void Save(string key, object value) {
 		try {
 			RegRoot.SetValue(key, value);
-			RegRoot.Flush();
+			if (++saveCount > 128) {
+				RegRoot.Flush();
+			}
 		} catch (Exception e) {
 			Logger.Exception(e);
 		}
@@ -21,7 +24,6 @@ public static class ConfigHelper {
 	public static object Load(string key) {
 		try {
 			var value = RegRoot.GetValue(key);
-			RegRoot.Flush();
 			return value;
 		} catch (Exception e) {
 			Logger.Exception(e);

@@ -86,7 +86,6 @@
     <Page Remove="Themes\Styles\Base\ToolBarBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\ToolTipBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\TransferBaseStyle.xaml" />
-    <Page Remove="Themes\Styles\Base\TreeViewBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\WatermarkBaseStyle.xaml" />
     <Page Remove="Themes\Styles\BlendEffectBox.xaml" />
     <Page Remove="Themes\Styles\Border.xaml" />
@@ -274,7 +273,6 @@
     <None Include="Themes\Styles\Base\ToolBarBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\ToolTipBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\TransferBaseStyle.xaml" />
-    <None Include="Themes\Styles\Base\TreeViewBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\WatermarkBaseStyle.xaml" />
     <None Include="Themes\Styles\BlendEffectBox.xaml" />
     <None Include="Themes\Styles\Border.xaml" />

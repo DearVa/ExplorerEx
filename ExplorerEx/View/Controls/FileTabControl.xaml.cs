@@ -56,7 +56,18 @@ public partial class FileTabControl {
 		}
 	}
 
-	public FileGridViewModel SelectedTab => TabItems[SelectedIndex];
+	public FileGridViewModel SelectedTab {
+		get {
+			if (TabItems.Count == 0) {
+				return null;
+			}
+			var index = SelectedIndex;
+			if (index < 0 || index > TabItems.Count) {
+				return TabItems[0];
+			}
+			return TabItems[index];
+		}
+	}
 
 	public static readonly DependencyProperty IsFileUtilsVisibleProperty = DependencyProperty.Register(
 		"IsFileUtilsVisible", typeof(bool), typeof(FileTabControl), new PropertyMetadata(default(bool)));

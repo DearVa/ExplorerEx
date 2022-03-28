@@ -543,7 +543,7 @@ public sealed partial class MainWindow {
 		if (isMaximized) {
 			BorderThickness = new Thickness(8);
 		} else {
-			BorderThickness = new Thickness();
+			BorderThickness = new Thickness(2);
 		}
 	}
 

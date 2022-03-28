@@ -12,7 +12,7 @@
           xmlns:vw="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
           xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
           d:DataContext="{d:DesignInstance ct:FileListView}"
-          mc:Ignorable="d" AllowDrop="True" SelectionMode="Extended" IsTabStop="False"
+          mc:Ignorable="d" AllowDrop="True" SelectionMode="Extended"
           VirtualizingStackPanel.IsVirtualizing="True"
           VirtualizingStackPanel.ScrollUnit="Pixel">
     <ListView.Resources>
@@ -421,13 +421,13 @@
         <!-- 该资源在C#逻辑中获取 -->
         <!-- ReSharper disable once Xaml.RedundantResource -->
         <ItemsPanelTemplate x:Key="VirtualizingWrapPanel">
-            <vw:VirtualizingWrapPanel CanHorizontallyScroll="False" VirtualizationMode="Recycling" SnapsToDevicePixels="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ListView}}"/>
+            <vw:VirtualizingWrapPanel Background="Transparent" CanHorizontallyScroll="False" VirtualizationMode="Recycling" SnapsToDevicePixels="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ListView}}"/>
         </ItemsPanelTemplate>
 
         <!-- 该资源在C#逻辑中获取 -->
         <!-- ReSharper disable once Xaml.RedundantResource -->
         <ItemsPanelTemplate x:Key="VirtualizingStackPanel">
-            <VirtualizingStackPanel VirtualizationMode="Recycling" SnapsToDevicePixels="True"/>
+            <VirtualizingStackPanel Background="Transparent" VirtualizationMode="Recycling" SnapsToDevicePixels="True"/>
         </ItemsPanelTemplate>
     </ListView.Resources>
 

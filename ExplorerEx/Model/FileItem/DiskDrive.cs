@@ -81,11 +81,6 @@ public sealed class DiskDrive : FileItem {
 		}
 	}
 
-	public void Refresh() {
-		LoadIcon();
-		UpdateUI(nameof(Icon));
-	}
-
 	private class Gradient {
 		private readonly int segmentLength;
 		private readonly HSVColor[] colors;

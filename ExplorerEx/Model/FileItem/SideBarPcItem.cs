@@ -37,6 +37,7 @@ internal sealed class SideBarPcItem : FileSystemItem {
 
 	public SideBarPcItem(DriveInfo driveInfo) {
 		FullPath = driveInfo.Name;
+		IsFolder = true;
 		if (driveInfo.IsReady) {
 			InitializeChildren();
 		}

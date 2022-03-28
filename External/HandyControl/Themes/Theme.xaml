@@ -788,11 +788,11 @@
 	<hc:HorizontalAlignmentPathTemplateSelector x:Key="HorizontalAlignmentPathTemplateSelector" />
 	<hc:VerticalAlignmentPathTemplateSelector x:Key="VerticalAlignmentPathTemplateSelector" />
 	<SolidColorBrush o:Freeze="True" x:Key="LightPrimaryBrush" Color="{DynamicResource LightPrimaryColor}" />
-	<LinearGradientBrush o:Freeze="True" x:Key="PrimaryBrush" EndPoint="1,0" StartPoint="0,0">
-		<GradientStop Color="{DynamicResource PrimaryColor}" Offset="0" />
-		<GradientStop Color="{DynamicResource DarkPrimaryColor}" Offset="1" />
-	</LinearGradientBrush>
+	<SolidColorBrush o:Freeze="True" x:Key="PrimaryBrush" Color="{DynamicResource PrimaryColor}" />
 	<SolidColorBrush o:Freeze="True" x:Key="DarkPrimaryBrush" Color="{DynamicResource DarkPrimaryColor}" />
+	<SolidColorBrush o:Freeze="True" x:Key="LightSelectBrush" Color="{DynamicResource LightSelectColor}" />
+	<SolidColorBrush o:Freeze="True" x:Key="SelectBrush" Color="{DynamicResource SelectColor}" />
+	<SolidColorBrush o:Freeze="True" x:Key="DarkSelectBrush" Color="{DynamicResource DarkSelectColor}" />
 	<SolidColorBrush o:Freeze="True" x:Key="PrimaryTextBrush" Color="{DynamicResource PrimaryTextColor}" />
 	<SolidColorBrush o:Freeze="True" x:Key="SecondaryTextBrush" Color="{DynamicResource SecondaryTextColor}" />
 	<SolidColorBrush o:Freeze="True" x:Key="ThirdlyTextBrush" Color="{DynamicResource ThirdlyTextColor}" />
@@ -9200,20 +9200,37 @@
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="ListViewItem">
-					<Border CornerRadius="4" Margin="3,0" x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+					<Border CornerRadius="4" Margin="3,0" x:Name="Bd" BorderThickness="1" Background="Transparent" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
 						<GridViewRowPresenter Content="{TemplateBinding Content}" Columns="{TemplateBinding GridView.ColumnCollection}" />
 					</Border>
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>
 		<Style.Triggers>
-			<Trigger Property="IsMouseOver" Value="true">
-				<Setter Property="Background" Value="{DynamicResource LightPrimaryBrush}" />
-			</Trigger>
 			<Trigger Property="IsSelected" Value="True">
-				<Setter Property="Background" Value="{DynamicResource PrimaryBrush}" />
-				<Setter Property="BorderBrush" Value="{DynamicResource DarkPrimaryBrush}" />
+				<Trigger.EnterActions>
+					<BeginStoryboard>
+						<Storyboard>
+							<ColorAnimation Storyboard.TargetProperty="Background.Color" To="{StaticResource SelectColor}" Duration="0:0:0.1" />
+						</Storyboard>
+					</BeginStoryboard>
+				</Trigger.EnterActions>
+				<Trigger.ExitActions>
+					<BeginStoryboard>
+						<Storyboard>
+							<ColorAnimation Storyboard.TargetProperty="Background.Color" To="Transparent" Duration="0:0:0.1" />
+						</Storyboard>
+					</BeginStoryboard>
+				</Trigger.ExitActions>
+				<Setter Property="BorderBrush" Value="{DynamicResource DarkSelectBrush}" />
 			</Trigger>
+			<MultiTrigger>
+				<MultiTrigger.Conditions>
+					<Condition Property="IsMouseOver" Value="true" />
+					<Condition Property="IsSelected" Value="false" />
+				</MultiTrigger.Conditions>
+				<Setter Property="Background" Value="{DynamicResource LightSelectBrush}" />
+			</MultiTrigger>
 			<MultiTrigger>
 				<MultiTrigger.Conditions>
 					<Condition Property="IsSelected" Value="true" />
@@ -9226,7 +9243,7 @@
 					<Condition Property="IsMouseOver" Value="true" />
 					<Condition Property="Selector.IsSelectionActive" Value="false" />
 				</MultiTrigger.Conditions>
-				<Setter Property="Background" Value="{DynamicResource LightPrimaryBrush}" />
+				<Setter Property="Background" Value="{DynamicResource LightSelectBrush}" />
 			</MultiTrigger>
 		</Style.Triggers>
 	</Style>
@@ -11585,11 +11602,28 @@
 					</Border>
 					<ControlTemplate.Triggers>
 						<Trigger Property="IsChecked" Value="True">
-							<Setter Property="RenderTransform" TargetName="ExpandPath">
-								<Setter.Value>
-									<RotateTransform Angle="0" />
-								</Setter.Value>
-							</Setter>
+							<Trigger.EnterActions>
+								<BeginStoryboard>
+									<Storyboard>
+										<DoubleAnimation Storyboard.TargetProperty="RenderTransform.RotateTransform.Angle" Storyboard.TargetName="ExpandPath" To="0" Duration="0:0:0.3">
+											<DoubleAnimation.EasingFunction>
+												<CubicEase EasingMode="EaseInOut" />
+											</DoubleAnimation.EasingFunction>
+										</DoubleAnimation>
+									</Storyboard>
+								</BeginStoryboard>
+							</Trigger.EnterActions>
+							<Trigger.ExitActions>
+								<BeginStoryboard>
+									<Storyboard>
+										<DoubleAnimation Storyboard.TargetProperty="RenderTransform.RotateTransform.Angle" Storyboard.TargetName="ExpandPath" To="-90" Duration="0:0:0.3">
+											<DoubleAnimation.EasingFunction>
+												<CubicEase EasingMode="EaseInOut" />
+											</DoubleAnimation.EasingFunction>
+										</DoubleAnimation>
+									</Storyboard>
+								</BeginStoryboard>
+							</Trigger.ExitActions>
 						</Trigger>
 					</ControlTemplate.Triggers>
 				</ControlTemplate>
@@ -11619,7 +11653,7 @@
 					</Grid>
 					<ControlTemplate.Triggers>
 						<Trigger Property="IsMouseOver" Value="true" SourceName="Bd">
-							<Setter Property="Background" TargetName="Bd" Value="{DynamicResource SecondaryRegionBrush}" />
+							<Setter Property="Background" TargetName="Bd" Value="{DynamicResource LightSelectBrush}" />
 						</Trigger>
 						<Trigger Property="IsExpanded" Value="false">
 							<Setter Property="Visibility" TargetName="ItemsHost" Value="Collapsed" />
@@ -11628,16 +11662,14 @@
 							<Setter Property="Visibility" TargetName="Expander" Value="Hidden" />
 						</Trigger>
 						<Trigger Property="IsSelected" Value="true">
-							<Setter Property="Background" TargetName="Bd" Value="{DynamicResource PrimaryBrush}" />
-							<Setter Property="Foreground" Value="{DynamicResource TextIconBrush}" />
+							<Setter Property="Background" TargetName="Bd" Value="{DynamicResource SelectBrush}" />
 						</Trigger>
 						<MultiTrigger>
 							<MultiTrigger.Conditions>
 								<Condition Property="IsSelected" Value="true" />
 								<Condition Property="IsSelectionActive" Value="false" />
 							</MultiTrigger.Conditions>
-							<Setter Property="Background" TargetName="Bd" Value="{DynamicResource PrimaryBrush}" />
-							<Setter Property="Foreground" Value="{DynamicResource TextIconBrush}" />
+							<Setter Property="Background" TargetName="Bd" Value="{DynamicResource DarkDefaultBrush}" />
 						</MultiTrigger>
 						<Trigger Property="IsEnabled" Value="false">
 							<Setter Property="Foreground" Value="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}" />

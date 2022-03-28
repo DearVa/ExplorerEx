@@ -726,7 +726,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 						_ = LoadDirectoryAsync(fsi.FullPath);
 					}
 				} else {
-					FileItemCommand.Execute(isCtrlPressed || isShiftPressed ? "RunAs" : "Open");
+					FileItemCommand.OpenFile(fsi, isCtrlPressed || isShiftPressed);
 				}
 			}
 			break;

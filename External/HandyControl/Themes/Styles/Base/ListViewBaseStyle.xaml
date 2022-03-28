@@ -62,20 +62,37 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListViewItem">
-                    <Border CornerRadius="4" Margin="3,0" x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                    <Border CornerRadius="4" Margin="3,0" x:Name="Bd" BorderThickness="1" Background="Transparent" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
                         <GridViewRowPresenter Content="{TemplateBinding Content}" Columns="{TemplateBinding GridView.ColumnCollection}" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
         <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="true">
-                <Setter Property="Background" Value="{DynamicResource LightPrimaryBrush}" />
-            </Trigger>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{DynamicResource PrimaryBrush}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource DarkPrimaryBrush}" />
+                <Trigger.EnterActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ColorAnimation Storyboard.TargetProperty="Background.Color" To="{StaticResource SelectColor}" Duration="0:0:0.1"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ColorAnimation Storyboard.TargetProperty="Background.Color" To="Transparent" Duration="0:0:0.1"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.ExitActions>
+                <Setter Property="BorderBrush" Value="{DynamicResource DarkSelectBrush}"/>
             </Trigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsMouseOver" Value="true" />
+                    <Condition Property="IsSelected" Value="false" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{DynamicResource LightSelectBrush}"/>
+            </MultiTrigger>
             <MultiTrigger>
                 <MultiTrigger.Conditions>
                     <Condition Property="IsSelected" Value="true" />
@@ -88,7 +105,7 @@
                     <Condition Property="IsMouseOver" Value="true" />
                     <Condition Property="Selector.IsSelectionActive" Value="false" />
                 </MultiTrigger.Conditions>
-                <Setter Property="Background" Value="{DynamicResource LightPrimaryBrush}" />
+                <Setter Property="Background" Value="{DynamicResource LightSelectBrush}"/>
             </MultiTrigger>
         </Style.Triggers>
     </Style>

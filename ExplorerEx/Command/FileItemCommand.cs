@@ -187,7 +187,7 @@ public class FileItemCommand : ICommand {
 		}
 	}
 
-	private void OpenFile(FileItem item, bool runAs) {
+	public void OpenFile(FileItem item, bool runAs) {
 		if (item.IsFolder) {
 			TabControlProvider.Invoke()?.SelectedTab.LoadDirectoryAsync(item.FullPath);
 		} else {
@@ -201,8 +201,14 @@ public class FileItemCommand : ICommand {
 				}
 				Process.Start(psi);
 			} catch (Exception e) {
-				if (e is Win32Exception { ErrorCode: -2147467259 }) {  // 操作被用户取消
-					return;
+				if (e is Win32Exception win32) {
+					switch (win32.NativeErrorCode) {
+					case 1155:  // 找不到程序打开
+						Shell32Interop.ShowOpenAsDialog(item.FullPath);
+						return;
+					case 1223:  // 操作被用户取消
+						return;
+					}
 				}
 				hc.MessageBox.Error(e.Message, "FailedToOpenFile".L());
 			}
@@ -214,7 +220,7 @@ public class FileItemCommand : ICommand {
 	/// </summary>
 	/// <param name="item"></param>
 	/// <param name="app"></param>
-	private void OpenFileWith(FileItem item, string app) {
+	private static void OpenFileWith(FileItem item, string app) {
 		try {
 			Process.Start(new ProcessStartInfo {
 				FileName = app,

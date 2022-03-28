@@ -3,11 +3,12 @@
                     xmlns:o="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
 
     <SolidColorBrush o:Freeze="True" x:Key="LightPrimaryBrush" Color="{DynamicResource LightPrimaryColor}"/>
-    <LinearGradientBrush o:Freeze="True" x:Key="PrimaryBrush" EndPoint="1,0" StartPoint="0,0">
-        <GradientStop Color="{DynamicResource PrimaryColor}" Offset="0"/>
-        <GradientStop Color="{DynamicResource DarkPrimaryColor}" Offset="1"/>
-    </LinearGradientBrush>
+    <SolidColorBrush o:Freeze="True" x:Key="PrimaryBrush" Color="{DynamicResource PrimaryColor}"/>
     <SolidColorBrush o:Freeze="True" x:Key="DarkPrimaryBrush" Color="{DynamicResource DarkPrimaryColor}"/>
+
+    <SolidColorBrush o:Freeze="True" x:Key="LightSelectBrush" Color="{DynamicResource LightSelectColor}"/>
+    <SolidColorBrush o:Freeze="True" x:Key="SelectBrush" Color="{DynamicResource SelectColor}"/>
+    <SolidColorBrush o:Freeze="True" x:Key="DarkSelectBrush" Color="{DynamicResource DarkSelectColor}"/>
 
     <SolidColorBrush o:Freeze="True" x:Key="PrimaryTextBrush" Color="{DynamicResource PrimaryTextColor}"/>
     <SolidColorBrush o:Freeze="True" x:Key="SecondaryTextBrush" Color="{DynamicResource SecondaryTextColor}"/>

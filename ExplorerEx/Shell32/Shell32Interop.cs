@@ -69,6 +69,28 @@ internal static class Shell32Interop {
 		[MarshalAs(UnmanagedType.Bool)] public bool Recursively;
 	}
 
+	[Flags]
+	public enum OpenAsInfoFlags {
+		AllowRegistration = 0x00000001,   // Show "Always" checkbox
+		RegisterExt = 0x00000002,   // Perform registration when user hits OK
+		Exec = 0x00000004,   // Exec file after registering
+		ForceRegistration = 0x00000008,   // Force the checkbox to be registration
+		HideRegistration = 0x00000020,   // Vista+: Hide the "always use this file" checkbox
+		UrlProtocol = 0x00000040,   // Vista+: cszFile is actually a URI scheme; show handlers for that scheme
+		FileIsUri = 0x00000080    // Win8+: The location pointed to by the pcszFile parameter is given as a URI
+	}
+
+	public struct OpenAsInfo {
+		[MarshalAs(UnmanagedType.LPWStr)]
+		public string cszFile;
+
+		[MarshalAs(UnmanagedType.LPWStr)]
+		public string cszClass;
+
+		[MarshalAs(UnmanagedType.I4)]
+		public OpenAsInfoFlags oaifInFlags;
+	}
+
 	[DllImport(Shell32)]
 	public static extern int SHQueryRecycleBin(string pszRootPath, ref ShQueryRbinInfo pSHQueryRBInfo);
 
@@ -108,18 +130,22 @@ internal static class Shell32Interop {
 	[DllImport(Shell32)]
 	public static extern uint SHFormatDrive(IntPtr hwnd, uint drive, uint fmtID, uint options);
 
+	[DllImport(Shell32)]
+	public static extern int SHOpenWithDialog(IntPtr hWndParent, ref OpenAsInfo oOAI);
+
 	/// <summary>
 	/// 显示文件的属性面板
 	/// </summary>
 	/// <param name="filePath"></param>
 	/// <returns></returns>
 	public static void ShowFileProperties(string filePath) {
-		var info = new ShellExecuteInfo();
+		var info = new ShellExecuteInfo {
+			lpVerb = "properties",
+			lpFile = filePath ?? string.Empty,
+			nShow = 5,
+			fMask = 12
+		};
 		info.cbSize = Marshal.SizeOf(info);
-		info.lpVerb = "properties";
-		info.lpFile = filePath ?? string.Empty;
-		info.nShow = 5;
-		info.fMask = 12;
 		ShellExecuteEx(ref info);
 	}
 
@@ -129,6 +155,19 @@ internal static class Shell32Interop {
 	/// <param name="drive"></param>
 	public static Task ShowFormatDriveDialog(DriveInfo drive) {
 		return Task.Run(() => SHFormatDrive(IntPtr.Zero, (uint)(drive.Name[0] - 'A'), 0xFFFF, 0));
+	}
+
+	/// <summary>
+	/// 显示一个 打开方式 对话框
+	/// </summary>
+	/// <param name="filePath"></param>
+	public static void ShowOpenAsDialog(string filePath) {
+		var info = new OpenAsInfo {
+			cszClass = string.Empty,
+			cszFile = filePath,
+			oaifInFlags = OpenAsInfoFlags.AllowRegistration | OpenAsInfoFlags.Exec
+		};
+		SHOpenWithDialog(IntPtr.Zero, ref info);
 	}
 
 	public static IMalloc Malloc { get; private set; }

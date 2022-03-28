@@ -6,6 +6,10 @@
     <Color x:Key="PrimaryColor">#88326cf3</Color>
     <Color x:Key="DarkPrimaryColor">#88185af3</Color>
 
+    <Color x:Key="LightSelectColor">#66b8deff</Color>
+    <Color x:Key="SelectColor">#9985c6ff</Color>
+    <Color x:Key="DarkSelectColor">#cc4aabff</Color>
+
     <Color x:Key="LightDangerColor">#fff6f7</Color>
     <Color x:Key="DangerColor">#db3340</Color>
     <Color x:Key="DarkDangerColor">#db3340</Color>
