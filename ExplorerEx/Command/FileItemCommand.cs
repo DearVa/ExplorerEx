@@ -228,7 +228,7 @@ public class FileItemCommand : ICommand {
 				UseShellExecute = true
 			});
 		} catch (Exception e) {
-			hc.MessageBox.Error(e.Message, "Fail to open file".L());
+			hc.MessageBox.Error(e.Message, "FailedToOpenFile".L());
 		}
 	}
 

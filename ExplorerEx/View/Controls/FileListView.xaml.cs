@@ -410,7 +410,7 @@ public partial class FileListView : INotifyPropertyChanged {
 						Math.Abs(startDragPosition.Y - lastMouseUpPoint.Y) < SystemParameters.MinimumVerticalDragDistance &&
 						DateTimeOffset.Now <= lastMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime())) {
 						isDoubleClicked = true;
-						if (ViewModel.SelectedItems.Count > 1) {
+						if (ViewModel.SelectedItems.Count > 1) {  // 如果双击就取消其他项的选择，只选择当前项
 							foreach (var fileItem in ViewModel.SelectedItems.Where(i => i != item)) {
 								fileItem.IsSelected = false;
 							}

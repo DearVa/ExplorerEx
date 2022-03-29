@@ -11594,9 +11594,9 @@
 			<Setter.Value>
 				<ControlTemplate TargetType="ToggleButton">
 					<Border Background="Transparent" Height="16" Padding="4" Width="16">
-						<Path x:Name="ExpandPath" RenderTransformOrigin="0.5,0.5" Stretch="Uniform" Data="{StaticResource TreeArrow}" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TreeViewItem}}">
+						<Path RenderTransformOrigin="0.5,0.5" Stretch="Uniform" Data="{StaticResource TreeArrow}" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TreeViewItem}}">
 							<Path.RenderTransform>
-								<RotateTransform Angle="-90" />
+								<RotateTransform x:Name="Rotate" Angle="-90" />
 							</Path.RenderTransform>
 						</Path>
 					</Border>
@@ -11605,7 +11605,7 @@
 							<Trigger.EnterActions>
 								<BeginStoryboard>
 									<Storyboard>
-										<DoubleAnimation Storyboard.TargetProperty="RenderTransform.RotateTransform.Angle" Storyboard.TargetName="ExpandPath" To="0" Duration="0:0:0.3">
+										<DoubleAnimation Storyboard.TargetProperty="Angle" Storyboard.TargetName="Rotate" To="0" Duration="0:0:0.15">
 											<DoubleAnimation.EasingFunction>
 												<CubicEase EasingMode="EaseInOut" />
 											</DoubleAnimation.EasingFunction>
@@ -11616,7 +11616,7 @@
 							<Trigger.ExitActions>
 								<BeginStoryboard>
 									<Storyboard>
-										<DoubleAnimation Storyboard.TargetProperty="RenderTransform.RotateTransform.Angle" Storyboard.TargetName="ExpandPath" To="-90" Duration="0:0:0.3">
+										<DoubleAnimation Storyboard.TargetProperty="Angle" Storyboard.TargetName="Rotate" To="-90" Duration="0:0:0.15">
 											<DoubleAnimation.EasingFunction>
 												<CubicEase EasingMode="EaseInOut" />
 											</DoubleAnimation.EasingFunction>
