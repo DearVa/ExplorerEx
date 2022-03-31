@@ -239,8 +239,8 @@
                         </ct:SideBarContent.Content>
                         <ct:SideBarContent.DragTip>
                             <hc:SimplePanel Background="#66ffca28">
-                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{u:Lang Release_to_add_to_bookmark}" 
-                                           TextAlignment="Center" FontSize="24"/>
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{u:Lang ReleaseToAddToBookmark}" 
+                                           TextWrapping="Wrap" TextAlignment="Center" FontSize="24"/>
                             </hc:SimplePanel>
                         </ct:SideBarContent.DragTip>
                     </ct:SideBarContent>
@@ -295,12 +295,12 @@
                                 </TreeView.ItemContainerStyle>
                             </TreeView>
                         </ct:SideBarContent.Content>
-                        <ct:SideBarContent.DragTip>
+                        <!--<ct:SideBarContent.DragTip>
                             <hc:SimplePanel Background="#66ffca28">
-                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{u:Lang Release_to_add_to_bookmark}" 
-                                           TextAlignment="Center" FontSize="24"/>
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{u:Lang ReleaseToAddToBookmark}" 
+                                           TextWrapping="Wrap" TextAlignment="Center" FontSize="24"/>
                             </hc:SimplePanel>
-                        </ct:SideBarContent.DragTip>
+                        </ct:SideBarContent.DragTip>-->
                     </ct:SideBarContent>
                 </TabItem>
                 <TabItem Width="50" Padding="0">
@@ -399,7 +399,7 @@
                         <ct:SideBarContent.DragTip>
                             <hc:SimplePanel Background="#66ff0000">
                                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{u:Lang Release_to_move_to_RecycleBin}" 
-                                           TextAlignment="Center" FontSize="24"/>
+                                           TextWrapping="Wrap" TextAlignment="Center" FontSize="24"/>
                             </hc:SimplePanel>
                         </ct:SideBarContent.DragTip>
                     </ct:SideBarContent>
@@ -474,7 +474,7 @@
                       PreviewMouseDown="SidebarSplitter_OnPreviewMouseDown" PreviewMouseMove="SidebarSplitter_OnPreviewMouseMove" PreviewMouseUp="SidebarSplitter_OnPreviewMouseUp"/>
 
         <hc:SimplePanel x:Name="ContentGrid" Grid.Column="2">
-            <Border MouseDown="OnDragAreaMouseLeftButtonDown" Background="{DynamicResource BackgroundBrush}"/>
+            <Border MouseDown="OnDragAreaMouseLeftButtonDown" Background="Transparent"/>
         </hc:SimplePanel>
     </Grid>
 </Window>

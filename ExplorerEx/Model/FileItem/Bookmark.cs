@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
@@ -117,22 +116,14 @@ public class BookmarkItem : FileItem, IFilterable {
 }
 
 public class BookmarkDbContext : DbContext {
-#pragma warning disable CS0612
 	public static BookmarkDbContext Instance { get; } = new();
-#pragma warning restore CS0612
 	public static ObservableCollection<BookmarkCategory> BookmarkCategories { get; set; }
 	public DbSet<BookmarkCategory> BookmarkCategoryDbSet { get; set; }
 	public DbSet<BookmarkItem> BookmarkDbSet { get; set; }
 
 	private readonly string dbPath;
 
-	/// <summary>
-	/// 之所以用public是因为需要迁移，但是*请勿*使用该构造方法，应该使用Instance
-	/// </summary>
-#pragma warning disable CA1041
-	[Obsolete]
-#pragma warning restore CA1041
-	public BookmarkDbContext() {
+	private BookmarkDbContext() {
 		var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Data");
 		if (!Directory.Exists(path)) {
 			Directory.CreateDirectory(path);

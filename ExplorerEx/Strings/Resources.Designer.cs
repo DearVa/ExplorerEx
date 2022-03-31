@@ -551,6 +551,33 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 返回到 {0} (Alt + 左箭头) 的本地化字符串。
+        /// </summary>
+        internal static string GoBackTo___ {
+            get {
+                return ResourceManager.GetString("GoBackTo...", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 前进到 {0} (Alt + 右箭头) 的本地化字符串。
+        /// </summary>
+        internal static string GoForwardTo___ {
+            get {
+                return ResourceManager.GetString("GoForwardTo...", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 向上一级到 {0} (Alt + 上箭头) 的本地化字符串。
+        /// </summary>
+        internal static string GoUpTo___ {
+            get {
+                return ResourceManager.GetString("GoUpTo...", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 分组依据 的本地化字符串。
         /// </summary>
         internal static string Group_by {
@@ -805,9 +832,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 松手添加到收藏夹 的本地化字符串。
         /// </summary>
-        internal static string Release_to_add_to_bookmark {
+        internal static string ReleaseToAddToBookmark {
             get {
-                return ResourceManager.GetString("Release_to_add_to_bookmark", resourceCulture);
+                return ResourceManager.GetString("ReleaseToAddToBookmark", resourceCulture);
             }
         }
         

@@ -2,6 +2,8 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using System.Windows;
 using ExplorerEx.Shell32;
 using static ExplorerEx.Shell32.Shell32Interop;
 using static ExplorerEx.Win32.Win32Interop;
@@ -76,18 +78,21 @@ public sealed class RecycleBinItem : FileItem {
 
 	public static void Update() {
 		Items.Clear();
-		var recycleBin = RecycleBinFolder;
-		recycleBin.EnumObjects(IntPtr.Zero, SHCONT.Folders | SHCONT.NonFolders | SHCONT.IncludeHidden, out var enumFiles);
-		var pidl = IntPtr.Zero;
-		var pFetched = IntPtr.Zero;
-		while (enumFiles.Next(1, ref pidl, ref pFetched) != 1) {  // S_FALSE
-			if (pFetched.ToInt64() == 0) {
-				break;
+		Task.Run(() => {
+			var recycleBin = RecycleBinFolder;
+			recycleBin.EnumObjects(IntPtr.Zero, SHCONT.Folders | SHCONT.NonFolders | SHCONT.IncludeHidden, out var enumFiles);
+			var pidl = IntPtr.Zero;
+			var pFetched = IntPtr.Zero;
+			var dispatcher = Application.Current.Dispatcher;
+			while (enumFiles.Next(1, ref pidl, ref pFetched) != 1) {  // S_FALSE
+				if (pFetched.ToInt64() == 0) {
+					break;
+				}
+				var item = new RecycleBinItem(pidl);
+				item.LoadIcon();
+				dispatcher.Invoke(() => Items.Add(item));
 			}
-			var item = new RecycleBinItem(pidl);
-			item.LoadIcon();
-			Items.Add(item);
-		}
-		Marshal.ReleaseComObject(enumFiles);
+			Marshal.ReleaseComObject(enumFiles);
+		});
 	}
 }

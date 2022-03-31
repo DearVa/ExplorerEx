@@ -47,7 +47,7 @@
                         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}"/>
+                                <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>

@@ -4,7 +4,6 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media.Animation;
 using ExplorerEx.Converter;
-using HandyControl.Controls;
 using TextBox = System.Windows.Controls.TextBox;
 
 namespace ExplorerEx.View.Controls;
@@ -12,7 +11,7 @@ namespace ExplorerEx.View.Controls;
 [TemplatePart(Name = SearchToggleButtonKey, Type = typeof(ToggleButton))]
 [TemplatePart(Name = SearchTextBoxKey, Type = typeof(TextBox))]
 [TemplatePart(Name = DragAreaKey, Type = typeof(ContentPresenter))]
-[TemplatePart(Name = DragTipPanelKey, Type = typeof(SimplePanel))]
+[TemplatePart(Name = DragTipPanelKey, Type = typeof(ContentPresenter))]
 public class SideBarContent : Control {
 	public static readonly DependencyProperty HeaderProperty = DependencyProperty.Register(
 		"Header", typeof(string), typeof(SideBarContent), new PropertyMetadata(default(string)));
@@ -73,7 +72,7 @@ public class SideBarContent : Control {
 	private const string DragTipPanelKey = "DragTipPanel";
 
 	private TextBox searchTextBox;
-	private SimplePanel dragTipPanel;
+	private ContentPresenter dragTipPanel;
 
 	public SideBarContent() {
 		DataContext = this;
@@ -91,7 +90,7 @@ public class SideBarContent : Control {
 		dragArea.DragEnter += DragArea_OnDragEnter;
 		dragArea.DragLeave += DragArea_OnDragLeave;
 		dragArea.DragOver += DragArea_OnDragOver;
-		dragTipPanel = (SimplePanel)GetTemplateChild(DragTipPanelKey)!;
+		dragTipPanel = (ContentPresenter)GetTemplateChild(DragTipPanelKey)!;
 	}
 
 	private void SearchToggleButton_OnChecked(object sender, RoutedEventArgs e) {

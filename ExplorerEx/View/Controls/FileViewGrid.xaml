@@ -40,7 +40,7 @@
 
         <StackPanel Orientation="Horizontal" Visibility="{Binding IsFileUtilsVisible, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}, RelativeSource={RelativeSource AncestorType=ct:FileTabControl}}">
             <Button VerticalAlignment="Stretch" Height="35" ToolTip="{u:Lang Cut}"
-                    IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
+                    IsEnabled="{Binding CanDeleteOrCut, Mode=OneWay}"
                     Command="{Binding FileItemCommand}" CommandParameter="Cut"
                     Style="{StaticResource ButtonTransparent}">
                 <Image Width="20" Height="20" Source="{StaticResource CutDrawingImage}"/>
@@ -69,7 +69,7 @@
                                     <Image Width="20" Height="20" Source="{StaticResource ShareDrawingImage}"/>
                                 </Button>-->
             <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Delete}"
-                    IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
+                    IsEnabled="{Binding CanDeleteOrCut, Mode=OneWay}"
                     Command="{Binding FileItemCommand}" CommandParameter="Delete"
                     Style="{StaticResource ButtonTransparent}">
                 <Image Width="20" Height="20" Source="{StaticResource DeleteDrawingImage}"/>
@@ -164,14 +164,20 @@
                 <ColumnDefinition Width="1"/>
                 <ColumnDefinition Width="300" MinWidth="150"/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Margin="0,3,3,3" hc:IconElement.Geometry="{StaticResource LeftArrowGeometry}" 
+            <Button Grid.Column="0" Margin="0,3,3,3"
                     IsEnabled="{Binding CanGoBack, Mode=OneWay}"
                     Command="{Binding GoBackCommand}"
-                    Style="{StaticResource ButtonTransparent}"/>
-            <Button Grid.Column="1" Margin="3" hc:IconElement.Geometry="{StaticResource RightArrowGeometry}" 
+                    Style="{StaticResource ButtonTransparent}"
+                    ToolTip="{Binding GoBackButtonToolTip, Mode=OneWay}">
+                <Image Source="{StaticResource LeftDrawingImage}" Margin="1"/>
+            </Button>
+            <Button Grid.Column="1" Margin="3"
                     IsEnabled="{Binding CanGoForward, Mode=OneWay}" 
                     Command="{Binding GoForwardCommand}"
-                    Style="{StaticResource ButtonTransparent}"/>
+                    Style="{StaticResource ButtonTransparent}"
+                    ToolTip="{Binding GoForwardButtonToolTip, Mode=OneWay}">
+                <Image Source="{StaticResource RightDrawingImage}" Margin="1"/>
+            </Button>
             <ToggleButton x:Name="HistoryToggleButton" Grid.Column="2" Margin="3" Padding="5"
                           IsEnabled="{Binding HistoryList.Count, Converter={StaticResource Int2BooleanConverter}}"
                           Style="{StaticResource ToggleButtonTransparent}">
@@ -190,10 +196,13 @@
                 </ItemsControl>
             </Popup>
             
-            <Button Grid.Column="3" Margin="3" hc:IconElement.Geometry="{StaticResource UpArrowGeometry}"
+            <Button Grid.Column="3" Margin="3"
                     IsEnabled="{Binding CanGoToUpperLevel, Mode=OneWay}" 
                     Command="{Binding GoToUpperLevelCommand}"
-                    Style="{StaticResource ButtonTransparent}"/>
+                    Style="{StaticResource ButtonTransparent}"
+                    ToolTip="{Binding GoToUpperLevelButtonToolTip, Mode=OneWay}">
+                <Image Source="{StaticResource UpDrawingImage}" Margin="1"/>
+            </Button>
 
             <hc:TextBox Grid.Column="4" DockPanel.Dock="Left" x:Name="AddressBar" BorderThickness="0,0,0,2" 
                         Margin="5" Text="{Binding FullPath, Mode=OneWay}" KeyDown="AddressBar_OnKeyDown"/>

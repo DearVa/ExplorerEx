@@ -348,7 +348,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="Network" xml:space="preserve">
     <value>网络</value>
   </data>
-  <data name="Release_to_add_to_bookmark" xml:space="preserve">
+  <data name="ReleaseToAddToBookmark" xml:space="preserve">
     <value>松手添加到收藏夹</value>
   </data>
   <data name="Refresh" xml:space="preserve">
@@ -417,5 +417,14 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name="DeleteAll" xml:space="preserve">
     <value>删除所有</value>
+  </data>
+  <data name="GoBackTo..." xml:space="preserve">
+    <value>返回到 {0} (Alt + 左箭头)</value>
+  </data>
+  <data name="GoForwardTo..." xml:space="preserve">
+    <value>前进到 {0} (Alt + 右箭头)</value>
+  </data>
+  <data name="GoUpTo..." xml:space="preserve">
+    <value>向上一级到 {0} (Alt + 上箭头)</value>
   </data>
 </root>

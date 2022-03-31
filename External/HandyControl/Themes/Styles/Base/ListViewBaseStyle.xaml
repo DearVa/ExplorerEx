@@ -69,18 +69,31 @@
             </Setter.Value>
         </Setter>
         <Style.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsSelected" Value="True"/>
+                    <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                </MultiTrigger.Conditions>
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ColorAnimation Storyboard.TargetProperty="Background.Color" To="{StaticResource SelectColor}" Duration="0:0:0.1" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+            </MultiTrigger>
             <Trigger Property="IsSelected" Value="True">
                 <Trigger.EnterActions>
                     <BeginStoryboard>
                         <Storyboard>
-                            <ColorAnimation Storyboard.TargetProperty="Background.Color" To="{StaticResource SelectColor}" Duration="0:0:0.1"/>
+                            <ColorAnimation Storyboard.TargetProperty="Background.Color" To="{StaticResource SelectColor}" Duration="0:0:0.1" />
                         </Storyboard>
                     </BeginStoryboard>
                 </Trigger.EnterActions>
                 <Trigger.ExitActions>
                     <BeginStoryboard>
                         <Storyboard>
-                            <ColorAnimation Storyboard.TargetProperty="Background.Color" To="Transparent" Duration="0:0:0.1"/>
+                            <ColorAnimation Storyboard.TargetProperty="Background.Color" To="Transparent" Duration="0:0:0.1" />
                         </Storyboard>
                     </BeginStoryboard>
                 </Trigger.ExitActions>
@@ -88,22 +101,23 @@
             </Trigger>
             <MultiTrigger>
                 <MultiTrigger.Conditions>
-                    <Condition Property="IsMouseOver" Value="true" />
-                    <Condition Property="IsSelected" Value="false" />
+                    <Condition Property="IsSelected" Value="True"/>
+                    <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsMouseOver" Value="True" />
+                    <Condition Property="IsSelected" Value="False" />
                 </MultiTrigger.Conditions>
                 <Setter Property="Background" Value="{DynamicResource LightSelectBrush}"/>
             </MultiTrigger>
             <MultiTrigger>
                 <MultiTrigger.Conditions>
-                    <Condition Property="IsSelected" Value="true" />
-                    <Condition Property="Selector.IsSelectionActive" Value="false" />
-                </MultiTrigger.Conditions>
-                <Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}" />
-            </MultiTrigger>
-            <MultiTrigger>
-                <MultiTrigger.Conditions>
-                    <Condition Property="IsMouseOver" Value="true" />
-                    <Condition Property="Selector.IsSelectionActive" Value="false" />
+                    <Condition Property="IsMouseOver" Value="True" />
+                    <Condition Property="Selector.IsSelectionActive" Value="False" />
                 </MultiTrigger.Conditions>
                 <Setter Property="Background" Value="{DynamicResource LightSelectBrush}"/>
             </MultiTrigger>

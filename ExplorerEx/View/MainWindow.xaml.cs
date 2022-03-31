@@ -586,6 +586,18 @@ public sealed partial class MainWindow {
 					mouseOverTab.FileListView.InverseSelection();
 					break;
 				}
+			} else if ((Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt) {
+				switch (e.SystemKey) {
+				case Key.Left:
+					mouseOverTab.GoBackAsync();
+					break;
+				case Key.Right:
+					mouseOverTab.GoForwardAsync();
+					break;
+				case Key.Up:
+					mouseOverTab.GoToUpperLevelAsync();
+					break;
+				}
 			} else {
 				switch (e.Key) {
 				case Key.Delete:

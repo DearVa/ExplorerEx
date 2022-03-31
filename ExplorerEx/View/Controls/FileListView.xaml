@@ -14,7 +14,8 @@
           d:DataContext="{d:DesignInstance ct:FileListView}"
           mc:Ignorable="d" AllowDrop="True" SelectionMode="Extended"
           VirtualizingStackPanel.IsVirtualizing="True"
-          VirtualizingStackPanel.ScrollUnit="Pixel">
+          VirtualizingStackPanel.ScrollUnit="Pixel"
+          Padding="2" FocusVisualStyle="{x:Null}">
     <ListView.Resources>
         <!--只能将Width设为自动，然后在Cell里Binding到FileDataGrid-->
         <DataTemplate x:Key="IconTemplate">
@@ -500,7 +501,7 @@
             <hc:SimplePanel>
                 <hc:ToggleBlock IsChecked="{Binding HasItems, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
                     <hc:ToggleBlock.CheckedContent>
-                        <Grid SnapsToDevicePixels="True" Margin="2">
+                        <Grid SnapsToDevicePixels="True" Margin="{Binding Padding, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition/>

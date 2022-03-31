@@ -117,7 +117,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		fileDataGrid.isDoubleClicked = false;
 		fileDataGrid.isPreparedForRenaming = false;
 		fileDataGrid.lastBIndex = fileDataGrid.lastRIndex = -1;
-		fileDataGrid.lastTIndex = fileDataGrid.lastLIndex = 0;
+		fileDataGrid.lastTIndex = fileDataGrid.lastLIndex = int.MaxValue;
 	}
 
 	public string FullPath {
@@ -253,7 +253,6 @@ public partial class FileListView : INotifyPropertyChanged {
 			View = null;
 			contentPanel.Margin = Padding;
 		}
-		Focus();
 	}
 
 	public override void OnApplyTemplate() {
@@ -598,7 +597,7 @@ public partial class FileListView : INotifyPropertyChanged {
 			var items = ItemsCollection;
 			var itemWidth = FileView.ItemSize.Width;
 			var itemHeight = FileView.ItemSize.Height;
-			var dY = itemHeight + 4;  // 上下两项的y值之差，4是两项之间的间距，是固定的值
+			var dY = itemHeight + 6;  // 上下两项的y值之差，4是两项之间的间距，是固定的值
 			if (itemWidth > 0) {
 				var xCount = (int)(actualWidth / itemWidth);  // 横向能容纳多少个元素
 				var yCount = (int)MathF.Ceiling((float)items.Count / xCount);  // 纵向有多少行

@@ -8,6 +8,7 @@
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="hc:BorderElement.CornerRadius" Value="2"/>
+        <Setter Property="Visibility" Value="{Binding Converter={StaticResource Object2VisibilityConverter}}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToolTip">

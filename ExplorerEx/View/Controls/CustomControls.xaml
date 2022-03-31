@@ -59,9 +59,7 @@
 
                         <hc:SimplePanel Grid.Row="2" Background="{DynamicResource SecondaryRegionBrush}">
                             <ContentPresenter x:Name="DragArea" Content="{Binding Content, Mode=OneWay}" AllowDrop="true"/>
-                            <hc:SimplePanel x:Name="DragTipPanel" Opacity="0" IsHitTestVisible="False">
-                                <ContentPresenter Content="{Binding DragTip}"/>
-                            </hc:SimplePanel>
+                            <ContentPresenter x:Name="DragTipPanel" Opacity="0" IsHitTestVisible="False" Content="{Binding DragTip}"/>
                         </hc:SimplePanel>
                     </Grid>
                 </ControlTemplate>

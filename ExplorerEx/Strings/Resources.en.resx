@@ -299,7 +299,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="Network" xml:space="preserve">
     <value>Network</value>
   </data>
-  <data name="Release_to_add_to_bookmark" xml:space="preserve">
+  <data name="ReleaseToAddToBookmark" xml:space="preserve">
     <value>Release to add to bookmark</value>
   </data>
   <data name="Home" xml:space="preserve">
@@ -368,5 +368,14 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name="DeleteAll" xml:space="preserve">
     <value>Delete all</value>
+  </data>
+  <data name="GoBackTo..." xml:space="preserve">
+    <value>Go back to {0} (Alt + Left arrow)</value>
+  </data>
+  <data name="GoForwardTo..." xml:space="preserve">
+    <value>Go forward to {0} (Alt + Right Arrow)</value>
+  </data>
+  <data name="GoUpTo..." xml:space="preserve">
+    <value>Up to {0} (Alt + Up Arrow)</value>
   </data>
 </root>

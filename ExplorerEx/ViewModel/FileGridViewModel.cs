@@ -93,6 +93,21 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// </summary>
 	public ObservableCollection<FileItem> Items { get; } = new();
 
+	/// <summary>
+	/// 当前文件夹是否在加载
+	/// </summary>
+	public bool IsLoading {
+		get => isLoading;
+		set {
+			if (isLoading != value) {
+				isLoading = value;
+				UpdateUI();
+			}
+		}
+	}
+
+	private bool isLoading;
+
 	public ObservableHashSet<FileItem> SelectedItems { get; } = new();
 
 	public SimpleCommand SelectionChangedCommand { get; }
@@ -101,9 +116,13 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	public SimpleCommand GoBackCommand { get; }
 
+	public string GoBackButtonToolTip => CanGoBack ? string.Format("GoBackTo...".L(), HistoryList[nextHistoryIndex - 2].DisplayText) : null;
+
 	public bool CanGoForward => nextHistoryIndex < historyCount;
 
 	public SimpleCommand GoForwardCommand { get; }
+
+	public string GoForwardButtonToolTip => CanGoForward ? string.Format("GoForwardTo...".L(), HistoryList[nextHistoryIndex].DisplayText) : null;
 
 	/// <summary>
 	/// 历史记录
@@ -114,7 +133,35 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	public SimpleCommand GoToUpperLevelCommand { get; }
 
+	public string GoToUpperLevelButtonToolTip {
+		get {
+			if (!CanGoToUpperLevel) {
+				return null;
+			}
+			return string.Format("GoUpTo...".L(), ParentFolderName);
+		}
+	}
+
+	private string ParentFolderName {
+		get {
+			switch (Folder) {
+			case Home:
+				return null;
+			case DiskDrive:
+				return "ThisPC".L();
+			default:
+				var path = Path.GetDirectoryName(FullPath)!;
+				if (path.Length <= 3) {
+					return path;
+				}
+				return Path.GetFileName(path);
+			}
+		}
+	}
+
 	public bool IsItemSelected => SelectedItems.Count > 0;
+
+	public bool CanDeleteOrCut => IsItemSelected && SelectedItems.All(i => i is FileSystemItem);
 
 	public FileItemCommand FileItemCommand { get; }
 
@@ -128,7 +175,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	public SimpleCommand ItemDoubleClickedCommand { get; }
 
 	public bool CanPaste {
-		get => canPaste;
+		get => canPaste && Folder is not Home;
 		private set {
 			if (canPaste != value) {
 				canPaste = value;
@@ -423,11 +470,13 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// <param name="selectedPath">如果是返回，那就把这个设为返回前选中的那一项</param>
 	/// <returns></returns>
 	public async Task<bool> LoadDirectoryAsync(string path, bool recordHistory = true, string selectedPath = null) {
+		IsLoading = true;
 		switchIconCts?.Cancel();
 		SelectedItems.Clear();
 		var isLoadHome = string.IsNullOrWhiteSpace(path) || path == "ThisPC".L() || path.ToLower() == Home.Uuid;  // 加载“此电脑”
 
 		if (!isLoadHome && !Directory.Exists(path)) {
+			IsLoading = false;
 			var err = new StringBuilder();
 			err.Append("Cannot_open".L()).Append(' ').Append(path).Append('\n').Append("Check_your_input_and_try_again".L());
 			hc.MessageBox.Error(err.ToString(), "Error");
@@ -458,6 +507,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 		UpdateUI(nameof(Folder));
 		if (token.IsCancellationRequested) {
+			IsLoading = false;
 			return false;
 		}
 
@@ -489,6 +539,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 		UpdateUI(nameof(FullPath));
 		if (token.IsCancellationRequested) {
+			IsLoading = false;
 			return false;
 		}
 
@@ -560,6 +611,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			}, token);
 		}
 		if (token.IsCancellationRequested) {
+			IsLoading = false;
 			return false;
 		}
 
@@ -582,6 +634,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 		UpdateFolderUI();
 		UpdateFileUI();
+		IsLoading = false;
 		if (token.IsCancellationRequested) {
 			return false;
 		}
@@ -642,34 +695,32 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// 向上一级
 	/// </summary>
 	/// <returns></returns>
-	public async Task GoToUpperLevelAsync() {
+	public Task GoToUpperLevelAsync() {
 		if (CanGoToUpperLevel) {
 			if (FullPath.Length == 3) {
-				await LoadDirectoryAsync(null);
-			} else {
-				var lastIndexOfSlash = FullPath.LastIndexOf('\\');
-				switch (lastIndexOfSlash) {
-				case -1:
-					await LoadDirectoryAsync(null);
-					break;
-				case 2: // 例如F:\，此时需要保留最后的\
-					await LoadDirectoryAsync(FullPath[..3]);
-					break;
-				default:
-					await LoadDirectoryAsync(FullPath[..lastIndexOfSlash]);
-					break;
-				}
+				return LoadDirectoryAsync(null);
 			}
+			var lastIndexOfSlash = FullPath.LastIndexOf('\\');
+			return lastIndexOfSlash switch {
+				-1 => LoadDirectoryAsync(null),
+				2 => LoadDirectoryAsync(FullPath[..3]),  // 例如F:\，此时需要保留最后的\
+				_ => LoadDirectoryAsync(FullPath[..lastIndexOfSlash])
+			};
 		}
+		return Task.FromResult(false);
 	}
 
 	/// <summary>
 	/// 和文件夹相关的UI，和是否选中文件无关
 	/// </summary>
 	private void UpdateFolderUI() {
+		UpdateUI(nameof(CanPaste));
 		UpdateUI(nameof(CanGoBack));
 		UpdateUI(nameof(CanGoForward));
+		UpdateUI(nameof(GoBackButtonToolTip));
+		UpdateUI(nameof(GoForwardButtonToolTip));
 		UpdateUI(nameof(CanGoToUpperLevel));
+		UpdateUI(nameof(GoToUpperLevelButtonToolTip));
 		UpdateUI(nameof(FileItemsCount));
 		UpdateUI(nameof(SearchPlaceholderText));
 	}
@@ -690,6 +741,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			}
 		}
 		UpdateUI(nameof(IsItemSelected));
+		UpdateUI(nameof(CanDeleteOrCut));
 		UpdateUI(nameof(SelectedFileItemsCountVisibility));
 		UpdateUI(nameof(SelectedFileItemsCount));
 		UpdateUI(nameof(SelectedFileItemsSizeVisibility));

@@ -46,7 +46,11 @@
     <hc:TabControl.ItemTemplate>
         <DataTemplate>
             <StackPanel Orientation="Horizontal" Height="18" d:DataContext="{d:DesignInstance vm:FileGridViewModel}">
-                <Image Width="18" Height="18" Source="{Binding Folder.Icon}" Margin="0,0,5,0"/>
+                <hc:SimplePanel Width="18" Height="18" Margin="0,0,5,0">
+                    <Image Source="{Binding Folder.Icon}" Visibility="{Binding IsLoading, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
+                    <hc:CircleProgressBar IsIndeterminate="True" Width="18" Height="18" ArcThickness="2"
+                                          Visibility="{Binding IsLoading, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                </hc:SimplePanel>
                 <TextBlock Text="{Binding Folder.DisplayText}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
             </StackPanel>
         </DataTemplate>
