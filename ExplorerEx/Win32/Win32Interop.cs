@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace ExplorerEx.Win32;
 
@@ -38,6 +39,21 @@ internal static class Win32Interop {
 
 	[DllImport(User32)]
 	public static extern int GetDoubleClickTime();
+
+	[DllImport(User32)]
+	public static extern IntPtr CreatePopupMenu();
+
+	[DllImport(User32)]
+	public static extern int GetMenuItemCount(IntPtr hMenu);
+
+	[DllImport(User32)]
+	public static extern int GetMenuString(IntPtr hMenu, uint uIDItem, [Out] StringBuilder lpString, int nMaxCount, uint uFlag);
+	
+	[DllImport(User32)]
+	public static extern uint GetMenuItemID(IntPtr hMenu, uint uIDItem);
+
+	[DllImport(User32)]
+	public static extern bool DestroyMenu(IntPtr hMenu);
 
 	[DllImport(Gdi32)]
 	public static extern IntPtr CreateCompatibleDC(IntPtr hdc);
@@ -148,12 +164,7 @@ internal static class Win32Interop {
 		/// 系统主题色改变
 		/// </summary>
 		DwmColorizationColorChanged = 0x0320,
-		User = 0x0400,
-		ShellNotify = 0x0405,
-		/// <summary>
-		/// 回收站更新
-		/// </summary>
-		ShellNotifyRBinDir = 0x0406
+		User = 0x0400
 	}
 
 	[StructLayout(LayoutKind.Sequential)]

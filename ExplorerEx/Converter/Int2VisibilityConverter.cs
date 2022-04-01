@@ -3,8 +3,11 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace ExplorerEx.Converter; 
+namespace ExplorerEx.Converter;
 
+/// <summary>
+/// 为0不显示，不为0显示
+/// </summary>
 internal class Int2VisibilityConverter : IValueConverter {
 	public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
 		if (value is int i) {
@@ -18,6 +21,9 @@ internal class Int2VisibilityConverter : IValueConverter {
 	}
 }
 
+/// <summary>
+/// 为0显示，不为0不显示
+/// </summary>
 internal class Int2VisibilityReConverter : IValueConverter {
 	public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
 		if (value is int i) {

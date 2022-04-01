@@ -44,7 +44,7 @@ public sealed partial class MainWindow {
 	public HwndSource Hwnd { get; }
 
 	private IntPtr nextClipboardViewer;
-	private bool isClipboardViewerSet;
+	private bool isClipboardRegistered;
 
 	/// <summary>
 	/// 每注册一个EverythingQuery就+1
@@ -106,7 +106,7 @@ public sealed partial class MainWindow {
 		Hwnd = HwndSource.FromHwnd(new WindowInteropHelper(this).EnsureHandle())!;
 		if (MainWindows.Count == 1) {  // 只在一个窗口上检测剪贴板变化事件
 			RegisterClipboard();
-			RecycleBinItem.Update();
+			RecycleBinItem.RegisterWatcher();
 		}
 		Hwnd.AddHook(WndProc);
 
@@ -190,21 +190,9 @@ public sealed partial class MainWindow {
 	/// </summary>
 	private void RegisterClipboard() {
 		nextClipboardViewer = SetClipboardViewer(Hwnd.Handle);
-		var error = Marshal.GetLastWin32Error();
-		if (error != 0) {
-			Marshal.ThrowExceptionForHR(error);
-		}
-		isClipboardViewerSet = true;
+		Marshal.ThrowExceptionForHR(Marshal.GetLastWin32Error());
+		isClipboardRegistered = true;
 		DataObjectContent.HandleClipboardChanged();
-	}
-
-	/// <summary>
-	/// 注册事件监视回收站变化
-	/// </summary>
-	private void RegisterRecycleBin() {
-		var entry = new SHChangeNotifyEntry();
-		SHChangeNotifyRegister(Hwnd.Handle, SHCNF.AcceptInterrupts | SHCNF.AcceptNonInterrupts, SHCNE.Rmdir | SHCNE.RenameFolder | SHCNE.Delete | SHCNE.RenameItem, (uint)WinMessage.ShellNotifyRBinDir, 1, ref entry);
-		RecycleBinItem.Update();
 	}
 
 	private void EnableMica(bool isDarkTheme) {
@@ -268,6 +256,7 @@ public sealed partial class MainWindow {
 					if (param == 0x8000) {
 						home.Children.Add(new FolderItem(new DriveInfo(drive.ToString())));
 					}
+					RecycleBinItem.RegisterWatcher();
 					break;
 				}
 			}
@@ -487,13 +476,16 @@ public sealed partial class MainWindow {
 	protected override void OnClosed(EventArgs e) {
 		MainWindows.Remove(this);
 		SplitGrid.Close();
-		if (isClipboardViewerSet) {
+		if (isClipboardRegistered) {
 			if (nextClipboardViewer != IntPtr.Zero) {
 				ChangeClipboardChain(Hwnd.Handle, nextClipboardViewer);
 			}
 			if (MainWindows.Count > 0) { // 通知下一个Window进行Hook
 				MainWindows[0].RegisterClipboard();
 			}
+		}
+		if (MainWindows.Count == 0) {
+			RecycleBinItem.UnregisterWatcher();
 		}
 		base.OnClosed(e);
 	}
@@ -719,6 +711,16 @@ public sealed partial class MainWindow {
 			FileUtils.FileOperation(FileOpType.Delete, filePaths);
 		} catch (Exception ex) {
 			Logger.Exception(ex);
+		}
+	}
+
+	private void EmptyRecycleBinButton_OnClick(object sender, RoutedEventArgs e) {
+		SHEmptyRecycleBin(Hwnd.Handle, string.Empty, EmptyRecycleBinFlags.Default);
+	}
+
+	private void RestoreAllRecycleBinButton_OnClick(object sender, RoutedEventArgs e) {
+		foreach (var recycleBinItem in RecycleBinItem.Items) {
+			recycleBinItem.Restore();
 		}
 	}
 

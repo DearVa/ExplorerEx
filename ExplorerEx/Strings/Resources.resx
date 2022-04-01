@@ -430,4 +430,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="EmptyRecycleBin" xml:space="preserve">
     <value>清空回收站</value>
   </data>
+  <data name="Empty" xml:space="preserve">
+    <value>空</value>
+  </data>
 </root>

@@ -381,4 +381,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="EmptyRecycleBin" xml:space="preserve">
     <value>Empty Recycle bin</value>
   </data>
+  <data name="Empty" xml:space="preserve">
+    <value>Empty</value>
+  </data>
 </root>

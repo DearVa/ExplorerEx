@@ -47,7 +47,7 @@ public partial class App {
 
 	protected override async void OnStartup(StartupEventArgs e) {
 		Logger.Initialize();
-		Win32Interop.AttachConsole(-1);
+		AttachConsole(-1);
 		await Console.Out.FlushAsync();
 		try {
 			Args = new Arguments(e.Args);

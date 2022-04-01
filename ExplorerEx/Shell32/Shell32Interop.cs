@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using ExplorerEx.Model;
-using System.Windows.Documents;
-using ExplorerEx.Utils;
 
 namespace ExplorerEx.Shell32; 
 
@@ -31,6 +27,9 @@ internal static class Shell32Interop {
 
 	public const string IID_IImageList2 = "192b9d83-50fc-457b-90a0-2b82a8b5dae1";
 	public static Guid GUID_IImageList2 = new(IID_IImageList2);
+
+	public const string IID_IContextMenu = "000214e4-0000-0000-c000-000000000046";
+	public static Guid GUID_IContextMenu = new(IID_IContextMenu);
 
 	/// <summary>
 	/// Shell操作共用的锁
@@ -127,11 +126,25 @@ internal static class Shell32Interop {
 	[DllImport(Shell32, SetLastError = true, EntryPoint = "#2", CharSet = CharSet.Auto)]
 	public static extern uint SHChangeNotifyRegister(IntPtr hwnd, SHCNF fSources, SHCNE fEvents, uint wMsg, int cEntries, ref SHChangeNotifyEntry pFsne);
 
+	[DllImport(Shell32, SetLastError = true, EntryPoint = "#4", CharSet = CharSet.Auto)]
+	public static extern bool SHChangeNotifyUnregister(uint hNotify);
+
 	[DllImport(Shell32)]
 	public static extern uint SHFormatDrive(IntPtr hwnd, uint drive, uint fmtID, uint options);
 
 	[DllImport(Shell32)]
 	public static extern int SHOpenWithDialog(IntPtr hWndParent, ref OpenAsInfo oOAI);
+	
+	[Flags]
+	public enum EmptyRecycleBinFlags {
+		Default = 0x0,
+		NoConfirmation = 0x1,
+		NoProgressUI = 0x2,
+		NoSound = 0x4
+	}
+
+	[DllImport(Shell32)]
+	public static extern int SHEmptyRecycleBin(IntPtr hWnd, string pszRootPath, EmptyRecycleBinFlags dwFlags);
 
 	/// <summary>
 	/// 显示文件的属性面板

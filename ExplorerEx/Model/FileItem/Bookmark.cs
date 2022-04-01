@@ -111,7 +111,7 @@ public class BookmarkItem : FileItem, IFilterable {
 	}
 
 	public bool Filter(string filter) {
-		return Name.Contains(filter);
+		return Name.ToLower().Contains(filter);
 	}
 }
 

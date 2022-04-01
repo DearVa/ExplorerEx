@@ -104,7 +104,7 @@ public class SideBarContent : Control {
 	}
 
 	private void SearchTextBox_OnTextChanged(object sender, TextChangedEventArgs e) {
-		Filter.FilterString = ((TextBox)sender).Text;
+		Filter.FilterString = ((TextBox)sender).Text.ToLower();
 		Content.Items.Refresh();
 	}
 

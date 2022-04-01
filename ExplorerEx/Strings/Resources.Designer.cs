@@ -452,6 +452,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 空 的本地化字符串。
+        /// </summary>
+        internal static string Empty {
+            get {
+                return ResourceManager.GetString("Empty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 空文件夹 的本地化字符串。
         /// </summary>
         internal static string EmptyFolder {

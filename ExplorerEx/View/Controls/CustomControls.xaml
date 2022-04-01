@@ -46,10 +46,10 @@
                                         hc:InfoElement.Placeholder="{u:Lang Search}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         </hc:SimplePanel>
 
-                        <hc:SimplePanel Grid.Row="0" Margin="0,10,0,0" Background="{DynamicResource PrimaryBrush}">
-                            <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" Text="{Binding Header, Mode=OneWay}" 
+                        <hc:SimplePanel Grid.Row="0" Background="{DynamicResource BackgroundBrush}">
+                            <TextBlock VerticalAlignment="Center" Margin="10,10,0,0" Text="{Binding Header, Mode=OneWay}" 
                                        FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <StackPanel HorizontalAlignment="Right" Margin="0,0,10,0" Orientation="Horizontal">
+                            <StackPanel HorizontalAlignment="Right" Margin="0,10,10,0" Orientation="Horizontal">
                                 <ContentPresenter Content="{Binding HeaderContent, Mode=OneWay}"/>
                                 <ToggleButton x:Name="SearchToggleButton" hc:IconElement.Geometry="{StaticResource SearchGeometry}" 
                                               Style="{StaticResource ToggleButtonTransparent}" Width="25" Height="25" Padding="5"
@@ -69,8 +69,6 @@
     </Style>
 
     <Style TargetType="ct:TabControlEx">
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-        <Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
                 <Style TargetType="TabItem" BasedOn="{StaticResource TabItemStyle}">
@@ -80,8 +78,7 @@
                     <Setter Property="HeaderTemplate">
                         <Setter.Value>
                             <ItemContainerTemplate>
-                                <ContentPresenter Content="{Binding}" Height="40"
-                                                      AllowDrop="True" ToolTipService.InitialShowDelay="300"/>
+                                <ContentPresenter Content="{Binding}" Height="40" AllowDrop="True" ToolTipService.InitialShowDelay="300"/>
                             </ItemContainerTemplate>
                         </Setter.Value>
                     </Setter>
@@ -92,16 +89,14 @@
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetProperty="Height" To="60" 
-                                                             Duration="0:0:0.1" EasingFunction="{StaticResource CubicEase}"/>
+                                        <DoubleAnimation Storyboard.TargetProperty="Height" To="60" Duration="0:0:0.1" EasingFunction="{StaticResource CubicEase}"/>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.EnterActions>
                             <Trigger.ExitActions>
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetProperty="Height" To="40" 
-                                                             Duration="0:0:0.1" EasingFunction="{StaticResource CubicEase}"/>
+                                        <DoubleAnimation Storyboard.TargetProperty="Height" To="40" Duration="0:0:0.1" EasingFunction="{StaticResource CubicEase}"/>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.ExitActions>
@@ -117,7 +112,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TabControl">
-                    <Grid x:Name="templateRoot" Background="{TemplateBinding Background}" ClipToBounds="true" SnapsToDevicePixels="true" KeyboardNavigation.TabNavigation="Local">
+                    <Grid x:Name="templateRoot" Background="{DynamicResource BackgroundBrush}" ClipToBounds="true" SnapsToDevicePixels="true" KeyboardNavigation.TabNavigation="Local">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
@@ -135,11 +130,10 @@
                             <ItemsPresenter Margin="{TemplateBinding Padding}"/>
                         </StackPanel>
                         <Border x:Name="contentPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1"
-                                    BorderThickness="{Binding BorderThickness,RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource ThicknessSplitConverter}, ConverterParameter='1,0,0,0'}"
-                                    BorderBrush="{DynamicResource BorderBrush}" Background="{TemplateBinding Background}" KeyboardNavigation.DirectionalNavigation="Contained"
-                                    KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
-                            <ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent"
-                                                  Margin="0" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                BorderThickness="{Binding BorderThickness, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource ThicknessSplitConverter}, ConverterParameter='1,0,0,0'}"
+                                BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource BackgroundBrush}" KeyboardNavigation.DirectionalNavigation="Contained"
+                                KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
+                            <ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent" Margin="0" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                         </Border>
                     </Grid>
                 </ControlTemplate>

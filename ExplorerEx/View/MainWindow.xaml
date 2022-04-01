@@ -147,8 +147,7 @@
             <ColumnDefinition Width="1"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <hc:SimplePanel Grid.Column="0" Background="{DynamicResource RegionBrush}" 
-                        MouseLeftButtonDown="OnDragAreaMouseLeftButtonDown" SizeChanged="Sidebar_OnSizeChanged">
+        <hc:SimplePanel Grid.Column="0" MouseLeftButtonDown="OnDragAreaMouseLeftButtonDown" SizeChanged="Sidebar_OnSizeChanged">
             <ct:TabControlEx x:Name="SidebarTabControl" Focusable="False" Padding="0,52,0,0"
                              WindowChrome.IsHitTestVisibleInChrome="True" CanDeselect="True" SelectionChanged="OnSidebarSelectionChanged">
                 <TabItem x:Name="BookmarksTabItem" Width="50" Padding="0">
@@ -337,11 +336,13 @@
                         <ct:SideBarContent.HeaderContent>
                             <StackPanel Orientation="Horizontal">
                                 <Button Width="25" Height="25" Padding="3" Margin="0,0,5,0" ToolTip="{u:Lang EmptyRecycleBin}"
-                                        Style="{StaticResource ButtonTransparent}">
+                                        Style="{StaticResource ButtonTransparent}" Click="EmptyRecycleBinButton_OnClick"
+                                        IsEnabled="{Binding Count, Source={x:Static m:RecycleBinItem.Items}, Converter={StaticResource Int2BooleanConverter}}">
                                     <Image Margin="1" Source="{StaticResource EmptyDustBinDrawingImage}"/>
                                 </Button>
                                 <Button Width="25" Height="25" Padding="3" ToolTip="{u:Lang RestoreAll}"
-                                        Style="{StaticResource ButtonTransparent}">
+                                        Style="{StaticResource ButtonTransparent}" Click="RestoreAllRecycleBinButton_OnClick"
+                                        IsEnabled="{Binding Count, Source={x:Static m:RecycleBinItem.Items}, Converter={StaticResource Int2BooleanConverter}}">
                                     <Image Margin="1" Source="{StaticResource RestoreDrawingImage}"/>
                                 </Button>
                                 <!--<Rectangle Width="1" Height="18" Fill="{DynamicResource ThirdlyTextBrush}" Margin="5,1,5,1"/>
@@ -359,21 +360,41 @@
                                         <Setter Property="hc:BorderElement.CornerRadius" Value="4"/>
                                     </Style>
                                 </ListBox.ItemContainerStyle>
+                                <ListBox.Template>
+                                    <ControlTemplate TargetType="ListBox">
+                                        <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="true">
+                                            <hc:ScrollViewer Focusable="false">
+                                                <hc:ToggleBlock IsChecked="{Binding HasItems,RelativeSource={RelativeSource TemplatedParent},Mode=OneWay}" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                                    <hc:ToggleBlock.CheckedContent>
+                                                        <ItemsPresenter Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                                    </hc:ToggleBlock.CheckedContent>
+                                                    <hc:ToggleBlock.UnCheckedContent>
+                                                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="{u:Lang Empty}" FontSize="16"/>
+                                                    </hc:ToggleBlock.UnCheckedContent>
+                                                </hc:ToggleBlock>
+                                            </hc:ScrollViewer>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ListBox.Template>
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="{x:Type m:RecycleBinItem}">
                                         <hc:SimplePanel Background="Transparent">
                                             <hc:SimplePanel.ContextMenu>
                                                 <ContextMenu d:DataContext="{d:DesignInstance m:RecycleBinItem}">
-                                                    <MenuItem Icon="{Binding Icon}" Header="{u:Lang Restore}"/>
+                                                    <!-- ReSharper disable once MarkupAttributeTypo -->
+                                                    <MenuItem Icon="{Binding Icon}" Header="{u:Lang Restore}" 
+                                                              Command="{Binding Command, Mode=OneTime}" CommandParameter="undelete"/>
                                                     <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
 
-                                                    <MenuItem Icon="{StaticResource CutDrawingImage}" Header="{u:Lang Cut}"/>
+                                                    <!--<MenuItem Icon="{StaticResource CutDrawingImage}" Header="{u:Lang Cut}"/>
+                                                    <Separator Style="{DynamicResource SeparatorBaseStyle}"/>-->
+
+                                                    <MenuItem Icon="{StaticResource DeleteDrawingImage}" Header="{u:Lang Delete}"
+                                                              Command="{Binding Command, Mode=OneTime}" CommandParameter="delete"/>
                                                     <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
 
-                                                    <MenuItem Icon="{StaticResource DeleteDrawingImage}" Header="{u:Lang Delete}"/>
-                                                    <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
-
-                                                    <MenuItem Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
+                                                    <MenuItem Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"
+                                                              Command="{Binding Command, Mode=OneTime}" CommandParameter="properties"/>
                                                 </ContextMenu>
                                             </hc:SimplePanel.ContextMenu>
 
