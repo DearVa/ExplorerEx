@@ -150,7 +150,7 @@
         <hc:SimplePanel Grid.Column="0" Background="{DynamicResource RegionBrush}" 
                         MouseLeftButtonDown="OnDragAreaMouseLeftButtonDown" SizeChanged="Sidebar_OnSizeChanged">
             <ct:TabControlEx x:Name="SidebarTabControl" Focusable="False" Padding="0,52,0,0"
-                             CanDeselect="True" SelectionChanged="OnSidebarSelectionChanged">
+                             WindowChrome.IsHitTestVisibleInChrome="True" CanDeselect="True" SelectionChanged="OnSidebarSelectionChanged">
                 <TabItem x:Name="BookmarksTabItem" Width="50" Padding="0">
                     <TabItem.Header>
                         <Grid Height="40" ToolTip="{u:Lang Bookmarks}" ToolTipService.InitialShowDelay="300"
@@ -255,7 +255,7 @@
                     <ct:SideBarContent Header="{u:Lang ThisPC}" ShowSearchButton="False">
                         <ct:SideBarContent.Content>
                             <TreeView x:Name="SideBarThisPcTreeView" BorderThickness="0"
-                                      ItemsSource="{Binding Source={x:Static m:SideBarPcItem.RootItems}}">
+                                      ItemsSource="{Binding Path=Children, Source={x:Static m:FolderItem.Home}}">
                                 <TreeView.ItemTemplate>
                                     <HierarchicalDataTemplate ItemsSource="{Binding Children, Mode=OneWay}">
                                         <hc:SimplePanel Background="Transparent">
@@ -336,17 +336,18 @@
                     <ct:SideBarContent Header="{u:Lang RecycleBin}" Filter="{StaticResource RecycleBinFilter}" FileDrop="RecycleBinSideBarContent_OnFileDrop">
                         <ct:SideBarContent.HeaderContent>
                             <StackPanel Orientation="Horizontal">
-                                <Button Width="25" Height="25" Margin="0,0,5,0" ToolTip="{u:Lang DeleteAll}"
-                                        Style="{StaticResource ButtonTransparent}"
-                                        hc:IconElement.Geometry="{StaticResource DeleteGeometry}"/>
+                                <Button Width="25" Height="25" Padding="3" Margin="0,0,5,0" ToolTip="{u:Lang EmptyRecycleBin}"
+                                        Style="{StaticResource ButtonTransparent}">
+                                    <Image Margin="1" Source="{StaticResource EmptyDustBinDrawingImage}"/>
+                                </Button>
                                 <Button Width="25" Height="25" Padding="3" ToolTip="{u:Lang RestoreAll}"
                                         Style="{StaticResource ButtonTransparent}">
-                                    <Image Source="{StaticResource RestoreDrawingImage}"/>
+                                    <Image Margin="1" Source="{StaticResource RestoreDrawingImage}"/>
                                 </Button>
-                                <Rectangle Width="1" Height="18" Fill="{DynamicResource ThirdlyTextBrush}" Margin="5,1,5,1"/>
+                                <!--<Rectangle Width="1" Height="18" Fill="{DynamicResource ThirdlyTextBrush}" Margin="5,1,5,1"/>
                                 <Button Width="25" Height="25" ToolTip="{u:Lang OpenOnTheRight}"
                                         Style="{StaticResource ButtonTransparent}"
-                                        hc:IconElement.Geometry="{StaticResource RightArrowGeometry}"/>
+                                        hc:IconElement.Geometry="{StaticResource RightArrowGeometry}"/>-->
                             </StackPanel>
                         </ct:SideBarContent.HeaderContent>
                         <ct:SideBarContent.Content>

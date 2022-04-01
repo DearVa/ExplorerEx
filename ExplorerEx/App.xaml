@@ -11,7 +11,6 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Skin.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
-                <ResourceDictionary Source="View/Controls/CustomControls.xaml"/>
 
                 <ResourceDictionary Source="Assets/Geometries.xaml"/>
                 <ResourceDictionary>
@@ -72,6 +71,8 @@
                         </Style.Triggers>
                     </Style>
                 </ResourceDictionary>
+
+                <ResourceDictionary Source="View/Controls/CustomControls.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

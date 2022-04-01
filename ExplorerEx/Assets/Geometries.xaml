@@ -6,7 +6,7 @@
     <!--Special thanks to SvgToXaml!-->
     <!--https://github.com/BerndK/SvgToXaml-->
 
-    <DrawingImage x:Key="CopyDrawingImage" o:Freeze="True">
+    <DrawingImage o:Freeze="True" x:Key="CopyDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V175 H175 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-12.5,-12.5">
@@ -22,7 +22,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="CutDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="CutDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V175 H162.5 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-18.75,-12.5">
@@ -35,7 +35,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="DeleteDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="DeleteDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V178.54 H179.31 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-10.54,-9.88">
@@ -77,7 +77,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="EmptyFolderDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="EmptyFolderDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V133.33 H166.67 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-16.67,-33.33">
@@ -90,7 +90,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="FolderDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="FolderDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V103.95 H128.87 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-9,-11.45">
@@ -183,7 +183,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="LeftDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="LeftDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V167.86 H197.94 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-1.03,-16.07">
@@ -193,7 +193,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="RightDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="RightDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V167.86 H197.94 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-1.03,-16.07">
@@ -203,7 +203,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="UpDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="UpDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V197.94 H167.86 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-16.07,-1.03">
@@ -213,7 +213,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="DownDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="DownDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V197.94 H167.86 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-16.07,-1.03">
@@ -223,7 +223,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="NewDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="NewDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V198.05 H198.05 V0 H0 Z">
                 <GeometryDrawing Brush="#FFFFFFFF">
@@ -244,7 +244,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="PasteDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="PasteDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V175 H175 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-12.5,-12.5">
@@ -269,7 +269,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="RenameDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="RenameDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V150 H175 V0 H0 Z">
                 <GeometryDrawing Brush="#FF727272">
@@ -287,7 +287,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="ShareDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="ShareDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V185 H185 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-7.5,-7.5">
@@ -303,7 +303,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="UnknownFileDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="UnknownFileDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V181.82 H131.82 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-34.09,-9.09">
@@ -316,7 +316,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="MissingFileDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="MissingFileDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V183.82 H133.82 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-33.09,-8.09">
@@ -448,7 +448,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="SortDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="SortDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V167.16 H109.68 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-50.04,-16.42">
@@ -464,7 +464,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="ListDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="ListDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V173.35 H199.82 V0 H0 Z">
                 <GeometryDrawing Brush="#FF727272">
@@ -495,7 +495,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="MoreDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="MoreDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V197.99 H197.99 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-1.01,-1.01">
@@ -511,7 +511,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="PropertiesDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="PropertiesDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V186.87 H160 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-0.47,-0.5">
@@ -549,7 +549,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="PaperPlaneDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="PaperPlaneDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V1024 H1024 V0 H0 Z">
                 <GeometryDrawing Brush="{DynamicResource PrimaryBrush}" Geometry="F1 M1024,1024z M0,0z M76.844522,542.45287A22.26087,22.26087,0,0,0,74.796522,580.741565L300.210087,730.957913 328.570435,901.030957A22.26087,22.26087,0,0,0,369.619478,908.866783L459.731478,758.650435 749.256348,965.453913A22.26087,22.26087,0,0,0,784.072348,951.518609L948.98087,85.6153039999999 76.7999999999998,542.45287z M259.472696,757.314783L50.131478,617.73913A66.782609,66.782609,0,0,1,56.186435,503.006609L1009.975652,3.428174 827.792696,959.844174A66.782609,66.782609,0,0,1,723.389217,1001.694609L473.088,822.939826 407.774609,931.750957A66.782609,66.782609,0,0,1,284.672,908.377043L259.472696,757.314783z" />
@@ -559,7 +559,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="NewFolderDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="NewFolderDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V133.6 H166.41 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-16.8,-33.2">
@@ -569,7 +569,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="RefreshDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="RefreshDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V1024 H1024 V0 H0 Z">
                 <GeometryDrawing Geometry="F1 M1024,1024z M0,0z M802.048,584.533333L800.682667,588.885333 797.354667,600.32A298.666667,298.666667,0,1,1,739.498667,318.464L673.194667,318.464A42.666667,42.666667,0,1,0,673.194667,403.797333L843.861333,403.797333A42.496,42.496,0,0,0,872.192,393.045333L875.776,389.504A42.496,42.496,0,0,0,886.528,361.130667L886.528,190.464A42.666667,42.666667,0,0,0,801.194667,190.464L801.237333,259.413333A384,384,0,1,0,883.413333,609.706667A42.666667,42.666667,0,1,0,802.048,584.533333z">
@@ -581,7 +581,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="StarDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="StarDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V190.99 H200 V0 H0 Z">
                 <DrawingGroup.Transform>
@@ -594,7 +594,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="UnstarDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="UnstarDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V190.99 H200 V0 H0 Z">
                 <DrawingGroup.Transform>
@@ -607,7 +607,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="SettingsDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="SettingsDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V172.86 H183.07 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-11.11,-11.25">
@@ -620,7 +620,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="UacDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="UacDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V183.33 H150 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-25,-8.33">
@@ -636,7 +636,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="EditDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="EditDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V187.5 H187.5 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,0,-12.5">
@@ -649,7 +649,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="MusicDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="MusicDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V187.5 H187.5 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-6.25,-6.25">
@@ -659,7 +659,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="DiscHandleDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="DiscHandleDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V325.36 H330.85 V0 H0 Z">
                 <DrawingGroup.Transform>
@@ -703,7 +703,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="OneDriveDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="OneDriveDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V108.17 H168.82 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-15.62,-44.95">
@@ -722,7 +722,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="HistoryDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="HistoryDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V176.32 H196.23 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-1.88,-14.97">
@@ -735,7 +735,7 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="ExitDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="ExitDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V176.79 H185.01 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,0,-20">
@@ -748,11 +748,79 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="RestoreDrawingImage">
+    <DrawingImage o:Freeze="True" x:Key="RestoreDrawingImage">
         <DrawingImage.Drawing>
-            <DrawingGroup ClipGeometry="M0,0 V174.35 H200 V0 H0 Z">
-                <DrawingGroup Transform="1,0,0,1,0,-12.82">
-                    <GeometryDrawing Brush="#FF727272" Geometry="F1 M200,174.35z M0,0z M70.32,104.62A8.68,8.68,0,0,1,68.79,114.79L39.09,144.56A5,5,0,0,1,32.21,144.56L2.53,114.79A8.68,8.68,0,0,1,1,104.62L1,104.62A8.69,8.69,0,0,1,8.67,100L25.67,100A87.17,87.17,0,0,1,114.94,12.85C161.19,13.94,198.94,51.65,200,97.9A87.18,87.18,0,0,1,112.84,187.18A86.12,86.12,0,0,1,62.84,171.39A4.92,4.92,0,0,1,60.84,167.8A4.83,4.83,0,0,1,62.16,164L69.16,156.93A4.84,4.84,0,0,1,75.26,156.34A66.82,66.82,0,0,0,112.84,167.77A67.8,67.8,0,1,0,45,100L62.65,100A8.67,8.67,0,0,1,70.32,104.62z" />
+            <DrawingGroup ClipGeometry="M0,0 V170.71 H185.79 V0 H0 Z">
+                <DrawingGroup Transform="1,0,0,1,-3.18,-1.82">
+                    <GeometryDrawing Geometry="F1 M185.79,170.71z M0,0z M59.37,16.72A17.35,17.35,0,0,1,75.84,4.82L147.62,4.82A17.34,17.34,0,0,1,165,22.16L165,131.05A17.34,17.34,0,0,1,147.66,148.39L75.84,148.39A17.34,17.34,0,0,1,58.5,131.05L58.5,67.6">
+                        <GeometryDrawing.Pen>
+                            <Pen Brush="Black" Thickness="14" StartLineCap="Round" EndLineCap="Round" LineJoin="Miter" />
+                        </GeometryDrawing.Pen>
+                    </GeometryDrawing>
+                </DrawingGroup>
+                <DrawingGroup Transform="1,0,0,1,-3.18,-1.82">
+                    <GeometryDrawing Geometry="F1 M185.79,170.71z M0,0z M85.13,131.17A52.1,52.1,0,1,0,22.57,92.25L6.68,75.94">
+                        <GeometryDrawing.Pen>
+                            <Pen Brush="#FF557FFF" Thickness="14" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                        </GeometryDrawing.Pen>
+                    </GeometryDrawing>
+                </DrawingGroup>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#FF557FFF" Thickness="14" StartLineCap="Round" EndLineCap="Round" LineJoin="Miter" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <LineGeometry StartPoint="19.39,90.43" EndPoint="32.02,70.74" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <DrawingGroup Transform="1,0,0,1,-3.18,-1.82">
+                    <GeometryDrawing Geometry="F1 M185.79,170.71z M0,0z M186,36.3L186,151.23A18.3,18.3,0,0,1,167.7,169.53L91.9,169.53">
+                        <GeometryDrawing.Pen>
+                            <Pen Brush="Black" Thickness="14" StartLineCap="Round" EndLineCap="Round" LineJoin="Miter" />
+                        </GeometryDrawing.Pen>
+                    </GeometryDrawing>
+                </DrawingGroup>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <DrawingImage o:Freeze="True" x:Key="EmptyDustBinDrawingImage">
+        <DrawingImage.Drawing>
+            <DrawingGroup ClipGeometry="M0,0 V143.11 H168.53 V0 H0 Z">
+                <DrawingGroup Transform="1,0,0,1,-10.34,-20.35">
+                    <GeometryDrawing Brush="Black" Geometry="F1 M168.53,143.11z M0,0z M132.43,39L174,77.78C177.73,81.26,177.79,87.32,174.15,91.35L121.43,160.93A1.33,1.33,0,0,1,119.43,161.1L53.17,99.32A1.34,1.34,0,0,1,53.17,97.32L118.85,39.82C122.66,35.93,128.7,35.55,132.43,39z M118.72,152A1.33,1.33,0,0,0,120.72,151.83L169.55,87.38 169.65,87.26C171.12,85.68,171.23,83.4,169.91,82.17L128.29,43.48C126.97,42.25,124.7,42.48,123.23,44.1L123.02,44.32 62.28,97.48A1.32,1.32,0,0,0,62.28,99.48z">
+                        <GeometryDrawing.Pen>
+                            <Pen Brush="Black" Thickness="4" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                        </GeometryDrawing.Pen>
+                    </GeometryDrawing>
+                </DrawingGroup>
+                <DrawingGroup Transform="1,0,0,1,-10.34,-20.35">
+                    <GeometryDrawing Brush="Black" Geometry="F1 M168.53,143.11z M0,0z M74.14,47.7L36.68,86.36A6.53,6.53,0,0,1,27.46,86.5L23.12,76.5C21.33,72.09,19.73,69.65,21.92,67.38L54.71,33.53C56.91,31.27,59.71,33.07,63.87,34.45L74,38.45A6.53,6.53,0,0,1,74.14,47.7z M26.78,72.09A0.44,0.44,0,0,0,26.86,72.7L31.71,82.14A0.44,0.44,0,0,0,32.32,82.14L69.78,43.47A0.44,0.44,0,0,0,69.78,42.86L60.18,38.3A0.46,0.46,0,0,0,59.59,38.24z">
+                        <GeometryDrawing.Pen>
+                            <Pen Brush="Black" Thickness="4" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                        </GeometryDrawing.Pen>
+                    </GeometryDrawing>
+                </DrawingGroup>
+                <DrawingGroup Transform="1,0,0,1,-10.34,-20.35">
+                    <GeometryDrawing Brush="Black" Geometry="F1 M168.53,143.11z M0,0z M94.92,27.51L17.56,107.34A3,3,0,1,1,13.19,103.11L90.55,23.28A3,3,0,0,1,94.92,27.51z">
+                        <GeometryDrawing.Pen>
+                            <Pen Brush="Black" Thickness="4" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                        </GeometryDrawing.Pen>
+                    </GeometryDrawing>
+                </DrawingGroup>
+                <DrawingGroup Transform="1,0,0,1,-10.34,-20.35">
+                    <GeometryDrawing Brush="#557fff" Geometry="F1 M168.53,143.11z M0,0z M151.15,77.84A3,3,0,0,1,151.31,82.14L151.31,82.14 109.87,126.61A3,3,0,1,1,105.42,122.47L105.42,122.47 146.86,78A3,3,0,0,1,151.15,77.86z">
+                        <GeometryDrawing.Pen>
+                            <Pen Brush="#557fff" Thickness="4" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                        </GeometryDrawing.Pen>
+                    </GeometryDrawing>
+                </DrawingGroup>
+                <DrawingGroup Transform="1,0,0,1,-10.34,-20.35">
+                    <GeometryDrawing Brush="#557fff" Geometry="F1 M168.53,143.11z M0,0z M134,61.86A3,3,0,0,1,134.15,66.16L92.72,110.63A3,3,0,0,1,88.26,106.48L129.71,62A3,3,0,0,1,134,61.86z">
+                        <GeometryDrawing.Pen>
+                            <Pen Brush="#557fff" Thickness="4" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                        </GeometryDrawing.Pen>
+                    </GeometryDrawing>
                 </DrawingGroup>
             </DrawingGroup>
         </DrawingImage.Drawing>

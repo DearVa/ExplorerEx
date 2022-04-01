@@ -7,7 +7,6 @@ using ExplorerEx.Model;
 using ExplorerEx.Utils;
 using ExplorerEx.ViewModel;
 using hc = HandyControl.Controls;
-using TextBox = HandyControl.Controls.TextBox;
 
 namespace ExplorerEx.View.Controls;
 
@@ -55,15 +54,17 @@ public partial class FileViewGrid {
 		}
 	}
 
-	private async void AddressBar_OnKeyDown(object sender, KeyEventArgs e) {
-		switch (e.Key) {
-		case Key.Enter:
-			await GridViewModel.LoadDirectoryAsync(((TextBox)sender).Text);
-			break;
+	private void AddressBar_OnKeyDown(object sender, KeyEventArgs e) {
+		if (e.Key == Key.Enter) {
+			_ = GridViewModel.LoadDirectoryAsync(((AddressBar)sender).Text);
 		}
 	}
 
-	private async void History_OnClick(object sender, RoutedEventArgs e) {
-		await GridViewModel.LoadDirectoryAsync(((FileItem)((MenuItem)sender).DataContext).FullPath);
+	private void History_OnClick(object sender, RoutedEventArgs e) {
+		_ = GridViewModel.LoadDirectoryAsync(((FileItem)((MenuItem)sender).DataContext).FullPath);
+	}
+
+	private void AddressBar_OnPopupItemClicked(FolderItem item) {
+		_ = GridViewModel.LoadDirectoryAsync(item.FullPath);
 	}
 }

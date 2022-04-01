@@ -382,7 +382,6 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// </summary>
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
-		base.OnPreviewMouseDown(e);
 		isDoubleClicked = false;
 		if (e.OriginalSource.FindParent<VirtualizingPanel, ListView>() == null) {
 			if (renamingItem != null) {  // 如果正在重命名就停止
@@ -503,7 +502,6 @@ public partial class FileListView : INotifyPropertyChanged {
 		} else {
 			MouseItem = null;
 		}
-		base.OnPreviewMouseMove(e);
 		if (!isMouseDown || isDoubleClicked || isDragDropping || renamingItem != null) {
 			return;
 		}
@@ -546,19 +544,21 @@ public partial class FileListView : INotifyPropertyChanged {
 					UpdateRectSelection();
 
 					if (point.X < 0) {
-						scrollSpeed.X = point.X / 10d;
+						scrollSpeed.X = point.X / 5d;
 					} else if (point.Y > ActualWidth) {
-						scrollSpeed.X = (point.X - ActualWidth) / 10d;
+						scrollSpeed.X = (point.X - ActualWidth) / 5d;
 					} else {
 						scrollSpeed.X = 0;
 					}
 					if (point.Y < 0) {
-						scrollSpeed.Y = point.Y / 10d;
+						scrollSpeed.Y = point.Y / 5d;
 					} else if (point.Y > ActualHeight) {
-						scrollSpeed.Y = (point.Y - ActualHeight) / 10d;
+						scrollSpeed.Y = (point.Y - ActualHeight) / 5d;
 					} else {
 						scrollSpeed.Y = 0;
 					}
+
+					e.Handled = true;
 				}
 			}
 		}
@@ -597,7 +597,7 @@ public partial class FileListView : INotifyPropertyChanged {
 			var items = ItemsCollection;
 			var itemWidth = FileView.ItemSize.Width;
 			var itemHeight = FileView.ItemSize.Height;
-			var dY = itemHeight + 6;  // 上下两项的y值之差，4是两项之间的间距，是固定的值
+			var dY = itemHeight + 6;  // 上下两项的y值之差，6是两项之间的间距，是固定的值
 			if (itemWidth > 0) {
 				var xCount = (int)(actualWidth / itemWidth);  // 横向能容纳多少个元素
 				var yCount = (int)MathF.Ceiling((float)items.Count / xCount);  // 纵向有多少行
@@ -760,7 +760,6 @@ public partial class FileListView : INotifyPropertyChanged {
 	}
 
 	protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
-		base.OnPreviewMouseUp(e);
 		do {
 			if (!isMouseDown) {  // 只有isMouseDown（即OnPreviewMouseDown触发过）为true，这个才有用
 				break;
@@ -849,6 +848,12 @@ public partial class FileListView : INotifyPropertyChanged {
 			base.OnPreviewMouseWheel(e);
 		}
 	}
+
+	/// <summary>
+	/// 屏蔽原有的AutoScroll
+	/// </summary>
+	/// <param name="e"></param>
+	protected override void OnIsMouseCapturedChanged(DependencyPropertyChangedEventArgs e) { }
 
 	private static DispatcherTimer hoverTimer;
 	private static DateTimeOffset hoverShowTime;

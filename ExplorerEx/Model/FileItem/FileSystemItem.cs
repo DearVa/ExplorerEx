@@ -111,7 +111,7 @@ public class FileSystemItem : FileItem {
 		}
 		if (IsFolder) {
 			isEmptyFolder = FolderUtils.IsEmptyFolder(FileSystemInfo.FullName);
-			Type = isEmptyFolder ? "Empty_folder".L() : "Folder".L();
+			Type = isEmptyFolder ? "EmptyFolder".L() : "Folder".L();
 			IsEmptyFolderDictionary.Add(FullPath, isEmptyFolder);
 		} else {
 			var type = FileUtils.GetFileTypeDescription(Path.GetExtension(Name));

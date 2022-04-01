@@ -89,7 +89,7 @@ public sealed partial class MainWindow {
 			TabControlProvider = () => FileTabControl.MouseOverTabControl
 		};
 		SideBarPcItemCommand = new FileItemCommand {
-			SelectedItemsProvider = () => SideBarThisPcTreeView.SelectedItem is SideBarPcItem selectedItem ? new[] { selectedItem } : Array.Empty<FileItem>(),
+			SelectedItemsProvider = () => SideBarThisPcTreeView.SelectedItem is FolderItem selectedItem ? new[] { selectedItem } : Array.Empty<FileItem>(),
 			TabControlProvider = () => FileTabControl.MouseOverTabControl
 		};
 		EditBookmarkCommand = new SimpleCommand(_ => {
@@ -114,9 +114,9 @@ public sealed partial class MainWindow {
 		ContentGrid.Children.Add(SplitGrid);
 		ChangeTheme(App.IsDarkTheme, false);
 
-		if (SideBarPcItem.RootItems.Count == 0) {
+		if (FolderItem.Home.Children.Count == 0) {
 			foreach (var driveInfo in DriveInfo.GetDrives()) {
-				SideBarPcItem.RootItems.Add(new SideBarPcItem(driveInfo));
+				FolderItem.Home.Children.Add(new FolderItem(driveInfo));
 			}
 		}
 
@@ -135,7 +135,7 @@ public sealed partial class MainWindow {
 				menu.IsOpen = true;
 				e.Handled = true;
 				break;
-			case SideBarPcItem pcItem:
+			case FolderItem pcItem:
 				sideBarPcItemContextMenu.SetValue(FileItemAttach.FileItemProperty, pcItem);
 				sideBarPcItemContextMenu.IsOpen = true;
 				e.Handled = true;
@@ -258,14 +258,15 @@ public sealed partial class MainWindow {
 							}
 						}
 					}
-					for (var i = 0; i < SideBarPcItem.RootItems.Count; i++) {
-						if (SideBarPcItem.RootItems[i].FullPath[0] == drive) {
-							SideBarPcItem.RootItems.RemoveAt(i);
+					var home = FolderItem.Home;
+					for (var i = 0; i < home.Children.Count; i++) {
+						if (home.Children[i].FullPath[0] == drive) {
+							home.Children.RemoveAt(i);
 							break;
 						}
 					}
 					if (param == 0x8000) {
-						SideBarPcItem.RootItems.Add(new SideBarPcItem(new DriveInfo(drive.ToString())));
+						home.Children.Add(new FolderItem(new DriveInfo(drive.ToString())));
 					}
 					break;
 				}

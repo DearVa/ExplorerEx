@@ -41,7 +41,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	public FileItem Folder { get; private set; } = Home.Instance;
 
 	/// <summary>
-	/// 当前的路径，如果是首页，就是“此电脑”
+	/// 当前的路径，如果是首页，就是null
 	/// </summary>
 	public string FullPath => Folder.FullPath;
 
@@ -812,8 +812,9 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// </summary>
 	private void UpdateSearch() {
 		everythingReplyCts?.Cancel();
-		if (searchText == null) {
+		if (string.IsNullOrEmpty(searchText)) {
 			_ = LoadDirectoryAsync(FullPath);
+			return;
 		}
 		if (EverythingInterop.IsAvailable) {
 			Items.Clear();  // 清空文件列表，进入搜索模式

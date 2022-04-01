@@ -454,9 +454,18 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 空文件夹 的本地化字符串。
         /// </summary>
-        internal static string Empty_folder {
+        internal static string EmptyFolder {
             get {
-                return ResourceManager.GetString("Empty_folder", resourceCulture);
+                return ResourceManager.GetString("EmptyFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 清空回收站 的本地化字符串。
+        /// </summary>
+        internal static string EmptyRecycleBin {
+            get {
+                return ResourceManager.GetString("EmptyRecycleBin", resourceCulture);
             }
         }
         
@@ -830,20 +839,20 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 松手添加到收藏夹 的本地化字符串。
-        /// </summary>
-        internal static string ReleaseToAddToBookmark {
-            get {
-                return ResourceManager.GetString("ReleaseToAddToBookmark", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 松手移动到回收站 的本地化字符串。
         /// </summary>
         internal static string Release_to_move_to_RecycleBin {
             get {
                 return ResourceManager.GetString("Release_to_move_to_RecycleBin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 松手添加到收藏夹 的本地化字符串。
+        /// </summary>
+        internal static string ReleaseToAddToBookmark {
+            get {
+                return ResourceManager.GetString("ReleaseToAddToBookmark", resourceCulture);
             }
         }
         

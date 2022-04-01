@@ -27,19 +27,18 @@
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
                             <Image Grid.Column="0" x:Name="Icon" Source="{TemplateBinding Icon}" VerticalAlignment="Center" HorizontalAlignment="Center" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}"/>
-                            <Border IsHitTestVisible="False" Grid.Column="0" x:Name="GlyphPanel" CornerRadius="2" Background="{DynamicResource PrimaryBrush}" ClipToBounds="False" HorizontalAlignment="Right" Height="16" Visibility="Collapsed" VerticalAlignment="Center" Width="16">
-                                <Path UseLayoutRounding="True" Width="12" Height="12" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource TextIconBrush}"/>
-                            </Border>
+                            <Path IsHitTestVisible="False" Grid.Column="0" x:Name="Glyph" ClipToBounds="False" HorizontalAlignment="Center" Height="16" Visibility="Collapsed" VerticalAlignment="Center" 
+                                  Width="16" UseLayoutRounding="True" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource PrimaryBrush}"/>
                             <ContentPresenter Grid.Column="1" Margin="9,0,0,0" x:Name="ContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" ContentSource="Header" VerticalAlignment="Center" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                             <TextBlock x:Name="InputGestureText" Margin="0,0,10,0" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Left" Text="{TemplateBinding InputGestureText}"/>
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsCheckable" Value="True">
-                            <Setter Property="Visibility" TargetName="GlyphPanel" Value="Hidden"/>
+                            <Setter Property="Visibility" TargetName="Glyph" Value="Hidden"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter Property="Visibility" TargetName="GlyphPanel" Value="Visible"/>
+                            <Setter Property="Visibility" TargetName="Glyph" Value="Visible"/>
                         </Trigger>
                         <Trigger Property="Icon" Value="{x:Null}">
                             <Setter Property="Visibility" TargetName="Icon" Value="Hidden"/>
@@ -60,10 +59,9 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <ContentPresenter Margin="0,0,10,0" x:Name="Icon" ContentSource="Icon" HorizontalAlignment="Right" Height="16" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" Width="16"/>
-                                    <Border Margin="0,0,10,0" Grid.Column="0" x:Name="GlyphPanel" CornerRadius="2" Background="{DynamicResource PrimaryBrush}" ClipToBounds="False" HorizontalAlignment="Right" Height="16" Visibility="Collapsed" VerticalAlignment="Center" Width="16">
-                                        <Path UseLayoutRounding="True" Width="12" Height="12" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource TextIconBrush}"/>
-                                    </Border>
+                                    <Image Margin="0,0,10,0" x:Name="Icon" Source="{TemplateBinding Icon}" HorizontalAlignment="Right" Height="16" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" Width="16"/>
+                                    <Path IsHitTestVisible="False" Grid.Column="0" x:Name="Glyph" ClipToBounds="False" HorizontalAlignment="Center" Height="16" Visibility="Collapsed" VerticalAlignment="Center" 
+                                          Width="16" UseLayoutRounding="True" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource PrimaryBrush}"/>
                                     <ContentPresenter x:Name="menuHeaderContainer" ContentTemplate="{TemplateBinding HeaderTemplate}" Grid.Column="1" ContentStringFormat="{TemplateBinding HeaderStringFormat}" ContentSource="Header" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                                     <Popup Grid.Column="0" x:Name="PART_Popup" PlacementTarget="{Binding ElementName=templateRoot}" AllowsTransparency="True" Focusable="False" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Bottom">
                                         <hc:SimplePanel Margin="8,0,8,8">
@@ -82,10 +80,10 @@
                                     <Setter Property="Visibility" TargetName="Icon" Value="Hidden"/>
                                 </Trigger>
                                 <Trigger Property="IsCheckable" Value="True">
-                                    <Setter Property="Visibility" TargetName="GlyphPanel" Value="Hidden"/>
+                                    <Setter Property="Visibility" TargetName="Glyph" Value="Hidden"/>
                                 </Trigger>
                                 <Trigger Property="IsChecked" Value="True">
-                                    <Setter Property="Visibility" TargetName="GlyphPanel" Value="Visible"/>
+                                    <Setter Property="Visibility" TargetName="Glyph" Value="Visible"/>
                                     <Setter Property="Visibility" TargetName="Icon" Value="Collapsed"/>
                                 </Trigger>
                                 <Trigger Property="IsHighlighted" Value="True">
@@ -113,10 +111,9 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition/>
                                     </Grid.ColumnDefinitions>
-                                    <ContentPresenter Margin="0,0,10,0" x:Name="Icon" HorizontalAlignment="Left" ContentSource="Icon" Height="16" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" Width="16"/>
-                                    <Border Margin="0,0,10,0" IsHitTestVisible="False" Grid.Column="0" x:Name="GlyphPanel" CornerRadius="2" Background="{DynamicResource PrimaryBrush}" ClipToBounds="False" HorizontalAlignment="Right" Height="16" Visibility="Hidden" VerticalAlignment="Center" Width="16">
-                                        <Path UseLayoutRounding="True" Width="12" Height="12" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource TextIconBrush}"/>
-                                    </Border>
+                                    <Image Margin="0,0,10,0" x:Name="Icon" HorizontalAlignment="Left" Source="{TemplateBinding Icon}" Height="16" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" Width="16"/>
+                                    <Path IsHitTestVisible="False" Grid.Column="0" x:Name="Glyph" ClipToBounds="False" HorizontalAlignment="Center" Height="16" Visibility="Collapsed" VerticalAlignment="Center" 
+                                          Width="16" UseLayoutRounding="True" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource PrimaryBrush}"/>
                                     <ContentPresenter x:Name="menuHeaderContainer" ContentTemplate="{TemplateBinding HeaderTemplate}" Grid.Column="1" ContentStringFormat="{TemplateBinding HeaderStringFormat}" ContentSource="Header" HorizontalAlignment="Left" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center"/>
                                 </Grid>
                             </Border>
@@ -125,10 +122,10 @@
                                     <Setter Property="Visibility" TargetName="Icon" Value="Hidden"/>
                                 </Trigger>
                                 <Trigger Property="IsCheckable" Value="True">
-                                    <Setter Property="Visibility" TargetName="GlyphPanel" Value="Hidden"/>
+                                    <Setter Property="Visibility" TargetName="Glyph" Value="Hidden"/>
                                 </Trigger>
                                 <Trigger Property="IsChecked" Value="True">
-                                    <Setter Property="Visibility" TargetName="GlyphPanel" Value="Visible"/>
+                                    <Setter Property="Visibility" TargetName="Glyph" Value="Visible"/>
                                     <Setter Property="Visibility" TargetName="Icon" Value="Collapsed"/>
                                 </Trigger>
                                 <Trigger Property="IsHighlighted" Value="True">
@@ -168,9 +165,8 @@
                                         <ColumnDefinition Width="20" />
                                     </Grid.ColumnDefinitions>
                                     <Image Grid.Column="0" x:Name="Icon" Source="{TemplateBinding Icon}" VerticalAlignment="Center" HorizontalAlignment="Center" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" />
-                                    <Border Margin="0,0,10,0" IsHitTestVisible="False" Grid.Column="0" x:Name="GlyphPanel" CornerRadius="2" Background="{DynamicResource PrimaryBrush}" ClipToBounds="False" HorizontalAlignment="Right" Height="16" Visibility="Collapsed" VerticalAlignment="Center" Width="16">
-                                        <Path UseLayoutRounding="True" Width="12" Height="12" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource TextIconBrush}" />
-                                    </Border>
+                                    <Path IsHitTestVisible="False" Grid.Column="0" x:Name="Glyph" ClipToBounds="False" HorizontalAlignment="Center" Height="16" Visibility="Collapsed" VerticalAlignment="Center" 
+                                          Width="16" UseLayoutRounding="True" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource PrimaryBrush}"/>
                                     <ContentPresenter Grid.Column="1" Margin="9,0,0,0" x:Name="ContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" ContentSource="Header" VerticalAlignment="Center" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                                     <Path x:Name="Path" Grid.Column="4" Width="10" Height="10" HorizontalAlignment="Left" Data="{StaticResource RightGeometry}" Stretch="Uniform" Fill="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
                                     <Popup Grid.Column="1" x:Name="PART_Popup" hc:BlurPopup.Enabled="True"  AllowsTransparency="True" Focusable="False" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Right" VerticalOffset="-13" HorizontalOffset="10">
@@ -184,10 +180,10 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsCheckable" Value="True">
-                                    <Setter Property="Visibility" TargetName="GlyphPanel" Value="Hidden"/>
+                                    <Setter Property="Visibility" TargetName="Glyph" Value="Hidden"/>
                                 </Trigger>
                                 <Trigger Property="IsChecked" Value="True">
-                                    <Setter Property="Visibility" TargetName="GlyphPanel" Value="Visible"/>
+                                    <Setter Property="Visibility" TargetName="Glyph" Value="Visible"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>

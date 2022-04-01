@@ -17,7 +17,7 @@
                                 <ContentPresenter x:Name="ContentPresenterMain" RecognizesAccessKey="True" VerticalAlignment="Center" Margin="6,0,0,0" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                             </StackPanel>
                         </Border>
-                        <Border Margin="-1" Visibility="Collapsed" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" x:Name="BorderChecked" BorderThickness="4" BorderBrush="{DynamicResource DarkMaskBrush}"/>
+                        <Border Visibility="Collapsed" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" x:Name="BorderChecked" Background="{DynamicResource DarkMaskBrush}"/>
                     </hc:SimplePanel>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="true">

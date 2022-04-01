@@ -16,7 +16,6 @@ internal sealed class Home : FileItem {
 	private Home() {
 		Name = Uuid;
 		Type = "Home".L();
-		FullPath = DisplayText;
 		Icon = IconHelper.ComputerBitmapImage;
 	}
 

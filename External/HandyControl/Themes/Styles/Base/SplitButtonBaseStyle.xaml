@@ -31,9 +31,6 @@
                                     <ContentPresenter x:Name="ContentPresenterMain" RecognizesAccessKey="True" VerticalAlignment="Center" Margin="6,0,0,0" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                                 </StackPanel>
                                 <ToggleButton x:Name="PART_Arrow" Foreground="{TemplateBinding Foreground}" IsChecked="{Binding IsDropDownOpen, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" Width="20" Margin="-6,0,0,0" Height="Auto" Padding="6,10,6,10" HorizontalContentAlignment="Left" Grid.Column="1" hc:IconSwitchElement.GeometrySelected="{StaticResource DownGeometry}" hc:IconElement.Geometry="{StaticResource DownGeometry}">
-                                    <ToggleButton.Resources>
-                                        <SineEase x:Key="SineEase" EasingMode="EaseInOut"/>
-                                    </ToggleButton.Resources>
                                     <ToggleButton.Style>
                                         <Style BasedOn="{StaticResource ToggleButtonIconTransparent}" TargetType="ToggleButton">
                                             <Style.Triggers>
@@ -41,7 +38,11 @@
                                                     <Trigger.EnterActions>
                                                         <BeginStoryboard>
                                                             <Storyboard TargetProperty="Padding">
-                                                                <ThicknessAnimation AutoReverse="True" EasingFunction="{StaticResource SineEase}" From="6,10,6,10" To="6,14,6,10" Duration="0:0:0.2"/>
+                                                                <ThicknessAnimation AutoReverse="True" From="6,10,6,10" To="6,14,6,10" Duration="0:0:0.2">
+                                                                    <ThicknessAnimation.EasingFunction>
+                                                                        <CubicEase EasingMode="EaseInOut"/>
+                                                                    </ThicknessAnimation.EasingFunction>
+                                                                </ThicknessAnimation>
                                                             </Storyboard>
                                                         </BeginStoryboard>
                                                     </Trigger.EnterActions>

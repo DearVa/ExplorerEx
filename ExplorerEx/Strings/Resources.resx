@@ -211,7 +211,7 @@
   <data name="Type" xml:space="preserve">
     <value>类型</value>
   </data>
-  <data name="Empty_folder" xml:space="preserve">
+  <data name="EmptyFolder" xml:space="preserve">
     <value>空文件夹</value>
   </data>
   <data name="#AreYouSureToChangeExtension" xml:space="preserve">
@@ -426,5 +426,8 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name="GoUpTo..." xml:space="preserve">
     <value>向上一级到 {0} (Alt + 上箭头)</value>
+  </data>
+  <data name="EmptyRecycleBin" xml:space="preserve">
+    <value>清空回收站</value>
   </data>
 </root>

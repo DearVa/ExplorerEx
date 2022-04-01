@@ -164,7 +164,7 @@
   <data name="Type" xml:space="preserve">
     <value>Type</value>
   </data>
-  <data name="Empty_folder" xml:space="preserve">
+  <data name="EmptyFolder" xml:space="preserve">
     <value>Empty folder</value>
   </data>
   <data name="#AreYouSureToChangeExtension" xml:space="preserve">
@@ -377,5 +377,8 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name="GoUpTo..." xml:space="preserve">
     <value>Up to {0} (Alt + Up Arrow)</value>
+  </data>
+  <data name="EmptyRecycleBin" xml:space="preserve">
+    <value>Empty Recycle bin</value>
   </data>
 </root>
