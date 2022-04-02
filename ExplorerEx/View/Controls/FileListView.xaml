@@ -292,7 +292,7 @@
             </MenuItem>
             <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
 
-            <MenuItem CommandParameter="Open"
+            <MenuItem CommandParameter="Open" 
                       Command="{Binding ViewModel.FileItemCommand}"
                       Icon="{Binding Path=(m:FileItemAttach.FileItem).Icon, RelativeSource={RelativeSource AncestorType=ContextMenu}}" Header="{u:Lang Open}"/>
             <MenuItem CommandParameter="OpenInNewTab"
@@ -312,8 +312,8 @@
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).IsBookmarked, RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
             <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
-            <MenuItem Click="FormatDiskDrive_OnClick"
-                      Header="{u:Lang FormatDrive}" Foreground="{DynamicResource DangerBrush}" FontWeight="Bold"/>
+            <MenuItem Click="FormatDiskDrive_OnClick" Icon="{StaticResource FormatDriveDrawingImage}"
+                      Header="{u:Lang FormatDrive}" Foreground="{DynamicResource DangerBrush}"/>
             <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
 
             <MenuItem CommandParameter="Properties"

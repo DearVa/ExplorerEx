@@ -748,13 +748,58 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
+    <DrawingImage x:Key="FormatDriveDrawingImage">
+        <DrawingImage.Drawing>
+            <DrawingGroup ClipGeometry="M0,0 V156.11 H171.4 V0 H0 Z">
+                <DrawingGroup Transform="1,0,0,1,-8.26,-8.38">
+                    <GeometryDrawing Geometry="F1 M171.4,156.11z M0,0z M109.21,114.74A52.1,52.1,0,1,0,46.65,75.81L46.65,75.81 30.76,59.51">
+                        <GeometryDrawing.Pen>
+                            <Pen Brush="#FFF42900" Thickness="9" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                        </GeometryDrawing.Pen>
+                    </GeometryDrawing>
+                </DrawingGroup>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#FFF42900" Thickness="9" StartLineCap="Round" EndLineCap="Round" LineJoin="Miter" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <LineGeometry StartPoint="38.39,67.43" EndPoint="51.02,47.74" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <DrawingGroup Transform="1,0,0,1,-8.26,-8.38">
+                    <GeometryDrawing Geometry="F1 M171.4,156.11z M0,0z M161.1,96.58A15.07,15.07,0,0,1,176.16,111.65L176.16,145.93A15.06,15.06,0,0,1,161.1,161L26.83,161A15.07,15.07,0,0,1,11.76,145.94L11.76,111.65A15.07,15.07,0,0,1,26.83,96.58L105.53,96.58">
+                        <GeometryDrawing.Pen>
+                            <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="7" StartLineCap="Round" EndLineCap="Round" LineJoin="Miter" />
+                        </GeometryDrawing.Pen>
+                    </GeometryDrawing>
+                </DrawingGroup>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="7" StartLineCap="Round" EndLineCap="Round" LineJoin="Miter" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry RadiusX="8.05" RadiusY="8.05" Rect="28.43,114.17,29.61,16.1" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="{DynamicResource PrimaryBrush}" Thickness="7" StartLineCap="Round" EndLineCap="Round" LineJoin="Miter" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <LineGeometry StartPoint="94.14,130.27" EndPoint="147.64,130.27" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
     <DrawingImage o:Freeze="True" x:Key="RestoreDrawingImage">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V170.71 H185.79 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-3.18,-1.82">
                     <GeometryDrawing Geometry="F1 M185.79,170.71z M0,0z M59.37,16.72A17.35,17.35,0,0,1,75.84,4.82L147.62,4.82A17.34,17.34,0,0,1,165,22.16L165,131.05A17.34,17.34,0,0,1,147.66,148.39L75.84,148.39A17.34,17.34,0,0,1,58.5,131.05L58.5,67.6">
                         <GeometryDrawing.Pen>
-                            <Pen Brush="Black" Thickness="14" StartLineCap="Round" EndLineCap="Round" LineJoin="Miter" />
+                            <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="14" StartLineCap="Round" EndLineCap="Round" LineJoin="Miter" />
                         </GeometryDrawing.Pen>
                     </GeometryDrawing>
                 </DrawingGroup>
@@ -776,7 +821,7 @@
                 <DrawingGroup Transform="1,0,0,1,-3.18,-1.82">
                     <GeometryDrawing Geometry="F1 M185.79,170.71z M0,0z M186,36.3L186,151.23A18.3,18.3,0,0,1,167.7,169.53L91.9,169.53">
                         <GeometryDrawing.Pen>
-                            <Pen Brush="Black" Thickness="14" StartLineCap="Round" EndLineCap="Round" LineJoin="Miter" />
+                            <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="14" StartLineCap="Round" EndLineCap="Round" LineJoin="Miter" />
                         </GeometryDrawing.Pen>
                     </GeometryDrawing>
                 </DrawingGroup>
@@ -788,23 +833,23 @@
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V143.11 H168.53 V0 H0 Z">
                 <DrawingGroup Transform="1,0,0,1,-10.34,-20.35">
-                    <GeometryDrawing Brush="Black" Geometry="F1 M168.53,143.11z M0,0z M132.43,39L174,77.78C177.73,81.26,177.79,87.32,174.15,91.35L121.43,160.93A1.33,1.33,0,0,1,119.43,161.1L53.17,99.32A1.34,1.34,0,0,1,53.17,97.32L118.85,39.82C122.66,35.93,128.7,35.55,132.43,39z M118.72,152A1.33,1.33,0,0,0,120.72,151.83L169.55,87.38 169.65,87.26C171.12,85.68,171.23,83.4,169.91,82.17L128.29,43.48C126.97,42.25,124.7,42.48,123.23,44.1L123.02,44.32 62.28,97.48A1.32,1.32,0,0,0,62.28,99.48z">
+                    <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="F1 M168.53,143.11z M0,0z M132.43,39L174,77.78C177.73,81.26,177.79,87.32,174.15,91.35L121.43,160.93A1.33,1.33,0,0,1,119.43,161.1L53.17,99.32A1.34,1.34,0,0,1,53.17,97.32L118.85,39.82C122.66,35.93,128.7,35.55,132.43,39z M118.72,152A1.33,1.33,0,0,0,120.72,151.83L169.55,87.38 169.65,87.26C171.12,85.68,171.23,83.4,169.91,82.17L128.29,43.48C126.97,42.25,124.7,42.48,123.23,44.1L123.02,44.32 62.28,97.48A1.32,1.32,0,0,0,62.28,99.48z">
                         <GeometryDrawing.Pen>
-                            <Pen Brush="Black" Thickness="4" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                            <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="4" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
                         </GeometryDrawing.Pen>
                     </GeometryDrawing>
                 </DrawingGroup>
                 <DrawingGroup Transform="1,0,0,1,-10.34,-20.35">
-                    <GeometryDrawing Brush="Black" Geometry="F1 M168.53,143.11z M0,0z M74.14,47.7L36.68,86.36A6.53,6.53,0,0,1,27.46,86.5L23.12,76.5C21.33,72.09,19.73,69.65,21.92,67.38L54.71,33.53C56.91,31.27,59.71,33.07,63.87,34.45L74,38.45A6.53,6.53,0,0,1,74.14,47.7z M26.78,72.09A0.44,0.44,0,0,0,26.86,72.7L31.71,82.14A0.44,0.44,0,0,0,32.32,82.14L69.78,43.47A0.44,0.44,0,0,0,69.78,42.86L60.18,38.3A0.46,0.46,0,0,0,59.59,38.24z">
+                    <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="F1 M168.53,143.11z M0,0z M74.14,47.7L36.68,86.36A6.53,6.53,0,0,1,27.46,86.5L23.12,76.5C21.33,72.09,19.73,69.65,21.92,67.38L54.71,33.53C56.91,31.27,59.71,33.07,63.87,34.45L74,38.45A6.53,6.53,0,0,1,74.14,47.7z M26.78,72.09A0.44,0.44,0,0,0,26.86,72.7L31.71,82.14A0.44,0.44,0,0,0,32.32,82.14L69.78,43.47A0.44,0.44,0,0,0,69.78,42.86L60.18,38.3A0.46,0.46,0,0,0,59.59,38.24z">
                         <GeometryDrawing.Pen>
-                            <Pen Brush="Black" Thickness="4" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                            <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="4" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
                         </GeometryDrawing.Pen>
                     </GeometryDrawing>
                 </DrawingGroup>
                 <DrawingGroup Transform="1,0,0,1,-10.34,-20.35">
-                    <GeometryDrawing Brush="Black" Geometry="F1 M168.53,143.11z M0,0z M94.92,27.51L17.56,107.34A3,3,0,1,1,13.19,103.11L90.55,23.28A3,3,0,0,1,94.92,27.51z">
+                    <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="F1 M168.53,143.11z M0,0z M94.92,27.51L17.56,107.34A3,3,0,1,1,13.19,103.11L90.55,23.28A3,3,0,0,1,94.92,27.51z">
                         <GeometryDrawing.Pen>
-                            <Pen Brush="Black" Thickness="4" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                            <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="4" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
                         </GeometryDrawing.Pen>
                     </GeometryDrawing>
                 </DrawingGroup>

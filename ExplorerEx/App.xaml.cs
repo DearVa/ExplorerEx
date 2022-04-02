@@ -43,6 +43,7 @@ public partial class App {
 	private static bool isRunning;
 	private static Mutex mutex;
 	private static NotifyIconWindow notifyIconWindow;
+	private static NotifyMemoryMappedFile notifyMmf;
 	private static DispatcherTimer dispatcherTimer;
 
 	protected override async void OnStartup(StartupEventArgs e) {
@@ -64,17 +65,17 @@ public partial class App {
 		if (Args.RequireDebugger && Debugger.Launch()) {
 			Debugger.Break();
 		}
-		Trace.WriteLine("Startup: " + DateTime.Now);
 		mutex = new Mutex(true, "ExplorerEx", out var createdNew);
 		if (createdNew) {  // 说明没有开启ExplorerEx
 			isRunning = true;
+			notifyMmf = new NotifyMemoryMappedFile("ExplorerExIPC", 1024, true);
 			new Thread(IPCWork) {
 				IsBackground = true
 			}.Start();
 		} else {
-			var nmmf = new NotifyMemoryMappedFile("ExplorerExIPC", 1024, false);
+			notifyMmf = new NotifyMemoryMappedFile("ExplorerExIPC", 1024, false);
 			var command = e.Args.Length > 1 ? "Open|" + e.Args[1] : "Open";
-			nmmf.Write(Encoding.UTF8.GetBytes(command));
+			notifyMmf.Write(Encoding.UTF8.GetBytes(command));
 			Current.Shutdown();
 			return;
 		}
@@ -122,10 +123,9 @@ public partial class App {
 	/// 进程间消息传递线程
 	/// </summary>
 	private void IPCWork() {
-		using var nmmf = new NotifyMemoryMappedFile("ExplorerExIPC", 1024, true);
 		while (isRunning) {
-			nmmf.WaitForModified();
-			var data = nmmf.Read();
+			notifyMmf.WaitForModified();
+			var data = notifyMmf.Read();
 			if (data != null) {
 				var msg = Encoding.UTF8.GetString(data).Split('|');
 				switch (msg[0]) {

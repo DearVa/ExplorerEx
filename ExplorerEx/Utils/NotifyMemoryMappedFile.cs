@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Threading;
 
@@ -17,13 +19,20 @@ internal class NotifyMemoryMappedFile : IDisposable {
 	private readonly Semaphore semaphore;
 
 	public NotifyMemoryMappedFile(string name, long capacity, bool createNew) {
-		if (capacity < 5) {  // 前4字节存储写入的数据的长度
-			throw new ArgumentOutOfRangeException(nameof(capacity));
-		}
+		Debug.Assert(capacity > 4);  // 前4字节存储写入的数据的长度
 		this.capacity = capacity;
-		mmf = createNew ? MemoryMappedFile.CreateNew(name, capacity) : MemoryMappedFile.OpenExisting(name);
 		mutex = new Mutex(false, name + "Mutex");
-		semaphore = createNew ? new Semaphore(0, 1, name + "Seam") : Semaphore.OpenExisting(name + "Seam");
+		var semName = name + "Semaphore";
+		if (createNew) {
+			mmf = MemoryMappedFile.CreateNew(name, capacity);
+			semaphore = new Semaphore(0, 1, semName);
+		} else {
+			if (!Semaphore.TryOpenExisting(semName, out var semaphore)) {
+				Thread.Sleep(10);
+			}
+			this.semaphore = semaphore;
+			mmf = MemoryMappedFile.OpenExisting(name);
+		}
 	}
 
 	/// <summary>
@@ -41,15 +50,23 @@ internal class NotifyMemoryMappedFile : IDisposable {
 	}
 
 	/// <summary>
-	/// 将数据写入区域，请注意，之前的数据会被覆盖
+	/// 将数据写入区域，请注意，之前的数据会被覆盖（如果没读取的话）
 	/// </summary>
 	/// <param name="data"></param>
 	public void Write(ReadOnlySpan<byte> data) {
 		mutex.WaitOne();
 		using var stream = mmf.CreateViewStream(0, capacity, MemoryMappedFileAccess.ReadWrite);
+		var buf = new byte[4];
+		if (stream.Read(buf) != 4) {
+			throw new IOException();
+		}
+		stream.Seek(0, SeekOrigin.Begin);
 		stream.Write(BitConverter.GetBytes(data.Length));
 		stream.Write(data);
-		semaphore.Release();
+		var len = BitConverter.ToInt32(buf);
+		if (len == 0) {  // 信息已被读取才释放，不然就不释放，相当于直接覆写
+			semaphore.Release();
+		}
 		mutex.ReleaseMutex();
 	}
 
@@ -59,12 +76,15 @@ internal class NotifyMemoryMappedFile : IDisposable {
 	/// <returns></returns>
 	public byte[] Read() {
 		mutex.WaitOne();
-		using var stream = mmf.CreateViewStream(0, capacity, MemoryMappedFileAccess.Read);
+		using var stream = mmf.CreateViewStream(0, capacity, MemoryMappedFileAccess.ReadWrite);
 		Span<byte> length = stackalloc byte[4];
 		if (stream.Read(length) == 4) {
 			var size = BitConverter.ToInt32(length);
 			var buf = new byte[size];
-			if (stream.Read(buf, 0, size) == size) {
+			var len = stream.Read(buf, 0, size);
+			stream.Seek(0, SeekOrigin.Begin);
+			stream.Write(BitConverter.GetBytes(0));
+			if (len == size) {
 				mutex.ReleaseMutex();
 				return buf;
 			}
