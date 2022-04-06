@@ -18,9 +18,7 @@ namespace ExplorerEx.Model;
 /// <summary>
 /// 回收站的一项文件
 /// </summary>
-public sealed class RecycleBinItem : FileItem, IFilterable {
-	public override string FullPath { get; protected set; }
-
+public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 	public override string DisplayText => Name;
 
 	public SimpleCommand Command { get; }
@@ -184,7 +182,12 @@ public sealed class RecycleBinItem : FileItem, IFilterable {
 				};
 				Watchers[i].Changed += (_, _) => Update();
 				Watchers[i].Error += (_, _) => Update();
-				Watchers[i].EnableRaisingEvents = true;
+				try {
+					Watchers[i].EnableRaisingEvents = true;
+				} catch {
+					Watchers[i].Dispose();
+					Watchers[i] = null;
+				}
 			}
 		}
 		Update();

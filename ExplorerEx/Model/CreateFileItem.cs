@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using ExplorerEx.Utils;
-using static ExplorerEx.Shell32.IconHelper;
+using static ExplorerEx.Utils.IconHelper;
 
 namespace ExplorerEx.Model;
 
@@ -25,7 +25,7 @@ public class CreateFileItem : SimpleNotifyPropertyChanged {
 		Extension = extension;
 		if (createIcon) {
 			Task.Run(() => {
-				Icon = GetPathIcon(extension, true);
+				Icon = GetSmallIcon(extension, true);
 				UpdateUI(nameof(Icon));
 				Description = FileUtils.GetFileTypeDescription(extension);
 				UpdateUI(nameof(Description));

@@ -8,8 +8,7 @@
       xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
       xmlns:hc="https://handyorg.github.io/handycontrol"
       xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
-      mc:Ignorable="d" d:DataContext="{d:DesignInstance vm:FileGridViewModel}"
-      Background="{DynamicResource ThirdlyRegionBrush}">
+      mc:Ignorable="d" d:DataContext="{d:DesignInstance vm:FileGridViewModel}">
     <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
@@ -43,25 +42,25 @@
                     IsEnabled="{Binding CanDeleteOrCut, Mode=OneWay}"
                     Command="{Binding FileItemCommand}" CommandParameter="Cut"
                     Style="{StaticResource ButtonTransparent}">
-                <Image Width="20" Height="20" Source="{StaticResource CutDrawingImage}"/>
+                <Image Width="20" Height="20" Source="{DynamicResource CutDrawingImage}"/>
             </Button>
             <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Copy}"
                     IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
                     Command="{Binding FileItemCommand}" CommandParameter="Copy"
                     Style="{StaticResource ButtonTransparent}">
-                <Image Width="20" Height="20" Source="{StaticResource CopyDrawingImage}"/>
+                <Image Width="20" Height="20" Source="{DynamicResource CopyDrawingImage}"/>
             </Button>
             <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Paste}"
                     IsEnabled="{Binding CanPaste, Mode=OneWay}"
                     Command="{Binding FileItemCommand}" CommandParameter="Paste"
                     Style="{StaticResource ButtonTransparent}">
-                <Image Width="20" Height="20" Source="{StaticResource PasteDrawingImage}"/>
+                <Image Width="20" Height="20" Source="{DynamicResource PasteDrawingImage}"/>
             </Button>
             <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Rename}"
                     IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
                     Command="{Binding FileItemCommand}" CommandParameter="Rename"
                     Style="{StaticResource ButtonTransparent}">
-                <Image Width="20" Height="20" Source="{StaticResource RenameDrawingImage}"/>
+                <Image Width="20" Height="20" Source="{DynamicResource RenameDrawingImage}"/>
             </Button>
             <!--<Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Share}"
                                         IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
@@ -72,7 +71,7 @@
                     IsEnabled="{Binding CanDeleteOrCut, Mode=OneWay}"
                     Command="{Binding FileItemCommand}" CommandParameter="Delete"
                     Style="{StaticResource ButtonTransparent}">
-                <Image Width="20" Height="20" Source="{StaticResource DeleteDrawingImage}"/>
+                <Image Width="20" Height="20" Source="{DynamicResource DeleteDrawingImage}"/>
             </Button>
             <Rectangle Width="1" Height="30" Fill="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
         </StackPanel>
@@ -94,13 +93,13 @@
                                   IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
                         <MenuItem CommandParameter="9" Header="{u:Lang File_size}"
                                   IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
-                        <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
+                        <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
                         <MenuItem CommandParameter="10" Header="{u:Lang Ascending}"
                                   IsChecked="{Binding IsAscending, Mode=OneWay}"/>
                         <MenuItem CommandParameter="11" Header="{u:Lang Descending}"
                                   IsChecked="{Binding IsAscending, Mode=OneWay, Converter={StaticResource Boolean2BooleanReConverter}}"/>
-                        <!--<Separator Style="{DynamicResource SeparatorBaseStyle}"/>
+                        <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
                         <MenuItem Header="{u:Lang Group_by}">
                             <MenuItem.Items>
@@ -115,7 +114,7 @@
                                 <MenuItem CommandParameter="16" Header="{u:Lang File_size}"
                                           IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
                             </MenuItem.Items>
-                        </MenuItem>-->
+                        </MenuItem>
                     </ContextMenu.Items>
                 </ContextMenu>
             </hc:SplitButton.DropDownContent>
@@ -149,7 +148,7 @@
 
         <Button VerticalAlignment="Stretch" Width="45" Height="35" Padding="0" ToolTip="{u:Lang More}"
                 Style="{StaticResource ButtonTransparent}">
-            <Image Width="24" Height="24" Source="{StaticResource MoreDrawingImage}"/>
+            <Image Width="24" Height="24" Source="{DynamicResource MoreDrawingImage}"/>
         </Button>
     </StackPanel>
 
@@ -169,19 +168,19 @@
                     Command="{Binding GoBackCommand}"
                     Style="{StaticResource ButtonTransparent}"
                     ToolTip="{Binding GoBackButtonToolTip, Mode=OneWay}">
-                <Image Source="{StaticResource LeftDrawingImage}"/>
+                <Image Source="{DynamicResource LeftDrawingImage}"/>
             </Button>
             <Button Grid.Column="1" Margin="3" Padding="9" Width="40" Height="34"
                     IsEnabled="{Binding CanGoForward, Mode=OneWay}" 
                     Command="{Binding GoForwardCommand}"
                     Style="{StaticResource ButtonTransparent}"
                     ToolTip="{Binding GoForwardButtonToolTip, Mode=OneWay}">
-                <Image Source="{StaticResource RightDrawingImage}"/>
+                <Image Source="{DynamicResource RightDrawingImage}"/>
             </Button>
             <ToggleButton x:Name="HistoryToggleButton" Grid.Column="2" Margin="3" Padding="7" Width="40" Height="34"
                           IsEnabled="{Binding HistoryList.Count, Converter={StaticResource Int2BooleanConverter}}"
                           Style="{StaticResource ToggleButtonTransparent}">
-                <Image Source="{StaticResource HistoryDrawingImage}"/>
+                <Image Source="{DynamicResource HistoryDrawingImage}"/>
             </ToggleButton>
             <Popup Grid.Column="2" MinWidth="150" AllowsTransparency="True" StaysOpen="False" UseLayoutRounding="False" SnapsToDevicePixels="True"
                    IsOpen="{Binding IsChecked, Mode=TwoWay, ElementName=HistoryToggleButton}"
@@ -201,11 +200,11 @@
                     Command="{Binding GoToUpperLevelCommand}"
                     Style="{StaticResource ButtonTransparent}"
                     ToolTip="{Binding GoToUpperLevelButtonToolTip, Mode=OneWay}">
-                <Image Source="{StaticResource UpDrawingImage}"/>
+                <Image Source="{DynamicResource UpDrawingImage}"/>
             </Button>
 
             <ct:AddressBar Grid.Column="4" DockPanel.Dock="Left" FullPath="{Binding FullPath, Mode=OneWay}" Margin="5,3"
-                           KeyDown="AddressBar_OnKeyDown" PopupItemClicked="AddressBar_OnPopupItemClicked"/>
+                           PreviewKeyDown="AddressBar_OnPreviewKeyDown" PopupItemClicked="AddressBar_OnPopupItemClicked"/>
             <GridSplitter Grid.Column="5" Margin="-2,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <hc:TextBox Grid.Column="6" DockPanel.Dock="Right" BorderThickness="0,0,0,2" ShowClearButton="True" 
                         Margin="5,3,0,3" hc:InfoElement.Placeholder="{Binding SearchPlaceholderText, Mode=OneWay}"
@@ -219,11 +218,11 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <ct:ClippingBorder Grid.Row="0" Margin="10,0,10,5" CornerRadius="8" 
+        <ct:ClippingBorder Grid.Row="0" Margin="10,0,10,5" CornerRadius="4" 
                            BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
                            Background="{DynamicResource RegionBrush}">
-            <ct:FileListView x:Name="FileGrid" d:DataContext="{d:DesignInstance vm:FileGridViewModel}"
-                             ItemsCollection="{Binding Items, Mode=OneWay}" 
+            <ct:FileListView x:Name="FileListView" d:DataContext="{d:DesignInstance vm:FileGridViewModel}"
+                             ItemsSource="{Binding Items, Mode=OneWay}" 
                              FileView="{Binding FileView, Mode=OneWay}"
                              FullPath="{Binding FullPath, Mode=OneWay}"
                              Folder="{Binding Folder, Mode=OneWay}"

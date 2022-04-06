@@ -171,7 +171,6 @@
     <Page Remove="Themes\Styles\TransitioningContentControl.xaml" />
     <Page Remove="Themes\Styles\TreeView.xaml" />
     <Page Remove="Themes\Styles\Watermark.xaml" />
-    <Page Remove="Themes\Styles\Window.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include=".\Properties\AssemblyInfo.cs">
@@ -358,7 +357,6 @@
     <None Include="Themes\Styles\TransitioningContentControl.xaml" />
     <None Include="Themes\Styles\TreeView.xaml" />
     <None Include="Themes\Styles\Watermark.xaml" />
-    <None Include="Themes\Styles\Window.xaml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Costura.Fody" Version="5.7.0">

@@ -88,9 +88,9 @@ namespace HandyControl.Interactivity
         public static RoutedCommand No { get; } = new(nameof(No), typeof(ControlCommands));
 
         /// <summary>
-        ///     复制标签页
+        ///     标签页的其他命令
         /// </summary>
-        public static RoutedCommand DuplicateTab { get; } = new(nameof(DuplicateTab), typeof(ControlCommands));
+        public static RoutedCommand TabCommand { get; } = new(nameof(TabCommand), typeof(ControlCommands));
 
         /// <summary>
         ///     关闭其他

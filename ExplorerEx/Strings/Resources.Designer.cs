@@ -118,6 +118,38 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 Everything未运行或未安装，暂时无法使用搜索。 的本地化字符串。
+        /// </summary>
+        internal static string _EverythingIsNotAvailable {
+            get {
+                return ResourceManager.GetString("#EverythingIsNotAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 ExplorerEx找不到：{0}
+        ///如果路径位于计算机上，请确认磁盘或者光碟已插入，然后再试一次。
+        ///如果路径位于网络，请确认您已经连接到局域网或互联网，然后再试一次。
+        ///如果仍无法打开，说明该路径已被移动或删除，亦或者您没有权限来访问。 的本地化字符串。
+        /// </summary>
+        internal static string _ExplorerExCannotFind___ {
+            get {
+                return ResourceManager.GetString("#ExplorerExCannotFind...", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 ExplorerEx遇到严重错误，需要立即退出。
+        ///{0}
+        ///您可以在 ExplorerEx安装目录\Logs 目录下找到详细信息。 的本地化字符串。
+        /// </summary>
+        internal static string _FatalError {
+            get {
+                return ResourceManager.GetString("#FatalError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 格式化驱动器时发生错误，这并不表示所选驱动器不可格式化。 的本地化字符串。
         /// </summary>
         internal static string _FormatDriveError {
@@ -133,6 +165,15 @@ namespace ExplorerEx.Strings {
         internal static string _InvalidFileName {
             get {
                 return ResourceManager.GetString("#InvalidFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 路径不存在或者没有权限访问。 的本地化字符串。
+        /// </summary>
+        internal static string _PathNotExistOrAccessDenied {
+            get {
+                return ResourceManager.GetString("#PathNotExistOrAccessDenied", resourceCulture);
             }
         }
         
@@ -160,6 +201,25 @@ namespace ExplorerEx.Strings {
         internal static string _YouHaveOpenedMoreThanOneTab {
             get {
                 return ResourceManager.GetString("#YouHaveOpenedMoreThanOneTab", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 这个应用程序可能依赖于压缩包中的其他文件，为了保证程序正常运行，建议全部解压后再运行。 的本地化字符串。
+        /// </summary>
+        internal static string _ZipFileIsExecutable {
+            get {
+                return ResourceManager.GetString("#ZipFileIsExecutable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 要访问zip的内容，路径应该以“\”结尾。
+        ///如C:\compress.zip\Folder1\ 的本地化字符串。
+        /// </summary>
+        internal static string _ZipMustEndsWithSlash {
+            get {
+                return ResourceManager.GetString("#ZipMustEndsWithSlash", resourceCulture);
             }
         }
         
@@ -211,9 +271,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 回到首页 的本地化字符串。
         /// </summary>
-        internal static string Back_to_home {
+        internal static string BackToHome {
             get {
-                return ResourceManager.GetString("Back_to_home", resourceCulture);
+                return ResourceManager.GetString("BackToHome", resourceCulture);
             }
         }
         
@@ -236,11 +296,11 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 无法访问文件夹 的本地化字符串。
+        ///   查找类似 取消 的本地化字符串。
         /// </summary>
-        internal static string Cannot_access_directory {
+        internal static string Cancel {
             get {
-                return ResourceManager.GetString("Cannot_access_directory", resourceCulture);
+                return ResourceManager.GetString("Cancel", resourceCulture);
             }
         }
         
@@ -263,11 +323,20 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 无法访问文件夹 的本地化字符串。
+        /// </summary>
+        internal static string CannotAccessDirectory {
+            get {
+                return ResourceManager.GetString("CannotAccessDirectory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 无法打开此路径 的本地化字符串。
         /// </summary>
-        internal static string Cannot_open_path {
+        internal static string CannotOpenPath {
             get {
-                return ResourceManager.GetString("Cannot open path", resourceCulture);
+                return ResourceManager.GetString("CannotOpenPath", resourceCulture);
             }
         }
         
@@ -290,11 +359,20 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 请检查您的输入后再试。 的本地化字符串。
+        ///   查找类似 请检查您的输入后重试。 的本地化字符串。
         /// </summary>
-        internal static string Check_your_input_and_try_again {
+        internal static string CheckYourInputAndTryAgain {
             get {
-                return ResourceManager.GetString("Check_your_input_and_try_again", resourceCulture);
+                return ResourceManager.GetString("CheckYourInputAndTryAgain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 关闭窗口 的本地化字符串。
+        /// </summary>
+        internal static string CloseWindow {
+            get {
+                return ResourceManager.GetString("CloseWindow", resourceCulture);
             }
         }
         
@@ -488,15 +566,6 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 Everything未运行或未安装，暂时无法使用搜索。 的本地化字符串。
-        /// </summary>
-        internal static string Everything_is_not_available {
-            get {
-                return ResourceManager.GetString("Everything_is_not_available", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 退出 的本地化字符串。
         /// </summary>
         internal static string Exit {
@@ -511,6 +580,15 @@ namespace ExplorerEx.Strings {
         internal static string Exit_application {
             get {
                 return ResourceManager.GetString("Exit_application", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 全部解压缩 的本地化字符串。
+        /// </summary>
+        internal static string ExtractAll {
+            get {
+                return ResourceManager.GetString("ExtractAll", resourceCulture);
             }
         }
         
@@ -821,6 +899,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 询问 的本地化字符串。
+        /// </summary>
+        internal static string Question {
+            get {
+                return ResourceManager.GetString("Question", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 快速访问 的本地化字符串。
         /// </summary>
         internal static string Quick_access {
@@ -868,9 +955,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 记住我的选择，下次不再询问 的本地化字符串。
         /// </summary>
-        internal static string Remember_my_choice_and_dont_ask_again {
+        internal static string RememberMyChoiceAndDontAskAgain {
             get {
-                return ResourceManager.GetString("Remember_my_choice_and_dont_ask_again", resourceCulture);
+                return ResourceManager.GetString("RememberMyChoiceAndDontAskAgain", resourceCulture);
             }
         }
         
@@ -943,6 +1030,15 @@ namespace ExplorerEx.Strings {
         internal static string Run_SelectedItemsCount {
             get {
                 return ResourceManager.GetString("Run_SelectedItemsCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 直接运行 的本地化字符串。
+        /// </summary>
+        internal static string RunAnyway {
+            get {
+                return ResourceManager.GetString("RunAnyway", resourceCulture);
             }
         }
         

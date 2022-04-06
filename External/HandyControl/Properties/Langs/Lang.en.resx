@@ -240,4 +240,19 @@
   <data name="DoubleClickForAutoResize" xml:space="preserve">
     <value>Double click for auto resize</value>
   </data>
+  <data name="Move2NewWindow" xml:space="preserve">
+    <value>Move to new window</value>
+  </data>
+  <data name="SplitScreen" xml:space="preserve">
+    <value>Split screen</value>
+  </data>
+  <data name="ToLeft" xml:space="preserve">
+    <value>To left</value>
+  </data>
+  <data name="ToRight" xml:space="preserve">
+    <value>To right</value>
+  </data>
+  <data name="ToBottom" xml:space="preserve">
+    <value>To bottom</value>
+  </data>
 </root>

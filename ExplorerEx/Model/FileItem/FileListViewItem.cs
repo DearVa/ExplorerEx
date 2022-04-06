@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using ExplorerEx.Command;
@@ -13,7 +17,7 @@ namespace ExplorerEx.Model;
 /// <summary>
 /// 所有可以显示在<see cref="FileListView"/>中的项目的基类
 /// </summary>
-public abstract class FileItem : SimpleNotifyPropertyChanged {
+public abstract class FileListViewItem : SimpleNotifyPropertyChanged {
 	/// <summary>
 	/// 图标，自动更新UI
 	/// </summary>
@@ -30,7 +34,8 @@ public abstract class FileItem : SimpleNotifyPropertyChanged {
 
 	private ImageSource icon;
 
-	public abstract string FullPath { get; protected set; }
+	[Key]
+	public string FullPath { get; protected set; }
 
 	public abstract string DisplayText { get; }
 
@@ -83,7 +88,7 @@ public abstract class FileItem : SimpleNotifyPropertyChanged {
 
 	private bool isSelected;
 
-	protected FileItem() {
+	protected FileListViewItem() {
 		LostFocusCommand = new SimpleCommand(FinishRename);
 	}
 
@@ -135,14 +140,12 @@ public abstract class FileItem : SimpleNotifyPropertyChanged {
 		Data = !FileUtils.IsProhibitedFileName(fn)
 	};
 
-	[NotMapped]
-	public bool IsErrorFileName { get; set; }
-
 	public SimpleCommand LostFocusCommand { get; }
 
 	public void FinishRename() {
-		if (!IsErrorFileName && EditingName != originalName) {
-			if (Rename()) {
+		if (!FileUtils.IsProhibitedFileName(EditingName)) {
+			EditingName = EditingName.Trim();
+			if (EditingName != originalName && Rename()) {
 				Name = EditingName;
 				UpdateUI(nameof(Name));
 			}
@@ -165,13 +168,13 @@ public abstract class FileItem : SimpleNotifyPropertyChanged {
 
 public class FileItemAttach {
 	public static readonly DependencyProperty FileItemProperty = DependencyProperty.RegisterAttached(
-		"FileItem", typeof(FileItem), typeof(FileItemAttach), new PropertyMetadata(default(FileItem)));
+		"FileItem", typeof(FileListViewItem), typeof(FileItemAttach), new PropertyMetadata(default(FileListViewItem)));
 
-	public static void SetFileItem(DependencyObject element, FileItem value) {
+	public static void SetFileItem(DependencyObject element, FileListViewItem value) {
 		element.SetValue(FileItemProperty, value);
 	}
 
-	public static FileItem GetFileItem(DependencyObject element) {
-		return (FileItem)element.GetValue(FileItemProperty);
+	public static FileListViewItem GetFileItem(DependencyObject element) {
+		return (FileListViewItem)element.GetValue(FileItemProperty);
 	}
 }

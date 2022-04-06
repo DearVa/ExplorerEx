@@ -45,12 +45,25 @@ internal static class FileUtils {
 	};
 
 	/// <summary>
+	/// 是否为可执行文件
+	/// </summary>
+	/// <param name="filePath"></param>
+	/// <returns></returns>
+	public static bool IsExecutable(string filePath) {
+		return filePath.Length > 7 && filePath[^4..] is ".exe" or ".com" or ".cmd" or ".bat";
+	}
+
+	/// <summary>
 	/// 判断是否是非法的文件名，传入的是文件名
 	/// </summary>
 	/// <param name="fileName"></param>
 	/// <returns></returns>
 	public static bool IsProhibitedFileName(string fileName) {
 		if (fileName == null) {
+			return true;
+		}
+		fileName = fileName.Trim();
+		if (fileName == string.Empty) {
 			return true;
 		}
 		if (ProhibitedFileNames.Contains(fileName.ToLower())) {
@@ -90,6 +103,37 @@ internal static class FileUtils {
 
 			return $"{adjustedSize:n1} {SizeSuffixes[mag]}";
 		}
+	}
+
+	/// <summary>
+	/// 寻找文件的位置，例如传入cmd就会返回C:\Windows\System32\cmd.exe
+	/// </summary>
+	/// <param name="fileName"></param>
+	/// <returns></returns>
+	public static string FindFileLocation(string fileName) {
+		if (fileName == null) {
+			return null;
+		}
+		if (File.Exists(fileName)) {
+			return fileName;
+		}
+		var where = Process.Start(new ProcessStartInfo("where", fileName) {
+			CreateNoWindow = true,
+			RedirectStandardOutput = true,
+			UseShellExecute = false
+		});
+		if (where != null) {
+			while (true) {
+				var location = where.StandardOutput.ReadLine();
+				if (location == null) {
+					return null;
+				}
+				if (File.Exists(location)) {
+					return location;
+				}
+			}
+		}
+		return null;
 	}
 
 	/// <summary>
@@ -157,7 +201,7 @@ internal static class FileUtils {
 	}
 
 	/// <summary>
-	/// 获取一个文件的位置，如果是.lnk文件就获取目标位置
+	/// 获取一个文件的父目录的路径，如果是.lnk文件就获取目标位置
 	/// </summary>
 	/// <param name="filePath"></param>
 	/// <returns></returns>

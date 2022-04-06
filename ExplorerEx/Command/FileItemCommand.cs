@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using ExplorerEx.Model;
@@ -13,12 +14,13 @@ using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 using ExplorerEx.View;
 using ExplorerEx.View.Controls;
+using HandyControl.Data;
 using hc = HandyControl.Controls;
 
 namespace ExplorerEx.Command;
 
 public class FileItemCommand : ICommand {
-	public Func<IEnumerable<FileItem>> SelectedItemsProvider { get; set; }
+	public Func<IEnumerable<FileListViewItem>> SelectedItemsProvider { get; set; }
 
 	public Func<FileTabControl> TabControlProvider { get; set; }
 
@@ -29,8 +31,8 @@ public class FileItemCommand : ICommand {
 
 	public bool CanExecute(object parameter) => true;
 
-	private ImmutableList<FileItem> Items => SelectedItemsProvider?.Invoke().ToImmutableList() ?? ImmutableList<FileItem>.Empty;
-	private ImmutableList<FileItem> Folders => SelectedItemsProvider?.Invoke().Where(i => i.IsFolder).ToImmutableList() ?? ImmutableList<FileItem>.Empty;
+	private ImmutableList<FileListViewItem> Items => SelectedItemsProvider?.Invoke().ToImmutableList() ?? ImmutableList<FileListViewItem>.Empty;
+	private ImmutableList<FileListViewItem> Folders => SelectedItemsProvider?.Invoke().Where(i => i.IsFolder).ToImmutableList() ?? ImmutableList<FileListViewItem>.Empty;
 
 	public async void Execute(object param) {
 		switch ((string)param) {
@@ -91,7 +93,7 @@ public class FileItemCommand : ICommand {
 		case "Cut": {
 			var items = Items;
 			if (items.Count > 0) {
-				var data = new DataObject(DataFormats.FileDrop, items.Where(item => item is FileSystemItem or DiskDrive).Select(item => item.FullPath).ToArray());
+				var data = new DataObject(DataFormats.FileDrop, items.Where(item => item is FileSystemItem or DiskDriveItem).Select(item => item.FullPath).ToArray());
 				data.SetData("IsCut", (string)param == "Cut");
 				Clipboard.SetDataObject(data);
 			}
@@ -180,38 +182,70 @@ public class FileItemCommand : ICommand {
 			break;
 		}
 		case "Edit":
-			foreach (var item in Items.Where(i => i is FileSystemItem { IsEditable: true })) {
+			foreach (var item in Items.Where(i => i is FileItem { IsEditable: true })) {
 				OpenFileWith(item, Settings.Instance.TextEditor);
 			}
 			break;
 		}
 	}
 
-	public void OpenFile(FileItem item, bool runAs) {
-		if (item.IsFolder) {
-			TabControlProvider.Invoke()?.SelectedTab.LoadDirectoryAsync(item.FullPath);
-		} else {
-			try {
-				var psi = new ProcessStartInfo {
-					FileName = item.FullPath,
-					UseShellExecute = true
-				};
-				if (runAs && item is FileSystemItem { IsExecutable: true }) {
-					psi.Verb = "runas";
+	/// <summary>
+	/// 运行或打开一个文件
+	/// </summary>
+	/// <param name="item"></param>
+	/// <param name="runAs">是否以管理员方式执行，仅对可执行文件有效</param>
+	public static void OpenFile(FileListViewItem item, bool runAs) {
+		if (item is ZipFileItem zipFile) {
+			var zipArchive = zipFile.ZipArchive;
+			if (zipFile.IsExecutable && zipArchive.Entries.Count > 1) {
+				var result = hc.MessageBox.Show(new MessageBoxInfo {
+					Caption = "Question".L(),
+					Image = MessageBoxImage.Question,
+					Message = "#ZipFileIsExecutable".L(),
+					Button = MessageBoxButton.YesNoCancel,
+					YesButtonText = "ExtractAll".L(),
+					NoButtonText = "RunAnyway".L(),
+					CancelButtonText = "Cancel".L()
+				});
+				switch (result) {
+				case MessageBoxResult.Yes:
+					break;
+				case MessageBoxResult.No:
+					break;
+				default:
+					return;
 				}
-				Process.Start(psi);
-			} catch (Exception e) {
-				if (e is Win32Exception win32) {
-					switch (win32.NativeErrorCode) {
-					case 1155:  // 找不到程序打开
-						Shell32Interop.ShowOpenAsDialog(item.FullPath);
-						return;
-					case 1223:  // 操作被用户取消
-						return;
-					}
-				}
-				hc.MessageBox.Error(e.Message, "FailedToOpenFile".L());
 			}
+			Task.Run(() => {
+				var tempPath = FolderUtils.GetRandomFolderInTemp(Path.GetFileName(zipFile.ZipPath));
+				OpenFile(zipFile.Extract(tempPath, false), runAs);
+			});
+		} else {
+			OpenFile(item.FullPath, runAs);
+		}
+	}
+
+	private static void OpenFile(string filePath, bool runAs) {
+		try {
+			var psi = new ProcessStartInfo {
+				FileName = filePath,
+				UseShellExecute = true
+			};
+			if (runAs && FileUtils.IsExecutable(filePath)) {
+				psi.Verb = "runas";
+			}
+			Process.Start(psi);
+		} catch (Exception e) {
+			if (e is Win32Exception win32) {
+				switch (win32.NativeErrorCode) {
+				case 1155:  // 找不到程序打开
+					Shell32Interop.ShowOpenAsDialog(filePath);
+					return;
+				case 1223:  // 操作被用户取消
+					return;
+				}
+			}
+			hc.MessageBox.Error(e.Message, "FailedToOpenFile".L());
 		}
 	}
 
@@ -220,7 +254,7 @@ public class FileItemCommand : ICommand {
 	/// </summary>
 	/// <param name="item"></param>
 	/// <param name="app"></param>
-	private static void OpenFileWith(FileItem item, string app) {
+	private static void OpenFileWith(FileListViewItem item, string app) {
 		try {
 			Process.Start(new ProcessStartInfo {
 				FileName = app,

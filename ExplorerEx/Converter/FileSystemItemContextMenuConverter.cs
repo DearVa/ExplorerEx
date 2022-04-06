@@ -18,8 +18,8 @@ internal class FileSystemItemContextMenuConverter : IValueConverter {
 
 	public object Convert(object item, Type targetType, object parameter, CultureInfo culture) {
 		return item switch {
+			DiskDriveItem => DiskDriveContextMenu,
 			FileSystemItem fs => fs.IsFolder ? FolderContextMenu : FileContextMenu,
-			DiskDrive => DiskDriveContextMenu,
 			BookmarkItem bm => bm.IsFolder ? FolderContextMenu : FileContextMenu, 
 			_ => null
 		};

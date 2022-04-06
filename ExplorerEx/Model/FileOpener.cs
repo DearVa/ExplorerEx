@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Media;
 using ExplorerEx.Shell32;
+using ExplorerEx.Utils;
 using ExplorerEx.Win32;
 using Microsoft.Win32;
 

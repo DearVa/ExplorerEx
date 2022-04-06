@@ -35,7 +35,7 @@ public partial class FileViewGrid {
 	private void DataContext_OnChanged(object sender, DependencyPropertyChangedEventArgs e) {
 		GridViewModel = (FileGridViewModel)e.NewValue;
 		if (GridViewModel != null) {
-			GridViewModel.FileListView = FileGrid;
+			GridViewModel.FileListView = FileListView;
 		}
 	}
 
@@ -48,23 +48,40 @@ public partial class FileViewGrid {
 			return;
 		}
 		try {
-			FileGrid.StartRename(item.Create(viewModel.FullPath));
+			FileListView.StartRename(item.Create(viewModel.FullPath));
 		} catch (Exception e) {
 			hc.MessageBox.Error(e.Message, "Cannot_create".L());
 		}
 	}
 
-	private void AddressBar_OnKeyDown(object sender, KeyEventArgs e) {
-		if (e.Key == Key.Enter) {
-			_ = GridViewModel.LoadDirectoryAsync(((AddressBar)sender).Text);
+	private async void AddressBar_OnPreviewKeyDown(object sender, KeyEventArgs e) {
+		var addressBar = (AddressBar)sender;
+		switch (e.Key) {
+		case Key.Enter:
+			await GridViewModel.LoadDirectoryAsync(addressBar.Text);
+			GridViewModel.OwnerWindow.ClearTextBoxFocus();
+			e.Handled = true;
+			break;
+		case Key.Escape:
+			GridViewModel.OwnerWindow.ClearTextBoxFocus();
+			e.Handled = true;
+			break;
 		}
 	}
 
-	private void History_OnClick(object sender, RoutedEventArgs e) {
-		_ = GridViewModel.LoadDirectoryAsync(((FileItem)((MenuItem)sender).DataContext).FullPath);
+	private async void History_OnClick(object sender, RoutedEventArgs e) {
+		try {
+			await GridViewModel.LoadDirectoryAsync(((FileListViewItem)((MenuItem)sender).DataContext).FullPath);
+		} catch (Exception ex) {
+			Logger.Exception(ex);
+		}
 	}
 
-	private void AddressBar_OnPopupItemClicked(FolderItem item) {
-		_ = GridViewModel.LoadDirectoryAsync(item.FullPath);
+	private async void AddressBar_OnPopupItemClicked(FolderOnlyItem onlyItem) {
+		try {
+			await GridViewModel.LoadDirectoryAsync(onlyItem.FullPath);
+		} catch (Exception ex) {
+			Logger.Exception(ex);
+		}
 	}
 }

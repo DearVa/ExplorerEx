@@ -136,6 +136,61 @@ namespace HandyControl.Properties.Langs
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to 移动到新窗口.
+        /// </summary>
+        public static string Move2NewWindow
+        {
+            get
+            {
+                return ResourceManager.GetString("Move2NewWindow", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 分屏.
+        /// </summary>
+        public static string SplitScreen
+        {
+            get
+            {
+                return ResourceManager.GetString("SplitScreen", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 到左侧.
+        /// </summary>
+        public static string ToLeft
+        {
+            get
+            {
+                return ResourceManager.GetString("ToLeft", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 到右侧.
+        /// </summary>
+        public static string ToRight
+        {
+            get
+            {
+                return ResourceManager.GetString("ToRight", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 到底部.
+        /// </summary>
+        public static string ToBottom
+        {
+            get
+            {
+                return ResourceManager.GetString("ToBottom", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to 关闭其他.
         /// </summary>
         public static string CloseOther

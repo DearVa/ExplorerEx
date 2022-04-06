@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Data;
 using ExplorerEx.Shell32;
+using ExplorerEx.Utils;
 using ExplorerEx.Win32;
 
 namespace ExplorerEx.Converter; 
@@ -20,19 +21,9 @@ internal class FileName2IconConverter : IValueConverter {
 	/// <returns></returns>
 	public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
 		if (value is string fileName) {
-			if (File.Exists(fileName)) {
-				return IconHelper.GetPathIcon(fileName, true);
-			}
-			var where = Process.Start(new ProcessStartInfo("where", fileName) {
-				CreateNoWindow = true,
-				RedirectStandardOutput = true,
-				UseShellExecute = false
-			});
-			if (where != null) {
-				var location = where.StandardOutput.ReadLine();
-				if (where.WaitForExit(500) && location != null) {
-					return IconHelper.GetPathIcon(location, true);
-				}
+            var location = FileUtils.FindFileLocation(fileName);
+			if (location != null) {
+				return IconHelper.GetSmallIcon(location, false);
 			}
 		}
 		if (parameter is string fallback) {

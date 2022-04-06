@@ -79,7 +79,7 @@ public partial class FileTabControl {
 
 	public SimpleCommand TabClosingCommand { get; }
 	public SimpleCommand TabMovedCommand { get; }
-	public SimpleCommand TabDuplicatingCommand { get; }
+	public SimpleCommand TabCommand { get; }
 	public SimpleCommand CreateNewTabCommand { get; }
 	/// <summary>
 	/// DragEnter、Over是一样的
@@ -97,7 +97,7 @@ public partial class FileTabControl {
 		DataContext = this;
 		TabClosingCommand = new SimpleCommand(OnTabClosing);
 		TabMovedCommand = new SimpleCommand(OnTabMoved);
-		TabDuplicatingCommand = new SimpleCommand(OnTabDuplicating);
+		TabCommand = new SimpleCommand(OnTabCommand);
 		CreateNewTabCommand = new SimpleCommand(OnCreateNewTab);
 		DragCommand = new SimpleCommand(OnDrag);
 		DropCommand = new SimpleCommand(OnDrop);
@@ -119,13 +119,55 @@ public partial class FileTabControl {
 				await OpenPathInNewTabAsync(path);
 			}
 		}
+		if (TabItems.Count == 0) {
+			await OpenPathInNewTabAsync(null);
+		}
 	}
 
-	public void CloseAllTabs() {
+	/// <summary>
+	/// 关闭整个TabControl并释放资源
+	/// </summary>
+	public void Close() {
 		foreach (var tab in TabItems) {
 			tab.Dispose();
 		}
 		TabItems.Clear();
+		TabControls.Remove(this);
+		UpdateFocusedTabControl();
+	}
+
+	/// <summary>
+	/// 关闭标签页
+	/// </summary>
+	/// <param name="tab"></param>
+	public void CloseTab(FileGridViewModel tab) {
+		var index = TabItems.IndexOf(tab);
+		if (index == -1) {
+			return;
+		}
+		var e = new CancelRoutedEventArgs(null, null);
+		HandleTabClosing(tab, e);
+		if (!e.Cancel) {
+			TabItems.RemoveAt(index);
+		}
+	}
+
+	/// <summary>
+	/// 将标签页移动到新窗口，要求自己至少有两个以上的tab
+	/// </summary>
+	/// <param name="tab"></param>
+	public void MoveTabToNewWindow(FileGridViewModel tab) {
+		if (TabItems.Count == 1) {
+			return;
+		}
+		var index = TabItems.IndexOf(tab);
+		if (index == -1) {
+			return;
+		}
+		var newWindow = new MainWindow(null, false);
+		TabItems.RemoveAt(index);
+		newWindow.SplitGrid.FileTabControl.TabItems.Add(tab);
+		newWindow.Show();
 	}
 
 	public async Task OpenPathInNewTabAsync(string path, string selectedPath = null) {
@@ -136,8 +178,6 @@ public partial class FileTabControl {
 		if (!await SelectedTab.LoadDirectoryAsync(path, true, selectedPath)) {
 			if (TabItems.Count > 1) {
 				TabItems.Remove(item);
-			} else {
-				MainWindow.Close();
 			}
 		}
 	}
@@ -176,9 +216,33 @@ public partial class FileTabControl {
 		}
 	}
 
-	private async void OnTabDuplicating(object args) {
-		var tab = (TabItem)((RoutedEventArgs)args).OriginalSource;
-		await OpenPathInNewTabAsync((string)tab.FullPath);
+	private async void OnTabCommand(object args) {
+		var e = (TabItemCommandArgs)args;
+		var tabItem = e.TabItem;
+		var tab = (FileGridViewModel)tabItem.DataContext;
+		switch (e.CommandParameter) {
+		case "Duplicate":
+			await OpenPathInNewTabAsync((string)tabItem.FullPath);
+			break;
+		case "Move2NewWindow":
+			MoveTabToNewWindow(tab);
+			break;
+		case "SplitLeft":
+			if (OwnerSplitGrid.Split((FileGridViewModel)tabItem.DataContext, SplitOrientation.Left)) {
+				TabItems.Remove(tab);
+			}
+			break;
+		case "SplitRight":
+			if (OwnerSplitGrid.Split((FileGridViewModel)tabItem.DataContext, SplitOrientation.Right)) {
+				TabItems.Remove(tab);
+			}
+			break;
+		case "SplitBottom":
+			if (OwnerSplitGrid.Split((FileGridViewModel)tabItem.DataContext, SplitOrientation.Bottom)) {
+				TabItems.Remove(tab);
+			}
+			break;
+		}
 	}
 
 	/// <summary>
@@ -199,19 +263,27 @@ public partial class FileTabControl {
 		// Trace.WriteLine(string.Join("\n", MainWindow.MainWindows.SelectMany(mw => mw.splitGrid).SelectMany(f => f.TabItems).Select(i => i.FullPath)));
 	}
 
-	private async void OnTabClosing(object args) {
+	private void OnTabClosing(object args) {
 		var e = (CancelRoutedEventArgs)args;
+		HandleTabClosing((FileGridViewModel)e.OriginalSource, e);
+	}
+
+	private async void HandleTabClosing(FileGridViewModel tab, CancelRoutedEventArgs e) {
 		if (TabItems.Count <= 1) {
 			if (OwnerSplitGrid.AnyOtherTabs) {
+				tab.Dispose();
 				TabControls.Remove(this);
 				OwnerSplitGrid.CancelSplit();
 				MouseOverTabControl = null;
 				UpdateFocusedTabControl();
 			} else {  // 说明就剩这一个Tab了
-				e.Cancel = true;
-				e.Handled = true;
+				if (e != null) {
+					e.Cancel = true;
+					e.Handled = true;
+				}
 				switch (ConfigHelper.LoadInt("LastTabClosed")) {
 				case 1:
+					tab.Dispose();
 					MouseOverTabControl = null;
 					MainWindow.Close();
 					break;
@@ -221,10 +293,10 @@ public partial class FileTabControl {
 				default:
 					var msi = new MessageBoxInfo {
 						Button = MessageBoxButton.OKCancel,
-						OkButtonText = "Exit_application".L(),
-						CancelButtonText = "Back_to_home".L(),
+						OkButtonText = "CloseWindow".L(),
+						CancelButtonText = "BackToHome".L(),
 						Message = "#YouClosedTheLastTab".L(),
-						CheckBoxText = "Remember_my_choice_and_dont_ask_again".L(),
+						CheckBoxText = "RememberMyChoiceAndDontAskAgain".L(),
 						IsChecked = false,
 						Image = MessageBoxImage.Question
 					};
@@ -233,7 +305,9 @@ public partial class FileTabControl {
 						ConfigHelper.Save("LastTabClosed", result == MessageBoxResult.OK ? 1 : 2);
 					}
 					if (result == MessageBoxResult.OK) {
-						Application.Current.Shutdown();
+						tab.Dispose();
+						MouseOverTabControl = null;
+						MainWindow.Close();
 					} else {
 						await SelectedTab.LoadDirectoryAsync(null);
 					}
@@ -241,7 +315,7 @@ public partial class FileTabControl {
 				}
 			}
 		} else {
-			((FileGridViewModel)e.OriginalSource).Dispose();
+			tab.Dispose();
 		}
 	}
 

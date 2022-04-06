@@ -171,6 +171,9 @@
   <data name="DuplicateTab" xml:space="preserve">
     <value>复制标签页</value>
   </data>
+  <data name="Move2NewWindow" xml:space="preserve">
+    <value>移动到新窗口</value>
+  </data>
   <data name="CloseOther" xml:space="preserve">
     <value>关闭其他</value>
   </data>
@@ -239,5 +242,17 @@
   </data>
   <data name="DoubleClickForAutoResize" xml:space="preserve">
     <value>双击自动调整列宽</value>
+  </data>
+  <data name="SplitScreen" xml:space="preserve">
+    <value>分屏</value>
+  </data>
+  <data name="ToLeft" xml:space="preserve">
+    <value>到左侧</value>
+  </data>
+  <data name="ToRight" xml:space="preserve">
+    <value>到右侧</value>
+  </data>
+  <data name="ToBottom" xml:space="preserve">
+    <value>到底部</value>
   </data>
 </root>

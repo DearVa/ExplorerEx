@@ -79,12 +79,13 @@ public partial class App {
 			Current.Shutdown();
 			return;
 		}
+		Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 		Shell32Interop.Initialize();
 		IconHelper.InitializeDefaultIcons(Resources);
 		await BookmarkDbContext.Instance.LoadDataBase();
 		await FileViewDbContext.Instance.LoadDataBase();
 		if (!Args.RunInBackground) {
-			new MainWindow().Show();
+			new MainWindow(null).Show();
 		}
 		notifyIconWindow = new NotifyIconWindow();
 		//dispatcherTimer = new DispatcherTimer(TimeSpan.FromSeconds(5), DispatcherPriority.Background, LowFrequencyWork, Dispatcher);
@@ -145,5 +146,15 @@ public partial class App {
 			mutex.Dispose();
 		}
 		base.OnExit(e);
+	}
+
+	/// <summary>
+	/// 严重错误，需要立即退出。会记录错误Log，并弹框警告
+	/// </summary>
+	/// <param name="e"></param>
+	public static void Fatal(Exception e) {
+		Logger.Exception(e, false);
+		MessageBox.Show(string.Format("#FatalError".L(), e), "Fatal", MessageBoxButton.OK, MessageBoxImage.Stop);
+		Environment.Exit(-1);
 	}
 }

@@ -787,57 +787,57 @@
 	<tools:ComboBoxItemCapsuleStyleSelector x:Key="ComboBoxItemCapsuleStyleSelector" />
 	<hc:HorizontalAlignmentPathTemplateSelector x:Key="HorizontalAlignmentPathTemplateSelector" />
 	<hc:VerticalAlignmentPathTemplateSelector x:Key="VerticalAlignmentPathTemplateSelector" />
-	<SolidColorBrush o:Freeze="True" x:Key="LightPrimaryBrush" Color="{DynamicResource LightPrimaryColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="PrimaryBrush" Color="{DynamicResource PrimaryColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="DarkPrimaryBrush" Color="{DynamicResource DarkPrimaryColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="LightSelectBrush" Color="{DynamicResource LightSelectColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="SelectBrush" Color="{DynamicResource SelectColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="DarkSelectBrush" Color="{DynamicResource DarkSelectColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="PrimaryTextBrush" Color="{DynamicResource PrimaryTextColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="SecondaryTextBrush" Color="{DynamicResource SecondaryTextColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="ThirdlyTextBrush" Color="{DynamicResource ThirdlyTextColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="ReverseTextBrush" Color="{DynamicResource ReverseTextColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="TextIconBrush" Color="{DynamicResource TextIconColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="BorderBrush" Color="{DynamicResource BorderColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="SecondaryBorderBrush" Color="{DynamicResource SecondaryBorderColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="BackgroundBrush" Color="{DynamicResource BackgroundColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="RegionBrush" Color="{DynamicResource RegionColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="SecondaryRegionBrush" Color="{DynamicResource SecondaryRegionColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="ThirdlyRegionBrush" Color="{DynamicResource ThirdlyRegionColor}" />
-	<LinearGradientBrush o:Freeze="True" x:Key="TitleBrush" EndPoint="1,0" StartPoint="0,0">
+	<SolidColorBrush x:Key="LightPrimaryBrush" Color="{DynamicResource LightPrimaryColor}" />
+	<SolidColorBrush x:Key="PrimaryBrush" Color="{DynamicResource PrimaryColor}" />
+	<SolidColorBrush x:Key="DarkPrimaryBrush" Color="{DynamicResource DarkPrimaryColor}" />
+	<SolidColorBrush x:Key="LightSelectBrush" Color="{DynamicResource LightSelectColor}" />
+	<SolidColorBrush x:Key="SelectBrush" Color="{DynamicResource SelectColor}" />
+	<SolidColorBrush x:Key="DarkSelectBrush" Color="{DynamicResource DarkSelectColor}" />
+	<SolidColorBrush x:Key="PrimaryTextBrush" Color="{DynamicResource PrimaryTextColor}" />
+	<SolidColorBrush x:Key="SecondaryTextBrush" Color="{DynamicResource SecondaryTextColor}" />
+	<SolidColorBrush x:Key="ThirdlyTextBrush" Color="{DynamicResource ThirdlyTextColor}" />
+	<SolidColorBrush x:Key="ReverseTextBrush" Color="{DynamicResource ReverseTextColor}" />
+	<SolidColorBrush x:Key="TextIconBrush" Color="{DynamicResource TextIconColor}" />
+	<SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource BorderColor}" />
+	<SolidColorBrush x:Key="SecondaryBorderBrush" Color="{DynamicResource SecondaryBorderColor}" />
+	<SolidColorBrush x:Key="BackgroundBrush" Color="{DynamicResource BackgroundColor}" />
+	<SolidColorBrush x:Key="RegionBrush" Color="{DynamicResource RegionColor}" />
+	<SolidColorBrush x:Key="SecondaryRegionBrush" Color="{DynamicResource SecondaryRegionColor}" />
+	<SolidColorBrush x:Key="ThirdlyRegionBrush" Color="{DynamicResource ThirdlyRegionColor}" />
+	<LinearGradientBrush x:Key="TitleBrush" EndPoint="1,0" StartPoint="0,0">
 		<GradientStop Color="{DynamicResource TitleColor}" Offset="0" />
 		<GradientStop Color="{DynamicResource SecondaryTitleColor}" Offset="1" />
 	</LinearGradientBrush>
-	<SolidColorBrush o:Freeze="True" x:Key="DefaultBrush" Color="{DynamicResource DefaultColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="DarkDefaultBrush" Color="{DynamicResource DarkDefaultColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="LightDangerBrush" Color="{DynamicResource LightDangerColor}" />
-	<LinearGradientBrush o:Freeze="True" x:Key="DangerBrush" EndPoint="1,0" StartPoint="0,0">
+	<SolidColorBrush x:Key="DefaultBrush" Color="{DynamicResource DefaultColor}" />
+	<SolidColorBrush x:Key="DarkDefaultBrush" Color="{DynamicResource DarkDefaultColor}" />
+	<SolidColorBrush x:Key="LightDangerBrush" Color="{DynamicResource LightDangerColor}" />
+	<LinearGradientBrush x:Key="DangerBrush" EndPoint="1,0" StartPoint="0,0">
 		<GradientStop Color="{DynamicResource DangerColor}" Offset="0" />
 		<GradientStop Color="{DynamicResource DarkDangerColor}" Offset="1" />
 	</LinearGradientBrush>
-	<SolidColorBrush o:Freeze="True" x:Key="DarkDangerBrush" Color="{DynamicResource DarkDangerColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="LightWarningBrush" Color="{DynamicResource LightWarningColor}" />
-	<LinearGradientBrush o:Freeze="True" x:Key="WarningBrush" EndPoint="1,0" StartPoint="0,0">
+	<SolidColorBrush x:Key="DarkDangerBrush" Color="{DynamicResource DarkDangerColor}" />
+	<SolidColorBrush x:Key="LightWarningBrush" Color="{DynamicResource LightWarningColor}" />
+	<LinearGradientBrush x:Key="WarningBrush" EndPoint="1,0" StartPoint="0,0">
 		<GradientStop Color="{DynamicResource WarningColor}" Offset="0" />
 		<GradientStop Color="{DynamicResource DarkWarningColor}" Offset="1" />
 	</LinearGradientBrush>
-	<SolidColorBrush o:Freeze="True" x:Key="DarkWarningBrush" Color="{DynamicResource DarkWarningColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="LightInfoBrush" Color="{DynamicResource LightInfoColor}" />
-	<LinearGradientBrush o:Freeze="True" x:Key="InfoBrush" EndPoint="1,0" StartPoint="0,0">
+	<SolidColorBrush x:Key="DarkWarningBrush" Color="{DynamicResource DarkWarningColor}" />
+	<SolidColorBrush x:Key="LightInfoBrush" Color="{DynamicResource LightInfoColor}" />
+	<LinearGradientBrush x:Key="InfoBrush" EndPoint="1,0" StartPoint="0,0">
 		<GradientStop Color="{DynamicResource InfoColor}" Offset="0" />
 		<GradientStop Color="{DynamicResource DarkInfoColor}" Offset="1" />
 	</LinearGradientBrush>
-	<SolidColorBrush o:Freeze="True" x:Key="DarkInfoBrush" Color="{DynamicResource DarkInfoColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="LightSuccessBrush" Color="{DynamicResource LightSuccessColor}" />
-	<LinearGradientBrush o:Freeze="True" x:Key="SuccessBrush" EndPoint="1,0" StartPoint="0,0">
+	<SolidColorBrush x:Key="DarkInfoBrush" Color="{DynamicResource DarkInfoColor}" />
+	<SolidColorBrush x:Key="LightSuccessBrush" Color="{DynamicResource LightSuccessColor}" />
+	<LinearGradientBrush x:Key="SuccessBrush" EndPoint="1,0" StartPoint="0,0">
 		<GradientStop Color="{DynamicResource SuccessColor}" Offset="0" />
 		<GradientStop Color="{DynamicResource DarkSuccessColor}" Offset="1" />
 	</LinearGradientBrush>
-	<SolidColorBrush o:Freeze="True" x:Key="DarkSuccessBrush" Color="{DynamicResource DarkSuccessColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="AccentBrush" Color="{DynamicResource AccentColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="DarkAccentBrush" Color="{DynamicResource DarkAccentColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="DarkMaskBrush" Color="{DynamicResource DarkMaskColor}" />
-	<SolidColorBrush o:Freeze="True" x:Key="DarkOpacityBrush" Color="{DynamicResource DarkOpacityColor}" />
+	<SolidColorBrush x:Key="DarkSuccessBrush" Color="{DynamicResource DarkSuccessColor}" />
+	<SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource AccentColor}" />
+	<SolidColorBrush x:Key="DarkAccentBrush" Color="{DynamicResource DarkAccentColor}" />
+	<SolidColorBrush x:Key="DarkMaskBrush" Color="{DynamicResource DarkMaskColor}" />
+	<SolidColorBrush x:Key="DarkOpacityBrush" Color="{DynamicResource DarkOpacityColor}" />
 	<DropShadowEffect x:Key="EffectShadow1" BlurRadius="5" ShadowDepth="1" Direction="270" Color="{StaticResource EffectShadowColor}" Opacity=".2" RenderingBias="Performance" o:Freeze="True" />
 	<DropShadowEffect x:Key="EffectShadow2" BlurRadius="8" ShadowDepth="1.5" Direction="270" Color="{StaticResource EffectShadowColor}" Opacity=".2" RenderingBias="Performance" o:Freeze="True" />
 	<DropShadowEffect x:Key="EffectShadow3" BlurRadius="14" ShadowDepth="4.5" Direction="270" Color="{StaticResource EffectShadowColor}" Opacity=".2" RenderingBias="Performance" o:Freeze="True" />
@@ -4506,7 +4506,7 @@
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="hc:Window">
-					<Border SnapsToDevicePixels="True" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}">
+					<Border Visibility="Collapsed" SnapsToDevicePixels="True" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}">
 						<Grid Margin="{TemplateBinding Padding}">
 							<Grid.RowDefinitions>
 								<RowDefinition Height="Auto" />
@@ -10660,10 +10660,7 @@
 							<Setter Property="Opacity" Value="0.4" TargetName="contentPresenter" />
 						</Trigger>
 						<Trigger Property="IsMouseOver" Value="True">
-							<Setter Property="Background" TargetName="templateRoot" Value="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=TabItem}}" />
-						</Trigger>
-						<Trigger Property="IsSelected" Value="True">
-							<Setter Property="Background" TargetName="templateRoot" Value="{Binding Path=Background, RelativeSource={RelativeSource AncestorType=TabItem}}" />
+							<Setter Property="Background" TargetName="templateRoot" Value="{DynamicResource DefaultDarkBrush}" />
 						</Trigger>
 						<MultiDataTrigger>
 							<MultiDataTrigger.Conditions>
@@ -10817,9 +10814,17 @@
 		</Style.Triggers>
 	</Style>
 	<ContextMenu x:Key="TabItemMenu" x:Shared="False">
-		<MenuItem Command="interactivity:ControlCommands.DuplicateTab" Header="{x:Static langs:Lang.DuplicateTab}" />
+		<MenuItem Command="interactivity:ControlCommands.TabCommand" CommandParameter="Duplicate" Header="{x:Static langs:Lang.DuplicateTab}" />
+		<MenuItem Command="interactivity:ControlCommands.TabCommand" CommandParameter="Move2NewWindow" Header="{x:Static langs:Lang.Move2NewWindow}" />
+		<MenuItem Header="{x:Static langs:Lang.SplitScreen}">
+			<MenuItem.Items>
+				<MenuItem Command="interactivity:ControlCommands.TabCommand" CommandParameter="SplitLeft" Header="{x:Static langs:Lang.ToLeft}" />
+				<MenuItem Command="interactivity:ControlCommands.TabCommand" CommandParameter="SplitRight" Header="{x:Static langs:Lang.ToRight}" />
+				<MenuItem Command="interactivity:ControlCommands.TabCommand" CommandParameter="SplitBottom" Header="{x:Static langs:Lang.ToBottom}" />
+			</MenuItem.Items>
+		</MenuItem>
 		<Separator Style="{DynamicResource SeparatorBaseStyle}" />
-		<MenuItem Command="interactivity:ControlCommands.Close" Header="{x:Static langs:Lang.Close}" />
+		<MenuItem Command="interactivity:ControlCommands.Close" Header="{x:Static langs:Lang.Close}" InputGestureText="Ctrl + W" />
 		<MenuItem Command="interactivity:ControlCommands.CloseOther" Header="{x:Static langs:Lang.CloseOther}" />
 	</ContextMenu>
 	<Style x:Key="TabItemPlusBaseStyle" TargetType="hc:TabItem">
@@ -10924,7 +10929,7 @@
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="*" />
 				</Grid.RowDefinitions>
-				<Border x:Name="PART_TabBorderRoot" Margin="0" Background="{x:Null}" ClipToBounds="True" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource BorderBrush}">
+				<Border x:Name="PART_TabBorderRoot" Margin="{TemplateBinding TabBorderRootMargin}" Background="{x:Null}" ClipToBounds="True">
 					<Grid>
 						<Border x:Name="PART_TabBorder" AllowDrop="True" Panel.ZIndex="2000" Margin="8,0,36,-1" Background="Transparent">
 							<hc:TabPanel MinHeight="{TemplateBinding TabItemHeight}" TabItemHeight="{TemplateBinding TabItemHeight}" TabItemWidth="{TemplateBinding TabItemWidth}" Margin="0,0,-1,-1" x:Name="PART_HeaderPanel" HorizontalAlignment="Left" Background="Transparent" IsItemsHost="true" KeyboardNavigation.TabIndex="1" Panel.ZIndex="1">
@@ -10942,7 +10947,7 @@
 						</Button>
 					</Grid>
 				</Border>
-				<Border x:Name="contentPanel" Background="{TemplateBinding Background}" Grid.Column="0" KeyboardNavigation.DirectionalNavigation="Contained" Grid.Row="1" KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
+				<Border x:Name="contentPanel" Background="{DynamicResource ThirdlyRegionBrush}" CornerRadius="5" Grid.Column="0" KeyboardNavigation.DirectionalNavigation="Contained" Grid.Row="1" KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
 					<ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent" Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
 				</Border>
 			</Grid>

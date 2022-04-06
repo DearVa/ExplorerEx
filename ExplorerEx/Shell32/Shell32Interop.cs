@@ -134,7 +134,10 @@ internal static class Shell32Interop {
 
 	[DllImport(Shell32)]
 	public static extern int SHOpenWithDialog(IntPtr hWndParent, ref OpenAsInfo oOAI);
-	
+
+	[DllImport(Shell32)]
+	public static  extern int SHGetKnownFolderPath([MarshalAs(UnmanagedType.LPStruct)] Guid rfid, uint dwFlags, IntPtr hToken, out IntPtr pszPath);
+
 	[Flags]
 	public enum EmptyRecycleBinFlags {
 		Default = 0x0,

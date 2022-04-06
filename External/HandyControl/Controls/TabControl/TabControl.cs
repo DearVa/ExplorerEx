@@ -53,6 +53,14 @@ public class TabControl : System.Windows.Controls.TabControl {
 	public static readonly DependencyProperty TabItemHeightProperty = DependencyProperty.Register(
 		"TabItemHeight", typeof(double), typeof(TabControl), new PropertyMetadata(30.0));
 
+	public static readonly DependencyProperty TabBorderRootMarginProperty = DependencyProperty.Register(
+		"TabBorderRootMargin", typeof(Thickness), typeof(TabControl), new PropertyMetadata(default(Thickness)));
+
+	public Thickness TabBorderRootMargin {
+		get => (Thickness)GetValue(TabBorderRootMarginProperty);
+		set => SetValue(TabBorderRootMarginProperty, value);
+	}
+
 	private Border headerBorder;
 
 	public Border TabBorder { get; private set; }
@@ -175,7 +183,7 @@ public class TabControl : System.Windows.Controls.TabControl {
 		base.OnApplyTemplate();
 		HeaderPanel = (TabPanel)GetTemplateChild(HeaderPanelKey);
 		TabBorder = (Border)GetTemplateChild(TabBorderKey)!;
-		TabBorder.DragEnter += TabBorder_OnDragEnter;
+		TabBorder.MouseEnter += TabBorder_OnMouseEnter;
 		TabBorder.DragOver += (_, args) => {
 			args.RoutedEvent = DragDropOverEvent;
 			RaiseEvent(new TabBorderDragEventArgs(args, this));
@@ -190,7 +198,7 @@ public class TabControl : System.Windows.Controls.TabControl {
 		ContentPanel = (Border)GetTemplateChild(ContentPanelKey);
 	}
 
-	private void TabBorder_OnDragEnter(object sender, DragEventArgs e) {
+	private void TabBorder_OnMouseEnter(object sender, MouseEventArgs e) {
 		if (TabItem.DraggingTab != null) {
 			TabItem.DragToTabControl = this;
 			if (Items.Contains(TabItem.DraggingTab.DataContext)) {  // 当前正是这里边的
@@ -212,10 +220,10 @@ public class TabControl : System.Windows.Controls.TabControl {
 				SelectedIndex = insertIndex;
 				newTab.StartDrag(TabBorder, mouseDownPoint, insertIndex);
 			}
-			TabItem.CancelDrag = true;
+			TabItem.DragFrame.Continue = false;
 		}
 		e.RoutedEvent = DragDropEnterEvent;
-		RaiseEvent(new TabBorderDragEventArgs(e, this));
+		// RaiseEvent(new TabBorderDragEventArgs(e, this));
 	}
 
 	internal void CloseOtherItems(TabItem currentItem) {
@@ -241,8 +249,7 @@ public class TabControl : System.Windows.Controls.TabControl {
 				if (argsClosing.Cancel) {
 					return;
 				}
-
-				tabItem.RaiseEvent(new RoutedEventArgs(TabItem.ClosedEvent, item));
+				
 				list.Remove(item);
 
 				i--;

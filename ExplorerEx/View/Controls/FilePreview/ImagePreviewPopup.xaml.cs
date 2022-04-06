@@ -2,11 +2,8 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using HandyControl.Controls;
-using SharpVectors.Renderers.Wpf;
-using SvgConverter;
+using ExplorerEx.Utils;
 
 namespace ExplorerEx.View.Controls;
 
@@ -32,7 +29,7 @@ public partial class ImagePreviewPopup {
 			break;
 		case ".svg":
 			GifImage.Visibility = Visibility.Collapsed;
-			Image.Source = (DrawingImage)ConverterLogic.ConvertSvgToObject(filePath, ResultMode.DrawingImage, new WpfDrawingSettings(), out _, new ResKeyInfo());
+			Image.Source = SvgConverter.ConvertSvgToDrawingImage(filePath);
 			Image.Visibility = Visibility.Visible;
 			break;
 		default:

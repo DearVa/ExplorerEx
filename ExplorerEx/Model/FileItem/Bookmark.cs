@@ -9,7 +9,7 @@ using System.Windows.Media;
 using ExplorerEx.Converter;
 using ExplorerEx.Utils;
 using Microsoft.EntityFrameworkCore;
-using static ExplorerEx.Shell32.IconHelper;
+using static ExplorerEx.Utils.IconHelper;
 
 namespace ExplorerEx.Model;
 
@@ -63,10 +63,7 @@ public class BookmarkCategory : SimpleNotifyPropertyChanged {
 /// 书签项
 /// </summary>
 [Serializable]
-public class BookmarkItem : FileItem, IFilterable {
-	[Key]
-	public override string FullPath { get; protected set; }
-
+public class BookmarkItem : FileListViewItem, IFilterable {
 	public override string DisplayText => Name;
 
 	public string CategoryForeignKey { get; set; }
@@ -76,7 +73,6 @@ public class BookmarkItem : FileItem, IFilterable {
 	public BookmarkItem() { }
 
 	public BookmarkItem(string fullPath, string name, BookmarkCategory category) {
-		// ReSharper disable once VirtualMemberCallInConstructor
 		FullPath = Path.GetFullPath(fullPath);
 		Name = name;
 		Category = category;
@@ -96,7 +92,7 @@ public class BookmarkItem : FileItem, IFilterable {
 			Icon = FolderUtils.IsEmptyFolder(FullPath) ? EmptyFolderDrawingImage : FolderDrawingImage;
 		} else if (File.Exists(FullPath)) {
 			IsFolder = false;
-			Icon = GetPathIcon(FullPath, false);
+			Icon = GetSmallIcon(FullPath, false);
 		} else {
 			Icon = MissingFileDrawingImage;
 		}

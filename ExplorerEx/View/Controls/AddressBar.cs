@@ -27,22 +27,23 @@ internal class AddressBar : TextBox {
 	/// <summary>
 	/// 路径上的每个文件夹
 	/// </summary>
-	public ObservableCollection<FolderItem> Items { get; } = new();
+	public ObservableCollection<FolderOnlyItem> Items { get; } = new();
 
 	public SimpleCommand ItemClickedCommand { get; }
 
-	public event Action<FolderItem> PopupItemClicked;
+	public event Action<FolderOnlyItem> PopupItemClicked;
 
 	private ScrollViewer scrollViewer, contentHost;
 
 	public AddressBar() {
 		ItemClickedCommand = new SimpleCommand(Item_OnClicked);
-		Items.Add(FolderItem.Home);  // index0一定是Home
+		Items.Add(FolderOnlyItem.Home);  // index0一定是Home
+		Text = "ThisPC".L();
 	}
 
 	private void Item_OnClicked(object args) {
-		if (args is not FolderItem item) {
-			item = (FolderItem)((MenuItem)((RoutedEventArgs)args).OriginalSource).DataContext;
+		if (args is not FolderOnlyItem item) {
+			item = (FolderOnlyItem)((MenuItem)((RoutedEventArgs)args).OriginalSource).DataContext;
 			item.Parent.IsExpanded = false;
 		}
 		PopupItemClicked?.Invoke(item);
@@ -63,6 +64,7 @@ internal class AddressBar : TextBox {
 		base.OnGotFocus(e);
 		scrollViewer.Visibility = Visibility.Collapsed;
 		contentHost.Visibility = Visibility.Visible;
+		Dispatcher.BeginInvoke(SelectAll);
 	}
 
 	protected override void OnLostFocus(RoutedEventArgs e) {
@@ -87,23 +89,34 @@ internal class AddressBar : TextBox {
 		if (newPath.Length < 3) {
 			return;
 		}
+		var zipPathIndex = -1;
 		var n = 1;
 		for (var i = 0; i < newPath.Length; i++) {
 			if (newPath[i] == '\\') {
+				var fullPath = n == 1 || zipPathIndex != -1 ? newPath[..(i + 1)] : newPath[..i];
 				if (n < items.Count) {
-					var fullPath = Path.GetFullPath(newPath[..(i + 1)]);
 					if (items[n].FullPath != fullPath) {
 						if (n == 1) {
-							items[n] = new FolderItem(new DriveInfo(fullPath[..1]));
+							items[n] = new FolderOnlyItem(new DriveInfo(fullPath[..1]));
+						} else if (zipPathIndex != -1) {
+							items[n] = new FolderOnlyItem(fullPath[..zipPathIndex], fullPath[(zipPathIndex + 1)..], items[n - 1]);
+						} else if (fullPath.EndsWith(@".zip")) {
+							items[n] = new FolderOnlyItem(fullPath, string.Empty, items[n - 1]);
+							zipPathIndex = i;
 						} else {
-							items[n] = new FolderItem(new DirectoryInfo(fullPath), items[n - 1]);
+							items[n] = new FolderOnlyItem(new DirectoryInfo(fullPath), items[n - 1]);
 						}
 					}
 				} else {
 					if (n == 1) {
-						items.Add(new FolderItem(new DriveInfo(newPath[..1])));
+						items.Add(new FolderOnlyItem(new DriveInfo(fullPath[..1])));
+					} else if (zipPathIndex != -1) {
+						items.Add(new FolderOnlyItem(fullPath[..zipPathIndex], fullPath[(zipPathIndex + 1)..], items[n - 1]));
+					} else if (fullPath.EndsWith(@".zip")) {
+						items.Add(new FolderOnlyItem(fullPath, string.Empty, items[n - 1]));
+						zipPathIndex = i;
 					} else {
-						items.Add(new FolderItem(new DirectoryInfo(newPath[..(i + 1)]), items[n - 1]));
+						items.Add(new FolderOnlyItem(new DirectoryInfo(fullPath), items[n - 1]));
 					}
 				}
 				n++;
@@ -113,7 +126,13 @@ internal class AddressBar : TextBox {
 			items.RemoveAt(items.Count - 1);
 		}
 		if (newPath[^1] != '\\') {
-			items.Add(new FolderItem(new DirectoryInfo(newPath), items[^1]));
+			if (zipPathIndex != -1) {
+				items.Add(new FolderOnlyItem(newPath[..zipPathIndex], newPath[(zipPathIndex + 1)..], items[n - 1]));
+			} else if (newPath.EndsWith(".zip") && File.Exists(newPath)) {
+				items.Add(new FolderOnlyItem(newPath, string.Empty, items[^1]));
+			} else {
+				items.Add(new FolderOnlyItem(new DirectoryInfo(newPath), items[^1]));
+			}
 		}
 		addressBar.scrollViewer.ScrollToRightEnd();
 	}

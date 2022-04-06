@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using ExplorerEx.Shell32;
 using ExplorerEx.Win32;
-using SvgConverter;
 using static ExplorerEx.Shell32.Shell32Interop;
 using static ExplorerEx.Win32.Win32Interop;
 
-namespace ExplorerEx.Shell32;
+namespace ExplorerEx.Utils;
 
 internal static class IconHelper {
 	public static DrawingImage FolderDrawingImage { get; private set; }
@@ -83,9 +84,9 @@ internal static class IconHelper {
 	/// 获取文件的小图标
 	/// </summary>
 	/// <param name="path">文件路径</param>
-	/// <param name="useFileAttr">如果为true，那就去找文件本身并生成缩略图（比如exe这种）；如果为false，那就只根据拓展名生成缩略图</param>
+	/// <param name="useFileAttr">如果为false，那就去找文件本身并生成缩略图（比如exe这种）；如果为true，那就只根据拓展名生成缩略图</param>
 	/// <returns></returns>
-	public static ImageSource GetPathIcon(string path, bool useFileAttr) {
+	public static ImageSource GetSmallIcon(string path, bool useFileAttr) {
 		var extension = Path.GetExtension(path);
 		if (string.IsNullOrEmpty(extension)) {
 			return UnknownFileDrawingImage;
@@ -99,6 +100,10 @@ internal static class IconHelper {
 					return icon;
 				}
 			}
+		}
+
+		if (extension == ".svg") {
+			return Application.Current.Dispatcher.Invoke(() => SvgConverter.ConvertSvgToDrawingImage(path));
 		}
 
 		var dwFa = useFileAttr ? FileAttribute.Normal : 0;
@@ -127,6 +132,55 @@ internal static class IconHelper {
 		return result;
 	}
 
+	/// <summary>
+	/// 获取文件的大图标
+	/// </summary>
+	/// <param name="path">文件路径</param>
+	/// <param name="useFileAttr">如果为false，那就去找文件本身并生成缩略图（比如exe这种）；如果为true，那就只根据拓展名生成缩略图</param>
+	/// <returns></returns>
+	public static ImageSource GetLargeIcon(string path, bool useFileAttr) {
+		var extension = Path.GetExtension(path);
+		bool isLnk;
+
+		if (!string.IsNullOrEmpty(extension) && extension.ToLower() == ".lnk") {
+			isLnk = true;
+		} else {
+			isLnk = false;
+		}
+
+		var dwFa = useFileAttr ? FileAttribute.Normal : 0;
+		var flags = SHGFI.SysIconIndex;
+		if (useFileAttr) {
+			flags |= SHGFI.UseFileAttributes;
+		} else if (isLnk) {
+			flags |= SHGFI.LinkOverlay;
+		}
+
+		var shFileInfo = new ShFileInfo();
+		var res = SHGetFileInfo(path, dwFa, ref shFileInfo, Marshal.SizeOf(shFileInfo), flags);
+		if (res == 0) {
+			return UnknownFileDrawingImage;
+		}
+
+		var iconIndex = shFileInfo.iIcon;
+		var hIcon = IntPtr.Zero;
+		// 只能使用STA调用，否则会失败
+		var hr = Application.Current.Dispatcher.Invoke(() => JumboImageList.GetIcon(iconIndex, ILD.Transparent, ref hIcon));
+		if (hr != 0 || hIcon == IntPtr.Zero) {
+			return UnknownFileDrawingImage;
+		}
+
+		var bs = (ImageSource)HIcon2BitmapSource(hIcon);
+		DestroyIcon(hIcon);
+
+		if (extension != null) {
+			lock (CachedLargeIcons) {
+				CachedLargeIcons[extension] = bs;
+			}
+		}
+		return bs;
+	}
+
 	public static ImageSource GetDriveThumbnail(DriveInfo drive) {
 		if (!drive.IsReady) {
 			return UnknownFileDrawingImage;
@@ -137,7 +191,7 @@ internal static class IconHelper {
 				return cache;
 			}
 		}
-		var icon = LoadLargeIcon(name, null);
+		var icon = GetLargeIcon(name, true);
 		if (icon == null) {
 			return UnknownFileDrawingImage;
 		}
@@ -163,13 +217,13 @@ internal static class IconHelper {
 		extension = extension.ToLower();
 		if (ExtensionsWithThumbnail.Contains(extension)) {
 			if (extension == ".svg") {
-				return (DrawingImage)Application.Current.Dispatcher.Invoke(() => ConverterLogic.ConvertSvgToObject(path, ResultMode.DrawingImage, null, out _, new ResKeyInfo()));
+				return Application.Current.Dispatcher.Invoke(() => SvgConverter.ConvertSvgToDrawingImage(path));
 			}
 			var retCode = SHCreateItemFromParsingName(path, IntPtr.Zero, ref GUID_IShellItem2, out var nativeShellItem);
 			if (retCode != 0) {
 				// 发生错误，fallback to加载大图标
 				Trace.WriteLine($"加载缩略图出错：{path}");
-				return LoadLargeIcon(path, extension);
+				return GetLargeIcon(path, false);
 			}
 			var size = new Win32Interop.Size {
 				width = 128,
@@ -180,7 +234,7 @@ internal static class IconHelper {
 			if (hr != 0 || hBitmap == IntPtr.Zero) {
 				// 发生错误，fallback to加载大图标
 				Trace.WriteLine($"加载缩略图出错：{path}");
-				return LoadLargeIcon(path, extension);
+				return GetLargeIcon(path, false);
 			}
 			var bs = (ImageSource)HBitmap2BitmapSource(hBitmap);
 			DeleteObject(hBitmap);
@@ -191,32 +245,6 @@ internal static class IconHelper {
 				return image;
 			}
 		}
-		return LoadLargeIcon(path, null);
-	}
-
-	private static ImageSource LoadLargeIcon(string path, string extension) {
-		var shFileInfo = new ShFileInfo();
-		var res = SHGetFileInfo(path, FileAttribute.Normal, ref shFileInfo, Marshal.SizeOf(shFileInfo), SHGFI.SysIconIndex);
-		if (res == 0) {
-			return UnknownFileDrawingImage;
-		}
-
-		var iconIndex = shFileInfo.iIcon;
-		var hIcon = IntPtr.Zero;
-		// 只能使用STA调用，否则会失败
-		var hr = Application.Current.Dispatcher.Invoke(() => JumboImageList.GetIcon(iconIndex, ILD.Transparent, ref hIcon));
-		if (hr != 0 || hIcon == IntPtr.Zero) {
-			return UnknownFileDrawingImage;
-		}
-
-		var bs = (ImageSource)HIcon2BitmapSource(hIcon);
-		DestroyIcon(hIcon);
-
-		if (extension != null) {
-			lock (CachedLargeIcons) {
-				CachedLargeIcons[extension] = bs;
-			}
-		}
-		return bs;
+		return GetLargeIcon(path, false);
 	}
 }

@@ -131,7 +131,7 @@ public class DetailList : IByteCodec {
 		new(DetailListType.FileSystem, 100)
 	};
 
-	private static readonly DetailList[] DefaultNormalDetailLists = {
+	private static readonly DetailList[] DefaultLocalFolderDetailLists = {
 		new(DetailListType.Name, 300),
 		new(DetailListType.DateModified, 200),
 		new(DetailListType.Type, 200),
@@ -158,10 +158,10 @@ public class DetailList : IByteCodec {
 	public static DetailList[] GetDefaultLists(PathType pathType) {
 		return pathType switch {
 			PathType.Home => DefaultHomeDetailLists,
-			PathType.Normal => DefaultNormalDetailLists,
+			PathType.LocalFolder => DefaultLocalFolderDetailLists,
 			PathType.RecycleBin => DefaultRecycleBinDetailLists,
 			PathType.Search => DefaultSearchDetailLists,
-			_ => DefaultNormalDetailLists
+			_ => DefaultLocalFolderDetailLists
 		};
 	}
 
@@ -196,14 +196,19 @@ public class DetailList : IByteCodec {
 /// 当前路径的类型
 /// </summary>
 public enum PathType {
+	Unknown,
 	/// <summary>
 	/// 首页，“此电脑”
 	/// </summary>
 	Home,
 	/// <summary>
-	/// 普通，即浏览正常文件
+	/// 本地文件夹
 	/// </summary>
-	Normal,
+	LocalFolder,
+	/// <summary>
+	/// 本地文件，仅在传参时使用
+	/// </summary>
+	LocalFile,
 	/// <summary>
 	/// 回收站
 	/// </summary>
@@ -217,6 +222,11 @@ public enum PathType {
 	/// </summary>
 	NetworkDisk,
 	OneDrive,
+	/// <summary>
+	/// 在一个压缩文件里
+	/// </summary>
+	Zip,
+	Other
 }
 
 /// <summary>
@@ -287,7 +297,7 @@ public class FileView : INotifyPropertyChanged {
         set {
             if (groupBy != value) {
                 groupBy = value;
-				StageChange();
+				UpdateUI();
 				UpdateUI(nameof(GroupByIndex));
 			}
         }

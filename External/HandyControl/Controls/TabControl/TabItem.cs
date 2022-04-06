@@ -7,6 +7,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using HandyControl.Data;
 using HandyControl.Interactivity;
 using HandyControl.Tools;
@@ -20,7 +21,7 @@ public class TabItem : System.Windows.Controls.TabItem {
 	/// </summary>
 	public static TabItem DraggingTab { get; private set; }
 	/// <summary>
-	/// 这次Drag是否将标签页移走了，如果为false，说明是拖走又回来了。请在设置<see cref="CancelDrag"/>之前先设置这个的值
+	/// 这次Drag是否将标签页移走了，如果为false，说明是拖走又回来了。请在设置<see cref="DragFrame"/>之前先设置这个的值
 	/// </summary>
 	public static bool MoveAfterDrag { get; set; }
 	/// <summary>
@@ -28,9 +29,9 @@ public class TabItem : System.Windows.Controls.TabItem {
 	/// </summary>
 	internal static TabControl DragToTabControl { get; set; }
 	/// <summary>
-	/// 设为true结束DragDrop
+	/// Continue设为结束DragDrop
 	/// </summary>
-	public static bool CancelDrag { get; set; }
+	public static DispatcherFrame DragFrame { get; private set; }
 	/// <summary>
 	/// Drag结束时触发，之后会清除所有事件
 	/// </summary>
@@ -67,11 +68,9 @@ public class TabItem : System.Windows.Controls.TabItem {
 
 	public static readonly RoutedEvent ClosingEvent = EventManager.RegisterRoutedEvent("Closing", RoutingStrategy.Bubble, typeof(EventHandler), typeof(TabItem));
 
-	public static readonly RoutedEvent ClosedEvent = EventManager.RegisterRoutedEvent("Closed", RoutingStrategy.Bubble, typeof(EventHandler), typeof(TabItem));
-
 	public static readonly RoutedEvent MovedEvent = EventManager.RegisterRoutedEvent("Moved", RoutingStrategy.Bubble, typeof(EventHandler), typeof(TabItem));
 
-	public static readonly RoutedEvent DuplicatingEvent = EventManager.RegisterRoutedEvent("Duplicating", RoutingStrategy.Bubble, typeof(EventHandler), typeof(TabItem));
+	public static readonly RoutedEvent TabCommandEvent = EventManager.RegisterRoutedEvent("TabCommand", RoutingStrategy.Bubble, typeof(EventHandler), typeof(TabItem));
 
 	// DragEnter等方法找不出对应的TabItem是哪个，使用自定的方法（如果有更好的方法请帮我提个issue）
 	public static readonly RoutedEvent DragDropEnterEvent = EventManager.RegisterRoutedEvent("DragDropEnter", RoutingStrategy.Bubble, typeof(DragEventHandler), typeof(TabItem));
@@ -85,19 +84,14 @@ public class TabItem : System.Windows.Controls.TabItem {
 		remove => RemoveHandler(ClosingEvent, value);
 	}
 
-	public event EventHandler Closed {
-		add => AddHandler(ClosedEvent, value);
-		remove => RemoveHandler(ClosedEvent, value);
-	}
-
 	public event EventHandler Moved {
 		add => AddHandler(MovedEvent, value);
 		remove => RemoveHandler(MovedEvent, value);
 	}
 
-	public event EventHandler Duplicating {
-		add => AddHandler(DuplicatingEvent, value);
-		remove => RemoveHandler(DuplicatingEvent, value);
+	public event EventHandler TabCommand {
+		add => AddHandler(TabCommandEvent, value);
+		remove => RemoveHandler(TabCommandEvent, value);
 	}
 
 	public event DragEventHandler DragDropEnter {
@@ -172,7 +166,7 @@ public class TabItem : System.Windows.Controls.TabItem {
 	public TabItem() {
 		CommandBindings.Add(new CommandBinding(ControlCommands.Close, (_, _) => Close()));
 		CommandBindings.Add(new CommandBinding(ControlCommands.CloseOther, (_, _) => TabControlParent.CloseOtherItems(this)));
-		CommandBindings.Add(new CommandBinding(ControlCommands.DuplicateTab, (_, _) => RaiseEvent(new RoutedEventArgs(DuplicatingEvent, this))));
+		CommandBindings.Add(new CommandBinding(ControlCommands.TabCommand, (_, e) => RaiseEvent(new TabItemCommandArgs(TabCommandEvent, (string)e.Parameter, this))));
 		Loaded += (s, _) => {
 			OnMenuChanged(Menu);
 			((TabItem)s).BeginAnimation(OpacityProperty, new DoubleAnimation(1d, new Duration(TimeSpan.FromMilliseconds(300))) {
@@ -316,7 +310,6 @@ public class TabItem : System.Windows.Controls.TabItem {
 		TabPanel.SetValue(TabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromMilliseconds(200)));
 
 		parent.IsInternalAction = true;
-		RaiseEvent(new RoutedEventArgs(ClosedEvent, item));
 
 		var list = parent.GetActualList();
 		list?.Remove(item);
@@ -403,14 +396,21 @@ public class TabItem : System.Windows.Controls.TabItem {
 				// 这里把Child给DragDropWindow显示，不然设为了Hidden显示不出来
 				Visibility = Visibility.Hidden;
 				DragDropWindow = DragDropWindow.Show((Grid)GetVisualChild(0), mouseDownTabPoint);
+				var timer = new DispatcherTimer(TimeSpan.FromSeconds(1 / 60d), DispatcherPriority.Input, DragTimerWork, Dispatcher);
 				// isItemDragging = isDragging = false 防止继续响应Move事件
-				isItemDragging = isDragging = MoveAfterDrag = CancelDrag = false;
+				isItemDragging = isDragging = MoveAfterDrag = false;
 				DragToTabControl = null;
-				System.Windows.DragDrop.DoDragDrop(this, FullPath, DragDropEffects.Move);
+				DragFrame = new DispatcherFrame();
+				Dispatcher.PushFrame(DragFrame);
+				DragFrame = null;
 
-				DraggingTab = null;
+				timer.Stop();
 				DragDropWindow.Close();
 				DragDropWindow = null;
+
+				DragEnd?.Invoke();
+				DragEnd = null;
+				DraggingTab = null;
 
 				if (MoveAfterDrag) {  // 为true就删掉当前的标签页
 					IEditableCollectionView items = tabControl.Items;
@@ -430,9 +430,14 @@ public class TabItem : System.Windows.Controls.TabItem {
 						EndDrag();
 					}
 				}
-				DragEnd?.Invoke();
-				DragEnd = null;
 			}
+		}
+	}
+
+	private void DragTimerWork(object s, EventArgs e) {
+		DragDropWindow?.MoveWithCursor();
+		if (Mouse.LeftButton != MouseButtonState.Pressed || Keyboard.IsKeyDown(Key.Escape)) {
+			EndDrag();  // 由于Dispatcher.PushFrame会取消MouseCapture，所以需要在这里处理EndDrag事件
 		}
 	}
 
@@ -454,17 +459,6 @@ public class TabItem : System.Windows.Controls.TabItem {
 		isWaiting = false;
 	}
 
-	protected override void OnPreviewGiveFeedback(GiveFeedbackEventArgs e) {
-		DragDropWindow?.MoveWithCursor();
-	}
-
-	protected override void OnPreviewQueryContinueDrag(QueryContinueDragEventArgs e) {
-		if (CancelDrag) {
-			e.Action = DragAction.Cancel;
-			e.Handled = true;
-		}
-	}
-
 	protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e) {
 		base.OnMouseLeftButtonUp(e);
 		ReleaseMouseCapture();
@@ -472,8 +466,21 @@ public class TabItem : System.Windows.Controls.TabItem {
 	}
 
 	private void EndDrag() {
+		if (DragFrame != null) {
+			DragFrame.Continue = false;
+		}
+
+		isDragging = false;
+		isItemDragging = false;
+		
 		if (isDragged) {
+			isDragged = false;
 			TabControlParent.NewTabButton.Visibility = Visibility.Visible;
+
+			if (MoveAfterDrag) {
+				return;
+			}
+
 			var parent = TabControlParent;
 			if (parent == null) {
 				return;
@@ -485,10 +492,6 @@ public class TabItem : System.Windows.Controls.TabItem {
 			var offsetX = RenderTransform.Value.OffsetX;
 			CreateAnimation(offsetX, offsetX - subX + left, index);
 		}
-
-		isDragging = false;
-		isItemDragging = false;
-		isDragged = false;
 	}
 
 	protected override void OnMouseDown(MouseButtonEventArgs e) {
@@ -579,6 +582,18 @@ public class TabItemDragEventArgs : RoutedEventArgs {
 	public TabItemDragEventArgs(DragEventArgs args, TabItem tabItem) {
 		RoutedEvent = args.RoutedEvent;
 		DragEventArgs = args;
+		TabItem = tabItem;
+	}
+}
+
+public class TabItemCommandArgs : RoutedEventArgs {
+	public string CommandParameter { get; }
+
+	public TabItem TabItem { get; }
+
+	public TabItemCommandArgs(RoutedEvent routedEvent, string commandParameter, TabItem tabItem) {
+		RoutedEvent = routedEvent;
+		CommandParameter = commandParameter;
 		TabItem = tabItem;
 	}
 }

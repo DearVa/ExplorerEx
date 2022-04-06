@@ -43,6 +43,7 @@ namespace HandyControl.Properties.Langs
             OnPropertyChanged(nameof(Clear));
             OnPropertyChanged(nameof(Close));
             OnPropertyChanged(nameof(DuplicateTab));
+            OnPropertyChanged(nameof(Move2NewWindow));
             OnPropertyChanged(nameof(CloseOther));
             OnPropertyChanged(nameof(Confirm));
             OnPropertyChanged(nameof(ErrorImgPath));
@@ -109,6 +110,31 @@ namespace HandyControl.Properties.Langs
         ///   查找类似 复制标签页 的本地化字符串。
         /// </summary>
 		public string DuplicateTab => Lang.DuplicateTab;
+
+        /// <summary>
+        ///   查找类似 移动到新窗口 的本地化字符串。
+        /// </summary>
+		public string Move2NewWindow => Lang.Move2NewWindow;
+
+        /// <summary>
+        ///   查找类似 分屏 的本地化字符串。
+        /// </summary>
+		public string SplitScreen => Lang.SplitScreen;
+
+        /// <summary>
+        ///   查找类似 到左侧 的本地化字符串。
+        /// </summary>
+		public string ToLeft => Lang.ToLeft;
+
+        /// <summary>
+        ///   查找类似 到右侧 的本地化字符串。
+        /// </summary>
+		public string ToRight => Lang.ToRight;
+
+        /// <summary>
+        ///   查找类似 到底部 的本地化字符串。
+        /// </summary>
+		public string ToBottom => Lang.ToBottom;
 
         /// <summary>
         ///   查找类似 关闭其他 的本地化字符串。
@@ -323,6 +349,31 @@ namespace HandyControl.Properties.Langs
         ///   查找类似 复制标签页 的本地化字符串。
         /// </summary>
 		public static string DuplicateTab = nameof(DuplicateTab);
+
+        /// <summary>
+        ///   查找类似 复制标签页 的本地化字符串。
+        /// </summary>
+		public static string Move2NewWindow = nameof(Move2NewWindow);
+
+        /// <summary>
+        ///   查找类似 分屏 的本地化字符串。
+        /// </summary>
+		public static string SplitScreen => nameof(SplitScreen);
+
+        /// <summary>
+        ///   查找类似 到左侧 的本地化字符串。
+        /// </summary>
+		public static string ToLeft => nameof(ToLeft);
+
+        /// <summary>
+        ///   查找类似 到右侧 的本地化字符串。
+        /// </summary>
+		public static string ToRight => nameof(ToRight);
+
+        /// <summary>
+        ///   查找类似 到底部 的本地化字符串。
+        /// </summary>
+		public static string ToBottom => nameof(ToBottom);
 
         /// <summary>
         ///   查找类似 关闭其他 的本地化字符串。

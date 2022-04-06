@@ -1,10 +1,11 @@
 ﻿using System.IO;
 using ExplorerEx.Utils;
 using System.Windows.Media;
-using ExplorerEx.Win32;
 using System.Runtime.CompilerServices;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using ExplorerEx.Shell32;
 using HandyControl.Controls;
 
@@ -13,13 +14,8 @@ namespace ExplorerEx.Model;
 /// <summary>
 /// 硬盘驱动器
 /// </summary>
-public sealed class DiskDrive : FileItem {
-	public DriveInfo Drive { get; private set; }
-
-	public override string FullPath {
-		get => Drive.Name;
-		protected set => Drive = new DriveInfo(value);
-	}
+public sealed class DiskDriveItem : FolderItem {
+	public DriveInfo Drive { get; }
 
 	public override string DisplayText => DriveUtils.GetFriendlyName(Drive);
 
@@ -37,8 +33,9 @@ public sealed class DiskDrive : FileItem {
 
 	private static readonly Gradient GradientColor = new(Colors.ForestGreen, Colors.Orange, Colors.Red);
 
-	public DiskDrive(DriveInfo drive) {
+	public DiskDriveItem(DriveInfo drive) : base(drive.Name) {
 		Drive = drive;
+		FullPath = drive.Name;
 		IsFolder = true;
 		TotalSpace = -1;
 		Name = drive.Name;
@@ -61,6 +58,10 @@ public sealed class DiskDrive : FileItem {
 
 	public override void LoadIcon() {
 		Icon = IconHelper.GetDriveThumbnail(Drive);
+	}
+
+	public Task<List<FileListViewItem>> EnumerateItems() {
+		throw new NotImplementedException();
 	}
 
 	public override void StartRename() {

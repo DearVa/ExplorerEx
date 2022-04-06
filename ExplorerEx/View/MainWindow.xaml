@@ -24,58 +24,58 @@
                       Icon="{Binding Path=(m:FileItemAttach.FileItem).Icon, RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay}" Header="{u:Lang Open}"/>
             <MenuItem CommandParameter="OpenInNewTab"
                       Command="{Binding BookmarkItemCommand}"
-                      Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang OpenInNewTab}"/>
+                      Icon="{DynamicResource ShareDrawingImage}" Header="{u:Lang OpenInNewTab}"/>
             <MenuItem CommandParameter="OpenInNewWindow"
                       Command="{Binding BookmarkItemCommand}"
-                      Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang OpenInNewWindow}"/>
+                      Icon="{DynamicResource ShareDrawingImage}" Header="{u:Lang OpenInNewWindow}"/>
             <MenuItem CommandParameter="OpenFileLocation"
                       Command="{Binding BookmarkItemCommand}"
-                      Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang OpenFileLocation}"/>
-            <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
+                      Icon="{DynamicResource ShareDrawingImage}" Header="{u:Lang OpenFileLocation}"/>
+            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
             <MenuItem CommandParameter="RemoveFromBookmarks"
                       Command="{Binding BookmarkItemCommand}"
-                      Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
-            <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
+                      Icon="{DynamicResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
+            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
             <MenuItem Command="{Binding EditBookmarkCommand}"
-                      Icon="{StaticResource EditDrawingImage}" Header="{u:Lang EditBookmark}"/>
-            <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
+                      Icon="{DynamicResource EditDrawingImage}" Header="{u:Lang EditBookmark}"/>
+            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
             <MenuItem CommandParameter="Properties"
                       Command="{Binding BookmarkItemCommand}"
-                      Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
+                      Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
         </ContextMenu>
 
         <ContextMenu x:Key="BookmarkFileItemContextMenu" d:DataContext="{d:DesignInstance v:MainWindow}">
             <MenuItem CommandParameter="Open"
                       Command="{Binding BookmarkItemCommand}"
-                      Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileSystemItem.IsExecutable), Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                      Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileItem.IsExecutable), Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
                       Icon="{Binding Icon}" Header="{u:Lang Open}"/>
             <MenuItem CommandParameter="Open"
                       Command="{Binding BookmarkItemCommand}"
-                      Visibility="{Binding (m:FileItemAttach.FileItem).(m:FileSystemItem.IsExecutable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                      Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileItem.IsExecutable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{Binding Icon}" Header="{u:Lang Run}"/>
             <MenuItem CommandParameter="RunAs"
                       Command="{Binding BookmarkItemCommand}"
-                      Visibility="{Binding (m:FileItemAttach.FileItem).(m:FileSystemItem.IsExecutable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                      Icon="{StaticResource UacDrawingImage}" Header="{u:Lang RunAsAdmin}"/>
+                      Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileItem.IsExecutable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                      Icon="{DynamicResource UacDrawingImage}" Header="{u:Lang RunAsAdmin}"/>
             <MenuItem CommandParameter="Edit"
                       Command="{Binding BookmarkItemCommand}"
-                      Visibility="{Binding (m:FileItemAttach.FileItem).(m:FileSystemItem.IsEditable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                      Icon="{StaticResource EditDrawingImage}" Header="{u:Lang Edit}"/>
+                      Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileItem.IsEditable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                      Icon="{DynamicResource EditDrawingImage}" Header="{u:Lang Edit}"/>
             <MenuItem CommandParameter="OpenFileLocation"
                       Command="{Binding BookmarkItemCommand}"
-                      Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang OpenFileLocation}"/>
-            <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
+                      Icon="{DynamicResource ShareDrawingImage}" Header="{u:Lang OpenFileLocation}"/>
+            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
             <MenuItem CommandParameter="RemoveFromBookmarks"
                       Command="{Binding BookmarkItemCommand}"
-                      Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
-            <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
+                      Icon="{DynamicResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
+            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
             <MenuItem CommandParameter="Properties"
                       Command="{Binding BookmarkItemCommand}"
-                      Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
+                      Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
         </ContextMenu>
 
         <!-- ReSharper disable once Xaml.RedundantResource -->
@@ -91,49 +91,49 @@
                         <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance v:MainWindow}">
                             <MenuItem ToolTip="{u:Lang Cut}" CommandParameter="Cut"
                                       Command="{Binding SideBarPcItemCommand}"
-                                      Icon="{StaticResource CutDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                                      Icon="{DynamicResource CutDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
                             <MenuItem Margin="3,0,0,0" ToolTip="{u:Lang Copy}" CommandParameter="Copy"
                                       Command="{Binding SideBarPcItemCommand}"
-                                      Icon="{StaticResource CopyDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                                      Icon="{DynamicResource CopyDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
                             <MenuItem Margin="3,0,0,0" ToolTip="{u:Lang Rename}" CommandParameter="Rename"
                                       Command="{Binding SideBarPcItemCommand}"
-                                      Icon="{StaticResource RenameDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                                      Icon="{DynamicResource RenameDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
                             <MenuItem Margin="3,0,0,0" ToolTip="{u:Lang Delete}" CommandParameter="Delete"
                                       Command="{Binding SideBarPcItemCommand}"
-                                      Icon="{StaticResource DeleteDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                                      Icon="{DynamicResource DeleteDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
                         </StackPanel>
                     </ControlTemplate>
                 </MenuItem.Template>
             </MenuItem>
-            <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
+            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
             <MenuItem CommandParameter="Open"
                       Command="{Binding SideBarPcItemCommand}"
                       Icon="{Binding Path=(m:FileItemAttach.FileItem).Icon, RelativeSource={RelativeSource AncestorType=ContextMenu}}" Header="{u:Lang Open}"/>
             <MenuItem CommandParameter="OpenInNewTab"
                       Command="{Binding SideBarPcItemCommand}" 
-                      Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang OpenInNewTab}"/>
+                      Icon="{DynamicResource ShareDrawingImage}" Header="{u:Lang OpenInNewTab}"/>
             <MenuItem CommandParameter="OpenInNewWindow"
                       Command="{Binding SideBarPcItemCommand}" 
-                      Icon="{StaticResource ShareDrawingImage}" Header="{u:Lang OpenInNewWindow}"/>
+                      Icon="{DynamicResource ShareDrawingImage}" Header="{u:Lang OpenInNewWindow}"/>
             <MenuItem Header="{u:Lang CopyAsPath}" CommandParameter="CopyAsPath"
                       Command="{Binding Path=SideBarPcItemCommand}"
-                      Icon="{StaticResource CopyDrawingImage}"/>
-            <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
+                      Icon="{DynamicResource CopyDrawingImage}"/>
+            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
             <MenuItem CommandParameter="AddToBookmarks"
                       Command="{Binding SideBarPcItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).IsBookmarked, RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
-                      Icon="{StaticResource StarDrawingImage}" Header="{u:Lang AddToBookmarks}"/>
+                      Icon="{DynamicResource StarDrawingImage}" Header="{u:Lang AddToBookmarks}"/>
             <MenuItem CommandParameter="RemoveFromBookmarks"
                       Command="{Binding SideBarPcItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).IsBookmarked, RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                      Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
-            <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
+                      Icon="{DynamicResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
+            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
             <MenuItem CommandParameter="Properties"
                       Command="{Binding SideBarPcItemCommand}"
-                      Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
+                      Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
         </ContextMenu>
     </Window.Resources>
 
@@ -147,7 +147,7 @@
             <ColumnDefinition Width="1"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <hc:SimplePanel Grid.Column="0" MouseLeftButtonDown="OnDragAreaMouseLeftButtonDown" SizeChanged="Sidebar_OnSizeChanged">
+        <hc:SimplePanel Grid.Column="0" MouseLeftButtonDown="OnDragAreaMouseLeftButtonDown">
             <ct:TabControlEx x:Name="SidebarTabControl" Focusable="False" Padding="0,52,0,0"
                              WindowChrome.IsHitTestVisibleInChrome="True" CanDeselect="True" SelectionChanged="OnSidebarSelectionChanged">
                 <TabItem x:Name="BookmarksTabItem" Width="50" Padding="0">
@@ -254,7 +254,7 @@
                     <ct:SideBarContent Header="{u:Lang ThisPC}" ShowSearchButton="False">
                         <ct:SideBarContent.Content>
                             <TreeView x:Name="SideBarThisPcTreeView" BorderThickness="0"
-                                      ItemsSource="{Binding Path=Children, Source={x:Static m:FolderItem.Home}}">
+                                      ItemsSource="{Binding Path=Children, Source={x:Static m:FolderOnlyItem.Home}}">
                                 <TreeView.ItemTemplate>
                                     <HierarchicalDataTemplate ItemsSource="{Binding Children, Mode=OneWay}">
                                         <hc:SimplePanel Background="Transparent">
@@ -384,14 +384,14 @@
                                                     <!-- ReSharper disable once MarkupAttributeTypo -->
                                                     <MenuItem Icon="{Binding Icon}" Header="{u:Lang Restore}" 
                                                               Command="{Binding Command, Mode=OneTime}" CommandParameter="undelete"/>
-                                                    <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
+                                                    <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
                                                     <!--<MenuItem Icon="{StaticResource CutDrawingImage}" Header="{u:Lang Cut}"/>
-                                                    <Separator Style="{DynamicResource SeparatorBaseStyle}"/>-->
+                                                    <Separator Style="{StaticResource SeparatorBaseStyle}"/>-->
 
                                                     <MenuItem Icon="{StaticResource DeleteDrawingImage}" Header="{u:Lang Delete}"
                                                               Command="{Binding Command, Mode=OneTime}" CommandParameter="delete"/>
-                                                    <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
+                                                    <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
                                                     <MenuItem Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"
                                                               Command="{Binding Command, Mode=OneTime}" CommandParameter="properties"/>
@@ -487,7 +487,8 @@
                    Stretch="Uniform" Source="../Assets/Picture/Logo.png" ToolTip="ExplorerEx"/>
 
             <Button HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="40" Width="40" Margin="5,0,3,4"
-                    ToolTip="{u:Lang Settings}" ToolTipService.InitialShowDelay="300" Padding="0" BorderBrush="{x:Null}">
+                    ToolTip="{u:Lang Settings}" ToolTipService.InitialShowDelay="300" Padding="0"
+                    Style="{StaticResource ButtonTransparent}">
                 <Image Width="24" Height="24" Source="{StaticResource SettingsDrawingImage}"/>
             </Button>
         </hc:SimplePanel>
@@ -496,7 +497,7 @@
                       PreviewMouseDown="SidebarSplitter_OnPreviewMouseDown" PreviewMouseMove="SidebarSplitter_OnPreviewMouseMove" PreviewMouseUp="SidebarSplitter_OnPreviewMouseUp"/>
 
         <hc:SimplePanel x:Name="ContentGrid" Grid.Column="2">
-            <Border MouseDown="OnDragAreaMouseLeftButtonDown" Background="Transparent"/>
+            <Border MouseLeftButtonDown="OnDragAreaMouseLeftButtonDown" Background="Transparent"/>
         </hc:SimplePanel>
     </Grid>
 </Window>

@@ -9,7 +9,7 @@ namespace HandyControl.Controls;
 /// <summary>
 /// 拖放一个控件时，可以Show这个窗口，是一个跟随鼠标的控件
 /// </summary>
-public sealed class DragDropWindow : Window {
+public sealed class DragDropWindow : System.Windows.Window {
 	private Point cursorPoint;
 
 	private DragDropWindow(FrameworkElement element, Point cursorPoint, double opacity, bool useVisualBrush) {

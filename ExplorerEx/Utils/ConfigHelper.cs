@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Win32;
 
 namespace ExplorerEx.Utils; 
@@ -8,14 +11,44 @@ namespace ExplorerEx.Utils;
 /// </summary>
 public static class ConfigHelper {
 	private static readonly RegistryKey RegRoot = Registry.CurrentUser.OpenSubKey(@"Software\Dear.Va\ExplorerEx", true) ?? Registry.CurrentUser.CreateSubKey(@"Software\Dear.Va\ExplorerEx", true);
-	private static uint saveCount;
+
+	private static Task bufferSaveTask;
+	private static readonly Dictionary<string, object> Buffer = new();
+	private static bool canSave;
+
+	/// <summary>
+	/// 暂存入缓冲区，如果1s没有新的写入就批量存储
+	/// </summary>
+	/// <param name="key"></param>
+	/// <param name="value"></param>
+	public static void SaveToBuffer(string key, object value) {
+		lock (Buffer) {
+			Buffer[key] = value;
+			canSave = false;
+			bufferSaveTask ??= Task.Run(BufferSaveTaskWork);
+		}
+	}
+
+	private static void BufferSaveTaskWork() {
+		while (true) {
+			canSave = true;
+			Thread.Sleep(1000);
+			if (canSave) {
+				lock (Buffer) {
+					foreach (var (key, value) in Buffer) {
+						Save(key, value);
+					}
+					Buffer.Clear();
+				}
+				break;
+			}
+			bufferSaveTask = null;
+		}
+	}
 
 	public static void Save(string key, object value) {
 		try {
 			RegRoot.SetValue(key, value);
-			if (++saveCount > 128) {
-				RegRoot.Flush();
-			}
 		} catch (Exception e) {
 			Logger.Exception(e);
 		}

@@ -75,6 +75,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="JetBrains.Profiler.Api" Version="1.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.2">
       <PrivateAssets>all</PrivateAssets>
@@ -86,12 +87,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="NLog" Version="4.7.13" />
+    <PackageReference Include="SharpVectors" Version="1.7.7" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
     <PackageReference Include="VirtualizingWrapPanel" Version="1.5.7" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\External\HandyControl\HandyControl.csproj" />
-    <ProjectReference Include="..\External\SvgConverter\SvgConverter.csproj" />
   </ItemGroup>
 
   <ItemGroup>

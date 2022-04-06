@@ -62,7 +62,7 @@
   <data name="OpenInNewTab" xml:space="preserve">
     <value>Open in new Tab</value>
   </data>
-  <data name="Remember_my_choice_and_dont_ask_again" xml:space="preserve">
+  <data name="RememberMyChoiceAndDontAskAgain" xml:space="preserve">
     <value>Remember my choice and don't ask again</value>
   </data>
   <data name="#AreYouSureToRecycleTheseFiles" xml:space="preserve">
@@ -71,10 +71,10 @@
   <data name="FailedToOpenFile" xml:space="preserve">
     <value>Filed to open file</value>
   </data>
-  <data name="Check_your_input_and_try_again" xml:space="preserve">
+  <data name="CheckYourInputAndTryAgain" xml:space="preserve">
     <value>Check your input and try again.</value>
   </data>
-  <data name="Cannot open path" xml:space="preserve">
+  <data name="CannotOpenPath" xml:space="preserve">
     <value>Cannot open path</value>
   </data>
   <data name="#AreYouSureToDeleteTheseFilesPermanently" xml:space="preserve">
@@ -107,7 +107,7 @@
   <data name="Exit_application" xml:space="preserve">
     <value>Exit application</value>
   </data>
-  <data name="Back_to_home" xml:space="preserve">
+  <data name="BackToHome" xml:space="preserve">
     <value>Back to home</value>
   </data>
   <data name="UnknownError" xml:space="preserve">
@@ -146,7 +146,7 @@
   <data name="Dont_show_this_message_again" xml:space="preserve">
     <value>Don't show this message again</value>
   </data>
-  <data name="Cannot_access_directory" xml:space="preserve">
+  <data name="CannotAccessDirectory" xml:space="preserve">
     <value>Cannot access directory</value>
   </data>
   <data name="AccessDenied" xml:space="preserve">
@@ -175,7 +175,7 @@ Are you sure you want to change?</value>
   <data name="Search" xml:space="preserve">
     <value>Search</value>
   </data>
-  <data name="Everything_is_not_available" xml:space="preserve">
+  <data name="#EverythingIsNotAvailable" xml:space="preserve">
     <value>Everything is not running or not installed, cannot search now.</value>
   </data>
   <data name="Removable_disk" xml:space="preserve">
@@ -383,5 +383,43 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name="Empty" xml:space="preserve">
     <value>Empty</value>
+  </data>
+  <data name="#ExplorerExCannotFind..." xml:space="preserve">
+    <value>ExplorerEx Cannot Find: {0}
+If the location in on this PC, make sure the device or drive is connected or the disc is inserted, and then try again. If the location is on a network, make sure you're connected to the network or Internet, and then try again. If the location still can't be found, it might have been moved or deleted.</value>
+  </data>
+  <data name="#PathNotExistOrAccessDenied" xml:space="preserve">
+    <value>The path does not exist or access is denied.</value>
+  </data>
+  <data name="#FatalError" xml:space="preserve">
+    <value>Explorerex encountered a fatal error and needs to exit now.
+
+{0}
+
+You can find the detailed messages in the ExplorerEx\Logs directory.</value>
+  </data>
+  <data name="#ZipMustEndsWithSlash" xml:space="preserve">
+    <value>To access the contents of the zip, the path should end with "\".
+For example: C:\compress.zip\Folder1\</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="ExtractAll" xml:space="preserve">
+    <value>Extract all</value>
+  </data>
+  <data name="RunAnyway" xml:space="preserve">
+    <value>Run anyway</value>
+  </data>
+  <data name="Question" xml:space="preserve">
+    <value>Question</value>
+  </data>
+  <data name="#ZipFileIsExecutable" xml:space="preserve">
+    <value>This application may depend on other compressed files in this folder.
+
+For the application to run properly, it's recommanded that you first extract all files.</value>
+  </data>
+  <data name="CloseWindow" xml:space="preserve">
+    <value>Close window</value>
   </data>
 </root>

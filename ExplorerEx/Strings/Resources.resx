@@ -112,16 +112,16 @@
   <data name="OpenInNewTab" xml:space="preserve">
     <value>在新标签页中打开</value>
   </data>
-  <data name="Remember_my_choice_and_dont_ask_again" xml:space="preserve">
+  <data name="RememberMyChoiceAndDontAskAgain" xml:space="preserve">
     <value>记住我的选择，下次不再询问</value>
   </data>
   <data name="#AreYouSureToRecycleTheseFiles" xml:space="preserve">
     <value>您确定要将选择的文件移动到回收站吗？</value>
   </data>
-  <data name="Check_your_input_and_try_again" xml:space="preserve">
-    <value>请检查您的输入后再试。</value>
+  <data name="CheckYourInputAndTryAgain" xml:space="preserve">
+    <value>请检查您的输入后重试。</value>
   </data>
-  <data name="Cannot open path" xml:space="preserve">
+  <data name="CannotOpenPath" xml:space="preserve">
     <value>无法打开此路径</value>
   </data>
   <data name="#AreYouSureToDeleteTheseFilesPermanently" xml:space="preserve">
@@ -154,7 +154,7 @@
   <data name="Exit_application" xml:space="preserve">
     <value>退出应用程序</value>
   </data>
-  <data name="Back_to_home" xml:space="preserve">
+  <data name="BackToHome" xml:space="preserve">
     <value>回到首页</value>
   </data>
   <data name="UnknownError" xml:space="preserve">
@@ -193,7 +193,7 @@
   <data name="Dont_show_this_message_again" xml:space="preserve">
     <value>不要再显示该信息</value>
   </data>
-  <data name="Cannot_access_directory" xml:space="preserve">
+  <data name="CannotAccessDirectory" xml:space="preserve">
     <value>无法访问文件夹</value>
   </data>
   <data name="AccessDenied" xml:space="preserve">
@@ -222,7 +222,7 @@
   <data name="Search" xml:space="preserve">
     <value>搜索</value>
   </data>
-  <data name="Everything_is_not_available" xml:space="preserve">
+  <data name="#EverythingIsNotAvailable" xml:space="preserve">
     <value>Everything未运行或未安装，暂时无法使用搜索。</value>
   </data>
   <data name="Removable_disk" xml:space="preserve">
@@ -432,5 +432,41 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name="Empty" xml:space="preserve">
     <value>空</value>
+  </data>
+  <data name="#ExplorerExCannotFind..." xml:space="preserve">
+    <value>ExplorerEx找不到：{0}
+如果路径位于计算机上，请确认磁盘或者光碟已插入，然后再试一次。
+如果路径位于网络，请确认您已经连接到局域网或互联网，然后再试一次。
+如果仍无法打开，说明该路径已被移动或删除，亦或者您没有权限来访问。</value>
+  </data>
+  <data name="#PathNotExistOrAccessDenied" xml:space="preserve">
+    <value>路径不存在或者没有权限访问。</value>
+  </data>
+  <data name="#FatalError" xml:space="preserve">
+    <value>ExplorerEx遇到严重错误，需要立即退出。
+{0}
+您可以在 ExplorerEx安装目录\Logs 目录下找到详细信息。</value>
+  </data>
+  <data name="#ZipMustEndsWithSlash" xml:space="preserve">
+    <value>要访问zip的内容，路径应该以“\”结尾。
+如C:\compress.zip\Folder1\</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="ExtractAll" xml:space="preserve">
+    <value>全部解压缩</value>
+  </data>
+  <data name="RunAnyway" xml:space="preserve">
+    <value>直接运行</value>
+  </data>
+  <data name="Question" xml:space="preserve">
+    <value>询问</value>
+  </data>
+  <data name="#ZipFileIsExecutable" xml:space="preserve">
+    <value>这个应用程序可能依赖于压缩包中的其他文件，为了保证程序正常运行，建议全部解压后再运行。</value>
+  </data>
+  <data name="CloseWindow" xml:space="preserve">
+    <value>关闭窗口</value>
   </data>
 </root>

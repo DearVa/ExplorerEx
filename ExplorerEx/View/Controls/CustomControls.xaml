@@ -46,17 +46,19 @@
                                         hc:InfoElement.Placeholder="{u:Lang Search}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         </hc:SimplePanel>
 
-                        <hc:SimplePanel Grid.Row="0" Background="{DynamicResource BackgroundBrush}">
-                            <TextBlock VerticalAlignment="Center" Margin="10,10,0,0" Text="{Binding Header, Mode=OneWay}" 
-                                       FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}"/>
-                            <StackPanel HorizontalAlignment="Right" Margin="0,10,10,0" Orientation="Horizontal">
-                                <ContentPresenter Content="{Binding HeaderContent, Mode=OneWay}"/>
-                                <ToggleButton x:Name="SearchToggleButton" hc:IconElement.Geometry="{StaticResource SearchGeometry}" 
-                                              Style="{StaticResource ToggleButtonTransparent}" Width="25" Height="25" Padding="5"
-                                              Visibility="{Binding ShowSearchButton, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                                              Margin="10,0,0,0" ToolTip="{u:Lang Search}"/>
-                            </StackPanel>
-                        </hc:SimplePanel>
+                        <Border Grid.Row="0" Margin="0,10,0,0" CornerRadius="10,10,0,0" Background="{DynamicResource BackgroundBrush}">
+                            <hc:SimplePanel >
+                                <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" Text="{Binding Header, Mode=OneWay}" 
+                                           FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                                <StackPanel HorizontalAlignment="Right" Margin="0,0,10,0" Orientation="Horizontal">
+                                    <ContentPresenter Content="{Binding HeaderContent, Mode=OneWay}"/>
+                                    <ToggleButton x:Name="SearchToggleButton" hc:IconElement.Geometry="{StaticResource SearchGeometry}" 
+                                                  Style="{StaticResource ToggleButtonTransparent}" Width="25" Height="25" Padding="5"
+                                                  Visibility="{Binding ShowSearchButton, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                  Margin="10,0,0,0" ToolTip="{u:Lang Search}"/>
+                                </StackPanel>
+                            </hc:SimplePanel>
+                        </Border>
 
                         <hc:SimplePanel Grid.Row="2" Background="{DynamicResource SecondaryRegionBrush}">
                             <ContentPresenter x:Name="DragArea" Content="{Binding Content, Mode=OneWay}" AllowDrop="true"/>
@@ -112,13 +114,13 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TabControl">
-                    <Grid x:Name="templateRoot" Background="{DynamicResource BackgroundBrush}" ClipToBounds="true" SnapsToDevicePixels="true" KeyboardNavigation.TabNavigation="Local">
+                    <Grid x:Name="templateRoot" ClipToBounds="true" SnapsToDevicePixels="true" KeyboardNavigation.TabNavigation="Local">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <StackPanel x:Name="headerPanel" Background="Transparent" Grid.Column="0"
-                                        Margin="0" KeyboardNavigation.TabIndex="1" Panel.ZIndex="1">
+                        <StackPanel x:Name="headerPanel" Grid.Column="0"
+                                    Margin="0" KeyboardNavigation.TabIndex="1" Panel.ZIndex="1">
                             <hc:Interaction.Triggers>
                                 <hc:RoutedEventTrigger RoutedEvent="TabItem.PreviewMouseDown">
                                     <hc:EventToCommand Command="{Binding TabItemPreviewMouseDownCommand, RelativeSource={RelativeSource AncestorType=ct:TabControlEx}}" PassEventArgsToCommand="True"/>
@@ -130,8 +132,7 @@
                             <ItemsPresenter Margin="{TemplateBinding Padding}"/>
                         </StackPanel>
                         <Border x:Name="contentPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1"
-                                BorderThickness="{Binding BorderThickness, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource ThicknessSplitConverter}, ConverterParameter='1,0,0,0'}"
-                                BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource BackgroundBrush}" KeyboardNavigation.DirectionalNavigation="Contained"
+                                KeyboardNavigation.DirectionalNavigation="Contained"
                                 KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
                             <ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent" Margin="0" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                         </Border>
@@ -218,7 +219,7 @@
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <ItemContainerTemplate>
-                                            <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance m:FolderItem}">
+                                            <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance m:FolderOnlyItem}">
                                                 <Button Padding="3" BorderThickness="0" Content="{Binding DisplayText, Mode=OneWay}"
                                                         Command="{Binding ItemClickedCommand, RelativeSource={RelativeSource AncestorType=ct:AddressBar}}"
                                                         CommandParameter="{Binding}"/>

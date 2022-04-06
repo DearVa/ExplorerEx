@@ -56,10 +56,8 @@ public sealed partial class MainWindow {
 
 	private readonly FileSystemItemContextMenuConverter bookmarkItemContextMenuConverter;
 	private readonly ContextMenu sideBarPcItemContextMenu;
-
-	public MainWindow() : this(null) { }
-
-	public MainWindow(string startupPath) {
+	
+	public MainWindow(string startupPath, bool startUpLoad = true) {
 		this.startupPath = startupPath;
 		MainWindows.Add(this);
 
@@ -71,7 +69,7 @@ public sealed partial class MainWindow {
 			left += Random.Shared.Next(-100, 100);
 			top += Random.Shared.Next(-100, 100);
 		}
-		Left = Math.Min(Math.Max(100 - Width, left), SystemParameters.PrimaryScreenWidth - 100);
+		Left = Math.Min(Math.Max(300 - Width, left), SystemParameters.PrimaryScreenWidth - 100);
 		Top = Math.Min(Math.Max(0, top), SystemParameters.PrimaryScreenHeight - 100);
 
 		DataContext = this;
@@ -85,11 +83,11 @@ public sealed partial class MainWindow {
 		SideBarItemClickCommand = new SimpleCommand(SideBarItem_OnClick);
 
 		BookmarkItemCommand = new FileItemCommand {
-			SelectedItemsProvider = () => SideBarBookmarksTreeView.SelectedItem is BookmarkItem selectedItem ? new[] { selectedItem } : Array.Empty<FileItem>(),
+			SelectedItemsProvider = () => SideBarBookmarksTreeView.SelectedItem is BookmarkItem selectedItem ? new[] { selectedItem } : Array.Empty<FileListViewItem>(),
 			TabControlProvider = () => FileTabControl.MouseOverTabControl
 		};
 		SideBarPcItemCommand = new FileItemCommand {
-			SelectedItemsProvider = () => SideBarThisPcTreeView.SelectedItem is FolderItem selectedItem ? new[] { selectedItem } : Array.Empty<FileItem>(),
+			SelectedItemsProvider = () => SideBarThisPcTreeView.SelectedItem is FolderOnlyItem selectedItem ? new[] { selectedItem } : Array.Empty<FileListViewItem>(),
 			TabControlProvider = () => FileTabControl.MouseOverTabControl
 		};
 		EditBookmarkCommand = new SimpleCommand(_ => {
@@ -114,18 +112,20 @@ public sealed partial class MainWindow {
 		ContentGrid.Children.Add(SplitGrid);
 		ChangeTheme(App.IsDarkTheme, false);
 
-		if (FolderItem.Home.Children.Count == 0) {
+		if (FolderOnlyItem.Home.Children.Count == 0) {
 			foreach (var driveInfo in DriveInfo.GetDrives()) {
-				FolderItem.Home.Children.Add(new FolderItem(driveInfo));
+				FolderOnlyItem.Home.Children.Add(new FolderOnlyItem(driveInfo));
 			}
 		}
 
-		StartupLoad();
+		if (startUpLoad) {
+			StartupLoad();
+		}
 	}
 
 	private void SideBarItem_OnPreviewMouseUp(object args) {
 		var e = (MouseButtonEventArgs)args;
-		if (e.ChangedButton == MouseButton.Right && e.OriginalSource is FrameworkElement { DataContext: FileItem fileItem }) {
+		if (e.ChangedButton == MouseButton.Right && e.OriginalSource is FrameworkElement { DataContext: FileListViewItem fileItem }) {
 			fileItem.IsSelected = true;
 			switch (fileItem) {
 			case BookmarkItem bookmarkItem:
@@ -135,7 +135,7 @@ public sealed partial class MainWindow {
 				menu.IsOpen = true;
 				e.Handled = true;
 				break;
-			case FolderItem pcItem:
+			case FolderOnlyItem pcItem:
 				sideBarPcItemContextMenu.SetValue(FileItemAttach.FileItemProperty, pcItem);
 				sideBarPcItemContextMenu.IsOpen = true;
 				e.Handled = true;
@@ -144,21 +144,21 @@ public sealed partial class MainWindow {
 		}
 	}
 
-	private void SideBarItem_OnClick(object args) {
+	private static async void SideBarItem_OnClick(object args) {
 		var e = (RoutedEventArgs)args;
 		if (e.OriginalSource is FrameworkElement element) {
 			switch (element.DataContext) {
-			case FileItem fileItem:
+			case FileListViewItem fileItem:
 				fileItem.IsSelected = true;
 				if (fileItem.IsFolder) {
-					_ = FileTabControl.FocusedTabControl.SelectedTab.LoadDirectoryAsync(fileItem.FullPath);
+					await FileTabControl.FocusedTabControl.SelectedTab.LoadDirectoryAsync(fileItem.FullPath);
 				} else {
 					try {
 						var psi = new ProcessStartInfo {
 							FileName = fileItem.FullPath,
 							UseShellExecute = true
 						};
-						if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) && fileItem is FileSystemItem { IsExecutable: true }) {
+						if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) && fileItem is FileItem { IsExecutable: true }) {
 							psi.Verb = "runas";
 						}
 						Process.Start(psi);
@@ -177,11 +177,15 @@ public sealed partial class MainWindow {
 		}
 	}
 
-	private void StartupLoad() {
-		if (startupPath == null) {
-			_ = SplitGrid.FileTabControl.StartUpLoad(App.Args.Paths.ToArray());
-		} else {
-			_ = SplitGrid.FileTabControl.StartUpLoad(startupPath);
+	private async void StartupLoad() {
+		try {
+			if (startupPath == null) {
+				await SplitGrid.FileTabControl.StartUpLoad(App.Args.Paths.ToArray());
+			} else {
+				await SplitGrid.FileTabControl.StartUpLoad(startupPath);
+			}
+		} catch (Exception e) {
+			App.Fatal(e);
 		}
 	}
 
@@ -235,7 +239,8 @@ public sealed partial class MainWindow {
 							case PathType.Home:
 								tabItem.Refresh();
 								break;
-							case PathType.Normal: {
+							case PathType.LocalFolder:
+							case PathType.Zip: {
 								if (tabItem.FullPath[0] == drive) {
 #pragma warning disable CS4014
 									tabItem.LoadDirectoryAsync(null);  // 驱动器移除，返回主页
@@ -246,7 +251,7 @@ public sealed partial class MainWindow {
 							}
 						}
 					}
-					var home = FolderItem.Home;
+					var home = FolderOnlyItem.Home;
 					for (var i = 0; i < home.Children.Count; i++) {
 						if (home.Children[i].FullPath[0] == drive) {
 							home.Children.RemoveAt(i);
@@ -254,7 +259,7 @@ public sealed partial class MainWindow {
 						}
 					}
 					if (param == 0x8000) {
-						home.Children.Add(new FolderItem(new DriveInfo(drive.ToString())));
+						home.Children.Add(new FolderOnlyItem(new DriveInfo(drive.ToString())));
 					}
 					RecycleBinItem.RegisterWatcher();
 					break;
@@ -285,13 +290,13 @@ public sealed partial class MainWindow {
 	/// 打开给定的路径，如果没有窗口就打开一个新的，如果有窗口就会在FocusedTabControl打开新标签页，需要在UI线程调用
 	/// </summary>
 	/// <param name="path"></param>
-	public static void OpenPath(string path) {
+	public static async Task OpenPath(string path) {
 		if (MainWindows.Count == 0) {  // 窗口都关闭了
 			new MainWindow(path).Show();
 		} else {
 			var tabControl = FileTabControl.FocusedTabControl;
 			tabControl.MainWindow.BringToFront();
-			_ = tabControl.OpenPathInNewTabAsync(path);
+			await tabControl.OpenPathInNewTabAsync(path);
 		}
 	}
 
@@ -300,7 +305,7 @@ public sealed partial class MainWindow {
 	/// </summary>
 	public static void ShowWindow() {
 		if (MainWindows.Count == 0) {  // 窗口都关闭了
-			new MainWindow().Show();
+			new MainWindow(null).Show();
 		} else {
 			MainWindows[0].BringToFront();
 		}
@@ -542,21 +547,21 @@ public sealed partial class MainWindow {
 
 	protected override void OnLocationChanged(EventArgs e) {
 		base.OnLocationChanged(e);
-		ConfigHelper.Save("WindowLeft", (int)Left);
-		ConfigHelper.Save("WindowTop", (int)Top);
+		ConfigHelper.SaveToBuffer("WindowLeft", (int)Left);
+		ConfigHelper.SaveToBuffer("WindowTop", (int)Top);
 	}
 
 	protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
 		base.OnRenderSizeChanged(sizeInfo);
 		if (sizeInfo.WidthChanged && (int)sizeInfo.NewSize.Width != (int)sizeInfo.PreviousSize.Width) {
-			ConfigHelper.Save("WindowWidth", (int)sizeInfo.NewSize.Width);
+			ConfigHelper.SaveToBuffer("WindowWidth", (int)sizeInfo.NewSize.Width);
 		}
 		if (sizeInfo.HeightChanged && (int)sizeInfo.NewSize.Height != (int)sizeInfo.PreviousSize.Height) {
-			ConfigHelper.Save("WindowHeight", (int)sizeInfo.NewSize.Height);
+			ConfigHelper.SaveToBuffer("WindowHeight", (int)sizeInfo.NewSize.Height);
 		}
 	}
 
-	protected override void OnPreviewKeyDown(KeyEventArgs e) {
+	protected override void OnKeyDown(KeyEventArgs e) {
 		var mouseOverTab = FileTabControl.MouseOverTabControl?.SelectedTab;
 		if (mouseOverTab != null) {
 			if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
@@ -578,6 +583,9 @@ public sealed partial class MainWindow {
 				case Key.I:
 					mouseOverTab.FileListView.InverseSelection();
 					break;
+				case Key.W:
+					FileTabControl.MouseOverTabControl.CloseTab(mouseOverTab);
+					break;
 				}
 			} else if ((Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt) {
 				switch (e.SystemKey) {
@@ -593,26 +601,25 @@ public sealed partial class MainWindow {
 				}
 			} else {
 				switch (e.Key) {
+				case Key.Enter:
+					mouseOverTab.FileItemCommand.Execute("Open");
+					break;
 				case Key.Delete:
 					mouseOverTab.FileItemCommand.Execute("Delete");
 					break;
+				case Key.Back:
+					mouseOverTab.GoBackAsync();
+					break;
 				case Key.Left:
-					ChangeTheme(true);
+					ChangeTheme(true, false);
 					break;
 				case Key.Right:
-					ChangeTheme(false);
+					ChangeTheme(false, false);
 					break;
 				}
 			}
 		}
-		base.OnPreviewKeyDown(e);
-	}
-
-	private void Sidebar_OnSizeChanged(object sender, SizeChangedEventArgs e) {
-		int width;
-		if (e.WidthChanged && (width = (int)e.NewSize.Width) != (int)e.PreviousSize.Width && SidebarTabControl.SelectedIndex != -1) {
-			ConfigHelper.Save("SidebarWidth", width);
-		}
+		base.OnKeyDown(e);
 	}
 
 	private bool loaded;
@@ -683,7 +690,10 @@ public sealed partial class MainWindow {
 				}
 			} else if (isOpen) {
 				SidebarTabControl.SelectedIndex = -1;
-				ConfigHelper.Save("SidebarWidth", SidebarMinWidth);
+			}
+
+			if (isOpen) {
+				ConfigHelper.SaveToBuffer("SidebarWidth", width);
 			}
 		}
 		e.Handled = true;
@@ -731,8 +741,12 @@ public sealed partial class MainWindow {
 	/// <param name="e"></param>
 	private void MainWindow_OnPreviewMouseDown(object sender, MouseButtonEventArgs e) {
 		if (Keyboard.FocusedElement is TextBox && e.OriginalSource.FindParent<TextBox>() == null) {
-			FocusManager.SetFocusedElement(this, null);
-			Keyboard.ClearFocus();
+			ClearTextBoxFocus();
 		}
+	}
+
+	public void ClearTextBoxFocus() {
+		FocusManager.SetFocusedElement(this, null);
+		Keyboard.ClearFocus();
 	}
 }
