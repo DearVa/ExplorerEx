@@ -36,7 +36,7 @@ public partial class FileTabControl {
 	/// <summary>
 	/// 标签页
 	/// </summary>
-	public ObservableCollection<FileGridViewModel> TabItems { get; } = new();
+	public ObservableCollection<FileTabViewModel> TabItems { get; } = new();
 
 	public new static readonly DependencyProperty SelectedIndexProperty = DependencyProperty.Register(
 		"SelectedIndex", typeof(int), typeof(FileTabControl), new PropertyMetadata(default(int)));
@@ -56,7 +56,7 @@ public partial class FileTabControl {
 		}
 	}
 
-	public FileGridViewModel SelectedTab {
+	public FileTabViewModel SelectedTab {
 		get {
 			if (TabItems.Count == 0) {
 				return null;
@@ -88,10 +88,26 @@ public partial class FileTabControl {
 	public SimpleCommand DropCommand { get; }
 
 	public MainWindow MainWindow { get; }
-
+	
 	public SplitGrid OwnerSplitGrid { get; set; }
 
-	public FileTabControl(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileGridViewModel grid) {
+	public static readonly DependencyProperty CanMove2NewWindowProperty = DependencyProperty.Register(
+		"CanMove2NewWindow", typeof(bool), typeof(FileTabControl), new PropertyMetadata(default(bool)));
+
+	public bool CanMove2NewWindow {
+		get => (bool)GetValue(CanMove2NewWindowProperty);
+		set => SetValue(CanMove2NewWindowProperty, value);
+	}
+
+	public static readonly DependencyProperty CanSplitScreenProperty = DependencyProperty.Register(
+		"CanSplitScreen", typeof(bool), typeof(FileTabControl), new PropertyMetadata(default(bool)));
+
+	public bool CanSplitScreen {
+		get => (bool)GetValue(CanSplitScreenProperty);
+		set => SetValue(CanSplitScreenProperty, value);
+	}
+
+	public FileTabControl(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileTabViewModel tab) {
 		MainWindow = mainWindow;
 		OwnerSplitGrid = ownerSplitGrid;
 		DataContext = this;
@@ -102,12 +118,13 @@ public partial class FileTabControl {
 		DragCommand = new SimpleCommand(OnDrag);
 		DropCommand = new SimpleCommand(OnDrop);
 		TabControls.Add(this);
+		TabItems.CollectionChanged += (_, _) => UpdateTabContextMenu();
 		FocusedTabControl ??= this;
 		MouseOverTabControl ??= this;
 
 		InitializeComponent();
-		if (grid != null) {
-			TabItems.Add(grid);
+		if (tab != null) {
+			TabItems.Add(tab);
 		}
 	}
 
@@ -140,7 +157,7 @@ public partial class FileTabControl {
 	/// 关闭标签页
 	/// </summary>
 	/// <param name="tab"></param>
-	public void CloseTab(FileGridViewModel tab) {
+	public void CloseTab(FileTabViewModel tab) {
 		var index = TabItems.IndexOf(tab);
 		if (index == -1) {
 			return;
@@ -153,11 +170,11 @@ public partial class FileTabControl {
 	}
 
 	/// <summary>
-	/// 将标签页移动到新窗口，要求自己至少有两个以上的tab
+	/// 将标签页移动到新窗口，要求自己至少有两个以上的tab或者已经分屏了
 	/// </summary>
 	/// <param name="tab"></param>
-	public void MoveTabToNewWindow(FileGridViewModel tab) {
-		if (TabItems.Count == 1) {
+	public void MoveTabToNewWindow(FileTabViewModel tab) {
+		if (TabItems.Count <= 1 && !OwnerSplitGrid.AnySplitScreen) {
 			return;
 		}
 		var index = TabItems.IndexOf(tab);
@@ -166,13 +183,20 @@ public partial class FileTabControl {
 		}
 		var newWindow = new MainWindow(null, false);
 		TabItems.RemoveAt(index);
+		if (TabItems.Count == 0) {
+			TabControls.Remove(this);
+			OwnerSplitGrid.CancelSplit();
+			MouseOverTabControl = null;
+			UpdateFocusedTabControl();
+		}
 		newWindow.SplitGrid.FileTabControl.TabItems.Add(tab);
 		newWindow.Show();
+		newWindow.BringToFront();
 	}
 
 	public async Task OpenPathInNewTabAsync(string path, string selectedPath = null) {
 		var newTabIndex = Math.Max(Math.Min(SelectedIndex + 1, TabItems.Count), 0);
-		var item = new FileGridViewModel(this);
+		var item = new FileTabViewModel(this);
 		TabItems.Insert(newTabIndex, item);
 		SelectedIndex = newTabIndex;
 		if (!await SelectedTab.LoadDirectoryAsync(path, true, selectedPath)) {
@@ -219,26 +243,26 @@ public partial class FileTabControl {
 	private async void OnTabCommand(object args) {
 		var e = (TabItemCommandArgs)args;
 		var tabItem = e.TabItem;
-		var tab = (FileGridViewModel)tabItem.DataContext;
+		var tab = (FileTabViewModel)tabItem.DataContext;
 		switch (e.CommandParameter) {
 		case "Duplicate":
-			await OpenPathInNewTabAsync((string)tabItem.FullPath);
+			await OpenPathInNewTabAsync(tab.FullPath);
 			break;
 		case "Move2NewWindow":
 			MoveTabToNewWindow(tab);
 			break;
 		case "SplitLeft":
-			if (OwnerSplitGrid.Split((FileGridViewModel)tabItem.DataContext, SplitOrientation.Left)) {
+			if (OwnerSplitGrid.Split(tab, SplitOrientation.Left)) {
 				TabItems.Remove(tab);
 			}
 			break;
 		case "SplitRight":
-			if (OwnerSplitGrid.Split((FileGridViewModel)tabItem.DataContext, SplitOrientation.Right)) {
+			if (OwnerSplitGrid.Split(tab, SplitOrientation.Right)) {
 				TabItems.Remove(tab);
 			}
 			break;
 		case "SplitBottom":
-			if (OwnerSplitGrid.Split((FileGridViewModel)tabItem.DataContext, SplitOrientation.Bottom)) {
+			if (OwnerSplitGrid.Split(tab, SplitOrientation.Bottom)) {
 				TabItems.Remove(tab);
 			}
 			break;
@@ -252,7 +276,7 @@ public partial class FileTabControl {
 	private void OnTabMoved(object args) {
 		if (TabItems.Count == 0) {  // 如果移走的是最后一个，那就要关闭当前的了
 			TabControls.Remove(this);
-			if (OwnerSplitGrid.AnyOtherTabs) {
+			if (OwnerSplitGrid.AnySplitScreen) {
 				OwnerSplitGrid.CancelSplit();
 			} else {  // 说明就剩这一个Tab了
 				MainWindow.Close();
@@ -265,12 +289,12 @@ public partial class FileTabControl {
 
 	private void OnTabClosing(object args) {
 		var e = (CancelRoutedEventArgs)args;
-		HandleTabClosing((FileGridViewModel)e.OriginalSource, e);
+		HandleTabClosing((FileTabViewModel)e.OriginalSource, e);
 	}
 
-	private async void HandleTabClosing(FileGridViewModel tab, CancelRoutedEventArgs e) {
+	private async void HandleTabClosing(FileTabViewModel tab, CancelRoutedEventArgs e) {
 		if (TabItems.Count <= 1) {
-			if (OwnerSplitGrid.AnyOtherTabs) {
+			if (OwnerSplitGrid.AnySplitScreen) {
 				tab.Dispose();
 				TabControls.Remove(this);
 				OwnerSplitGrid.CancelSplit();
@@ -330,7 +354,7 @@ public partial class FileTabControl {
 		}
 	}
 
-	private static bool CanDragDrop(DragEventArgs e, FileGridViewModel vm) {
+	private static bool CanDragDrop(DragEventArgs e, FileTabViewModel vm) {
 		if (vm.PathType == PathType.Home) {
 			e.Effects = DragDropEffects.None;
 			return false;
@@ -346,7 +370,7 @@ public partial class FileTabControl {
 
 	private static void OnDrag(object args) {
 		if (args is TabItemDragEventArgs ti) {
-			var tab = (FileGridViewModel)ti.TabItem.DataContext;
+			var tab = (FileTabViewModel)ti.TabItem.DataContext;
 			if (!CanDragDrop(ti.DragEventArgs, tab)) {
 				return;
 			}
@@ -369,7 +393,7 @@ public partial class FileTabControl {
 
 	private async void OnDrop(object args) {
 		if (args is TabItemDragEventArgs ti) {
-			var tab = (FileGridViewModel)ti.TabItem.DataContext;
+			var tab = (FileTabViewModel)ti.TabItem.DataContext;
 			if (!CanDragDrop(ti.DragEventArgs, tab)) {
 				return;
 			}
@@ -387,5 +411,14 @@ public partial class FileTabControl {
 	protected override void OnMouseEnter(MouseEventArgs e) {
 		MouseOverTabControl = this;
 		base.OnMouseEnter(e);
+	}
+
+	/// <summary>
+	/// 更新Tab的菜单：是否可分屏和是否可以移动到新窗口
+	/// </summary>
+	public void UpdateTabContextMenu() {
+		var canSplitScreen = TabItems.Count > 1;
+		CanSplitScreen = canSplitScreen;
+		CanMove2NewWindow = canSplitScreen || OwnerSplitGrid.AnySplitScreen;
 	}
 }

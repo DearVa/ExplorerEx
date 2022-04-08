@@ -470,7 +470,7 @@ public sealed partial class MainWindow {
 	#endregion
 
 	protected override void OnClosing(CancelEventArgs e) {
-		if (SplitGrid.FileTabControl.TabItems.Count > 1 || SplitGrid.AnyOtherTabs) {
+		if (SplitGrid.FileTabControl.TabItems.Count > 1 || SplitGrid.AnySplitScreen) {
 			if (!MessageBoxHelper.AskWithDefault("CloseMultiTabs", "#YouHaveOpenedMoreThanOneTab".L())) {
 				e.Cancel = true;
 			}

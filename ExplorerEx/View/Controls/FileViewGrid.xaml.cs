@@ -19,7 +19,7 @@ public partial class FileViewGrid {
 	/// </summary>
 	public SimpleCommand CreateCommand { get; }
 
-	public FileGridViewModel GridViewModel { get; private set; }
+	public FileTabViewModel TabViewModel { get; private set; }
 
 	public FileViewGrid() {
 		CreateCommand = new SimpleCommand(e => {
@@ -33,9 +33,9 @@ public partial class FileViewGrid {
 	}
 
 	private void DataContext_OnChanged(object sender, DependencyPropertyChangedEventArgs e) {
-		GridViewModel = (FileGridViewModel)e.NewValue;
-		if (GridViewModel != null) {
-			GridViewModel.FileListView = FileListView;
+		TabViewModel = (FileTabViewModel)e.NewValue;
+		if (TabViewModel != null) {
+			TabViewModel.FileListView = FileListView;
 		}
 	}
 
@@ -43,7 +43,7 @@ public partial class FileViewGrid {
 	/// 创建文件或文件夹
 	/// </summary>
 	public void Create(CreateFileItem item) {
-		var viewModel = GridViewModel;
+		var viewModel = TabViewModel;
 		if (viewModel.PathType == PathType.Home) {
 			return;
 		}
@@ -58,12 +58,12 @@ public partial class FileViewGrid {
 		var addressBar = (AddressBar)sender;
 		switch (e.Key) {
 		case Key.Enter:
-			await GridViewModel.LoadDirectoryAsync(addressBar.Text);
-			GridViewModel.OwnerWindow.ClearTextBoxFocus();
+			await TabViewModel.LoadDirectoryAsync(addressBar.Text);
+			TabViewModel.OwnerWindow.ClearTextBoxFocus();
 			e.Handled = true;
 			break;
 		case Key.Escape:
-			GridViewModel.OwnerWindow.ClearTextBoxFocus();
+			TabViewModel.OwnerWindow.ClearTextBoxFocus();
 			e.Handled = true;
 			break;
 		}
@@ -71,7 +71,7 @@ public partial class FileViewGrid {
 
 	private async void History_OnClick(object sender, RoutedEventArgs e) {
 		try {
-			await GridViewModel.LoadDirectoryAsync(((FileListViewItem)((MenuItem)sender).DataContext).FullPath);
+			await TabViewModel.LoadDirectoryAsync(((FileListViewItem)((MenuItem)sender).DataContext).FullPath);
 		} catch (Exception ex) {
 			Logger.Exception(ex);
 		}
@@ -79,7 +79,7 @@ public partial class FileViewGrid {
 
 	private async void AddressBar_OnPopupItemClicked(FolderOnlyItem onlyItem) {
 		try {
-			await GridViewModel.LoadDirectoryAsync(onlyItem.FullPath);
+			await TabViewModel.LoadDirectoryAsync(onlyItem.FullPath);
 		} catch (Exception ex) {
 			Logger.Exception(ex);
 		}

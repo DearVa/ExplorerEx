@@ -3,7 +3,10 @@
                     xmlns:hc="clr-namespace:HandyControl.Controls"
                     xmlns:langs="clr-namespace:HandyControl.Properties.Langs"
                     xmlns:interactivity="clr-namespace:HandyControl.Interactivity"
-                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+                    xmlns:system="clr-namespace:System;assembly=mscorlib"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+                    mc:Ignorable="d">
 
     <Style x:Key="TabItemStyle" TargetType="TabItem">
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
@@ -187,18 +190,34 @@
         </Style.Triggers>
     </Style>
 
-    <ContextMenu x:Key="TabItemMenu" x:Shared="False">
+    <ContextMenu x:Key="TabItemMenu" x:Shared="False" d:DataContext="{d:DesignInstance hc:TabItem}">
         <MenuItem Command="interactivity:ControlCommands.TabCommand" CommandParameter="Duplicate" Header="{x:Static langs:Lang.DuplicateTab}"/>
-        <MenuItem Command="interactivity:ControlCommands.TabCommand" CommandParameter="Move2NewWindow" Header="{x:Static langs:Lang.Move2NewWindow}"/>
-        <MenuItem Header="{x:Static langs:Lang.SplitScreen}">
+        <MenuItem IsEnabled="{Binding CanMoveToNewWindow}" Command="interactivity:ControlCommands.TabCommand" CommandParameter="Move2NewWindow" Header="{x:Static langs:Lang.Move2NewWindow}">
+            <MenuItem.Icon>
+                <DrawingImage>
+                    <DrawingImage.Drawing>
+                        <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="{StaticResource Move2NewWindowGeometry}"/>
+                    </DrawingImage.Drawing>
+                </DrawingImage>
+            </MenuItem.Icon>
+        </MenuItem>
+        <MenuItem Icon="{StaticResource SplitScreenDrawingImage}" IsEnabled="{Binding CanSplitScreen}" Header="{x:Static langs:Lang.SplitScreen}">
             <MenuItem.Items>
-                <MenuItem Command="interactivity:ControlCommands.TabCommand" CommandParameter="SplitLeft" Header="{x:Static langs:Lang.ToLeft}"/>
-                <MenuItem Command="interactivity:ControlCommands.TabCommand" CommandParameter="SplitRight" Header="{x:Static langs:Lang.ToRight}"/>
-                <MenuItem Command="interactivity:ControlCommands.TabCommand" CommandParameter="SplitBottom" Header="{x:Static langs:Lang.ToBottom}"/>
+                <MenuItem Icon="{StaticResource Split2LeftDrawingImage}" Command="interactivity:ControlCommands.TabCommand" CommandParameter="SplitLeft" Header="{x:Static langs:Lang.ToLeft}"/>
+                <MenuItem Icon="{StaticResource Split2RightDrawingImage}" Command="interactivity:ControlCommands.TabCommand" CommandParameter="SplitRight" Header="{x:Static langs:Lang.ToRight}"/>
+                <MenuItem Icon="{StaticResource Split2BottomDrawingImage}" Command="interactivity:ControlCommands.TabCommand" CommandParameter="SplitBottom" Header="{x:Static langs:Lang.ToBottom}"/>
             </MenuItem.Items>
         </MenuItem>
         <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
-        <MenuItem Command="interactivity:ControlCommands.Close" Header="{x:Static langs:Lang.Close}" InputGestureText="Ctrl + W"/>
+        <MenuItem Command="interactivity:ControlCommands.Close" Header="{x:Static langs:Lang.Close}" InputGestureText="Ctrl + W">
+            <MenuItem.Icon>
+                <DrawingImage>
+                    <DrawingImage.Drawing>
+                        <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="{StaticResource CloseGeometry}"/>
+                    </DrawingImage.Drawing>
+                </DrawingImage>
+            </MenuItem.Icon>
+        </MenuItem>
         <MenuItem Command="interactivity:ControlCommands.CloseOther" Header="{x:Static langs:Lang.CloseOther}"/>
     </ContextMenu>
 
@@ -213,13 +232,13 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="VerticalContentAlignment" Value="Stretch"/>
         <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
-        <Setter Property="Menu" Value="{StaticResource TabItemMenu}"/>
+        <Setter Property="ContextMenu" Value="{StaticResource TabItemMenu}"/>
         <Setter Property="Effect" Value="{StaticResource EffectShadow4}"/>
         <Setter Property="Opacity" Value="0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="hc:TabItem">
-                    <Grid x:Name="templateRoot" AllowDrop="True" SnapsToDevicePixels="true" ContextMenu="{TemplateBinding Menu}" Margin="0,0,0,-4">
+                    <Grid x:Name="templateRoot" AllowDrop="True" SnapsToDevicePixels="true" ContextMenu="{TemplateBinding ContextMenu}" Margin="0,0,0,-4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition/>

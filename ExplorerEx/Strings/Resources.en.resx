@@ -422,4 +422,25 @@ For the application to run properly, it's recommanded that you first extract all
   <data name="CloseWindow" xml:space="preserve">
     <value>Close window</value>
   </data>
+  <data name="#SelectADestinationAndExtractFiles" xml:space="preserve">
+    <value>Select a Destination and Extract Files</value>
+  </data>
+  <data name="#FilesWillBeExtractedToThisFolder" xml:space="preserve">
+    <value>Files will be extracted to this folder:</value>
+  </data>
+  <data name="Browse..." xml:space="preserve">
+    <value>Browse...</value>
+  </data>
+  <data name="#ShowExtractedFilesWhenComplete" xml:space="preserve">
+    <value>Show extracted files when complete</value>
+  </data>
+  <data name="Extract" xml:space="preserve">
+    <value>Extract</value>
+  </data>
+  <data name="#ErrorExtractFiles" xml:space="preserve">
+    <value>解压下列文件时发生错误：</value>
+  </data>
+  <data name="And...More" xml:space="preserve">
+    <value>还有 {0} 个。</value>
+  </data>
 </root>

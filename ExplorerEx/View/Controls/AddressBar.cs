@@ -3,12 +3,10 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using ExplorerEx.Command;
 using ExplorerEx.Model;
 using ExplorerEx.Utils;
-using HandyControl.Tools;
 
 namespace ExplorerEx.View.Controls;
 

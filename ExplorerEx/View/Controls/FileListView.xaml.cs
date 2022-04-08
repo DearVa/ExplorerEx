@@ -68,7 +68,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		set => SetValue(ItemsSourceProperty, value);
 	}
 
-	public FileGridViewModel ViewModel { get; private set; }
+	public FileTabViewModel ViewModel { get; private set; }
 
 	public delegate void FileDropEventHandler(object sender, FileDropEventArgs e);
 
@@ -191,7 +191,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	}
 
 	private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
-		if (e.NewValue is FileGridViewModel viewModel) {
+		if (e.NewValue is FileTabViewModel viewModel) {
 			ViewModel = viewModel;
 			ContextMenu!.DataContext = viewModel;
 		}

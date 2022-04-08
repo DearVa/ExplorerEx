@@ -186,6 +186,11 @@ public class FileItemCommand : ICommand {
 				OpenFileWith(item, Settings.Instance.TextEditor);
 			}
 			break;
+		case "Unzip":
+			foreach (var item in Items.Where(i => i is FileItem { IsZip: true })) {
+				ExtractZipWindow.Show(item.FullPath);
+			}
+			break;
 		}
 	}
 
@@ -209,7 +214,8 @@ public class FileItemCommand : ICommand {
 				});
 				switch (result) {
 				case MessageBoxResult.Yes:
-					break;
+					ExtractZipWindow.Show(zipFile.ZipPath);
+					return;
 				case MessageBoxResult.No:
 					break;
 				default:

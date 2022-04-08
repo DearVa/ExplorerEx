@@ -27,11 +27,24 @@ public enum SplitOrientation {
 public partial class SplitGrid : IEnumerable<FileTabControl> {
 	public MainWindow MainWindow { get; }
 
-	public SplitGrid OwnerSplitGrid { get; private set; }
+	private SplitGrid OwnerSplitGrid {
+		set {
+			if (ownerSplitGrid != value) {
+				ownerSplitGrid = value;
+				FileTabControl.UpdateTabContextMenu();
+			}
+		}
+	}
+
+	private SplitGrid ownerSplitGrid;
 
 	public FileTabControl FileTabControl { get; private set; }
 
-	public bool AnyOtherTabs => OwnerSplitGrid != null || otherSplitGrid != null;
+	/// <summary>
+	/// 是否有其他分屏
+	/// </summary>
+	public bool AnySplitScreen => ownerSplitGrid != null || otherSplitGrid != null;
+
 	/// <summary>
 	/// 分屏的阈值，即鼠标到边界占比多少时显示为边界分屏
 	/// </summary>
@@ -79,25 +92,27 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 		hideAnimation ??= new DoubleAnimation(0d, new Duration(TimeSpan.FromMilliseconds(100))) { EasingFunction = CubicEase };
 
 		MainWindow = mainWindow;
-		OwnerSplitGrid = ownerSplitGrid;
+		this.ownerSplitGrid = ownerSplitGrid;
 		InitializeComponent();
 #if DEBUG
 		Name = $"SplitGrid{id++}";
 #endif
 	}
 
-	public SplitGrid(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileGridViewModel grid = null) : this(mainWindow, ownerSplitGrid) {
-		FileTabControl = new FileTabControl(mainWindow, this, grid);
+	public SplitGrid(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileTabViewModel tab = null) : this(mainWindow, ownerSplitGrid) {
+		FileTabControl = new FileTabControl(mainWindow, this, tab);
 		Children.Insert(0, FileTabControl);
 		if (ownerSplitGrid == null) {
 			IsTopRightGrid = true;
 		}
+		FileTabControl.UpdateTabContextMenu();
 	}
 
 	public SplitGrid(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileTabControl tab) : this(mainWindow, ownerSplitGrid) {
 		FileTabControl = tab;
 		FileTabControl.OwnerSplitGrid = this;
 		Children.Insert(0, tab);
+		FileTabControl.UpdateTabContextMenu();
 	}
 
 	/// <summary>
@@ -117,14 +132,14 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 	/// 分屏，将一个TabItem加入
 	/// </summary>
 	/// <returns>是否成功</returns>
-	public bool Split(FileGridViewModel grid, SplitOrientation orientation) {
+	public bool Split(FileTabViewModel tab, SplitOrientation orientation) {
 		if (otherSplitGrid != null) {  // 已经分屏了，就直接返回
 			return false;
 		}
-		var contains = FileTabControl.TabItems.Contains(grid);  // 要分屏的tab是否包含在了当前TabControl中
+		var contains = FileTabControl.TabItems.Contains(tab);  // 要分屏的tab是否包含在了当前TabControl中
 		if (orientation == SplitOrientation.None) {
 			if (!contains) {
-				FileTabControl.TabItems.Add(grid);
+				FileTabControl.TabItems.Add(tab);
 				FileTabControl.SelectedIndex = FileTabControl.TabItems.Count - 1;
 				TabItem.MoveAfterDrag = true;
 			}
@@ -136,7 +151,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 				ColumnDefinitions.Add(new ColumnDefinition { MinWidth = 100 });
 				FirstSplit();
 				thisSplitGrid.SetValue(ColumnProperty, 2);
-				otherSplitGrid = new SplitGrid(MainWindow, this, grid);
+				otherSplitGrid = new SplitGrid(MainWindow, this, tab);
 				otherSplitGrid.SetValue(ColumnProperty, 0);
 				Children.Insert(0, otherSplitGrid);
 				TabItem.MoveAfterDrag = true;
@@ -147,7 +162,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 				Splitter.SetValue(RowProperty, 1);
 				RowDefinitions.Add(new RowDefinition { MinHeight = 100 });
 				FirstSplit();
-				otherSplitGrid = new SplitGrid(MainWindow, this, grid);
+				otherSplitGrid = new SplitGrid(MainWindow, this, tab);
 				otherSplitGrid.SetValue(RowProperty, 2);
 				Children.Insert(0, otherSplitGrid);
 				TabItem.MoveAfterDrag = true;
@@ -158,7 +173,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 				Splitter.SetValue(ColumnProperty, 1);
 				ColumnDefinitions.Add(new ColumnDefinition { MinWidth = 100 });
 				FirstSplit();
-				otherSplitGrid = new SplitGrid(MainWindow, this, grid);
+				otherSplitGrid = new SplitGrid(MainWindow, this, tab);
 				if (isTopRightGrid) {
 					otherSplitGrid.isTopRightGrid = true;
 					isTopRightGrid = false;
@@ -188,11 +203,11 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 		thisSplitGrid = null;
 		otherSplitGrid?.Close();
 		otherSplitGrid = null;
-		if (OwnerSplitGrid != null) {
-			if (OwnerSplitGrid.thisSplitGrid == this) {
-				OwnerSplitGrid.CancelSplit();
+		if (ownerSplitGrid != null) {
+			if (ownerSplitGrid.thisSplitGrid == this) {
+				ownerSplitGrid.CancelSplit();
 			} else {
-				OwnerSplitGrid.CancelSubSplit();
+				ownerSplitGrid.CancelSubSplit();
 			}
 		}
 	}
@@ -209,6 +224,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 			FileTabControl = otherSplitGrid.FileTabControl;  // 换成otherSplitGrid.FileTabControl
 			FileTabControl.OwnerSplitGrid = this;
 			otherSplitGrid.MoveChildren(this);
+			FileTabControl.UpdateTabContextMenu();
 		} else {
 			Close();
 		}
@@ -223,6 +239,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 			otherSplitGrid.Close();
 			Children.RemoveRange(0, 2);
 			thisSplitGrid.MoveChildren(this);
+			FileTabControl.UpdateTabContextMenu();
 		}
 	}
 
@@ -272,6 +289,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 			splitGrid.DragArea.AllowDrop = true;
 			splitGrid.DragArea.Background = Brushes.Transparent;
 		}
+		FileTabControl.UpdateTabContextMenu();
 	}
 
 	protected override void OnMouseMove(MouseEventArgs e) {
@@ -293,7 +311,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 	private void OnDragEnd() {
 		HidePreview();
 		if (TabItem.DraggingTab != null) {
-			Split((FileGridViewModel)TabItem.DraggingTab.DataContext, orientation);
+			Split((FileTabViewModel)TabItem.DraggingTab.DataContext, orientation);
 		}
 	}
 

@@ -1,7 +1,7 @@
-﻿using System.Windows.Controls;
-using System.Windows;
+﻿using System.Windows;
+using System.Windows.Controls;
 
-namespace ExplorerEx.View.Controls; 
+namespace HandyControl.Controls; 
 
 /// <summary>
 /// debug用

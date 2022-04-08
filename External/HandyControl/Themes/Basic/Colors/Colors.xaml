@@ -2,9 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
-    <Color x:Key="LightPrimaryColor">#886b94f3</Color>
-    <Color x:Key="PrimaryColor">#88326cf3</Color>
-    <Color x:Key="DarkPrimaryColor">#88185af3</Color>
+    <Color x:Key="LightPrimaryColor">#6b94f3</Color>
+    <Color x:Key="PrimaryColor">#326cf3</Color>
+    <Color x:Key="DarkPrimaryColor">#185af3</Color>
 
     <Color x:Key="LightSelectColor">#66b8deff</Color>
     <Color x:Key="SelectColor">#9985c6ff</Color>

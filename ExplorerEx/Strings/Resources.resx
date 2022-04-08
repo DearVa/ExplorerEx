@@ -469,4 +469,25 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="CloseWindow" xml:space="preserve">
     <value>关闭窗口</value>
   </data>
+  <data name="#SelectADestinationAndExtractFiles" xml:space="preserve">
+    <value>选择要解压到的位置</value>
+  </data>
+  <data name="#FilesWillBeExtractedToThisFolder" xml:space="preserve">
+    <value>文件会被解压到这个文件夹：</value>
+  </data>
+  <data name="Browse..." xml:space="preserve">
+    <value>浏览……</value>
+  </data>
+  <data name="#ShowExtractedFilesWhenComplete" xml:space="preserve">
+    <value>解压完成后打开文件夹</value>
+  </data>
+  <data name="Extract" xml:space="preserve">
+    <value>解压缩</value>
+  </data>
+  <data name="#ErrorExtractFiles" xml:space="preserve">
+    <value>Error occurs when extracting following files:</value>
+  </data>
+  <data name="And...More" xml:space="preserve">
+    <value>And {0} more.</value>
+  </data>
 </root>

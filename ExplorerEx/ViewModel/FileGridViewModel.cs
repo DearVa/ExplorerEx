@@ -27,7 +27,7 @@ namespace ExplorerEx.ViewModel;
 /// <summary>
 /// 对应一个Tab
 /// </summary>
-public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
+public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	public FileTabControl OwnerTabControl { get; }
 
 	public MainWindow OwnerWindow => OwnerTabControl.MainWindow;
@@ -240,7 +240,7 @@ public class FileGridViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	private CancellationTokenSource cts;
 
-	public FileGridViewModel(FileTabControl ownerTabControl) {
+	public FileTabViewModel(FileTabControl ownerTabControl) {
 		OwnerTabControl = ownerTabControl;
 		OwnerWindow.EverythingQueryReplied += (i, r) => _ = OnEverythingQueryReplied(i, r);
 

@@ -38,16 +38,23 @@ public class TabItem : System.Windows.Controls.TabItem {
 	public static event Action DragEnd;
 
 	public static DragDropWindow DragDropWindow { get; private set; }
-	/// <summary>
-	/// 当前Item的路径
-	/// </summary>
-	public static readonly DependencyProperty FullPathProperty = DependencyProperty.Register(
-		"FullPath", typeof(object), typeof(TabItem), new PropertyMetadata(default(object)));
 
-	public object FullPath {
-		get => GetValue(FullPathProperty);
-		set => SetValue(FullPathProperty, value);
+	public static readonly DependencyProperty CanMoveToNewWindowProperty = DependencyProperty.Register(
+		"CanMoveToNewWindow", typeof(bool), typeof(TabItem), new PropertyMetadata(default(bool)));
+
+	public bool CanMoveToNewWindow {
+		get => (bool)GetValue(CanMoveToNewWindowProperty);
+		set => SetValue(CanMoveToNewWindowProperty, value);
 	}
+
+	public static readonly DependencyProperty CanSplitScreenProperty = DependencyProperty.Register(
+		"CanSplitScreen", typeof(bool), typeof(TabItem), new PropertyMetadata(default(bool)));
+
+	public bool CanSplitScreen {
+		get => (bool)GetValue(CanSplitScreenProperty);
+		set => SetValue(CanSplitScreenProperty, value);
+	}
+
 	/// <summary>
 	///     动画速度
 	/// </summary>
@@ -62,9 +69,6 @@ public class TabItem : System.Windows.Controls.TabItem {
 	///     选项卡是否处于拖动状态
 	/// </summary>
 	private static bool isItemDragging;
-
-	public static readonly DependencyProperty MenuProperty = DependencyProperty.Register(
-		"Menu", typeof(ContextMenu), typeof(TabItem), new PropertyMetadata(default(ContextMenu), OnMenuChanged));
 
 	public static readonly RoutedEvent ClosingEvent = EventManager.RegisterRoutedEvent("Closing", RoutingStrategy.Bubble, typeof(EventHandler), typeof(TabItem));
 
@@ -168,7 +172,6 @@ public class TabItem : System.Windows.Controls.TabItem {
 		CommandBindings.Add(new CommandBinding(ControlCommands.CloseOther, (_, _) => TabControlParent.CloseOtherItems(this)));
 		CommandBindings.Add(new CommandBinding(ControlCommands.TabCommand, (_, e) => RaiseEvent(new TabItemCommandArgs(TabCommandEvent, (string)e.Parameter, this))));
 		Loaded += (s, _) => {
-			OnMenuChanged(Menu);
 			((TabItem)s).BeginAnimation(OpacityProperty, new DoubleAnimation(1d, new Duration(TimeSpan.FromMilliseconds(300))) {
 				EasingFunction = new SineEase {
 					EasingMode = EasingMode.EaseIn
@@ -179,6 +182,7 @@ public class TabItem : System.Windows.Controls.TabItem {
 
 	public override void OnApplyTemplate() {
 		base.OnApplyTemplate();
+		ContextMenu!.DataContext = this;
 		templateRoot = (Grid)GetTemplateChild("templateRoot")!;
 		templateRoot.DragEnter += (_, args) => {
 			args.RoutedEvent = DragDropEnterEvent;
@@ -233,27 +237,7 @@ public class TabItem : System.Windows.Controls.TabItem {
 		}
 	}
 
-	public ContextMenu Menu {
-		get => (ContextMenu)GetValue(MenuProperty);
-		set => SetValue(MenuProperty, value);
-	}
-
 	private TabControl TabControlParent => ItemsControl.ItemsControlFromItemContainer(this) as TabControl;
-
-	private static void OnMenuChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-		var ctl = (TabItem)d;
-		ctl.OnMenuChanged(e.NewValue as ContextMenu);
-	}
-
-	private void OnMenuChanged(ContextMenu menu) {
-		if (IsLoaded && menu != null) {
-			var parent = TabControlParent;
-			if (parent == null) {
-				return;
-			}
-			menu.DataContext = parent.ItemContainerGenerator.ItemFromContainer(this);
-		}
-	}
 
 	/// <summary>
 	///     更新选项卡横向偏移
@@ -525,7 +509,8 @@ public class TabItem : System.Windows.Controls.TabItem {
 			TabPanel.CanUpdate = false;
 			parent.IsInternalAction = true;
 
-			if (list.IndexOf(item) != index) {
+			var indexOf = list.IndexOf(item);
+			if (indexOf != -1 && indexOf != index) {
 				list.Remove(item);
 				parent.IsInternalAction = true;
 				list.Insert(index, item);

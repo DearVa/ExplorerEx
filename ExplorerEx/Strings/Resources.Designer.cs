@@ -118,6 +118,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 Error occurs when extracting following files: 的本地化字符串。
+        /// </summary>
+        internal static string _ErrorExtractFiles {
+            get {
+                return ResourceManager.GetString("#ErrorExtractFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Everything未运行或未安装，暂时无法使用搜索。 的本地化字符串。
         /// </summary>
         internal static string _EverythingIsNotAvailable {
@@ -150,6 +159,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 文件会被解压到这个文件夹： 的本地化字符串。
+        /// </summary>
+        internal static string _FilesWillBeExtractedToThisFolder {
+            get {
+                return ResourceManager.GetString("#FilesWillBeExtractedToThisFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 格式化驱动器时发生错误，这并不表示所选驱动器不可格式化。 的本地化字符串。
         /// </summary>
         internal static string _FormatDriveError {
@@ -174,6 +192,24 @@ namespace ExplorerEx.Strings {
         internal static string _PathNotExistOrAccessDenied {
             get {
                 return ResourceManager.GetString("#PathNotExistOrAccessDenied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 选择要解压到的位置 的本地化字符串。
+        /// </summary>
+        internal static string _SelectADestinationAndExtractFiles {
+            get {
+                return ResourceManager.GetString("#SelectADestinationAndExtractFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 解压完成后打开文件夹 的本地化字符串。
+        /// </summary>
+        internal static string _ShowExtractedFilesWhenComplete {
+            get {
+                return ResourceManager.GetString("#ShowExtractedFilesWhenComplete", resourceCulture);
             }
         }
         
@@ -242,6 +278,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 And {0} more. 的本地化字符串。
+        /// </summary>
+        internal static string And___More {
+            get {
+                return ResourceManager.GetString("And...More", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 升序（小的在上） 的本地化字符串。
         /// </summary>
         internal static string Ascending {
@@ -292,6 +337,15 @@ namespace ExplorerEx.Strings {
         internal static string Bookmarks {
             get {
                 return ResourceManager.GetString("Bookmarks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 浏览…… 的本地化字符串。
+        /// </summary>
+        internal static string Browse___ {
+            get {
+                return ResourceManager.GetString("Browse...", resourceCulture);
             }
         }
         
@@ -580,6 +634,15 @@ namespace ExplorerEx.Strings {
         internal static string Exit_application {
             get {
                 return ResourceManager.GetString("Exit_application", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 解压缩 的本地化字符串。
+        /// </summary>
+        internal static string Extract {
+            get {
+                return ResourceManager.GetString("Extract", resourceCulture);
             }
         }
         

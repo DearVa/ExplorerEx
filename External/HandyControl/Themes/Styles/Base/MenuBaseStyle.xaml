@@ -21,7 +21,7 @@
                         <Grid x:Name="Grid" HorizontalAlignment="Left" Margin="4">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="30"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition SharedSizeGroup="MenuItemCPColumnGroup" Width="Auto"/>
                                 <ColumnDefinition Width="30"/>
                                 <ColumnDefinition SharedSizeGroup="MenuItemIGTColumnGroup" Width="Auto"/>
                                 <ColumnDefinition Width="20"/>
@@ -30,7 +30,7 @@
                             <Path IsHitTestVisible="False" Grid.Column="0" x:Name="Glyph" ClipToBounds="False" HorizontalAlignment="Center" Height="16" Visibility="Collapsed" VerticalAlignment="Center" 
                                   Width="16" UseLayoutRounding="True" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource PrimaryBrush}"/>
                             <ContentPresenter Grid.Column="1" Margin="9,0,0,0" x:Name="ContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" ContentSource="Header" VerticalAlignment="Center" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                            <TextBlock x:Name="InputGestureText" Margin="0,0,10,0" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Left" Text="{TemplateBinding InputGestureText}"/>
+                            <TextBlock x:Name="InputGestureText" Margin="0,0,10,0" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Left" Text="{TemplateBinding InputGestureText}" FontSize="12"/>
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -159,7 +159,7 @@
                                 <Grid x:Name="Grid" Margin="4">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="30" />
-                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition SharedSizeGroup="MenuItemCPColumnGroup" Width="Auto" />
                                         <ColumnDefinition Width="30" />
                                         <ColumnDefinition SharedSizeGroup="MenuItemIGTColumnGroup" Width="Auto" />
                                         <ColumnDefinition Width="20" />
@@ -169,7 +169,7 @@
                                           Width="16" UseLayoutRounding="True" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource PrimaryBrush}"/>
                                     <ContentPresenter Grid.Column="1" Margin="9,0,0,0" x:Name="ContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" ContentSource="Header" VerticalAlignment="Center" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                                     <Path x:Name="Path" Grid.Column="4" Width="10" Height="10" HorizontalAlignment="Left" Data="{StaticResource RightGeometry}" Stretch="Uniform" Fill="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
-                                    <Popup Grid.Column="1" x:Name="PART_Popup" hc:BlurPopup.Enabled="True"  AllowsTransparency="True" Focusable="False" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Right" VerticalOffset="-13" HorizontalOffset="10">
+                                    <Popup Grid.Column="1" x:Name="PART_Popup" hc:BlurPopup.Enabled="True"  AllowsTransparency="True" Focusable="False" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Right" VerticalOffset="-12">
                                         <Border  Background="{DynamicResource BackgroundBrush}" CornerRadius="8">
                                             <ScrollViewer Style="{StaticResource ScrollViewerUpDown}" Margin="8">
                                                 <ItemsPresenter x:Name="ItemsPresenter" KeyboardNavigation.DirectionalNavigation="Cycle" Grid.IsSharedSizeScope="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" KeyboardNavigation.TabNavigation="Cycle"/>

@@ -85,6 +85,8 @@ public class FileItem : FileSystemItem {
 	/// </summary>
 	public bool IsEditable => FullPath[^4..] is ".txt" or ".log" or ".ini" or ".inf" or ".cmd" or ".bat" or ".ps1";
 
+	public bool IsZip => FullPath[^4..] == ".zip";
+
 	/// <summary>
 	/// 是否为.lnk文件
 	/// </summary>
