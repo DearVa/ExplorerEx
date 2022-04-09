@@ -11,15 +11,109 @@ using System.Linq;
 using System.Windows.Input;
 using ExplorerEx.Model;
 using ExplorerEx.Win32;
-using HandyControl.Controls;
 using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
 using MessageBox = HandyControl.Controls.MessageBox;
 using System.IO;
 using ExplorerEx.Command;
+using System.Windows.Controls.Primitives;
+using System.Windows.Controls;
+using HandyControl.Interactivity;
+using System.Collections.Specialized;
+using System.Collections;
+using System.Diagnostics;
 
 namespace ExplorerEx.View.Controls;
 
+[TemplatePart(Name = HeaderPanelKey, Type = typeof(FileTabPanel))]
+[TemplatePart(Name = HeaderBorderKey, Type = typeof(Border))]
+[TemplatePart(Name = TabBorderRootKey, Type = typeof(Border))]
+[TemplatePart(Name = TabBorderKey, Type = typeof(Border))]
+[TemplatePart(Name = NewTabButtonKey, Type = typeof(Button))]
+[TemplatePart(Name = ContentPanelKey, Type = typeof(Border))]
 public partial class FileTabControl {
+	#region HandyControl
+
+	private const string HeaderPanelKey = "PART_HeaderPanel";
+
+	private const string HeaderBorderKey = "PART_HeaderBorder";
+
+	/// <summary>
+	/// 停靠标签页以及新建标签页按钮的区域，如果是最右上角的，应当把Margin设为0,0,160,0，避免遮挡窗口右上角的控制按钮
+	/// </summary>
+	private const string TabBorderRootKey = "PART_TabBorderRoot";
+
+	/// <summary>
+	/// 停靠标签页的区域
+	/// </summary>
+	private const string TabBorderKey = "PART_TabBorder";
+
+	private const string NewTabButtonKey = "NewTabButton";
+
+	private const string ContentPanelKey = "contentPanel";
+
+	/// <summary>
+	///     标签宽度
+	/// </summary>
+	public static readonly DependencyProperty TabItemWidthProperty = DependencyProperty.Register(
+		"TabItemWidth", typeof(double), typeof(FileTabControl), new PropertyMetadata(200d));
+
+	/// <summary>
+	///     标签高度
+	/// </summary>
+	public static readonly DependencyProperty TabItemHeightProperty = DependencyProperty.Register(
+		"TabItemHeight", typeof(double), typeof(FileTabControl), new PropertyMetadata(35d));
+
+	public static readonly DependencyProperty TabBorderRootMarginProperty = DependencyProperty.Register(
+		"TabBorderRootMargin", typeof(Thickness), typeof(FileTabControl), new PropertyMetadata(default(Thickness)));
+
+	public Thickness TabBorderRootMargin {
+		get => (Thickness)GetValue(TabBorderRootMarginProperty);
+		set => SetValue(TabBorderRootMarginProperty, value);
+	}
+
+	private Border headerBorder;
+
+	public Border TabBorder { get; private set; }
+
+	public Border TabBorderRoot { get; private set; }
+
+	public Button NewTabButton { get; private set; }
+
+	public Border ContentPanel { get; private set; }
+
+	/// <summary>
+	///     是否为内部操作
+	/// </summary>
+	internal bool IsInternalAction;
+
+	public FileTabPanel HeaderPanel { get; private set; }
+
+	/// <summary>
+	///     标签宽度
+	/// </summary>
+	public double TabItemWidth {
+		get => (double)GetValue(TabItemWidthProperty);
+		set => SetValue(TabItemWidthProperty, value);
+	}
+
+	/// <summary>
+	///     标签高度
+	/// </summary>
+	public double TabItemHeight {
+		get => (double)GetValue(TabItemHeightProperty);
+		set => SetValue(TabItemHeightProperty, value);
+	}
+
+	public static readonly RoutedEvent NewTabEvent = EventManager.RegisterRoutedEvent("NewTab", RoutingStrategy.Bubble, typeof(EventHandler), typeof(FileTabControl));
+
+
+	public event EventHandler NewTab {
+		add => AddHandler(NewTabEvent, value);
+		remove => RemoveHandler(NewTabEvent, value);
+	}
+
+	#endregion
+
 	/// <summary>
 	/// 获取当前被聚焦的TabControl
 	/// </summary>
@@ -81,14 +175,9 @@ public partial class FileTabControl {
 	public SimpleCommand TabMovedCommand { get; }
 	public SimpleCommand TabCommand { get; }
 	public SimpleCommand CreateNewTabCommand { get; }
-	/// <summary>
-	/// DragEnter、Over是一样的
-	/// </summary>
-	public SimpleCommand DragCommand { get; }
-	public SimpleCommand DropCommand { get; }
 
 	public MainWindow MainWindow { get; }
-	
+
 	public SplitGrid OwnerSplitGrid { get; set; }
 
 	public static readonly DependencyProperty CanMove2NewWindowProperty = DependencyProperty.Register(
@@ -108,6 +197,8 @@ public partial class FileTabControl {
 	}
 
 	public FileTabControl(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileTabViewModel tab) {
+		CommandBindings.Add(new CommandBinding(ControlCommands.Open, (_, _) => RaiseEvent(new RoutedEventArgs(NewTabEvent))));
+
 		MainWindow = mainWindow;
 		OwnerSplitGrid = ownerSplitGrid;
 		DataContext = this;
@@ -115,8 +206,6 @@ public partial class FileTabControl {
 		TabMovedCommand = new SimpleCommand(OnTabMoved);
 		TabCommand = new SimpleCommand(OnTabCommand);
 		CreateNewTabCommand = new SimpleCommand(OnCreateNewTab);
-		DragCommand = new SimpleCommand(OnDrag);
-		DropCommand = new SimpleCommand(OnDrop);
 		TabControls.Add(this);
 		TabItems.CollectionChanged += (_, _) => UpdateTabContextMenu();
 		FocusedTabControl ??= this;
@@ -242,7 +331,7 @@ public partial class FileTabControl {
 
 	private async void OnTabCommand(object args) {
 		var e = (TabItemCommandArgs)args;
-		var tabItem = e.TabItem;
+		var tabItem = e.FileTabItem;
 		var tab = (FileTabViewModel)tabItem.DataContext;
 		switch (e.CommandParameter) {
 		case "Duplicate":
@@ -357,55 +446,56 @@ public partial class FileTabControl {
 	private static bool CanDragDrop(DragEventArgs e, FileTabViewModel vm) {
 		if (vm.PathType == PathType.Home) {
 			e.Effects = DragDropEffects.None;
+			e.Handled = true;
 			return false;
 		}
-		if (e.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {
+		if (e.Effects.HasFlag(DragDropEffects.Move) && e.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {
 			if (Path.GetDirectoryName(fileList[0]) == vm.FullPath) {  // 相同文件夹禁止移动
 				e.Effects = DragDropEffects.None;
+				e.Handled = true;
 				return false;
 			}
 		}
 		return true;
 	}
 
-	private static void OnDrag(object args) {
-		if (args is TabItemDragEventArgs ti) {
-			var tab = (FileTabViewModel)ti.TabItem.DataContext;
-			if (!CanDragDrop(ti.DragEventArgs, tab)) {
-				return;
-			}
-			if (FileListView.DragFilesPreview != null) {
-				FileListView.DragFilesPreview.Destination = tab.FullPath;
-			}
-		} else {
-			var tb = (TabBorderDragEventArgs)args;
-			if (tb.DragEventArgs.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {
-				var folderList = fileList.Select(Directory.Exists).ToImmutableList();
-				if (folderList.Count > 0) {
-					if (FileListView.DragFilesPreview != null) {
-						FileListView.DragFilesPreview.CustomOperation = "OpenInNewTab".L();
-						FileListView.DragFilesPreview.DragDropEffect = DragDropEffects.All;
-					}
+	private static void TabBorder_OnDrag(object sender, DragEventArgs args) {
+		if (args.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {
+			var folderList = fileList.Select(Directory.Exists).ToImmutableList();
+			if (folderList.Count > 0) {
+				var preview = FileListView.DragFilesPreview;
+				if (preview != null) {
+					preview.CustomOperation = "OpenInNewTab".L();
+					preview.DragDropEffect = DragDropEffects.All;
 				}
 			}
 		}
 	}
 
-	private async void OnDrop(object args) {
-		if (args is TabItemDragEventArgs ti) {
-			var tab = (FileTabViewModel)ti.TabItem.DataContext;
-			if (!CanDragDrop(ti.DragEventArgs, tab)) {
-				return;
-			}
-			FileUtils.HandleDrop(DataObjectContent.Parse(ti.DragEventArgs.Data), tab.FullPath, ti.DragEventArgs.Effects.GetFirstEffect());
-		} else {
-			var tb = (TabBorderDragEventArgs)args;
-			if (tb.DragEventArgs.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {
-				foreach (var folderPath in fileList.Where(Directory.Exists)) {
-					await OpenPathInNewTabAsync(folderPath);
-				}
+	internal static void TabItem_OnDrag(FileTabItem fileTabItem, DragEventArgs args) {
+		var tab = (FileTabViewModel)fileTabItem.DataContext;
+		if (!CanDragDrop(args, tab)) {
+			return;
+		}
+		if (FileListView.DragFilesPreview != null) {
+			FileListView.DragFilesPreview.Destination = tab.FullPath;
+		}
+	}
+
+	private async void TabBorder_OnDrop(object sender, DragEventArgs args) {
+		if (args.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {
+			foreach (var folderPath in fileList.Where(Directory.Exists)) {
+				await OpenPathInNewTabAsync(folderPath);
 			}
 		}
+	}
+
+	internal static void TabItem_OnDrop(FileTabItem fileTabItem, DragEventArgs args) {
+		var tab = (FileTabViewModel)fileTabItem.DataContext;
+		if (!CanDragDrop(args, tab)) {
+			return;
+		}
+		FileUtils.HandleDrop(DataObjectContent.Parse(args.Data), tab.FullPath, args.Effects.GetActualEffect());
 	}
 
 	protected override void OnMouseEnter(MouseEventArgs e) {
@@ -421,4 +511,131 @@ public partial class FileTabControl {
 		CanSplitScreen = canSplitScreen;
 		CanMove2NewWindow = canSplitScreen || OwnerSplitGrid.AnySplitScreen;
 	}
+
+	#region HandyControl
+
+	protected override void OnItemsChanged(NotifyCollectionChangedEventArgs e) {
+		base.OnItemsChanged(e);
+
+		if (HeaderPanel == null) {
+			IsInternalAction = false;
+			return;
+		}
+
+		if (IsInternalAction) {
+			IsInternalAction = false;
+			return;
+		}
+
+		switch (e.Action) {
+		case NotifyCollectionChangedAction.Add: {
+			for (var i = 0; i < Items.Count; i++) {
+				if (ItemContainerGenerator.ContainerFromIndex(i) is not FileTabItem item) {
+					return;
+				}
+				item.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+				item.FileTabPanel = HeaderPanel;
+			}
+			break;
+		}
+		case NotifyCollectionChangedAction.Remove:
+			if (Items.Count > 0 && TabIndex >= Items.Count) {
+				TabIndex = Items.Count - 1;
+			}
+			break;
+		}
+
+		headerBorder?.InvalidateMeasure();
+		IsInternalAction = false;
+	}
+
+	public override void OnApplyTemplate() {
+		base.OnApplyTemplate();
+		HeaderPanel = (FileTabPanel)GetTemplateChild(HeaderPanelKey);
+		TabBorder = (Border)GetTemplateChild(TabBorderKey)!;
+		TabBorder.MouseEnter += TabBorder_OnMouseEnter;
+		TabBorder.DragOver += TabBorder_OnDrag;
+		TabBorder.Drop += TabBorder_OnDrop;
+		TabBorderRoot = (Border)GetTemplateChild(TabBorderRootKey);
+		headerBorder = (Border)GetTemplateChild(HeaderBorderKey);
+		NewTabButton = (Button)GetTemplateChild(NewTabButtonKey);
+		ContentPanel = (Border)GetTemplateChild(ContentPanelKey);
+	}
+
+	private void TabBorder_OnMouseEnter(object sender, MouseEventArgs e) {
+		if (FileTabItem.DraggingFileTab != null) {
+			FileTabItem.DragTabDestination = this;
+			if (!Items.Contains(FileTabItem.DraggingFileTab.DataContext)) {
+				var mouseDownPoint = e.GetPosition(TabBorder);
+				var list = GetActualList();
+				double tabWidth;
+				var newCount = list.Count + 1;
+				if (newCount * TabItemWidth > TabBorder.ActualWidth) {
+					tabWidth = TabBorder.ActualWidth / newCount;
+				} else {
+					tabWidth = TabItemWidth;
+				}
+				var insertIndex = Math.Max(Math.Min((int)(mouseDownPoint.X / tabWidth), list.Count), 0);
+				var newTab = FileTabItem.DraggingFileTab;
+				list.Insert(insertIndex, newTab.DataContext);
+				SelectedIndex = insertIndex;
+				newTab.StartDrag(TabBorder, mouseDownPoint, insertIndex);
+			}
+			FileTabItem.DragFrame.Continue = false;
+		}
+	}
+
+	internal void CloseOtherItems(FileTabItem currentItem) {
+		var actualItem = currentItem != null ? ItemContainerGenerator.ItemFromContainer(currentItem) : null;
+
+		var list = GetActualList();
+		if (list == null) {
+			return;
+		}
+
+		IsInternalAction = true;
+
+		for (var i = 0; i < Items.Count; i++) {
+			var item = list[i];
+			if (!Equals(item, actualItem) && item != null) {
+				var argsClosing = new CancelRoutedEventArgs(FileTabItem.ClosingEvent, item);
+
+				if (ItemContainerGenerator.ContainerFromItem(item) is not FileTabItem tabItem) {
+					continue;
+				}
+
+				tabItem.RaiseEvent(argsClosing);
+				if (argsClosing.Cancel) {
+					return;
+				}
+
+				list.Remove(item);
+
+				i--;
+			}
+		}
+
+		SetCurrentValue(SelectedIndexProperty, Items.Count == 0 ? -1 : 0);
+	}
+
+	internal IList GetActualList() {
+		IList list;
+		if (ItemsSource != null) {
+			list = ItemsSource as IList;
+		} else {
+			list = Items;
+		}
+
+		return list;
+	}
+
+	protected override bool IsItemItsOwnContainerOverride(object item) {
+		return item is FileTabItem;
+	}
+
+	protected override DependencyObject GetContainerForItemOverride() {
+		return new FileTabItem();
+	}
+
+	#endregion
 }

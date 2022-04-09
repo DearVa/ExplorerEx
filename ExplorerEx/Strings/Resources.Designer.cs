@@ -422,6 +422,24 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 关闭 的本地化字符串。
+        /// </summary>
+        internal static string Close {
+            get {
+                return ResourceManager.GetString("Close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 关闭其他标签页 的本地化字符串。
+        /// </summary>
+        internal static string CloseOtherTabs {
+            get {
+                return ResourceManager.GetString("CloseOtherTabs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 关闭窗口 的本地化字符串。
         /// </summary>
         internal static string CloseWindow {
@@ -562,6 +580,15 @@ namespace ExplorerEx.Strings {
         internal static string DriveIsNotReady {
             get {
                 return ResourceManager.GetString("DriveIsNotReady", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 复制标签页 的本地化字符串。
+        /// </summary>
+        internal static string DuplicateTab {
+            get {
+                return ResourceManager.GetString("DuplicateTab", resourceCulture);
             }
         }
         
@@ -832,6 +859,15 @@ namespace ExplorerEx.Strings {
         internal static string Move_to {
             get {
                 return ResourceManager.GetString("Move_to", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 移动到新窗口 的本地化字符串。
+        /// </summary>
+        internal static string MoveToNewWindow {
+            get {
+                return ResourceManager.GetString("MoveToNewWindow", resourceCulture);
             }
         }
         
@@ -1214,6 +1250,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 分屏 的本地化字符串。
+        /// </summary>
+        internal static string SplitScreen {
+            get {
+                return ResourceManager.GetString("SplitScreen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 文本 的本地化字符串。
         /// </summary>
         internal static string Text {
@@ -1264,6 +1309,33 @@ namespace ExplorerEx.Strings {
         internal static string Tip {
             get {
                 return ResourceManager.GetString("Tip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 到底部 的本地化字符串。
+        /// </summary>
+        internal static string ToBottom {
+            get {
+                return ResourceManager.GetString("ToBottom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 到左侧 的本地化字符串。
+        /// </summary>
+        internal static string ToLeft {
+            get {
+                return ResourceManager.GetString("ToLeft", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 到右侧 的本地化字符串。
+        /// </summary>
+        internal static string ToRight {
+            get {
+                return ResourceManager.GetString("ToRight", resourceCulture);
             }
         }
         

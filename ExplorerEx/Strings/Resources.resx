@@ -490,4 +490,28 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="And...More" xml:space="preserve">
     <value>And {0} more.</value>
   </data>
+  <data name="Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="DuplicateTab" xml:space="preserve">
+    <value>复制标签页</value>
+  </data>
+  <data name="MoveToNewWindow" xml:space="preserve">
+    <value>移动到新窗口</value>
+  </data>
+  <data name="SplitScreen" xml:space="preserve">
+    <value>分屏</value>
+  </data>
+  <data name="CloseOtherTabs" xml:space="preserve">
+    <value>关闭其他标签页</value>
+  </data>
+  <data name="ToLeft" xml:space="preserve">
+    <value>到左侧</value>
+  </data>
+  <data name="ToRight" xml:space="preserve">
+    <value>到右侧</value>
+  </data>
+  <data name="ToBottom" xml:space="preserve">
+    <value>到底部</value>
+  </data>
 </root>

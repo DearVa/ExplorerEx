@@ -9,9 +9,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using ExplorerEx.Shell32;
-using IWshRuntimeLibrary;
-using File = System.IO.File;
-using Path = System.IO.Path;
 using System.Threading;
 using FileAttribute = ExplorerEx.Shell32.FileAttribute;
 
@@ -187,14 +184,13 @@ internal static class FileUtils {
 	}
 
 	/// <summary>
-	/// 获取.lnk文件的目标位置
+	/// 获取.lnk文件的目标位置，如果错误返回null
 	/// </summary>
 	/// <param name="shortcutPath"></param>
 	/// <returns></returns>
-	public static string GetShortcutTarget(string shortcutPath) {
+	public static string GetShortcutTargetPath(string shortcutPath) {
 		try {
-			var shell = new WshShell();
-			return ((IWshShortcut)shell.CreateShortcut(shortcutPath)).TargetPath;
+			return Shell32Interop.GetLnkTargetPath(shortcutPath);
 		} catch {
 			return null;
 		}
@@ -210,7 +206,7 @@ internal static class FileUtils {
 			return null;
 		}
 		if (filePath[^4..] == ".lnk") {
-			return Path.GetDirectoryName(GetShortcutTarget(filePath));
+			return Path.GetDirectoryName(GetShortcutTargetPath(filePath));
 		}
 		return Path.GetDirectoryName(filePath);
 	}
@@ -294,19 +290,6 @@ internal static class FileUtils {
 
 	}
 
-	public static void CreateShortcut(string lnkPath, string targetPath, string description = null, string iconPath = null) {
-		var shell = new WshShell();
-		var shortcut = (IWshShortcut)shell.CreateShortcut(lnkPath);
-		shortcut.TargetPath = targetPath;
-		if (description != null) {
-			shortcut.Description = description;
-		}
-		if (iconPath != null) {
-			shortcut.IconLocation = iconPath;
-		}
-		shortcut.Save();
-	}
-
 	public static void HandleDrop(DataObjectContent content, string destPath, DragDropEffects type) {
 		Debug.Assert(type is DragDropEffects.Copy or DragDropEffects.Move or DragDropEffects.Link);
 		if (destPath.Length > 4 && destPath[^4..] is ".exe" or ".lnk") {  // 拖文件运行
@@ -340,7 +323,7 @@ internal static class FileUtils {
 									} else {
 										path = Path.ChangeExtension(path, ".lnk");
 									}
-									CreateShortcut(path, filePaths[i]);
+									Shell32Interop.CreateLnk(filePaths[i], path);
 								}
 							} else {
 								FileOperation(type == DragDropEffects.Move ? FileOpType.Move : FileOpType.Copy, filePaths, destPaths);

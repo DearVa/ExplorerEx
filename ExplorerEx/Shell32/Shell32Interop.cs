@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ExplorerEx.Shell32; 
+namespace ExplorerEx.Shell32;
 
 internal static class Shell32Interop {
 	// ReSharper disable InconsistentNaming
@@ -30,6 +30,15 @@ internal static class Shell32Interop {
 
 	public const string IID_IContextMenu = "000214e4-0000-0000-c000-000000000046";
 	public static Guid GUID_IContextMenu = new(IID_IContextMenu);
+
+	public const string IID_ShellLink = "00021401-0000-0000-C000-000000000046";
+	public static Guid CLSID_ShellLink = new(IID_ShellLink);
+
+	public const string IID_IShellLink = "000214F9-0000-0000-C000-000000000046";
+	public static Guid GUID_IShellLink = new(IID_IShellLink);
+
+	public const string IID_IPersistFile = "0000010b-0000-0000-C000-000000000046";
+	public static Guid GUID_IPersistFile = new(IID_IPersistFile);
 
 	/// <summary>
 	/// Shell操作共用的锁
@@ -136,7 +145,10 @@ internal static class Shell32Interop {
 	public static extern int SHOpenWithDialog(IntPtr hWndParent, ref OpenAsInfo oOAI);
 
 	[DllImport(Shell32)]
-	public static  extern int SHGetKnownFolderPath([MarshalAs(UnmanagedType.LPStruct)] Guid rfid, uint dwFlags, IntPtr hToken, out IntPtr pszPath);
+	public static extern int SHGetKnownFolderPath([MarshalAs(UnmanagedType.LPStruct)] Guid rfid, uint dwFlags, IntPtr hToken, out IntPtr pszPath);
+
+	[DllImport("ole32.dll")]
+	public static extern int CoCreateInstance(ref Guid clsid, [MarshalAs(UnmanagedType.IUnknown)] object inner, uint context, ref Guid uuid, out IntPtr rReturnedComObject);
 
 	[Flags]
 	public enum EmptyRecycleBinFlags {
@@ -186,10 +198,67 @@ internal static class Shell32Interop {
 		SHOpenWithDialog(IntPtr.Zero, ref info);
 	}
 
+	/// <summary>
+	/// 创建一个lnk快捷方式
+	/// </summary>
+	/// <param name="targetPath"></param>
+	/// <param name="lnkPath"></param>
+	/// <param name="description"></param>
+	/// <param name="iconPath"></param>
+	public static void CreateLnk(string targetPath, string lnkPath, string description = null, string iconPath = null) {
+		Marshal.ThrowExceptionForHR(CoCreateInstance(ref CLSID_ShellLink, null, 1, ref GUID_IShellLink, out var pShellLink));
+		var shellLink = (IShellLinkW)Marshal.GetTypedObjectForIUnknown(pShellLink, typeof(IShellLinkW));
+		shellLink.SetPath(targetPath);
+		if (description != null) {
+			shellLink.SetDescription(description);
+		}
+		if (iconPath != null) {
+			shellLink.SetIconLocation(iconPath, 1);
+		}
+		var exception = Marshal.GetExceptionForHR(Marshal.QueryInterface(pShellLink, ref GUID_IPersistFile, out var pPersistFile));
+		if (exception != null) {
+			Marshal.ReleaseComObject(shellLink);
+			throw exception;
+		}
+		var persistFile = (IPersistFile)Marshal.GetTypedObjectForIUnknown(pPersistFile, typeof(IPersistFile));
+		exception = Marshal.GetExceptionForHR(persistFile.Save(lnkPath, true));
+		Marshal.ReleaseComObject(persistFile);
+		Marshal.ReleaseComObject(shellLink);
+		if (exception != null) {
+			throw exception;
+		}
+	}
+
+	/// <summary>
+	/// 获取lnk快捷方式的目标
+	/// </summary>
+	/// <param name="lnkPath"></param>
+	public static string GetLnkTargetPath(string lnkPath) {
+		Marshal.ThrowExceptionForHR(CoCreateInstance(ref CLSID_ShellLink, null, 1, ref GUID_IShellLink, out var pShellLink));
+		var shellLink = (IShellLinkW)Marshal.GetTypedObjectForIUnknown(pShellLink, typeof(IShellLinkW));
+		var exception = Marshal.GetExceptionForHR(Marshal.QueryInterface(pShellLink, ref GUID_IPersistFile, out var pPersistFile));
+		if (exception != null) {
+			Marshal.ReleaseComObject(shellLink);
+			throw exception;
+		}
+		var persistFile = (IPersistFile)Marshal.GetTypedObjectForIUnknown(pPersistFile, typeof(IPersistFile));
+		exception = Marshal.GetExceptionForHR(persistFile.Load(lnkPath, 0));
+		if (exception != null) {
+			Marshal.ReleaseComObject(persistFile);
+			Marshal.ReleaseComObject(shellLink);
+			throw exception;
+		}
+		var sb = new StringBuilder(260);
+		shellLink.GetPath(sb, 260, IntPtr.Zero, SLGP.RawPath);
+		Marshal.ReleaseComObject(persistFile);
+		Marshal.ReleaseComObject(shellLink);
+		return sb.ToString();
+	}
+
 	public static IMalloc Malloc { get; private set; }
 
 	public static IShellFolder DesktopFolder { get; private set; }
-	
+
 	public static IShellFolder2 RecycleBinFolder { get; private set; }
 
 	public static IImageList JumboImageList { get; private set; }
@@ -212,7 +281,7 @@ internal static class Shell32Interop {
 			Marshal.ThrowExceptionForHR(DesktopFolder.BindToObject(pidlRecycleBin, IntPtr.Zero, GUID_IShellFolder2, out var pRecycleBin));
 			RecycleBinFolder = (IShellFolder2)Marshal.GetTypedObjectForIUnknown(pRecycleBin, typeof(IShellFolder2));
 			Malloc.Free(pidlRecycleBin);
-			
+
 			Marshal.ThrowExceptionForHR(SHGetImageList(SHIL.Jumbo, ref GUID_IImageList, out var imageList));
 			JumboImageList = imageList;
 

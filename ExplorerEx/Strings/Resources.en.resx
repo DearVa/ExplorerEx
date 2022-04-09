@@ -443,4 +443,25 @@ For the application to run properly, it's recommanded that you first extract all
   <data name="And...More" xml:space="preserve">
     <value>还有 {0} 个。</value>
   </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="DuplicateTab" xml:space="preserve">
+    <value>Duplicate Tab</value>
+  </data>
+  <data name="MoveToNewWindow" xml:space="preserve">
+    <value>Move to New Window</value>
+  </data>
+  <data name="SplitScreen" xml:space="preserve">
+    <value>Split Screen</value>
+  </data>
+  <data name="CloseOtherTabs" xml:space="preserve">
+    <value>Close Other Tabs</value>
+  </data>
+  <data name="ToLeft" xml:space="preserve">
+    <value>To Left</value>
+  </data>
+  <data name="ToRight" xml:space="preserve">
+    <value>To Right</value>
+  </data>
 </root>

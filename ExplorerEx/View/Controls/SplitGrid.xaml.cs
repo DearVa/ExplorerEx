@@ -7,7 +7,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using ExplorerEx.ViewModel;
-using TabItem = HandyControl.Controls.TabItem;
 
 namespace ExplorerEx.View.Controls;
 
@@ -141,7 +140,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 			if (!contains) {
 				FileTabControl.TabItems.Add(tab);
 				FileTabControl.SelectedIndex = FileTabControl.TabItems.Count - 1;
-				TabItem.MoveAfterDrag = true;
+				FileTabItem.DragTabDestination = FileTabControl;
 			}
 		} else if (!contains || FileTabControl.TabItems.Count > 1) {  // 要么不包含，要么TabControl中有超过一个Tab才分屏
 			switch (orientation) {
@@ -154,7 +153,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 				otherSplitGrid = new SplitGrid(MainWindow, this, tab);
 				otherSplitGrid.SetValue(ColumnProperty, 0);
 				Children.Insert(0, otherSplitGrid);
-				TabItem.MoveAfterDrag = true;
+				FileTabItem.DragTabDestination = FileTabControl;
 				return true;
 			}
 			case SplitOrientation.Bottom: {
@@ -165,7 +164,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 				otherSplitGrid = new SplitGrid(MainWindow, this, tab);
 				otherSplitGrid.SetValue(RowProperty, 2);
 				Children.Insert(0, otherSplitGrid);
-				TabItem.MoveAfterDrag = true;
+				FileTabItem.DragTabDestination = FileTabControl;
 				return true;
 			}
 			case SplitOrientation.Right: {
@@ -181,7 +180,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 				}
 				otherSplitGrid.SetValue(ColumnProperty, 2);
 				Children.Insert(0, otherSplitGrid);
-				TabItem.MoveAfterDrag = true;
+				FileTabItem.DragTabDestination = FileTabControl;
 				return true;
 			}
 			}
@@ -294,24 +293,24 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 
 	protected override void OnMouseMove(MouseEventArgs e) {
 		base.OnMouseMove(e);
-		if (TabItem.DraggingTab != null && !DragArea.IsHitTestVisible) {  // 正在拖动标签页
+		if (FileTabItem.DraggingFileTab != null && !DragArea.IsHitTestVisible) {  // 正在拖动标签页
 			DragArea.IsHitTestVisible = true;
 			SplitPreviewRectangle.BeginAnimation(OpacityProperty, showAnimation);
-			TabItem.DragEnd += OnDragEnd;
+			FileTabItem.DragEnd += OnDragEnd;
 		}
 	}
 
 	protected void DragArea_OnMouseLeave(object s, MouseEventArgs e) {
-		if (TabItem.DraggingTab != null) {
-			TabItem.DragEnd -= OnDragEnd;
+		if (FileTabItem.DraggingFileTab != null) {
+			FileTabItem.DragEnd -= OnDragEnd;
 			HidePreview();
 		}
 	}
 
 	private void OnDragEnd() {
 		HidePreview();
-		if (TabItem.DraggingTab != null) {
-			Split((FileTabViewModel)TabItem.DraggingTab.DataContext, orientation);
+		if (FileTabItem.DraggingFileTab != null) {
+			Split((FileTabViewModel)FileTabItem.DraggingFileTab.DataContext, orientation);
 		}
 	}
 
@@ -321,7 +320,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 	}
 
 	protected void DragArea_OnMouseMove(object s, MouseEventArgs e) {
-		if (TabItem.DraggingTab != null) {
+		if (FileTabItem.DraggingFileTab != null) {
 			var p = e.GetPosition(this);
 			var width = ActualWidth;
 			var height = ActualHeight;

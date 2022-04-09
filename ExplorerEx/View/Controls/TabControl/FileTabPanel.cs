@@ -4,12 +4,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace HandyControl.Controls; 
+namespace ExplorerEx.View.Controls; 
 
-public class TabPanel : Panel {
+public class FileTabPanel : Panel {
 	public static readonly DependencyPropertyKey FluidMoveDurationPropertyKey =
-		DependencyProperty.RegisterReadOnly("FluidMoveDuration", typeof(Duration), typeof(TabPanel),
-			new PropertyMetadata(new Duration(TimeSpan.FromMilliseconds(0))));
+		DependencyProperty.RegisterReadOnly("FluidMoveDuration", typeof(Duration), typeof(FileTabPanel),
+			new PropertyMetadata(new Duration(TimeSpan.Zero)));
 
 	/// <summary>
 	///     流式行为持续时间
@@ -21,48 +21,34 @@ public class TabPanel : Panel {
 	///     标签宽度
 	/// </summary>
 	public static readonly DependencyProperty TabItemWidthProperty = DependencyProperty.Register(
-		"TabItemWidth", typeof(double), typeof(TabPanel), new PropertyMetadata(200.0));
+		"TabItemWidth", typeof(double), typeof(FileTabPanel), new PropertyMetadata(200.0));
 
 	/// <summary>
 	///     标签高度
 	/// </summary>
 	public static readonly DependencyProperty TabItemHeightProperty = DependencyProperty.Register(
-		"TabItemHeight", typeof(double), typeof(TabPanel), new PropertyMetadata(30.0));
+		"TabItemHeight", typeof(double), typeof(FileTabPanel), new PropertyMetadata(30.0));
 
 	/// <summary>
 	///     是否已经加载
 	/// </summary>
 	private bool isLoaded;
 
-	private int itemCount;
-
 	private Size oldSize;
-
-	/// <summary>
-	///     是否可以更新
-	/// </summary>
-	internal bool CanUpdate = true;
-
-	/// <summary>
-	///     是否可以强制更新
-	/// </summary>
-	internal bool ForceUpdate;
 
 	/// <summary>
 	///     选项卡字典
 	/// </summary>
-	internal readonly Dictionary<int, TabItem> ItemDict = new();
+	internal readonly Dictionary<int, FileTabItem> ItemDict = new();
 
-	public TabPanel() {
+	public FileTabPanel() {
 		Loaded += (_, _) => {
 			if (isLoaded) {
 				return;
 			}
-			ForceUpdate = true;
 			Measure(new Size(DesiredSize.Width, ActualHeight));
-			ForceUpdate = false;
 			foreach (var item in ItemDict.Values) {
-				item.TabPanel = this;
+				item.FileTabPanel = this;
 			}
 			isLoaded = true;
 		};
@@ -93,14 +79,10 @@ public class TabPanel : Panel {
 	}
 
 	protected override Size MeasureOverride(Size constraint) {
-		//if ((_itemCount == InternalChildren.Count || !CanUpdate) && !ForceUpdate && !IsTabFillEnabled) {
-		//	return _oldSize;
-		//}
-		if (TemplatedParent is not TabControl tabControl) {
+		if (TemplatedParent is not FileTabControl tabControl) {
 			return oldSize;
 		}
 		constraint.Height = TabItemHeight;
-		itemCount = InternalChildren.Count;
 
 		var size = new Size();
 
@@ -121,7 +103,7 @@ public class TabPanel : Panel {
 		}
 
 		for (var index = 0; index < count; index++) {
-			if (InternalChildren[index] is TabItem tabItem) {
+			if (InternalChildren[index] is FileTabItem tabItem) {
 				tabItem.RenderTransform = new TranslateTransform();
 				tabItem.MaxWidth = itemWidth;
 				var rect = new Rect {

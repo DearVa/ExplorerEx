@@ -26,7 +26,6 @@ using HandyControl.Controls;
 using HandyControl.Tools;
 using GridView = System.Windows.Controls.GridView;
 using ScrollViewer = System.Windows.Controls.ScrollViewer;
-using TabItem = HandyControl.Controls.TabItem;
 using TextBox = HandyControl.Controls.TextBox;
 
 namespace ExplorerEx.View.Controls;
@@ -40,7 +39,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// </summary>
 	public static DragFilesPreview DragFilesPreview { get; private set; }
 
-	private static DragDropWindow dragDropWindow;
+	private static DragPreviewWindow dragPreviewWindow;
 	/// <summary>
 	/// 正在拖放的items列表，从外部拖进来的不算
 	/// </summary>
@@ -518,12 +517,12 @@ public partial class FileListView : INotifyPropertyChanged {
 					var allowedEffects = draggingItems.Any(item => item is DiskDriveItem) ? DragDropEffects.Link : DragDropEffects.Copy | DragDropEffects.Link | DragDropEffects.Move;
 					DragFilesPreview = new DragFilesPreview(draggingItems.Select(item => item.Icon).ToArray());
 					isDragDropping = true;
-					dragDropWindow = DragDropWindow.Show(DragFilesPreview, new Point(50, 100), 0.8, false);
+					dragPreviewWindow = DragPreviewWindow.Show(DragFilesPreview, new Point(50, 100), 0.8, false);
 					DragDrop.DoDragDrop(this, data, allowedEffects);
 					draggingItems = null;
 					isDragDropping = false;
-					dragDropWindow.Close();
-					dragDropWindow = null;
+					dragPreviewWindow.Close();
+					dragPreviewWindow = null;
 					DragFilesPreview = null;
 				} else {
 					if (!isRectSelecting) {
@@ -931,7 +930,7 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	protected override void OnDragOver(DragEventArgs e) {
 		isDragDropping = true;
-		if (TabItem.DraggingTab != null) {
+		if (FileTabItem.DraggingFileTab != null) {
 			return;
 		}
 		FileListViewItem mouseItem;
@@ -986,14 +985,12 @@ public partial class FileListView : INotifyPropertyChanged {
 	}
 
 	protected override void OnDrop(DragEventArgs e) {
-		string path;
 		// 拖动文件到了项目上
-		var item = MouseItem;
-		if (item != null) {
-			path = item.FullPath;
-		} else {
-			path = null;
-		}
+		var path = e.OriginalSource is DependencyObject d ? ContainerFromElement(d) switch {
+			ListBoxItem i => ((FileListViewItem)i.Content).FullPath,
+			DataGridRow r => ((FileListViewItem)r.Item).FullPath,
+			_ => null
+		} : null;
 		RaiseEvent(new FileDropEventArgs(FileDropEvent, e, path));
 	}
 
@@ -1016,9 +1013,9 @@ public partial class FileListView : INotifyPropertyChanged {
 				DragFilesPreview.DragDropEffect = DragDropEffects.Link;
 			}
 		} else {
-			DragFilesPreview.DragDropEffect = e.Effects.GetFirstEffect();
+			DragFilesPreview.DragDropEffect = e.Effects.GetActualEffect();
 		}
-		dragDropWindow.MoveWithCursor();
+		dragPreviewWindow.MoveWithCursor();
 	}
 
 	protected override void OnLostFocus(RoutedEventArgs e) {

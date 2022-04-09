@@ -8,26 +8,23 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using ExplorerEx.Win32;
+using HandyControl.Controls;
 using HandyControl.Data;
 using HandyControl.Interactivity;
 using HandyControl.Tools;
-using HandyControl.Tools.Interop;
 
-namespace HandyControl.Controls; 
+namespace ExplorerEx.View.Controls; 
 
-public class TabItem : System.Windows.Controls.TabItem {
+public class FileTabItem : TabItem {
 	/// <summary>
 	/// 当前正在Drag的tab
 	/// </summary>
-	public static TabItem DraggingTab { get; private set; }
+	public static FileTabItem DraggingFileTab { get; private set; }
 	/// <summary>
-	/// 这次Drag是否将标签页移走了，如果为false，说明是拖走又回来了。请在设置<see cref="DragFrame"/>之前先设置这个的值
+	/// 拖动标签的目标
 	/// </summary>
-	public static bool MoveAfterDrag { get; set; }
-	/// <summary>
-	/// 拖动到了TabControl上
-	/// </summary>
-	internal static TabControl DragToTabControl { get; set; }
+	public static FileTabControl DragTabDestination { get; set; }
 	/// <summary>
 	/// Continue设为结束DragDrop
 	/// </summary>
@@ -37,10 +34,10 @@ public class TabItem : System.Windows.Controls.TabItem {
 	/// </summary>
 	public static event Action DragEnd;
 
-	public static DragDropWindow DragDropWindow { get; private set; }
+	private static DragPreviewWindow dragTabPreviewWindow;
 
 	public static readonly DependencyProperty CanMoveToNewWindowProperty = DependencyProperty.Register(
-		"CanMoveToNewWindow", typeof(bool), typeof(TabItem), new PropertyMetadata(default(bool)));
+		"CanMoveToNewWindow", typeof(bool), typeof(FileTabItem), new PropertyMetadata(default(bool)));
 
 	public bool CanMoveToNewWindow {
 		get => (bool)GetValue(CanMoveToNewWindowProperty);
@@ -48,7 +45,7 @@ public class TabItem : System.Windows.Controls.TabItem {
 	}
 
 	public static readonly DependencyProperty CanSplitScreenProperty = DependencyProperty.Register(
-		"CanSplitScreen", typeof(bool), typeof(TabItem), new PropertyMetadata(default(bool)));
+		"CanSplitScreen", typeof(bool), typeof(FileTabItem), new PropertyMetadata(default(bool)));
 
 	public bool CanSplitScreen {
 		get => (bool)GetValue(CanSplitScreenProperty);
@@ -70,18 +67,11 @@ public class TabItem : System.Windows.Controls.TabItem {
 	/// </summary>
 	private static bool isItemDragging;
 
-	public static readonly RoutedEvent ClosingEvent = EventManager.RegisterRoutedEvent("Closing", RoutingStrategy.Bubble, typeof(EventHandler), typeof(TabItem));
+	public static readonly RoutedEvent ClosingEvent = EventManager.RegisterRoutedEvent("Closing", RoutingStrategy.Bubble, typeof(EventHandler), typeof(FileTabItem));
 
-	public static readonly RoutedEvent MovedEvent = EventManager.RegisterRoutedEvent("Moved", RoutingStrategy.Bubble, typeof(EventHandler), typeof(TabItem));
+	public static readonly RoutedEvent MovedEvent = EventManager.RegisterRoutedEvent("Moved", RoutingStrategy.Bubble, typeof(EventHandler), typeof(FileTabItem));
 
-	public static readonly RoutedEvent TabCommandEvent = EventManager.RegisterRoutedEvent("TabCommand", RoutingStrategy.Bubble, typeof(EventHandler), typeof(TabItem));
-
-	// DragEnter等方法找不出对应的TabItem是哪个，使用自定的方法（如果有更好的方法请帮我提个issue）
-	public static readonly RoutedEvent DragDropEnterEvent = EventManager.RegisterRoutedEvent("DragDropEnter", RoutingStrategy.Bubble, typeof(DragEventHandler), typeof(TabItem));
-
-	public static readonly RoutedEvent DragDropOverEvent = EventManager.RegisterRoutedEvent("DragDropOver", RoutingStrategy.Bubble, typeof(DragEventHandler), typeof(TabItem));
-
-	public static readonly RoutedEvent DragDropEvent = EventManager.RegisterRoutedEvent("DragDrop", RoutingStrategy.Bubble, typeof(DragEventHandler), typeof(TabItem));
+	public static readonly RoutedEvent TabCommandEvent = EventManager.RegisterRoutedEvent("TabCommand", RoutingStrategy.Bubble, typeof(EventHandler), typeof(FileTabItem));
 
 	public event EventHandler Closing {
 		add => AddHandler(ClosingEvent, value);
@@ -96,21 +86,6 @@ public class TabItem : System.Windows.Controls.TabItem {
 	public event EventHandler TabCommand {
 		add => AddHandler(TabCommandEvent, value);
 		remove => RemoveHandler(TabCommandEvent, value);
-	}
-
-	public event DragEventHandler DragDropEnter {
-		add => AddHandler(DragDropEnterEvent, value);
-		remove => RemoveHandler(DragDropEnterEvent, value);
-	}
-
-	public event DragEventHandler DragDropOver {
-		add => AddHandler(DragDropOverEvent, value);
-		remove => RemoveHandler(DragDropOverEvent, value);
-	}
-
-	public event DragEventHandler DragDrop {
-		add => AddHandler(DragDropEvent, value);
-		remove => RemoveHandler(DragDropEvent, value);
 	}
 
 	/// <summary>
@@ -163,16 +138,17 @@ public class TabItem : System.Windows.Controls.TabItem {
 	/// </summary>
 	private Point mouseDownTabPoint;
 
-	private TabPanel tabPanel;
+	private FileTabPanel _fileTabPanel;
 
 	private Grid templateRoot;
 
-	public TabItem() {
+	public FileTabItem() {
+		Trace.WriteLine("New Tab");
 		CommandBindings.Add(new CommandBinding(ControlCommands.Close, (_, _) => Close()));
 		CommandBindings.Add(new CommandBinding(ControlCommands.CloseOther, (_, _) => TabControlParent.CloseOtherItems(this)));
 		CommandBindings.Add(new CommandBinding(ControlCommands.TabCommand, (_, e) => RaiseEvent(new TabItemCommandArgs(TabCommandEvent, (string)e.Parameter, this))));
 		Loaded += (s, _) => {
-			((TabItem)s).BeginAnimation(OpacityProperty, new DoubleAnimation(1d, new Duration(TimeSpan.FromMilliseconds(300))) {
+			((FileTabItem)s).BeginAnimation(OpacityProperty, new DoubleAnimation(1d, new Duration(TimeSpan.FromMilliseconds(300))) {
 				EasingFunction = new SineEase {
 					EasingMode = EasingMode.EaseIn
 				}
@@ -184,18 +160,9 @@ public class TabItem : System.Windows.Controls.TabItem {
 		base.OnApplyTemplate();
 		ContextMenu!.DataContext = this;
 		templateRoot = (Grid)GetTemplateChild("templateRoot")!;
-		templateRoot.DragEnter += (_, args) => {
-			args.RoutedEvent = DragDropEnterEvent;
-			RaiseEvent(new TabItemDragEventArgs(args, this));
-		};
-		templateRoot.DragOver += (_, args) => {
-			args.RoutedEvent = DragDropOverEvent;
-			RaiseEvent(new TabItemDragEventArgs(args, this));
-		};
-		templateRoot.Drop += (_, args) => {
-			args.RoutedEvent = DragDropEvent;
-			RaiseEvent(new TabItemDragEventArgs(args, this));
-		};
+		templateRoot.DragEnter += (_, args) => FileTabControl.TabItem_OnDrag(this, args);
+		templateRoot.DragOver += (_, args) => FileTabControl.TabItem_OnDrag(this, args);
+		templateRoot.Drop += (_, args) => FileTabControl.TabItem_OnDrop(this, args);
 	}
 
 	/// <summary>
@@ -211,15 +178,15 @@ public class TabItem : System.Windows.Controls.TabItem {
 	/// <summary>
 	///     标签容器
 	/// </summary>
-	internal TabPanel TabPanel {
+	internal FileTabPanel FileTabPanel {
 		get {
-			if (tabPanel == null && TabControlParent != null) {
-				tabPanel = TabControlParent.HeaderPanel;
+			if (_fileTabPanel == null && TabControlParent != null) {
+				_fileTabPanel = TabControlParent.HeaderPanel;
 			}
 
-			return tabPanel;
+			return _fileTabPanel;
 		}
-		set => tabPanel = value;
+		set => _fileTabPanel = value;
 	}
 
 	/// <summary>
@@ -237,23 +204,23 @@ public class TabItem : System.Windows.Controls.TabItem {
 		}
 	}
 
-	private TabControl TabControlParent => ItemsControl.ItemsControlFromItemContainer(this) as TabControl;
+	private FileTabControl TabControlParent => ItemsControl.ItemsControlFromItemContainer(this) as FileTabControl;
 
 	/// <summary>
 	///     更新选项卡横向偏移
 	/// </summary>
 	/// <param name="oldIndex"></param>
 	private void UpdateItemOffsetX(int oldIndex) {
-		if (!isDragging || CurrentIndex >= TabPanel.ItemDict.Count) {
+		if (!isDragging || CurrentIndex >= FileTabPanel.ItemDict.Count) {
 			return;
 		}
 
-		var moveItem = TabPanel.ItemDict[CurrentIndex];
+		var moveItem = FileTabPanel.ItemDict[CurrentIndex];
 		moveItem.CurrentIndex -= CurrentIndex - oldIndex;
 		var offsetX = moveItem.TargetOffsetX;
 		var resultX = offsetX + (oldIndex - CurrentIndex) * ItemWidth;
-		TabPanel.ItemDict[CurrentIndex] = this;
-		TabPanel.ItemDict[moveItem.CurrentIndex] = moveItem;
+		FileTabPanel.ItemDict[CurrentIndex] = this;
+		FileTabPanel.ItemDict[moveItem.CurrentIndex] = moveItem;
 		moveItem.CreateAnimation(offsetX, resultX);
 	}
 
@@ -270,10 +237,8 @@ public class TabItem : System.Windows.Controls.TabItem {
 	protected override void OnHeaderChanged(object oldHeader, object newHeader) {
 		base.OnHeaderChanged(oldHeader, newHeader);
 
-		if (TabPanel != null) {
-			TabPanel.ForceUpdate = true;
+		if (FileTabPanel != null) {
 			InvalidateMeasure();
-			TabPanel.ForceUpdate = true;
 		}
 	}
 
@@ -291,7 +256,7 @@ public class TabItem : System.Windows.Controls.TabItem {
 			return;
 		}
 
-		TabPanel.SetValue(TabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromMilliseconds(200)));
+		FileTabPanel.SetValue(FileTabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromMilliseconds(200)));
 
 		parent.IsInternalAction = true;
 
@@ -312,7 +277,7 @@ public class TabItem : System.Windows.Controls.TabItem {
 
 		var parent = TabControlParent.TabBorder;
 		if (!isItemDragging && !isDragging) {
-			TabPanel.SetValue(TabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromSeconds(0)));
+			FileTabPanel.SetValue(FileTabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromSeconds(0)));
 			mouseDownOffsetX = RenderTransform.Value.OffsetX;
 			var mx = TranslatePoint(new Point(), parent).X;
 			mouseDownPoint = e.GetPosition(parent);
@@ -335,6 +300,14 @@ public class TabItem : System.Windows.Controls.TabItem {
 
 	protected override void OnMouseMove(MouseEventArgs e) {
 		base.OnMouseMove(e);
+
+		if (DraggingFileTab != null) {
+			dragTabPreviewWindow?.MoveWithCursor();
+			if (Mouse.LeftButton != MouseButtonState.Pressed || Keyboard.IsKeyDown(Key.Escape)) {
+				EndDrag();
+			}
+			return;
+		}
 
 		if (isItemDragging && isDragging) {
 			var tabControl = TabControlParent;
@@ -375,61 +348,55 @@ public class TabItem : System.Windows.Controls.TabItem {
 			RenderTransform = new TranslateTransform(left, 0);
 			dragPoint = p;
 
-			if ((p.X < 0 || p.X > parent.ActualWidth || p.Y < 0 || p.Y > parent.ActualHeight) && DraggingTab == null) {
-				DraggingTab = this;
-				// 这里把Child给DragDropWindow显示，不然设为了Hidden显示不出来
-				Visibility = Visibility.Hidden;
-				DragDropWindow = DragDropWindow.Show((Grid)GetVisualChild(0), mouseDownTabPoint);
-				var timer = new DispatcherTimer(TimeSpan.FromSeconds(1 / 60d), DispatcherPriority.Input, DragTimerWork, Dispatcher);
+			if (p.X < 0 || p.X > parent.ActualWidth || p.Y < -10 || p.Y > parent.ActualHeight + 10) {  // 开始拖动标签页
+				DraggingFileTab = this;
+				Opacity = 0d;  // 不能设置Visibility = Hidden; 会导致MouseCapture被取消
+				// 把Child给DragDropWindow显示
+				dragTabPreviewWindow = DragPreviewWindow.Show((Grid)GetVisualChild(0), mouseDownTabPoint);
 				// isItemDragging = isDragging = false 防止继续响应Move事件
-				isItemDragging = isDragging = MoveAfterDrag = false;
-				DragToTabControl = null;
+				isItemDragging = isDragging = false;
+				DragTabDestination = tabControl;
 				DragFrame = new DispatcherFrame();
 				Dispatcher.PushFrame(DragFrame);
-				DragFrame = null;
 
-				timer.Stop();
-				DragDropWindow.Close();
-				DragDropWindow = null;
+				ReleaseMouseCapture();
+				DragFrame = null;
+				
+				dragTabPreviewWindow.Close();
+				dragTabPreviewWindow = null;
 
 				DragEnd?.Invoke();
 				DragEnd = null;
-				DraggingTab = null;
 
-				if (MoveAfterDrag) {  // 为true就删掉当前的标签页
+				if (DragTabDestination != tabControl) {  // 目标不是当前的TabControl
 					IEditableCollectionView items = tabControl.Items;
 					if (items.CanRemove) {
 						items.Remove(DataContext);
 					}
 					tabControl.NewTabButton.Visibility = Visibility.Visible;
 					tabControl.RaiseEvent(new RoutedEventArgs(MovedEvent, this));
-					if (DragToTabControl != null) {
-						ContinueDrag(e, DragToTabControl.TabBorder);
+					if (DragTabDestination != null) {
+						ContinueDrag(e, DragTabDestination.TabBorder);
 					}
 				} else {
-					Visibility = Visibility.Visible;
-					if (DragToTabControl != null) {
+					Opacity = 1d;
+					if (DragTabDestination != null) {
 						ContinueDrag(e, parent);
 					} else {
 						EndDrag();
 					}
 				}
-			}
-		}
-	}
 
-	private void DragTimerWork(object s, EventArgs e) {
-		DragDropWindow?.MoveWithCursor();
-		if (Mouse.LeftButton != MouseButtonState.Pressed || Keyboard.IsKeyDown(Key.Escape)) {
-			EndDrag();  // 由于Dispatcher.PushFrame会取消MouseCapture，所以需要在这里处理EndDrag事件
+				DraggingFileTab = null;
+			}
 		}
 	}
 
 	private void ContinueDrag(MouseEventArgs e, Border parent) {
 		// 这里使用e.GetPosition(parent)获取到的是错误的结果，此时Mouse坐标被错误地认为位于屏幕的左上角
-		var mousePoint = InteropMethods.GetCursorPos();
+		Win32Interop.GetCursorPos(out var mousePoint);
 		var parentPoint = e.GetPosition(parent);
-		mouseDownPoint = new Point(mousePoint.X + parentPoint.X, mousePoint.Y + parentPoint.Y);
+		mouseDownPoint = new Point(mousePoint.x + parentPoint.X, mousePoint.y + parentPoint.Y);
 		var left = mouseDownPoint.X - ActualWidth / 2;
 		if (left < 0) {
 			left = 0;
@@ -459,14 +426,12 @@ public class TabItem : System.Windows.Controls.TabItem {
 		
 		if (isDragged) {
 			isDragged = false;
-			TabControlParent.NewTabButton.Visibility = Visibility.Visible;
-
-			if (MoveAfterDrag) {
-				return;
-			}
 
 			var parent = TabControlParent;
 			if (parent == null) {
+				return;
+			}
+			if (DraggingFileTab != null && DragTabDestination != parent) {
 				return;
 			}
 
@@ -505,8 +470,7 @@ public class TabItem : System.Windows.Controls.TabItem {
 			if (item == null) {
 				return;
 			}
-
-			TabPanel.CanUpdate = false;
+			
 			parent.IsInternalAction = true;
 
 			var indexOf = list.IndexOf(item);
@@ -516,11 +480,8 @@ public class TabItem : System.Windows.Controls.TabItem {
 				list.Insert(index, item);
 			}
 
-			tabPanel.SetValue(TabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromMilliseconds(0)));
-			TabPanel.CanUpdate = true;
-			TabPanel.ForceUpdate = true;
-			TabPanel.Measure(new Size(TabPanel.DesiredSize.Width, ActualHeight));
-			TabPanel.ForceUpdate = false;
+			_fileTabPanel.SetValue(FileTabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromMilliseconds(0)));
+			FileTabPanel.Measure(new Size(FileTabPanel.DesiredSize.Width, ActualHeight));
 
 			Focus();
 			IsSelected = true;
@@ -528,6 +489,8 @@ public class TabItem : System.Windows.Controls.TabItem {
 			if (!IsMouseCaptured) {
 				parent.SetCurrentValue(Selector.SelectedIndexProperty, currentIndex);
 			}
+
+			parent.NewTabButton.Visibility = Visibility.Visible;
 		}
 
 		TargetOffsetX = resultX;
@@ -559,26 +522,14 @@ public class TabItem : System.Windows.Controls.TabItem {
 	}
 }
 
-public class TabItemDragEventArgs : RoutedEventArgs {
-	public DragEventArgs DragEventArgs { get; }
-
-	public TabItem TabItem { get; }
-
-	public TabItemDragEventArgs(DragEventArgs args, TabItem tabItem) {
-		RoutedEvent = args.RoutedEvent;
-		DragEventArgs = args;
-		TabItem = tabItem;
-	}
-}
-
 public class TabItemCommandArgs : RoutedEventArgs {
 	public string CommandParameter { get; }
 
-	public TabItem TabItem { get; }
+	public FileTabItem FileTabItem { get; }
 
-	public TabItemCommandArgs(RoutedEvent routedEvent, string commandParameter, TabItem tabItem) {
+	public TabItemCommandArgs(RoutedEvent routedEvent, string commandParameter, FileTabItem fileTabItem) {
 		RoutedEvent = routedEvent;
 		CommandParameter = commandParameter;
-		TabItem = tabItem;
+		FileTabItem = fileTabItem;
 	}
 }

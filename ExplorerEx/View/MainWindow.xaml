@@ -148,7 +148,7 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <hc:SimplePanel Grid.Column="0" MouseLeftButtonDown="OnDragAreaMouseLeftButtonDown">
-            <ct:TabControlEx x:Name="SidebarTabControl" Focusable="False" Padding="0,52,0,0"
+            <ct:AnimatedTabControlEx x:Name="SidebarTabControl" Focusable="False" Padding="0,52,0,0"
                              WindowChrome.IsHitTestVisibleInChrome="True" CanDeselect="True" SelectionChanged="OnSidebarSelectionChanged">
                 <TabItem x:Name="BookmarksTabItem" Width="50" Padding="0">
                     <TabItem.Header>
@@ -446,7 +446,7 @@
                         </Grid>
                     </Grid>
                 </TabItem>
-            </ct:TabControlEx>
+            </ct:AnimatedTabControlEx>
 
             <Popup IsOpen="{Binding IsAddToBookmarkShow, Mode=TwoWay}" PopupAnimation="Fade" AllowsTransparency="True" 
                    PlacementTarget="{Binding ElementName=BookmarksTabItem}" StaysOpen="False" Placement="Right"

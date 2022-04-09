@@ -5,8 +5,6 @@
 
     <Style BasedOn="{StaticResource TabControlBaseStyle}" TargetType="TabControl"/>
 
-    <Style BasedOn="{StaticResource TabControlPlusBaseStyle}" TargetType="hc:TabControl"/>
-
     <Style x:Key="TabItemInLine" BasedOn="{StaticResource TabItemStyle}" TargetType="TabItem">
         <Setter Property="MinWidth" Value="0"/>
     </Style>

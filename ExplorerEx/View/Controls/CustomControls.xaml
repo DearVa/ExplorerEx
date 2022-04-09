@@ -70,7 +70,7 @@
         </Setter>
     </Style>
 
-    <Style TargetType="ct:TabControlEx">
+    <Style TargetType="ct:AnimatedTabControlEx">
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
                 <Style TargetType="TabItem" BasedOn="{StaticResource TabItemStyle}">
@@ -123,10 +123,10 @@
                                     Margin="0" KeyboardNavigation.TabIndex="1" Panel.ZIndex="1">
                             <hc:Interaction.Triggers>
                                 <hc:RoutedEventTrigger RoutedEvent="TabItem.PreviewMouseDown">
-                                    <hc:EventToCommand Command="{Binding TabItemPreviewMouseDownCommand, RelativeSource={RelativeSource AncestorType=ct:TabControlEx}}" PassEventArgsToCommand="True"/>
+                                    <hc:EventToCommand Command="{Binding TabItemPreviewMouseDownCommand, RelativeSource={RelativeSource AncestorType=ct:AnimatedTabControlEx}}" PassEventArgsToCommand="True"/>
                                 </hc:RoutedEventTrigger>
                                 <hc:RoutedEventTrigger RoutedEvent="TabItem.PreviewMouseUp">
-                                    <hc:EventToCommand Command="{Binding TabItemPreviewMouseUpCommand, RelativeSource={RelativeSource AncestorType=ct:TabControlEx}}" PassEventArgsToCommand="True"/>
+                                    <hc:EventToCommand Command="{Binding TabItemPreviewMouseUpCommand, RelativeSource={RelativeSource AncestorType=ct:AnimatedTabControlEx}}" PassEventArgsToCommand="True"/>
                                 </hc:RoutedEventTrigger>
                             </hc:Interaction.Triggers>
                             <ItemsPresenter Margin="{TemplateBinding Padding}"/>
@@ -265,6 +265,129 @@
                         </Trigger>
                         <Trigger Property="IsFocused" Value="true">
                             <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource PrimaryBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <ContextMenu x:Key="TabItemExMenu" x:Shared="False" d:DataContext="{d:DesignInstance ct:FileTabItem}">
+        <MenuItem Command="hc:ControlCommands.TabCommand" CommandParameter="Duplicate" Header="{u:Lang DuplicateTab}"/>
+        <MenuItem IsEnabled="{Binding CanMoveToNewWindow}" Command="hc:ControlCommands.TabCommand" CommandParameter="Move2NewWindow" Header="{u:Lang MoveToNewWindow}">
+            <MenuItem.Icon>
+                <DrawingImage>
+                    <DrawingImage.Drawing>
+                        <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="{StaticResource Move2NewWindowGeometry}"/>
+                    </DrawingImage.Drawing>
+                </DrawingImage>
+            </MenuItem.Icon>
+        </MenuItem>
+        <MenuItem Icon="{StaticResource SplitScreenDrawingImage}" IsEnabled="{Binding CanSplitScreen}" Header="{u:Lang SplitScreen}">
+            <MenuItem.Items>
+                <MenuItem Icon="{StaticResource Split2LeftDrawingImage}" Command="hc:ControlCommands.TabCommand" CommandParameter="SplitLeft" Header="{u:Lang ToLeft}"/>
+                <MenuItem Icon="{StaticResource Split2RightDrawingImage}" Command="hc:ControlCommands.TabCommand" CommandParameter="SplitRight" Header="{u:Lang ToRight}"/>
+                <MenuItem Icon="{StaticResource Split2BottomDrawingImage}" Command="hc:ControlCommands.TabCommand" CommandParameter="SplitBottom" Header="{u:Lang ToBottom}"/>
+            </MenuItem.Items>
+        </MenuItem>
+        <Separator Style="{DynamicResource SeparatorBaseStyle}"/>
+        <MenuItem Command="hc:ControlCommands.Close" Header="{u:Lang Close}" InputGestureText="Ctrl + W">
+            <MenuItem.Icon>
+                <DrawingImage>
+                    <DrawingImage.Drawing>
+                        <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="{StaticResource CloseGeometry}"/>
+                    </DrawingImage.Drawing>
+                </DrawingImage>
+            </MenuItem.Icon>
+        </MenuItem>
+        <MenuItem Command="hc:ControlCommands.CloseOther" Header="{u:Lang CloseOtherTabs}"/>
+    </ContextMenu>
+
+    <Style x:Key="TabItemExBaseStyle" TargetType="ct:FileTabItem">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+        <Setter Property="BorderThickness" Value="1,0,1,1"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Padding" Value="10,0,0,0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+        <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+        <Setter Property="ContextMenu" Value="{StaticResource TabItemExMenu}"/>
+        <Setter Property="Effect" Value="{StaticResource EffectShadow4}"/>
+        <Setter Property="Opacity" Value="0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ct:FileTabItem">
+                    <Grid x:Name="templateRoot" AllowDrop="True" SnapsToDevicePixels="true" ContextMenu="{TemplateBinding ContextMenu}" Margin="0,0,0,-4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid Grid.ColumnSpan="3" x:Name="mainBorder">
+                            <Border Margin="0" x:Name="mouseOverBorder" CornerRadius="10,10,0,0" Background="{DynamicResource SecondaryRegionBrush}" Opacity="0" />
+                            <hc:SimplePanel Margin="0" x:Name="selectedGrid" Visibility="Collapsed">
+                                <Border CornerRadius="10,10,0,0" Background="{DynamicResource RegionBrush}" />
+                                <hc:SimplePanel Background="{DynamicResource RegionBrush}" Width="8" Height="8" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-8,0,0,0">
+                                    <hc:SimplePanel.Clip>
+                                        <GeometryGroup>
+                                            <RectangleGeometry Rect="0,0,8,8" />
+                                            <EllipseGeometry RadiusX="8" RadiusY="8" />
+                                        </GeometryGroup>
+                                    </hc:SimplePanel.Clip>
+                                </hc:SimplePanel>
+                                <hc:SimplePanel Background="{DynamicResource RegionBrush}" Width="8" Height="8" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-8,0">
+                                    <hc:SimplePanel.Clip>
+                                        <GeometryGroup>
+                                            <RectangleGeometry Rect="0,0,8,8" />
+                                            <EllipseGeometry RadiusX="8" RadiusY="8" Center="8,0" />
+                                        </GeometryGroup>
+                                    </hc:SimplePanel.Clip>
+                                </hc:SimplePanel>
+                            </hc:SimplePanel>
+                        </Grid>
+                        <Path x:Name="PathMain" Margin="10,0,0,0" Grid.Column="0" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Data="{TemplateBinding hc:IconElement.Geometry}"/>
+                        <ContentPresenter Grid.Column="1" x:Name="contentPresenter" ContentSource="Header" Focusable="False" HorizontalAlignment="Stretch" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center"/>
+                        <Button Grid.Column="2" Focusable="False" Command="hc:ControlCommands.Close" Background="Transparent" Style="{StaticResource ButtonCustom}" Width="20" Height="20" Margin="4" hc:BorderElement.CornerRadius="2" hc:BackgroundSwitchElement.MouseHoverBackground="{DynamicResource SecondaryBorderBrush}">
+                            <Path Fill="{DynamicResource PrimaryTextBrush}" Width="8" Height="8" Style="{StaticResource ClosePathStyle}"/>
+                        </Button>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="mouseOverBorder" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseInOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="mouseOverBorder" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseInOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="true">
+                            <Setter Property="Panel.ZIndex" Value="1"/>
+                            <Setter TargetName="selectedGrid" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="hc:IconElement.Geometry" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed" TargetName="PathMain"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.4" TargetName="contentPresenter"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

@@ -827,7 +827,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	private void OnDrop(object args) {
 		var e = (FileDropEventArgs)args;
 		var path = e.Path ?? FullPath;
-		FileUtils.HandleDrop(e.Content, path, e.DragEventArgs.Effects.GetFirstEffect());
+		FileUtils.HandleDrop(e.Content, path, e.DragEventArgs.Effects.GetActualEffect());
 	}
 
 	private uint everythingQueryId;

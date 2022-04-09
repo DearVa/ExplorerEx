@@ -9,9 +9,9 @@ namespace ExplorerEx.View.Controls;
 /// <summary>
 /// 带有动画、可收起的TabControl
 /// </summary>
-public class TabControlEx : TabControl {
+public class AnimatedTabControlEx : TabControl {
 	public static readonly DependencyProperty CanDeselectProperty = DependencyProperty.Register(
-		"CanDeselect", typeof(bool), typeof(TabControlEx), new PropertyMetadata(default(bool)));
+		"CanDeselect", typeof(bool), typeof(AnimatedTabControlEx), new PropertyMetadata(default(bool)));
 
 	/// <summary>
 	/// 是否可以再次点击TabItem取消选择
@@ -24,26 +24,26 @@ public class TabControlEx : TabControl {
 	public SimpleCommand TabItemPreviewMouseDownCommand { get; }
 	public SimpleCommand TabItemPreviewMouseUpCommand { get; }
 
-	public TabControlEx() {
+	public AnimatedTabControlEx() {
 		TabStripPlacement = Dock.Left;
 		TabItemPreviewMouseDownCommand = new SimpleCommand(OnTabItemPreviewMouseDown);
 		TabItemPreviewMouseUpCommand = new SimpleCommand(OnTabItemPreviewMouseUp);
 	}
 
-	private TabItem mouseDownTabItem;
+	private FileTabItem _mouseDownFileTabItem;
 	private Point mouseDownPoint;
 
 	private void OnTabItemPreviewMouseDown(object args) {
 		var e = (MouseButtonEventArgs)args;
-		mouseDownTabItem = (TabItem)ContainerFromElement((DependencyObject)e.OriginalSource);
+		_mouseDownFileTabItem = (FileTabItem)ContainerFromElement((DependencyObject)e.OriginalSource);
 		mouseDownPoint = e.GetPosition(this);
 		e.Handled = true;
 	}
 
 	private void OnTabItemPreviewMouseUp(object args) {
 		var e = (MouseButtonEventArgs)args;
-		var tabItem = (TabItem)ContainerFromElement((DependencyObject)e.OriginalSource);
-		if (tabItem != null && tabItem == mouseDownTabItem) {
+		var tabItem = (FileTabItem)ContainerFromElement((DependencyObject)e.OriginalSource);
+		if (tabItem != null && tabItem == _mouseDownFileTabItem) {
 			var point = e.GetPosition(this);
 			if (Math.Abs(point.X - mouseDownPoint.X) < SystemParameters.MinimumHorizontalDragDistance && Math.Abs(point.Y - mouseDownPoint.Y) < SystemParameters.MinimumVerticalDragDistance) {
 				if (!tabItem.IsSelected) {
