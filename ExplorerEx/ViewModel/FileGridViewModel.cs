@@ -240,6 +240,10 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	private CancellationTokenSource cts;
 
+	private int totalLoadedFiles;
+
+	private const int GcThreshold = 3000;
+
 	public FileTabViewModel(FileTabControl ownerTabControl) {
 		OwnerTabControl = ownerTabControl;
 		OwnerWindow.EverythingQueryReplied += (i, r) => _ = OnEverythingQueryReplied(i, r);
@@ -601,6 +605,11 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			return false;
 		}
 
+		if (totalLoadedFiles > GcThreshold) {
+			GC.Collect(2, GCCollectionMode.Optimized);
+			totalLoadedFiles = 0;
+		}
+
 		List<FileListViewItem> fileListViewItems;
 		FileListViewItem scrollIntoItem;
 
@@ -610,6 +619,9 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 				return (items, selectedItem);
 			}, token);
 		} catch (Exception e) {
+			if (e is TaskCanceledException) {
+				return false;
+			}
 			Logger.Exception(e);
 			if (nextHistoryIndex > 0) {
 				await GoBackAsync();
@@ -618,6 +630,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			}
 			return false;
 		}
+		totalLoadedFiles += fileListViewItems.Count;
 
 		if (token.IsCancellationRequested) {
 			IsLoading = false;
@@ -643,6 +656,8 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 				FileListView.ScrollIntoView(scrollIntoItem);
 				IsLoading = false;
 			});
+		} else {
+			IsLoading = false;
 		}
 
 		if (recordHistory) {

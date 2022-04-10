@@ -39,11 +39,6 @@
                             Text="{Binding EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                             Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityConverter}}"
                             VerifyFunc="{Binding VerifyFunc, Mode=OneTime}" ErrorPrompt="{u:Lang #InvalidFileName}">
-                    <hc:Interaction.Triggers>
-                        <hc:RoutedEventTrigger RoutedEvent="TextBox.LostFocus">
-                            <hc:EventToCommand Command="{Binding LostFocusCommand}" PassEventArgsToCommand="True"/>
-                        </hc:RoutedEventTrigger>
-                    </hc:Interaction.Triggers>
                     <hc:TextBox.Style>
                         <Style TargetType="hc:TextBox" BasedOn="{StaticResource TextBoxPlusBaseStyle}">
                             <Style.Triggers>
@@ -72,11 +67,6 @@
                             Text="{Binding EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" 
                             Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityConverter}}"
                             VerifyFunc="{Binding VerifyFunc, Mode=OneTime}" ErrorPrompt="{u:Lang #InvalidFileName}">
-                    <hc:Interaction.Triggers>
-                        <hc:RoutedEventTrigger RoutedEvent="TextBox.LostFocus">
-                            <hc:EventToCommand Command="{Binding LostFocusCommand}" PassEventArgsToCommand="True"/>
-                        </hc:RoutedEventTrigger>
-                    </hc:Interaction.Triggers>
                     <hc:TextBox.Style>
                         <Style TargetType="hc:TextBox" BasedOn="{StaticResource TextBoxPlusBaseStyle}">
                             <Style.Triggers>
@@ -112,11 +102,6 @@
                                 Text="{Binding EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"
                                 Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityConverter}}"
                                 VerifyFunc="{Binding VerifyFunc, Mode=OneTime}" ErrorPrompt="{u:Lang #InvalidFileName}">
-                        <hc:Interaction.Triggers>
-                            <hc:RoutedEventTrigger RoutedEvent="TextBox.LostFocus">
-                                <hc:EventToCommand Command="{Binding LostFocusCommand}" PassEventArgsToCommand="True"/>
-                            </hc:RoutedEventTrigger>
-                        </hc:Interaction.Triggers>
                         <hc:TextBox.Style>
                             <Style TargetType="hc:TextBox" BasedOn="{StaticResource TextBoxPlusBaseStyle}">
                                 <Style.Triggers>
@@ -173,11 +158,6 @@
                             Text="{Binding EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" 
                             Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityConverter}}"
                             VerifyFunc="{Binding VerifyFunc, Mode=OneTime}" ErrorPrompt="{u:Lang #InvalidFileName}">
-                    <hc:Interaction.Triggers>
-                        <hc:RoutedEventTrigger RoutedEvent="TextBox.LostFocus">
-                            <hc:EventToCommand Command="{Binding LostFocusCommand}" PassEventArgsToCommand="True"/>
-                        </hc:RoutedEventTrigger>
-                    </hc:Interaction.Triggers>
                     <hc:TextBox.Style>
                         <Style TargetType="hc:TextBox" BasedOn="{StaticResource TextBoxPlusBaseStyle}">
                             <Style.Triggers>
@@ -429,7 +409,7 @@
         <!-- 该资源在C#逻辑中获取 -->
         <!-- ReSharper disable once Xaml.RedundantResource -->
         <ItemsPanelTemplate x:Key="VirtualizingStackPanel">
-            <VirtualizingStackPanel Background="Transparent" VirtualizationMode="Recycling" SnapsToDevicePixels="True"/>
+            <VirtualizingStackPanel Background="Transparent" CanHorizontallyScroll="False" VirtualizationMode="Recycling" SnapsToDevicePixels="True"/>
         </ItemsPanelTemplate>
     </ListView.Resources>
 
@@ -466,9 +446,9 @@
                     <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
                     <MenuItem CommandParameter="10" Command="{Binding SwitchViewCommand}" Header="{u:Lang Ascending}"
-                                  IsChecked="{Binding FileView.IsAscending, Mode=OneWay}"/>
+                              IsChecked="{Binding FileView.IsAscending, Mode=OneWay}"/>
                     <MenuItem CommandParameter="11" Command="{Binding SwitchViewCommand}" Header="{u:Lang Descending}"
-                                  IsChecked="{Binding FileView.IsAscending, Mode=OneWay, Converter={StaticResource Boolean2BooleanReConverter}}"/>
+                              IsChecked="{Binding FileView.IsAscending, Mode=OneWay, Converter={StaticResource Boolean2BooleanReConverter}}"/>
                     <!--<Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
                     <MenuItem Header="{u:Lang Group_by}">
@@ -500,7 +480,13 @@
     <ListView.Template>
         <ControlTemplate TargetType="ListView">
             <hc:SimplePanel>
-                <hc:ToggleBlock IsChecked="{Binding HasItems, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <hc:ToggleBlock VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <hc:ToggleBlock.IsChecked>
+                        <MultiBinding Converter="{StaticResource BooleanArr2BooleanConverter}">
+                            <Binding Path="HasItems" RelativeSource="{RelativeSource TemplatedParent}" Mode="OneWay"/>
+                            <Binding Path="ViewModel.IsLoading" RelativeSource="{RelativeSource AncestorType=ct:FileListView}" Converter="{StaticResource Boolean2BooleanReConverter}" Mode="OneWay"/>
+                        </MultiBinding>
+                    </hc:ToggleBlock.IsChecked>
                     <hc:ToggleBlock.CheckedContent>
                         <Grid SnapsToDevicePixels="True" Margin="{Binding Padding, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}">
                             <Grid.RowDefinitions>
@@ -514,7 +500,7 @@
                                                         ColumnHeaderTemplate="{Binding View.(GridView.ColumnHeaderTemplate), RelativeSource={RelativeSource TemplatedParent}}" 
                                                         Columns="{Binding View.(GridView.Columns), RelativeSource={RelativeSource TemplatedParent}}" 
                                                         Margin="2,2,2,0" SnapsToDevicePixels="True"/>
-                            <ScrollViewer x:Name="ViewScrollViewer" Grid.Row="1" CanContentScroll="True">
+                            <ScrollViewer x:Name="ViewScrollViewer" Background="{x:Null}" Grid.Row="1" CanContentScroll="True">
                                 <ItemsPresenter/>
                             </ScrollViewer>
                         </Grid>
@@ -547,7 +533,7 @@
     </ListView.ItemContainerStyle>
 
     <ListView.GroupStyle>
-        <GroupStyle>
+        <GroupStyle x:Name="GroupStyle">
             <GroupStyle.ContainerStyle>
                 <Style TargetType="GroupItem">
                     <Setter Property="Template">

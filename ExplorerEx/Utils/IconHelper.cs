@@ -33,6 +33,7 @@ internal static class IconHelper {
 		".tif",
 		".tiff",
 		".gif",
+		".ico",
 		".svg",
 		".mp3",
 		".flac",
@@ -93,7 +94,7 @@ internal static class IconHelper {
 		}
 		extension = extension.ToLower();
 		var isLnk = extension == ".lnk";
-		var useCache = extension != ".exe" && !isLnk;
+		var useCache = extension is not ".exe" and not ".ico" && !isLnk;
 		if (useCache) {
 			lock (CachedIcons) {
 				if (CachedIcons.TryGetValue(extension, out var icon)) {

@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using ExplorerEx.Command;
 using ExplorerEx.Utils;
 using ExplorerEx.View.Controls;
 using HandyControl.Data;
@@ -88,10 +84,6 @@ public abstract class FileListViewItem : SimpleNotifyPropertyChanged {
 
 	private bool isSelected;
 
-	protected FileListViewItem() {
-		LostFocusCommand = new SimpleCommand(FinishRename);
-	}
-
 	/// <summary>
 	/// 加载文件的各项属性
 	/// </summary>
@@ -139,8 +131,6 @@ public abstract class FileListViewItem : SimpleNotifyPropertyChanged {
 	public Func<string, OperationResult<bool>> VerifyFunc { get; } = fn => new OperationResult<bool> {
 		Data = !FileUtils.IsProhibitedFileName(fn)
 	};
-
-	public SimpleCommand LostFocusCommand { get; }
 
 	public void FinishRename() {
 		if (!FileUtils.IsProhibitedFileName(EditingName)) {

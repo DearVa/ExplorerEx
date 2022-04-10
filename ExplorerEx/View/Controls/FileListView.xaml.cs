@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -240,14 +241,14 @@ public partial class FileListView : INotifyPropertyChanged {
 			return;
 		}
 		if (FileView.FileViewType == FileViewType.Details) {
-			ItemsPanel = virtualizingStackPanel;
+			GroupStyle.Panel = ItemsPanel = virtualizingStackPanel;
 			var view = new GridView();
 			columnsConverter.Convert(view.Columns, FileView);
 			View = view;
 			var padding = Padding;
 			contentPanel.Margin = new Thickness(padding.Left, 30d + padding.Top, padding.Right, padding.Bottom);
 		} else {
-			ItemsPanel = virtualizingWrapPanel;
+			GroupStyle.Panel = ItemsPanel = virtualizingWrapPanel;
 			ItemTemplate = listBoxTemplateConverter.Convert();
 			View = null;
 			contentPanel.Margin = Padding;
@@ -384,15 +385,22 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
 		isDoubleClicked = false;
-		if (e.OriginalSource.FindParent<VirtualizingPanel, ListView>() == null) {
+		if (e.OriginalSource.FindParent<VirtualizingPanel, ListView>() == null) {  // 如果没有点击在VirtualizingPanel的范围内
 			if (renamingItem != null) {  // 如果正在重命名就停止
 				renamingItem.FinishRename();
 				renamingItem = null;
 			}
 			return;  // 如果没有点击在VirtualizingPanel或者点击在了TextBox内就不处理事件，直接返回
 		}
-		if (e.OriginalSource.FindParent<TextBox, VirtualizingPanel>() != null) {
-			return;
+
+		if (e.OriginalSource.FindParent<ListViewItem, VirtualizingPanel>() != null) {  // 点击在了项目上
+			if (e.OriginalSource.FindParent<TextBox, ListViewItem>() != null) {  // 如果点击在了重命名的TextBox里，就直接返回
+				return;
+			}
+		} else {
+			if (e.OriginalSource.FindParent<Expander, VirtualizingPanel>() != null) {  // 如果点击在了Expander上，也直接返回
+				return;
+			}
 		}
 
 		Focus();
