@@ -6,7 +6,7 @@
 
 [🇨🇳中文版](https://github.com/DearVa/ExplorerEx/blob/master/Readme_zh_CN.md)
 
-Due to unknown reasons, the file manager (Explorer) of windows 11 is very slow, especially when opening folders, selecting files, copying and pasting. It can even stop responding for a few seconds on the low-end computer.
+Due to unknown reasons, the file manager (Explorer) of windows 11 is very slow, especially when opening folders, selecting files, copying and pasting. It even stop responding for a few seconds on the low-end computer.
 
 Some time ago, when I was working on Minecraft mod, I needed to switch frequently in multiple folders. Not only did it very slow, but also the "multi tab" function with high user voice has not been available yet. So I came up with the idea of developing a file manager myself.
 
@@ -63,3 +63,9 @@ Some time ago, when I was working on Minecraft mod, I needed to switch frequentl
 → Private space (File Locker)  
 → File label (Alias, Colorful tags)  
 → fastcopy (Multi-thread copy)   
+
+
+### Thanks to
+* HandyControl
+* pinvoke.NET
+* SvgToXaml
