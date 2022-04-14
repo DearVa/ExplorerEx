@@ -543,7 +543,7 @@
                                     <Expander.Header>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding Path=Name}" VerticalAlignment="Center" />
-                                            <TextBlock Text="{Binding Path=ItemCount, StringFormat=({0})}" VerticalAlignment="Center" Margin="5,0,0,0" />
+                                            <TextBlock Text="{Binding Path=Order, StringFormat=({0})}" VerticalAlignment="Center" Margin="5,0,0,0" />
                                         </StackPanel>
                                     </Expander.Header>
                                     <ItemsPresenter />

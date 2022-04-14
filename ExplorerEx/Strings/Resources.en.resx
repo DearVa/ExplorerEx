@@ -464,4 +464,28 @@ For the application to run properly, it's recommanded that you first extract all
   <data name="ToRight" xml:space="preserve">
     <value>To Right</value>
   </data>
+  <data name="ToBottom" xml:space="preserve">
+    <value>To Bottom</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="LastWeek" xml:space="preserve">
+    <value>Last week</value>
+  </data>
+  <data name="Yesterday" xml:space="preserve">
+    <value>Yesterday</value>
+  </data>
+  <data name="EarlierThisMonth" xml:space="preserve">
+    <value>Earlier this month</value>
+  </data>
+  <data name="LastMonth" xml:space="preserve">
+    <value>Last year</value>
+  </data>
+  <data name="ALongTimeAgo" xml:space="preserve">
+    <value>A long time ago</value>
+  </data>
+  <data name="ThisWeek" xml:space="preserve">
+    <value>This week</value>
+  </data>
 </root>

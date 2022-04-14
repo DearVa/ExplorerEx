@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using ExplorerEx.Model;
@@ -62,7 +61,7 @@ internal class FileGridDataGridColumnsConverter {
 			case DetailListType.FileSize:
 				AddColumn(columns, FileSize, width, "File_size".L());
 				break;
-			case DetailListType.CreationDate:
+			case DetailListType.DateCreated:
 				AddColumn(columns, CreationDate, width, "Creation_date".L());
 				break;
 			}

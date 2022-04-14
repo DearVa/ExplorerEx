@@ -8,9 +8,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using ExplorerEx.ViewModel;
 using ExplorerEx.Win32;
 using HandyControl.Controls;
-using HandyControl.Data;
 using HandyControl.Interactivity;
 using HandyControl.Tools;
 
@@ -52,6 +52,8 @@ public class FileTabItem : TabItem {
 		set => SetValue(CanSplitScreenProperty, value);
 	}
 
+	public FileTabViewModel ViewModel => (FileTabViewModel)DataContext;
+
 	/// <summary>
 	///     动画速度
 	/// </summary>
@@ -67,21 +69,7 @@ public class FileTabItem : TabItem {
 	/// </summary>
 	private static bool isItemDragging;
 
-	public static readonly RoutedEvent ClosingEvent = EventManager.RegisterRoutedEvent("Closing", RoutingStrategy.Bubble, typeof(EventHandler), typeof(FileTabItem));
-
-	public static readonly RoutedEvent MovedEvent = EventManager.RegisterRoutedEvent("Moved", RoutingStrategy.Bubble, typeof(EventHandler), typeof(FileTabItem));
-
 	public static readonly RoutedEvent TabCommandEvent = EventManager.RegisterRoutedEvent("TabCommand", RoutingStrategy.Bubble, typeof(EventHandler), typeof(FileTabItem));
-
-	public event EventHandler Closing {
-		add => AddHandler(ClosingEvent, value);
-		remove => RemoveHandler(ClosingEvent, value);
-	}
-
-	public event EventHandler Moved {
-		add => AddHandler(MovedEvent, value);
-		remove => RemoveHandler(MovedEvent, value);
-	}
 
 	public event EventHandler TabCommand {
 		add => AddHandler(TabCommandEvent, value);
@@ -142,17 +130,24 @@ public class FileTabItem : TabItem {
 
 	private Grid templateRoot;
 
+	private static readonly DoubleAnimation TabShowAnimation = new(1d, new Duration(TimeSpan.FromMilliseconds(300))) {
+		EasingFunction = new SineEase {
+			EasingMode = EasingMode.EaseIn
+		}
+	};
+
 	public FileTabItem() {
-		Trace.WriteLine("New Tab");
 		CommandBindings.Add(new CommandBinding(ControlCommands.Close, (_, _) => Close()));
 		CommandBindings.Add(new CommandBinding(ControlCommands.CloseOther, (_, _) => TabControlParent.CloseOtherItems(this)));
 		CommandBindings.Add(new CommandBinding(ControlCommands.TabCommand, (_, e) => RaiseEvent(new TabItemCommandArgs(TabCommandEvent, (string)e.Parameter, this))));
 		Loaded += (s, _) => {
-			((FileTabItem)s).BeginAnimation(OpacityProperty, new DoubleAnimation(1d, new Duration(TimeSpan.FromMilliseconds(300))) {
-				EasingFunction = new SineEase {
-					EasingMode = EasingMode.EaseIn
-				}
-			});
+			var tab = (FileTabItem)s;
+			if (tab.ViewModel.playTabAnimation) {
+				tab.BeginAnimation(OpacityProperty, TabShowAnimation);
+				tab.ViewModel.playTabAnimation = false;
+			} else {
+				tab.Opacity = 1d;
+			}
 		};
 	}
 
@@ -242,22 +237,18 @@ public class FileTabItem : TabItem {
 		}
 	}
 
-	internal void Close() {
+	internal async void Close() {
 		var parent = TabControlParent;
 		if (parent == null) {
 			return;
 		}
 
-		var item = parent.ItemContainerGenerator.ItemFromContainer(this);
-
-		var argsClosing = new CancelRoutedEventArgs(ClosingEvent, item);
-		RaiseEvent(argsClosing);
-		if (argsClosing.Cancel) {
+		var item = (FileTabViewModel)parent.ItemContainerGenerator.ItemFromContainer(this);
+		if (!await parent.HandleTabClosing(item)) {
 			return;
 		}
 
 		FileTabPanel.SetValue(FileTabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromMilliseconds(200)));
-
 		parent.IsInternalAction = true;
 
 		var list = parent.GetActualList();
@@ -374,7 +365,7 @@ public class FileTabItem : TabItem {
 						items.Remove(DataContext);
 					}
 					tabControl.NewTabButton.Visibility = Visibility.Visible;
-					tabControl.RaiseEvent(new RoutedEventArgs(MovedEvent, this));
+					tabControl.HandleTabMoved(ViewModel);
 					if (DragTabDestination != null) {
 						ContinueDrag(e, DragTabDestination.TabBorder);
 					}

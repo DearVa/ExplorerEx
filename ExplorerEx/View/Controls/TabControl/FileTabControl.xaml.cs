@@ -15,12 +15,9 @@ using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
 using MessageBox = HandyControl.Controls.MessageBox;
 using System.IO;
 using ExplorerEx.Command;
-using System.Windows.Controls.Primitives;
 using System.Windows.Controls;
-using HandyControl.Interactivity;
 using System.Collections.Specialized;
 using System.Collections;
-using System.Diagnostics;
 
 namespace ExplorerEx.View.Controls;
 
@@ -104,14 +101,6 @@ public partial class FileTabControl {
 		set => SetValue(TabItemHeightProperty, value);
 	}
 
-	public static readonly RoutedEvent NewTabEvent = EventManager.RegisterRoutedEvent("NewTab", RoutingStrategy.Bubble, typeof(EventHandler), typeof(FileTabControl));
-
-
-	public event EventHandler NewTab {
-		add => AddHandler(NewTabEvent, value);
-		remove => RemoveHandler(NewTabEvent, value);
-	}
-
 	#endregion
 
 	/// <summary>
@@ -170,11 +159,8 @@ public partial class FileTabControl {
 		get => (bool)GetValue(IsFileUtilsVisibleProperty);
 		set => SetValue(IsFileUtilsVisibleProperty, value);
 	}
-
-	public SimpleCommand TabClosingCommand { get; }
-	public SimpleCommand TabMovedCommand { get; }
+	
 	public SimpleCommand TabCommand { get; }
-	public SimpleCommand CreateNewTabCommand { get; }
 
 	public MainWindow MainWindow { get; }
 
@@ -197,15 +183,10 @@ public partial class FileTabControl {
 	}
 
 	public FileTabControl(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileTabViewModel tab) {
-		CommandBindings.Add(new CommandBinding(ControlCommands.Open, (_, _) => RaiseEvent(new RoutedEventArgs(NewTabEvent))));
-
 		MainWindow = mainWindow;
 		OwnerSplitGrid = ownerSplitGrid;
 		DataContext = this;
-		TabClosingCommand = new SimpleCommand(OnTabClosing);
-		TabMovedCommand = new SimpleCommand(OnTabMoved);
 		TabCommand = new SimpleCommand(OnTabCommand);
-		CreateNewTabCommand = new SimpleCommand(OnCreateNewTab);
 		TabControls.Add(this);
 		TabItems.CollectionChanged += (_, _) => UpdateTabContextMenu();
 		FocusedTabControl ??= this;
@@ -246,14 +227,12 @@ public partial class FileTabControl {
 	/// 关闭标签页
 	/// </summary>
 	/// <param name="tab"></param>
-	public void CloseTab(FileTabViewModel tab) {
+	public async void CloseTab(FileTabViewModel tab) {
 		var index = TabItems.IndexOf(tab);
 		if (index == -1) {
 			return;
 		}
-		var e = new CancelRoutedEventArgs(null, null);
-		HandleTabClosing(tab, e);
-		if (!e.Cancel) {
+		if (!await HandleTabClosing(tab)) {
 			TabItems.RemoveAt(index);
 		}
 	}
@@ -361,8 +340,8 @@ public partial class FileTabControl {
 	/// <summary>
 	/// 当一个Tab被移动到别的TabControl上时触发
 	/// </summary>
-	/// <param name="args"></param>
-	private void OnTabMoved(object args) {
+	/// <param name="tab"></param>
+	internal void HandleTabMoved(FileTabViewModel tab) {
 		if (TabItems.Count == 0) {  // 如果移走的是最后一个，那就要关闭当前的了
 			TabControls.Remove(this);
 			if (OwnerSplitGrid.AnySplitScreen) {
@@ -373,15 +352,20 @@ public partial class FileTabControl {
 			UpdateFocusedTabControl();
 			MouseOverTabControl = FocusedTabControl;
 		}
+		tab.playTabAnimation = true;
 		// Trace.WriteLine(string.Join("\n", MainWindow.MainWindows.SelectMany(mw => mw.splitGrid).SelectMany(f => f.TabItems).Select(i => i.FullPath)));
 	}
 
-	private void OnTabClosing(object args) {
-		var e = (CancelRoutedEventArgs)args;
-		HandleTabClosing((FileTabViewModel)e.OriginalSource, e);
+	private async void NewTabButton_OnClick(object sender, RoutedEventArgs e) {
+		await OpenPathInNewTabAsync(null);
 	}
 
-	private async void HandleTabClosing(FileTabViewModel tab, CancelRoutedEventArgs e) {
+	/// <summary>
+	/// 当tab关闭的时候，根据用户选择或者设置来决定是否关闭
+	/// </summary>
+	/// <param name="tab"></param>
+	/// <returns>是否关闭</returns>
+	internal async Task<bool> HandleTabClosing(FileTabViewModel tab) {
 		if (TabItems.Count <= 1) {
 			if (OwnerSplitGrid.AnySplitScreen) {
 				tab.Dispose();
@@ -390,19 +374,15 @@ public partial class FileTabControl {
 				MouseOverTabControl = null;
 				UpdateFocusedTabControl();
 			} else {  // 说明就剩这一个Tab了
-				if (e != null) {
-					e.Cancel = true;
-					e.Handled = true;
-				}
 				switch (ConfigHelper.LoadInt("LastTabClosed")) {
 				case 1:
 					tab.Dispose();
 					MouseOverTabControl = null;
 					MainWindow.Close();
-					break;
+					return true;
 				case 2:
 					await SelectedTab.LoadDirectoryAsync(null);
-					break;
+					return false;
 				default:
 					var msi = new MessageBoxInfo {
 						Button = MessageBoxButton.OKCancel,
@@ -421,19 +401,17 @@ public partial class FileTabControl {
 						tab.Dispose();
 						MouseOverTabControl = null;
 						MainWindow.Close();
+						return true;
 					} else {
 						await SelectedTab.LoadDirectoryAsync(null);
+						return false;
 					}
-					break;
 				}
 			}
 		} else {
 			tab.Dispose();
 		}
-	}
-
-	private async void OnCreateNewTab(object args) {
-		await OpenPathInNewTabAsync(null);
+		return true;
 	}
 
 	protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
@@ -598,19 +576,11 @@ public partial class FileTabControl {
 		for (var i = 0; i < Items.Count; i++) {
 			var item = list[i];
 			if (!Equals(item, actualItem) && item != null) {
-				var argsClosing = new CancelRoutedEventArgs(FileTabItem.ClosingEvent, item);
-
 				if (ItemContainerGenerator.ContainerFromItem(item) is not FileTabItem tabItem) {
 					continue;
 				}
-
-				tabItem.RaiseEvent(argsClosing);
-				if (argsClosing.Cancel) {
-					return;
-				}
-
+				tabItem.ViewModel.Dispose();
 				list.Remove(item);
-
 				i--;
 			}
 		}
@@ -637,5 +607,41 @@ public partial class FileTabControl {
 		return new FileTabItem();
 	}
 
+
+	// https://stackoverflow.com/questions/11703833/dragmove-and-maximize
+	private Point? dragPoint;
+
+	private void TabBorder_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+		if (e.ClickCount == 2) {
+			if (MainWindow.ResizeMode is not ResizeMode.CanResize and not ResizeMode.CanResizeWithGrip) {
+				return;
+			}
+
+			MainWindow.WindowState = MainWindow.WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+		} else {
+			if (MainWindow.WindowState == WindowState.Maximized) {
+				dragPoint = e.GetPosition(null);
+			}
+			MainWindow.DragMove();
+		}
+	}
+
+	private void TabBorder_OnMouseMove(object sender, MouseEventArgs e) {
+		if (dragPoint.HasValue) {
+			Win32Interop.GetCursorPos(out var point);
+
+			MainWindow.Left = (point.x - dragPoint.Value.X * MainWindow.Width / MainWindow.ActualWidth);
+			MainWindow.Top = point.y - dragPoint.Value.Y;
+			dragPoint = null;
+
+			MainWindow.WindowState = WindowState.Normal;
+
+			MainWindow.DragMove();
+		}
+	}
+
+	private void TabBorder_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+		dragPoint = null;
+	}
 	#endregion
 }

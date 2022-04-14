@@ -18,6 +18,7 @@ using System.Windows.Threading;
 using ExplorerEx.Annotations;
 using ExplorerEx.Command;
 using ExplorerEx.Converter;
+using ExplorerEx.Converter.Grouping;
 using ExplorerEx.Model;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
@@ -25,6 +26,7 @@ using ExplorerEx.ViewModel;
 using ExplorerEx.Win32;
 using HandyControl.Controls;
 using HandyControl.Tools;
+using SharpVectors.Dom;
 using GridView = System.Windows.Controls.GridView;
 using ScrollViewer = System.Windows.Controls.ScrollViewer;
 using TextBox = HandyControl.Controls.TextBox;
@@ -216,6 +218,9 @@ public partial class FileListView : INotifyPropertyChanged {
 		case nameof(fileView.IsAscending):
 			var sorts = Items.SortDescriptions;
 			sorts.Clear();
+			if (fileView.GroupBy.HasValue) {
+				sorts.Add(new SortDescription("Order", ListSortDirection.Ascending));
+			}
 			sorts.Add(new SortDescription("IsFolder", ListSortDirection.Descending));
 			sorts.Add(new SortDescription(fileView.SortBy.ToString(), fileView.IsAscending ? ListSortDirection.Ascending : ListSortDirection.Descending));
 			break;
@@ -223,7 +228,18 @@ public partial class FileListView : INotifyPropertyChanged {
 			var groups = Items.GroupDescriptions!;
 			groups.Clear();
 			if (fileView.GroupBy.HasValue) {
-				groups.Add(new PropertyGroupDescription(fileView.GroupBy.ToString()));
+				Items.IsLiveGrouping = true;
+				IValueConverter converter = null;
+				switch (fileView.GroupBy) {
+				case DetailListType.DateCreated:
+				case DetailListType.DateDeleted:
+				case DetailListType.DateModified:
+					converter = DateTimeGroupingConverter.Instance.Value;
+					break;
+				}
+				groups.Add(new PropertyGroupDescription(fileView.GroupBy.ToString(), converter));
+			} else {
+				Items.IsLiveGrouping = false;
 			}
 			break;
 		case nameof(fileView.ItemSize):

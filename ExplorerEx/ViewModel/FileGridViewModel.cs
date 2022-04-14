@@ -240,9 +240,14 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	private CancellationTokenSource cts;
 
-	private int totalLoadedFiles;
+	/// <summary>
+	/// 给FileTabItem使用
+	/// </summary>
+	internal bool playTabAnimation = true;
 
-	private const int GcThreshold = 3000;
+	//private int totalLoadedFiles;
+
+	//private const int GcThreshold = 3000;
 
 	public FileTabViewModel(FileTabControl ownerTabControl) {
 		OwnerTabControl = ownerTabControl;
@@ -605,10 +610,10 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			return false;
 		}
 
-		if (totalLoadedFiles > GcThreshold) {
-			GC.Collect(2, GCCollectionMode.Optimized);
-			totalLoadedFiles = 0;
-		}
+		//if (totalLoadedFiles > GcThreshold) {
+		//	GC.Collect(2, GCCollectionMode.Optimized);
+		//	totalLoadedFiles = 0;
+		//}
 
 		List<FileListViewItem> fileListViewItems;
 		FileListViewItem scrollIntoItem;
@@ -630,7 +635,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			}
 			return false;
 		}
-		totalLoadedFiles += fileListViewItems.Count;
+		//totalLoadedFiles += fileListViewItems.Count;
 
 		if (token.IsCancellationRequested) {
 			IsLoading = false;

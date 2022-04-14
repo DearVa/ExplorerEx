@@ -278,6 +278,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 很早之前 的本地化字符串。
+        /// </summary>
+        internal static string ALongTimeAgo {
+            get {
+                return ResourceManager.GetString("ALongTimeAgo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 And {0} more. 的本地化字符串。
         /// </summary>
         internal static string And___More {
@@ -593,6 +602,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 这个月的早些时候 的本地化字符串。
+        /// </summary>
+        internal static string EarlierThisMonth {
+            get {
+                return ResourceManager.GetString("EarlierThisMonth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 编辑 的本地化字符串。
         /// </summary>
         internal static string Edit {
@@ -787,6 +805,24 @@ namespace ExplorerEx.Strings {
         internal static string Image {
             get {
                 return ResourceManager.GetString("Image", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 上个月 的本地化字符串。
+        /// </summary>
+        internal static string LastMonth {
+            get {
+                return ResourceManager.GetString("LastMonth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 一周内 的本地化字符串。
+        /// </summary>
+        internal static string LastWeek {
+            get {
+                return ResourceManager.GetString("LastWeek", resourceCulture);
             }
         }
         
@@ -1295,6 +1331,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 本周 的本地化字符串。
+        /// </summary>
+        internal static string ThisWeek {
+            get {
+                return ResourceManager.GetString("ThisWeek", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 平铺 的本地化字符串。
         /// </summary>
         internal static string Tiles {
@@ -1318,6 +1363,15 @@ namespace ExplorerEx.Strings {
         internal static string ToBottom {
             get {
                 return ResourceManager.GetString("ToBottom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 今天 的本地化字符串。
+        /// </summary>
+        internal static string Today {
+            get {
+                return ResourceManager.GetString("Today", resourceCulture);
             }
         }
         
@@ -1399,6 +1453,15 @@ namespace ExplorerEx.Strings {
         internal static string View {
             get {
                 return ResourceManager.GetString("View", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 昨天 的本地化字符串。
+        /// </summary>
+        internal static string Yesterday {
+            get {
+                return ResourceManager.GetString("Yesterday", resourceCulture);
             }
         }
     }

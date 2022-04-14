@@ -108,7 +108,7 @@ public enum DetailListType : byte {
 	/// <summary>
 	/// 创建日期
 	/// </summary>
-	CreationDate,
+	DateCreated,
 }
 
 /// <summary>
