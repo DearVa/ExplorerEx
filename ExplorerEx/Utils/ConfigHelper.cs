@@ -25,7 +25,9 @@ public static class ConfigHelper {
 		lock (Buffer) {
 			Buffer[key] = value;
 			canSave = false;
-			bufferSaveTask ??= Task.Run(BufferSaveTaskWork);
+			if (bufferSaveTask == null || bufferSaveTask.IsCompleted) {
+				bufferSaveTask = Task.Run(BufferSaveTaskWork);
+			}
 		}
 	}
 
@@ -42,7 +44,6 @@ public static class ConfigHelper {
 				}
 				break;
 			}
-			bufferSaveTask = null;
 		}
 	}
 
