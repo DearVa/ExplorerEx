@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,6 +19,9 @@ internal static class Shell32Interop {
 
 	public const string IID_IShellFolder2 = "93F2F68C-1D1B-11D3-A30E-00C04F79ABD1";
 	public static Guid GUID_IShellFolder2 = new(IID_IShellFolder2);
+
+	public const string IID_IShellItem = "43826d1e-e718-42ee-bc55-a1e261c37bfe";
+	public static Guid GUID_IShellItem = new(IID_IShellItem);
 
 	public const string IID_IShellItem2 = "7E9FB0D3-919F-4307-AB2E-9B1860310C93";
 	public static Guid GUID_IShellItem2 = new(IID_IShellItem2);
@@ -39,6 +43,8 @@ internal static class Shell32Interop {
 
 	public const string IID_IPersistFile = "0000010b-0000-0000-C000-000000000046";
 	public static Guid GUID_IPersistFile = new(IID_IPersistFile);
+
+	public static Guid BHID_DataObject = new("b8c0bd9f-ed24-455c-83e6-d5390c4fe8c4");
 
 	/// <summary>
 	/// Shell操作共用的锁
@@ -120,9 +126,6 @@ internal static class Shell32Interop {
 	[DllImport(Shell32)]
 	public static extern int SHGetFileInfo(IntPtr pszPath, FileAttribute dwFileAttributes, ref ShFileInfo psfi, int cbFileInfo, SHGFI uFlags);
 
-	[DllImport(Shell32, CharSet = CharSet.Unicode, SetLastError = true)]
-	internal static extern int SHCreateItemFromParsingName([MarshalAs(UnmanagedType.LPWStr)] string path, IntPtr pbc, ref Guid riid, [MarshalAs(UnmanagedType.Interface)] out IShellItem shellItem);
-
 	[DllImport(Shell32, CharSet = CharSet.Auto)]
 	public static extern bool ShellExecuteEx(ref ShellExecuteInfo lpExecInfo);
 
@@ -149,6 +152,12 @@ internal static class Shell32Interop {
 
 	[DllImport("ole32.dll")]
 	public static extern int CoCreateInstance(ref Guid clsid, [MarshalAs(UnmanagedType.IUnknown)] object inner, uint context, ref Guid uuid, out IntPtr rReturnedComObject);
+
+	[DllImport(Shell32, CharSet = CharSet.Unicode)]
+	public static extern int SHAssocEnumHandlers(string pszExtra, AssocFilter afFilter, out IEnumAssocHandlers ppEnumHandler);
+
+	[DllImport("shell32", CharSet = CharSet.Unicode)]
+	public static extern int SHCreateItemFromParsingName(string pszPath, IBindCtx pbc, [MarshalAs(UnmanagedType.LPStruct)] Guid riid, out IShellItem ppv);
 
 	[Flags]
 	public enum EmptyRecycleBinFlags {

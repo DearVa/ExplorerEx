@@ -29,7 +29,7 @@
     <Color x:Key="PrimaryTextColor">#212121</Color>
     <Color x:Key="SecondaryTextColor">#757575</Color>
     <Color x:Key="ThirdlyTextColor">#bdbdbd</Color>
-    <Color x:Key="ReverseTextColor">#212121</Color>
+    <Color x:Key="ReverseTextColor">#e6e6e6</Color>
     <Color x:Key="TextIconColor">White</Color>
 
     <Color x:Key="BorderColor">#55e0e0e0</Color>

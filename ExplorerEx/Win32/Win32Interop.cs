@@ -6,12 +6,13 @@ using System.Text;
 
 namespace ExplorerEx.Win32;
 
-internal static class Win32Interop {
+public static class Win32Interop {
 #pragma warning disable CS0649
 	// ReSharper disable InconsistentNaming
 	// ReSharper disable IdentifierTypo
 	// ReSharper disable StringLiteralTypo
 	// ReSharper disable UnusedMember.Global
+	// ReSharper disable FieldCanBeMadeReadOnly.Local
 	// ReSharper disable FieldCanBeMadeReadOnly.Global
 	// ReSharper disable UnusedType.Global
 	private const string Gdi32 = "gdi32.dll";
@@ -305,9 +306,10 @@ internal static class Win32Interop {
 	#region 获取进程命令行
 
 	[Flags]
-	public enum OpenProcessDesiredAccessFlags : uint {
-		PROCESS_VM_READ = 0x0010,
-		PROCESS_QUERY_INFORMATION = 0x0400,
+	public enum OpenProcessDesiredAccess : uint {
+		VmRead = 0x0010,
+		QueryInformation = 0x0400,
+		QueryLimitedInformation = 0x1000
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -352,7 +354,7 @@ internal static class Win32Interop {
 	public static extern uint NtQueryInformationProcess(IntPtr ProcessHandle, uint ProcessInformationClass, IntPtr ProcessInformation, uint ProcessInformationLength, out uint ReturnLength);
 
 	[DllImport(Kernel32)]
-	public static extern IntPtr OpenProcess(OpenProcessDesiredAccessFlags dwDesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, uint dwProcessId);
+	public static extern IntPtr OpenProcess(OpenProcessDesiredAccess dwDesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, uint dwProcessId);
 
 	[DllImport(Kernel32)]
 	public static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, IntPtr lpBuffer, uint nSize, out uint lpNumberOfBytesRead);
@@ -375,8 +377,8 @@ internal static class Win32Interop {
 
 	public static string GetCommandLine(this Process process) {
 		var hProcess = OpenProcess(
-			OpenProcessDesiredAccessFlags.PROCESS_QUERY_INFORMATION |
-			OpenProcessDesiredAccessFlags.PROCESS_VM_READ, false, (uint)process.Id);
+			OpenProcessDesiredAccess.QueryInformation |
+			OpenProcessDesiredAccess.VmRead, false, (uint)process.Id);
 		if (hProcess == IntPtr.Zero) {
 			throw new ApplicationException("Couldn't open process for VM read");
 		}
@@ -434,10 +436,73 @@ internal static class Win32Interop {
 	internal static extern bool AttachConsole(int dwProcessId);
 
 	#endregion
+
+	#region Appx
+	[Flags]
+	public enum PackageConstants {
+		FilterAllLoaded = 0x00000000,
+		PropertyFramework = 0x00000001,
+		PropertyResource = 0x00000002,
+		PropertyBundle = 0x00000004,
+		FilterHead = 0x00000010,
+		FilterDirect = 0x00000020,
+		FilterResource = 0x00000040,
+		FilterBundle = 0x00000080,
+		InformationBasic = 0x00000000,
+		InformationFull = 0x00000100,
+		PropertyDevelopmentMode = 0x00010000,
+	}
+
+	[StructLayout(LayoutKind.Sequential, Pack = 4)]
+	public struct PackageInfo {
+		public int reserved;
+		public int flags;
+		public IntPtr path;
+		public IntPtr packageFullName;
+		public IntPtr packageFamilyName;
+		public PackageID packageId;
+	}
+
+	public enum AppxPackageArchitecture {
+		x86 = 0,
+		Arm = 5,
+		x64 = 9,
+		Neutral = 11,
+		Arm64 = 12
+	}
+
+	[StructLayout(LayoutKind.Sequential, Pack = 4)]
+	public struct PackageID {
+		public int reserved;
+		public AppxPackageArchitecture processorArchitecture;
+		public ushort VersionRevision;
+		public ushort VersionBuild;
+		public ushort VersionMinor;
+		public ushort VersionMajor;
+		public IntPtr name;
+		public IntPtr publisher;
+		public IntPtr resourceId;
+		public IntPtr publisherId;
+	}
+
+	[DllImport(Kernel32, CharSet = CharSet.Unicode)]
+	public static extern int GetPackageFullName(IntPtr hProcess, ref int packageFullNameLength, StringBuilder packageFullName);
+
+	[DllImport(Kernel32, CharSet = CharSet.Unicode)]
+	public static extern int OpenPackageInfoByFullName(string packageFullName, int reserved, out IntPtr pPackageInfo);
+
+	[DllImport(Kernel32, CharSet = CharSet.Unicode)]
+	public static extern int GetPackageInfo(IntPtr pPackageInfo, PackageConstants flags, ref int bufferLength, IntPtr buffer, out int count);
+
+	[DllImport(Kernel32, CharSet = CharSet.Unicode)]
+	public static extern int ClosePackageInfo(IntPtr pPackageInfo);
+
+	#endregion
 	// ReSharper restore InconsistentNaming
 	// ReSharper restore IdentifierTypo
 	// ReSharper restore StringLiteralTypo
 	// ReSharper restore UnusedMember.Global
+	// ReSharper restore FieldCanBeMadeReadOnly.Local
 	// ReSharper restore FieldCanBeMadeReadOnly.Global
 	// ReSharper restore UnusedType.Global
 #pragma warning restore CS0649

@@ -219,7 +219,7 @@ internal static class IconHelper {
 			if (extension == ".svg") {
 				return Application.Current.Dispatcher.Invoke(() => SvgConverter.ConvertSvgToDrawingImage(path));
 			}
-			var retCode = SHCreateItemFromParsingName(path, IntPtr.Zero, ref GUID_IShellItem2, out var nativeShellItem);
+			var retCode = SHCreateItemFromParsingName(path, null, GUID_IShellItem2, out var nativeShellItem);
 			if (retCode != 0) {
 				// 发生错误，fallback to加载大图标
 				Trace.WriteLine($"加载缩略图出错：{path}");

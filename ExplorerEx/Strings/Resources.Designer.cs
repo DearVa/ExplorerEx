@@ -431,6 +431,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 选择其他应用 的本地化字符串。
+        /// </summary>
+        internal static string ChooseAnotherApp {
+            get {
+                return ResourceManager.GetString("ChooseAnotherApp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 关闭 的本地化字符串。
         /// </summary>
         internal static string Close {
@@ -1003,6 +1012,15 @@ namespace ExplorerEx.Strings {
         internal static string OpenOnTheRight {
             get {
                 return ResourceManager.GetString("OpenOnTheRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 打开方式 的本地化字符串。
+        /// </summary>
+        internal static string OpenWith {
+            get {
+                return ResourceManager.GetString("OpenWith", resourceCulture);
             }
         }
         

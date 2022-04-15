@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace ExplorerEx.Shell32; 
 
 [ComImport]
 [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-[Guid("43826d1e-e718-42ee-bc55-a1e261c37bfe")]
+[Guid(Shell32Interop.IID_IShellItem)]
 internal interface IShellItem {
-	void BindToHandler(IntPtr pbc, [MarshalAs(UnmanagedType.LPStruct)] Guid bhid, [MarshalAs(UnmanagedType.LPStruct)] Guid riid, out IntPtr ppv);
-	void GetParent(out IShellItem ppsi);
-	void GetDisplayName(SIGDN sigdnName, out IntPtr ppszName);
-	void GetAttributes(uint sfgaoMask, out uint psfgaoAttribs);
-	void Compare(IShellItem psi, uint hint, out int piOrder);
+	int BindToHandler(IBindCtx pbc, [MarshalAs(UnmanagedType.LPStruct)] Guid bhid, [MarshalAs(UnmanagedType.LPStruct)] Guid riid, out IntPtr ppv);
+	int GetParent(out IShellItem ppsi);
+	int GetDisplayName(SIGDN sigdnName, out IntPtr ppszName);
+	int GetAttributes(uint sfgaoMask, out uint psfgaoAttribs);
+	int Compare(IShellItem psi, uint hint, out int piOrder);
 }
 
 internal enum SIGDN : uint {

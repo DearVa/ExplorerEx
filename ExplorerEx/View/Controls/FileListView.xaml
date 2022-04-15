@@ -332,6 +332,31 @@
                       Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
         </ContextMenu>
 
+        <c:FileAssocTemplateSelector x:Key="FileAssocTemplateSelector" DefaultStyle="{StaticResource MenuItemBaseStyle}">
+            <c:FileAssocTemplateSelector.CustomStyle>
+                <Style BasedOn="{StaticResource MenuItemBaseStyle}" TargetType="MenuItem">
+                    <Setter Property="Command" Value="{Binding DataContext.ViewModel.FileItemCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                    <Setter Property="CommandParameter" Value="{Binding}"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate>
+                                <Border MinWidth="120" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True" CornerRadius="5">
+                                    <Grid x:Name="Grid" HorizontalAlignment="Left" Margin="4" d:DataContext="{d:DesignInstance m:FileAssocItem}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="30"/>
+                                            <ColumnDefinition SharedSizeGroup="MenuItemCPColumnGroup" Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Image Grid.Column="0" Source="{Binding Icon, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}"/>
+                                        <TextBlock Grid.Column="1" Margin="9,0,0,0" Text="{Binding Description, Mode=OneWay}" VerticalAlignment="Center" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                    </Grid>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </c:FileAssocTemplateSelector.CustomStyle>
+        </c:FileAssocTemplateSelector>
+
         <ContextMenu x:Key="FileItemContextMenu" d:DataContext="{d:DesignInstance ct:FileListView}">
             <MenuItem Height="45" Template="{StaticResource FileOperationsTemplate}"/>
             <Separator Style="{StaticResource SeparatorBaseStyle}"/>
@@ -348,6 +373,16 @@
                       Command="{Binding Path=ViewModel.FileItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileItem.IsExecutable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{DynamicResource UacDrawingImage}"/>
+            <MenuItem Header="{u:Lang OpenWith}" ItemContainerStyleSelector="{StaticResource FileAssocTemplateSelector}" Icon="{DynamicResource OpenWithDrawingImage}"
+                      Visibility="{Binding Count, Source={x:Static ct:FileListView.FileAssocList}, Mode=OneWay, Converter={StaticResource Int2VisibilityConverter}}">
+                <MenuItem.ItemsSource>
+                    <CompositeCollection>
+                        <CollectionContainer Collection="{Binding Source={x:Static ct:FileListView.FileAssocList}, Mode=OneWay}"/>
+                        <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+                        <MenuItem Header="{u:Lang ChooseAnotherApp}" Icon="{DynamicResource OpenWithDrawingImage}" Click="ChooseAnotherAppMenuItem_OnClick"/>
+                    </CompositeCollection>
+                </MenuItem.ItemsSource>
+            </MenuItem>
             <MenuItem Header="{u:Lang Edit}" CommandParameter="Edit"
                       Command="{Binding Path=ViewModel.FileItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileItem.IsEditable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"

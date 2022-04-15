@@ -11,7 +11,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -26,7 +25,6 @@ using ExplorerEx.ViewModel;
 using ExplorerEx.Win32;
 using HandyControl.Controls;
 using HandyControl.Tools;
-using SharpVectors.Dom;
 using GridView = System.Windows.Controls.GridView;
 using ScrollViewer = System.Windows.Controls.ScrollViewer;
 using TextBox = HandyControl.Controls.TextBox;
@@ -137,6 +135,11 @@ public partial class FileListView : INotifyPropertyChanged {
 		get => (FileListViewItem)GetValue(FolderProperty);
 		set => SetValue(FolderProperty, value);
 	}
+
+	/// <summary>
+	/// 文件打开方式列表
+	/// </summary>
+	public static ObservableCollection<FileAssocItem> FileAssocList { get; } = new();
 
 	public static readonly DependencyProperty MouseItemProperty = DependencyProperty.Register(
 		"MouseItem", typeof(FileListViewItem), typeof(FileListView), new PropertyMetadata(default(FileListViewItem)));
@@ -844,6 +847,16 @@ public partial class FileListView : INotifyPropertyChanged {
 							openedContextMenu = ((FrameworkElement)ContainerFromElement(o))!.ContextMenu!;
 							openedContextMenu.SetValue(FileItemAttach.FileItemProperty, item);
 							openedContextMenu.DataContext = this;
+							var ext = Path.GetExtension(item.FullPath);
+							FileAssocList.Clear();
+							if (!string.IsNullOrWhiteSpace(ext) && ViewModel.SelectedItems.Count == 1) {
+								var list = FileAssocItem.GetAssocList(ext);
+								if (list != null) {
+									foreach (var fileAssocItem in list) {
+										FileAssocList.Add(fileAssocItem);
+									}
+								}
+							}
 							openedContextMenu.IsOpen = true;
 						} else if (Folder != null) {
 							UnselectAll();
@@ -936,7 +949,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		var mousePos = e.GetPosition(this);
 		if (mousePos.X > 0 && mousePos.Y > 0 && mousePos.X < ActualWidth && mousePos.Y < ActualHeight) {
 			return;
-		} 
+		}
 		isDragDropping = false;
 		if (DragFilesPreview != null) {
 			DragFilesPreview.Destination = null;
@@ -1083,6 +1096,15 @@ public partial class FileListView : INotifyPropertyChanged {
 		foreach (var item in ViewModel.SelectedItems.Where(i => i is DiskDriveItem).Cast<DiskDriveItem>().ToImmutableList()) {
 			Shell32Interop.ShowFormatDriveDialog(item.Drive);
 		}
+	}
+
+	private void ChooseAnotherAppMenuItem_OnClick(object sender, RoutedEventArgs e) {
+		if (openedContextMenu == null) {
+			return;
+		}
+		openedContextMenu.IsOpen = false;
+		var fullPath = ((FileListViewItem)openedContextMenu.GetValue(FileItemAttach.FileItemProperty)).FullPath;
+		Dispatcher.BeginInvoke(DispatcherPriority.Background, () => Shell32Interop.ShowOpenAsDialog(fullPath));
 	}
 	#endregion
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows;
@@ -46,7 +47,7 @@ public partial class App {
 	private static NotifyMemoryMappedFile notifyMmf;
 	private static DispatcherTimer dispatcherTimer;
 
-	protected override async void OnStartup(StartupEventArgs e) {
+	protected override async void OnStartup(StartupEventArgs e) {																																																														
 		Logger.Initialize();
 		AttachConsole(-1);
 		await Console.Out.FlushAsync();

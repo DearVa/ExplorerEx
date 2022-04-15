@@ -488,4 +488,10 @@ For the application to run properly, it's recommanded that you first extract all
   <data name="ThisWeek" xml:space="preserve">
     <value>This week</value>
   </data>
+  <data name="OpenWith" xml:space="preserve">
+    <value>Open with</value>
+  </data>
+  <data name="ChooseAnotherApp" xml:space="preserve">
+    <value>Choose another app</value>
+  </data>
 </root>
