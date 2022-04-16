@@ -232,7 +232,7 @@ public partial class FileTabControl {
 		if (index == -1) {
 			return;
 		}
-		if (!await HandleTabClosing(tab)) {
+		if (await HandleTabClosing(tab)) {
 			TabItems.RemoveAt(index);
 		}
 	}
