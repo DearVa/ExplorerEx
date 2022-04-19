@@ -889,6 +889,130 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
+    <DrawingImage x:Key="ContentDrawingImage">
+        <DrawingImage.Drawing>
+            <DrawingGroup ClipGeometry="M0,0 V160.9 H192.2 V0 H0 Z">
+                <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="F1 M192.2,160.9z M0,0z M48.6,13.6L188.7,13.6A3.5,3.5,0,0,1,192.2,17.1L192.2,17.1 192.2,22.5A3.5,3.5,0,0,1,188.7,26L48.6,26A3.5,3.5,0,0,1,45.1,22.5L45.1,22.5 45.1,17.2A3.5,3.5,0,0,1,48.5,13.6z" />
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="{DynamicResource PrimaryBrush}" Thickness="6" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry RadiusX="8.1" RadiusY="8.1" Rect="3,3,33.6,33.63" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="{DynamicResource PrimaryBrush}" Thickness="6" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry RadiusX="8.1" RadiusY="8.1" Rect="3,63.6,33.6,33.63" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="{DynamicResource PrimaryBrush}" Thickness="6" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry RadiusX="8.1" RadiusY="8.1" Rect="3,124.3,33.6,33.63" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="F1 M192.2,160.9z M0,0z M48.6,74.2L188.7,74.2A3.5,3.5,0,0,1,192.2,77.7L192.2,77.7 192.2,83.1A3.5,3.5,0,0,1,188.7,86.6L48.6,86.6A3.5,3.5,0,0,1,45.1,83.1L45.1,83.1 45.1,77.8A3.4,3.4,0,0,1,48.5,74.2z" />
+                <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="F1 M192.2,160.9z M0,0z M48.6,134.7L188.7,134.7A3.5,3.5,0,0,1,192.2,138.2L192.2,138.2 192.2,143.6A3.5,3.5,0,0,1,188.7,147.1L48.6,147.1A3.5,3.5,0,0,1,45.1,143.6L45.1,143.6 45.1,138.2A3.5,3.5,0,0,1,48.5,134.6z" />
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <DrawingImage x:Key="LargeIconsDrawingImage">
+        <DrawingImage.Drawing>
+            <DrawingGroup ClipGeometry="M0,0 V132.7 H115 V0 H0 Z">
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="{DynamicResource PrimaryBrush}" Thickness="6" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry RadiusX="26.3" RadiusY="26.3" Rect="3,3,109,109.06" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="F1 M115,132.7z M0,0z M21.8,126.6L93.2,126.6A2.5,2.5,0,0,1,95.7,129L95.7,129 95.7,130.2A2.5,2.5,0,0,1,93.2,132.6L21.8,132.6A2.5,2.5,0,0,1,19.3,130.2L19.3,130.2 19.3,129A2.5,2.5,0,0,1,21.7,126.5z" />
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <DrawingImage x:Key="MediumIconsDrawingImage">
+        <DrawingImage.Drawing>
+            <DrawingGroup ClipGeometry="M0,0 V139.3 H115 V0 H0 Z">
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="{DynamicResource PrimaryBrush}" Thickness="6" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry RadiusX="26.3" RadiusY="26.3" Rect="3,3,109,109.06" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="F1 M115,139.3z M0,0z M6.6,130.6L108.3,130.6A3.5,3.5,0,0,1,111.8,134.1L111.8,134.1 111.8,135.8A3.5,3.5,0,0,1,108.3,139.3L6.6,139.3A3.5,3.5,0,0,1,3.1,135.8L3.1,135.8 3.1,134.1A3.6,3.6,0,0,1,6.5,130.5z" />
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <DrawingImage x:Key="SmallIconsDrawingImage">
+        <DrawingImage.Drawing>
+            <DrawingGroup ClipGeometry="M0,0 V155.5 H115 V0 H0 Z">
+                <DrawingGroup.Transform>
+                    <TranslateTransform X="0.0055659296922385693" Y="0" />
+                </DrawingGroup.Transform>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="{DynamicResource PrimaryBrush}" Thickness="6" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry RadiusX="26.3" RadiusY="26.3" Rect="3,3,109,109.06" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="F1 M115,155.5z M0,0z M3.7,126.6L111.3,126.6A3.7,3.7,0,0,1,115,130.3L115,130.3 115,132A3.7,3.7,0,0,1,111.3,135.7L3.7,135.7A3.7,3.7,0,0,1,0,132.1L0,132.1 0,130.4A3.6,3.6,0,0,1,3.6,126.6z" />
+                <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="F1 M115,155.5z M0,0z M20.5,146.3L94.4,146.3A3.7,3.7,0,0,1,98.1,150L98.1,150 98.1,151.8A3.7,3.7,0,0,1,94.4,155.5L20.5,155.5A3.8,3.8,0,0,1,16.8,151.8L16.8,151.8 16.8,150A3.8,3.8,0,0,1,20.4,146.2z" />
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <DrawingImage x:Key="TilesDrawingImage">
+        <DrawingImage.Drawing>
+            <DrawingGroup ClipGeometry="M0,0 V120.2 H192.2 V0 H0 Z">
+                <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="F1 M192.2,120.2z M0,0z M57.7,16.1L188.7,16.1A3.5,3.5,0,0,1,192.2,19.6L192.2,19.6 192.2,31.1A3.5,3.5,0,0,1,188.7,34.6L57.7,34.6A3.5,3.5,0,0,1,54.2,31.1L54.2,31.1 54.2,19.7A3.6,3.6,0,0,1,57.6,16.1z" />
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="{DynamicResource PrimaryBrush}" Thickness="6" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry RadiusX="10.8" RadiusY="10.8" Rect="3,3,44.7,44.73" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="F1 M192.2,120.2z M0,0z M57.7,85.6L188.7,85.6A3.5,3.5,0,0,1,192.2,89.1L192.2,89.1 192.2,100.5A3.5,3.5,0,0,1,188.7,104L57.7,104A3.5,3.5,0,0,1,54.2,100.5L54.2,100.5 54.2,89.2A3.5,3.5,0,0,1,57.6,85.6z" />
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="{DynamicResource PrimaryBrush}" Thickness="6" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry RadiusX="10.8" RadiusY="10.8" Rect="3,72.5,44.7,44.73" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <DrawingImage x:Key="DetailsDrawingImage">
+        <DrawingImage.Drawing>
+            <DrawingGroup ClipGeometry="M0,0 V120.2 H192.3 V0 H0 Z">
+                <DrawingGroup.Transform>
+                    <TranslateTransform X="0.0014704942004755139" Y="0" />
+                </DrawingGroup.Transform>
+                <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="F1 M192.3,120.2z M0,0z M3.5,0L188.7,0A3.5,3.5,0,0,1,192.2,3.5L192.2,3.5 192.2,15A3.5,3.5,0,0,1,188.7,18.5L3.5,18.5A3.5,3.5,0,0,1,0,15L0,15 0,3.6A3.5,3.5,0,0,1,3.4,0z" />
+                <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="F1 M192.3,120.2z M0,0z M3.6,50.8L188.7,50.8A3.6,3.6,0,0,1,192.3,54.3C192.3,54.4,192.3,54.4,192.2,54.4L192.2,54.4 192.2,65.9A3.5,3.5,0,0,1,188.7,69.4L3.6,69.4A3.5,3.5,0,0,1,0.1,65.9L0.1,65.9 0.1,54.4A3.5,3.5,0,0,1,3.4,50.8z" />
+                <GeometryDrawing Brush="{DynamicResource PrimaryTextBrush}" Geometry="F1 M192.3,120.2z M0,0z M3.6,101.6L188.7,101.6A3.6,3.6,0,0,1,192.3,105.1C192.3,105.2,192.3,105.2,192.2,105.2L192.2,105.2 192.2,116.7A3.5,3.5,0,0,1,188.7,120.2L3.6,120.2A3.5,3.5,0,0,1,0.1,116.7L0.1,116.7 0.1,105.2A3.5,3.5,0,0,1,3.4,101.6z" />
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
     <Geometry x:Key="LeftArrowGeometry" o:Freeze="True">M 955.1 433.2 H 301.3 c -17.7 0 -25.6 -21.7 -13.8 -33.5 l 189 -189 c 11.8 -11.8 11.8 -29.5 0 -41.4 L 433.2 126 c -11.8 -11.8 -29.5 -11.8 -41.4 0 L 47.3 470.6 c -11.8 11.8 -11.8 29.5 0 41.4 l 344.6 344.6 c 11.8 11.8 29.5 11.8 41.4 0 l 41.4 -41.4 c 11.8 -11.8 11.8 -29.5 0 -41.4 l -189 -189 c -11.8 -11.8 -3.9 -33.5 13.8 -33.5 h 653.8 c 15.8 0 29.5 -13.8 29.5 -29.5 v -59.1 c 2 -15.8 -11.8 -29.5 -27.6 -29.5 z</Geometry>
     <Geometry x:Key="RightArrowGeometry" o:Freeze="True">M -955.1 433.2 H -301.3 c 17.7 0 25.6 -21.7 13.8 -33.5 l -189 -189 c -11.8 -11.8 -11.8 -29.5 0 -41.4 L -433.2 126 c 11.8 -11.8 29.5 -11.8 41.4 0 L -47.3 470.6 c 11.8 11.8 11.8 29.5 0 41.4 l -344.6 344.6 c -11.8 11.8 -29.5 11.8 -41.4 0 l -41.4 -41.4 c -11.8 -11.8 -11.8 -29.5 0 -41.4 l 189 -189 c 11.8 -11.8 3.9 -33.5 -13.8 -33.5 h -653.8 c -15.8 0 -29.5 -13.8 -29.5 -29.5 v -59.1 c -2 -15.8 11.8 -29.5 27.6 -29.5 z</Geometry>
     <Geometry x:Key="UpArrowGeometry" o:Freeze="True">M 414 809.7 V 155.9 c 0 -17.7 -21.7 -25.6 -33.5 -13.8 l -189 189 c -11.8 11.8 -29.5 11.8 -41.4 0 l -43.3 -43.3 c -11.8 -11.8 -11.8 -29.5 0 -41.4 l 344.6 -344.5 c 11.8 -11.8 29.5 -11.8 41.4 0 l 344.6 344.6 c 11.8 11.8 11.8 29.5 0 41.4 L 796 329.3 c -11.8 11.8 -29.5 11.8 -41.4 0 l -189 -189 c -11.8 -11.8 -33.5 -3.9 -33.5 13.8 v 653.8 c 0 15.8 -13.8 29.5 -29.5 29.5 h -59.1 c -15.8 2 -29.5 -11.8 -29.5 -27.6 Z</Geometry>

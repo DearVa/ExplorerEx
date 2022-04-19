@@ -187,7 +187,7 @@ Are you sure you want to change?</value>
   <data name="Other_type_disk" xml:space="preserve">
     <value>Other type disk</value>
   </data>
-  <data name="Big_icons" xml:space="preserve">
+  <data name="LargeIcons" xml:space="preserve">
     <value>Big icons</value>
   </data>
   <data name="SmallIcons" xml:space="preserve">
@@ -223,13 +223,13 @@ Are you sure you want to change?</value>
   <data name="Tip" xml:space="preserve">
     <value>Tip</value>
   </data>
-  <data name="Copy_to" xml:space="preserve">
+  <data name="CopyTo" xml:space="preserve">
     <value>Copy to</value>
   </data>
-  <data name="Move_to" xml:space="preserve">
+  <data name="MoveTo" xml:space="preserve">
     <value>Move to</value>
   </data>
-  <data name="Link_to" xml:space="preserve">
+  <data name="LinkTo" xml:space="preserve">
     <value>Link to</value>
   </data>
   <data name="Bookmarks" xml:space="preserve">
@@ -476,8 +476,8 @@ For the application to run properly, it's recommanded that you first extract all
   <data name="Yesterday" xml:space="preserve">
     <value>Yesterday</value>
   </data>
-  <data name="EarlierThisMonth" xml:space="preserve">
-    <value>Earlier this month</value>
+  <data name="ThisMonth" xml:space="preserve">
+    <value>This month</value>
   </data>
   <data name="LastMonth" xml:space="preserve">
     <value>Last year</value>
@@ -493,5 +493,41 @@ For the application to run properly, it's recommanded that you first extract all
   </data>
   <data name="ChooseAnotherApp" xml:space="preserve">
     <value>Choose another app</value>
+  </data>
+  <data name="DragCopyTo" xml:space="preserve">
+    <value>Copy to *</value>
+  </data>
+  <data name="DragLinkTo" xml:space="preserve">
+    <value>Link to *</value>
+  </data>
+  <data name="DragMoveTo" xml:space="preserve">
+    <value>Move to *</value>
+  </data>
+  <data name="DragOpenWith" xml:space="preserve">
+    <value>Open with *</value>
+  </data>
+  <data name="DragOpenInNewTab" xml:space="preserve">
+    <value>Open * in new tab</value>
+  </data>
+  <data name="Tiny" xml:space="preserve">
+    <value>Tiny</value>
+  </data>
+  <data name="Small" xml:space="preserve">
+    <value>Small</value>
+  </data>
+  <data name="Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="Large" xml:space="preserve">
+    <value>Large</value>
+  </data>
+  <data name="Huge" xml:space="preserve">
+    <value>Huge</value>
+  </data>
+  <data name="Gigantic" xml:space="preserve">
+    <value>Gigantic</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Unknown</value>
   </data>
 </root>

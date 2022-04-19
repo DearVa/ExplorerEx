@@ -128,17 +128,17 @@
             <hc:SplitButton.DropDownContent>
                 <ContextMenu>
                     <ContextMenu.Items>
-                        <MenuItem CommandParameter="0" Header="{u:Lang Big_icons}" 
+                        <MenuItem CommandParameter="0" Header="{u:Lang LargeIcons}" Icon="{DynamicResource LargeIconsDrawingImage}"
                                   IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
-                        <MenuItem CommandParameter="1" Header="{u:Lang SmallIcons}"
+                        <MenuItem CommandParameter="1" Header="{u:Lang SmallIcons}" Icon="{DynamicResource SmallIconsDrawingImage}"
                                   IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
-                        <MenuItem CommandParameter="2" Header="{u:Lang List}"
+                        <MenuItem CommandParameter="2" Header="{u:Lang List}" Icon="{DynamicResource ListDrawingImage}"
                                   IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
-                        <MenuItem CommandParameter="3" Header="{u:Lang Details}"
+                        <MenuItem CommandParameter="3" Header="{u:Lang Details}" Icon="{DynamicResource DetailsDrawingImage}"
                                   IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
-                        <MenuItem CommandParameter="4" Header="{u:Lang Tiles}"
+                        <MenuItem CommandParameter="4" Header="{u:Lang Tiles}" Icon="{DynamicResource TilesDrawingImage}"
                                   IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=4}"/>
-                        <MenuItem CommandParameter="5" Header="{u:Lang Content}"
+                        <MenuItem CommandParameter="5" Header="{u:Lang Content}" Icon="{DynamicResource ContentDrawingImage}"
                                   IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=5}"/>
                     </ContextMenu.Items>
                 </ContextMenu>
@@ -218,7 +218,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <ct:ClippingBorder Grid.Row="0" Margin="10,0,10,5" CornerRadius="4" 
+        <ct:ClippingBorder Grid.Row="0" Margin="10,0,10,0" CornerRadius="4" 
                            BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
                            Background="{DynamicResource RegionBrush}">
             <ct:FileListView x:Name="FileListView" d:DataContext="{d:DesignInstance vm:FileTabViewModel}"
@@ -231,9 +231,6 @@
                     <hc:RoutedEventTrigger RoutedEvent="ListBox.SelectionChanged">
                         <hc:EventToCommand Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True"/>
                     </hc:RoutedEventTrigger>
-                    <hc:RoutedEventTrigger RoutedEvent="ct:FileListView.FileDrop">
-                        <hc:EventToCommand Command="{Binding FileDropCommand}" PassEventArgsToCommand="True"/>
-                    </hc:RoutedEventTrigger>
                     <hc:RoutedEventTrigger RoutedEvent="ct:FileListView.ItemDoubleClicked">
                         <hc:EventToCommand Command="{Binding ItemDoubleClickedCommand}" PassEventArgsToCommand="True"/>
                     </hc:RoutedEventTrigger>
@@ -241,24 +238,34 @@
             </ct:FileListView>
         </ct:ClippingBorder>
 
-        <Border Grid.Row="1" Padding="20,0,0,0">
-            <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
-                <TextBlock Foreground="{DynamicResource PrimaryTextBrush}">
+        <hc:SimplePanel Grid.Row="1" Margin="20,0,10,0">
+            <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
+                <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center">
                     <Run Text="{Binding FileItemsCount, Mode=OneWay}"/>
                     <Run Text="{u:Lang Run_ItemsCount}"/>
                 </TextBlock>
-                <Rectangle Width="1" Height="18" Fill="{DynamicResource ThirdlyTextBrush}" Margin="10,-1,10,2"/>
+                <Rectangle Width="1" Height="18" Fill="{DynamicResource ThirdlyTextBrush}" Margin="10,2,10,2"/>
 
-                <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" Visibility="{Binding SelectedFileItemsCountVisibility, Mode=OneWay}">
+                <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"
+                           Visibility="{Binding SelectedFileItemsCountVisibility, Mode=OneWay}">
                     <Run Text="{u:Lang Run_SelectedItemsCount}"/>
                     <Run Text="{Binding SelectedFileItemsCount, Mode=OneWay}"/>
                     <Run Text="{u:Lang Run_ItemsCount}"/>
                 </TextBlock>
 
-                <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" Margin="10,0,0,0" 
+                <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center" Margin="10,0,0,0" 
                            Visibility="{Binding SelectedFileItemsSizeVisibility, Mode=OneWay}"
                            Text="{Binding SelectedFileItemsSizeText, Mode=OneWay}"/>
             </StackPanel>
-        </Border>
+
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
+                <Button Margin="0,0,1,0" Width="22" Height="22" Style="{StaticResource ButtonSmallTransparent}">
+                    <Image Source="{DynamicResource DetailsDrawingImage}"/>
+                </Button>
+                <Button Width="22" Height="22" Style="{StaticResource ButtonSmallTransparent}">
+                    <Image Source="{DynamicResource MediumIconsDrawingImage}"/>
+                </Button>
+            </StackPanel>
+        </hc:SimplePanel>
     </Grid>
 </Grid>

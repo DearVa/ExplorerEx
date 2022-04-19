@@ -181,11 +181,10 @@ internal static class IconHelper {
 		return bs;
 	}
 
-	public static ImageSource GetDriveThumbnail(DriveInfo drive) {
-		if (!drive.IsReady) {
+	private static ImageSource GetDriveThumbnail(string name) {
+		if (!Directory.Exists(name)) {
 			return UnknownFileDrawingImage;
 		}
-		var name = drive.Name;
 		lock (CachedDriveIcons) {
 			if (CachedDriveIcons.TryGetValue(name, out var cache)) {
 				return cache;
@@ -209,6 +208,9 @@ internal static class IconHelper {
 	/// <exception cref="FileNotFoundException"></exception>
 	/// <exception cref="Exception"></exception>
 	public static ImageSource GetPathThumbnail(string path) {
+		if (path.Length == 3) {
+			return GetDriveThumbnail(path);
+		}
 		// Trace.WriteLine($"加载缩略图：{path}");
 		var extension = Path.GetExtension(path);
 		if (string.IsNullOrEmpty(extension)) {

@@ -27,10 +27,7 @@
                   Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,0,0,0"/>
             <Path x:Name="LinkPath" Visibility="Collapsed" Fill="#050569" Stretch="Uniform" Data="{StaticResource LinkGeometry}" 
                   Width="15" Height="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,0,0,0"/>
-            <TextBlock x:Name="OperationTextBlock" Width="Auto" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="24,3,3,3">
-                <Run x:Name="OperationTypeRun" Foreground="#0d3dce"/>
-                <Run x:Name="DestinationRun" Foreground="#050569"/>
-            </TextBlock>
+            <TextBlock x:Name="OperationTextBlock" Width="Auto" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="24,3,3,3"/>
         </Grid>
     </Border>
 </Grid>

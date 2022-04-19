@@ -93,7 +93,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 			InitializeChildren();
 		}
 		Name = DriveUtils.GetFriendlyName(driveInfo);
-		Icon = IconHelper.GetDriveThumbnail(driveInfo);
+		Icon = IconHelper.GetPathThumbnail(driveInfo.Name);
 	}
 
 	private void InitializeChildren() {

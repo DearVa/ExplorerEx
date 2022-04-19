@@ -33,7 +33,7 @@ public class FileAssocItem : IRunnableApp {
 		}
 		if (iconPath[0] != '@') {
 			Icon = IconHelper.GetSmallIcon(iconPath, false);
-		} else {
+		} else {  // 说明是UWP应用，要根据包名找到应用位置，之后获取最合适大小的icon
 			var index = iconPath.IndexOf('?');
 			var appxName = iconPath[2..index];
 			var appxPath = AppxPackage.GetFullPathByPackageName(appxName);
@@ -81,8 +81,12 @@ public class FileAssocItem : IRunnableApp {
 			Marshal.ThrowExceptionForHR(SHAssocEnumHandlers(extension, AssocFilter.Recommended, out var handlers));
 			var count = 0;
 			while (count++ < SingleFileAssocMaxItemCount && handlers.Next(1, out var assocHandler, out var fetched) >= 0 && fetched > 0) {
-				// ReSharper disable once AccessToModifiedClosure
-				list.Add(new FileAssocItem(assocHandler));
+				try {
+					// ReSharper disable once AccessToModifiedClosure
+					list.Add(new FileAssocItem(assocHandler));
+				} catch (Exception e) {
+					Logger.Exception(e, false);
+				}
 			}
 			Marshal.ReleaseComObject(handlers);
 

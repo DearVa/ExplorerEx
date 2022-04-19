@@ -16,6 +16,9 @@ internal static class Extensions {
 		if (effects.HasFlag(DragDropEffects.Link)) {
 			return DragDropEffects.Link;
 		}
+		if (effects.HasFlag(DragDropEffects.Scroll)) {
+			return DragDropEffects.Scroll;
+		}
 		return DragDropEffects.None;
 	}
 }

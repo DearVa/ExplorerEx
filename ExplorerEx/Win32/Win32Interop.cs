@@ -55,6 +55,18 @@ public static class Win32Interop {
 
 	[DllImport(User32)]
 	public static extern bool DestroyMenu(IntPtr hMenu);
+	
+	[DllImport(User32)]
+	public static extern IntPtr WindowFromPoint(Point pos);
+
+	/// <summary>
+	/// 获取光标处窗口的HWND
+	/// </summary>
+	/// <returns></returns>
+	public static IntPtr GetCursorHwnd() {
+		GetCursorPos(out var p);
+		return WindowFromPoint(p);
+	}
 
 	[DllImport(Gdi32)]
 	public static extern IntPtr CreateCompatibleDC(IntPtr hdc);

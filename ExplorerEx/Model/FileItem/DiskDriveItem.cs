@@ -57,7 +57,7 @@ public sealed class DiskDriveItem : FolderItem {
 	}
 
 	public override void LoadIcon() {
-		Icon = IconHelper.GetDriveThumbnail(Drive);
+		Icon = IconHelper.GetPathThumbnail(Drive.Name);
 	}
 
 	public Task<List<FileListViewItem>> EnumerateItems() {

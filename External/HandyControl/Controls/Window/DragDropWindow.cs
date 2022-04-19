@@ -12,7 +12,7 @@ namespace HandyControl.Controls;
 public sealed class DragPreviewWindow : System.Windows.Window {
 	private Point cursorPoint;
 
-	private DragPreviewWindow(FrameworkElement element, Point cursorPoint, double opacity, bool useVisualBrush) {
+	public DragPreviewWindow(FrameworkElement element, Point cursorPoint, double opacity, bool useVisualBrush) {
 		this.cursorPoint = cursorPoint;
 		Opacity = opacity;
 		Topmost = true;

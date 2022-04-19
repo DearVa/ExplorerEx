@@ -230,8 +230,13 @@ internal static class FileUtils {
 		if (sourceFiles.Count > 1) {
 			fFlags |= FileOpFlags.MultiDestFiles;
 		}
-		if (type == FileOpType.Delete) {
+		switch (type) {
+		case FileOpType.Delete:
 			fFlags |= FileOpFlags.NoConformation;
+			break;
+		case FileOpType.Copy:
+			fFlags |= FileOpFlags.RenameOnCollision;
+			break;
 		}
 		var fo = new ShFileOpStruct {
 			fileOpType = type,
@@ -261,11 +266,16 @@ internal static class FileUtils {
 			throw new ArgumentNullException(nameof(sourceFile));
 		}
 		if (type != FileOpType.Delete && destinationFile == null) {
-			throw new ArgumentNullException(nameof(destinationFile), "必须指定目标文件名");
+			throw new ArgumentNullException(nameof(destinationFile));
 		}
 		var fFlags = FileOpFlags.NoConfirmMkdir | FileOpFlags.AllowUndo;
-		if (type == FileOpType.Delete) {
+		switch (type) {
+		case FileOpType.Delete:
 			fFlags |= FileOpFlags.NoConformation;
+			break;
+		case FileOpType.Copy:
+			fFlags |= FileOpFlags.RenameOnCollision;
+			break;
 		}
 		var fo = new ShFileOpStruct {
 			fileOpType = type,
@@ -291,6 +301,9 @@ internal static class FileUtils {
 	}
 
 	public static void HandleDrop(DataObjectContent content, string destPath, DragDropEffects type) {
+		if (destPath == null) {
+			return;
+		}
 		Debug.Assert(type is DragDropEffects.Copy or DragDropEffects.Move or DragDropEffects.Link);
 		if (destPath.Length > 4 && destPath[^4..] is ".exe" or ".lnk") {  // 拖文件运行
 			if (File.Exists(destPath) && content.Type == DataObjectType.FileDrop) {

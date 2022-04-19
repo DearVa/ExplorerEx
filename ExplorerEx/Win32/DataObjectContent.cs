@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ExplorerEx.View.Controls;
+using HandyControl.Controls;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 
@@ -18,6 +20,11 @@ public class DataObjectContent {
 	public static event Action ClipboardChanged;
 
 	public static DataObjectContent Clipboard { get; private set; }
+
+	/// <summary>
+	/// 当外部拖放进来的时候，会解析并存放在这里
+	/// </summary>
+	public static DataObjectContent Drag { get; private set; }
 
 	public DataObjectType Type { get; }
 
@@ -39,7 +46,7 @@ public class DataObjectContent {
 	}
 
 	/// <summary>
-	/// 解析，如果是支持的格式，返回true
+	/// 解析，如果是支持的格式
 	/// </summary>
 	/// <param name="iDataObject"></param>
 	/// <returns></returns>
@@ -62,5 +69,25 @@ public class DataObjectContent {
 	public static void HandleClipboardChanged() {
 		Clipboard = Parse(System.Windows.Clipboard.GetDataObject());
 		ClipboardChanged?.Invoke();
+	}
+
+	public static void HandleDragEnter(DragEventArgs e) {
+		if (DragFilesPreview.IsShown) {
+			return;
+		}
+		Drag = Parse(e.Data);
+		if (Drag.Type == DataObjectType.FileDrop && Drag.Data is string[] { Length: > 0 } filePaths) {
+			var dragFilesPreview = DragFilesPreview.Instance;
+			dragFilesPreview.SetFilePaths(filePaths);
+			DragFilesPreview.ShowPreview();
+		}
+	}
+
+	public static void HandleDragLeave() {
+		if (DragFilesPreview.IsInternalDrag) {
+			return;
+		}
+		Drag = null;
+		DragFilesPreview.HidePreview();
 	}
 }

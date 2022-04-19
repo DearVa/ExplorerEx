@@ -169,8 +169,6 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// </summary>
 	public SimpleCommand SwitchViewCommand { get; }
 
-	public SimpleCommand FileDropCommand { get; }
-
 	public SimpleCommand ItemDoubleClickedCommand { get; }
 
 	public bool CanPaste {
@@ -262,7 +260,6 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			SelectedItemsProvider = () => SelectedItems
 		};
 		SwitchViewCommand = new SimpleCommand(OnSwitchView);
-		FileDropCommand = new SimpleCommand(OnDrop);
 		ItemDoubleClickedCommand = new SimpleCommand(FileListViewItem_OnDoubleClicked);
 
 		dispatcher = Application.Current.Dispatcher;
@@ -841,13 +838,6 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			removedItem.IsSelected = false;
 		}
 		UpdateFileUI();
-	}
-
-
-	private void OnDrop(object args) {
-		var e = (FileDropEventArgs)args;
-		var path = e.Path ?? FullPath;
-		FileUtils.HandleDrop(e.Content, path, e.DragEventArgs.Effects.GetActualEffect());
 	}
 
 	private uint everythingQueryId;

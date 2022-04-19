@@ -1,7 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Media;
 using ExplorerEx.Utils;
+using HandyControl.Controls;
 
 namespace ExplorerEx.View.Controls;
 
@@ -9,65 +15,192 @@ namespace ExplorerEx.View.Controls;
 /// 拖放文件时，这个显示拖放的文件缩略图和操作
 /// </summary>
 public partial class DragFilesPreview {
+	public static DragFilesPreview Instance { get; } = new();
+
+	public static bool IsShown { get; private set; }
+
+	/// <summary>
+	/// 是否为程序本身的拖放
+	/// </summary>
+	public static bool IsInternalDrag { get; set; }
+
+	private static DragPreviewWindow dragPreviewWindow;
+
 	public string Destination {
+		get => destination;
 		set {
-			if (value == null) {
-				OperationBorder.Visibility = Visibility.Collapsed;
-			} else {
-				OperationBorder.Visibility = Visibility.Visible;
-				DestinationRun.Text = value;
+			if (destination != value) {
+				destination = value;
+				FormatOperation();
 			}
 		}
 	}
 
-	public DragDropEffects DragDropEffect {
+	private string destination;
+
+	public DragDropEffects Icon {
+		get => icon;
 		set {
-			switch (value) {
-			case DragDropEffects.Copy:
-				OperationTypeRun.Text = "Copy_to".L();
-				CopyPath.Visibility = Visibility.Visible;
-				MovePath.Visibility = Visibility.Collapsed;
-				LinkPath.Visibility = Visibility.Collapsed;
-				break;
-			case DragDropEffects.Move:
-				OperationTypeRun.Text = "Move_to".L();
-				CopyPath.Visibility = Visibility.Collapsed;
-				MovePath.Visibility = Visibility.Visible;
-				LinkPath.Visibility = Visibility.Collapsed;
-				break;
-			case DragDropEffects.Link:
-				OperationTypeRun.Text = "Link_to".L();
-				CopyPath.Visibility = Visibility.Collapsed;
-				MovePath.Visibility = Visibility.Collapsed;
-				LinkPath.Visibility = Visibility.Visible;
-				break;
-			case DragDropEffects.All:  // 自定义
-				OperationTypeRun.Text = CustomOperation;
-				OperationBorder.Visibility = Visibility.Visible;
-				CopyPath.Visibility = Visibility.Collapsed;
-				MovePath.Visibility = Visibility.Collapsed;
-				LinkPath.Visibility = Visibility.Collapsed;
-				break;
-			}
-		}
-	}
-
-	public string CustomOperation { get; set; }
-
-	public DragFilesPreview(IList<ImageSource> icons) {
-		InitializeComponent();
-		DragCountTextBlock.Text = icons.Count.ToString();
-		if (icons.Count > 0) {
-			DragImage0.Source = icons[0];
-			if (icons.Count > 1) {
-				DragImage1.Source = icons[1];
-				DragImage1Border.Visibility = Visibility.Visible;
-				if (icons.Count > 2) {
-					DragImage2.Source = icons[2];  // 只显示三个缩略图
-					DragImage2Border.Visibility = Visibility.Visible;
+			if (icon != value) {
+				icon = value;
+				switch (value) {
+				case DragDropEffects.Copy:
+					CopyPath.Visibility = Visibility.Visible;
+					MovePath.Visibility = Visibility.Collapsed;
+					LinkPath.Visibility = Visibility.Collapsed;
+					break;
+				case DragDropEffects.Move:
+					CopyPath.Visibility = Visibility.Collapsed;
+					MovePath.Visibility = Visibility.Visible;
+					LinkPath.Visibility = Visibility.Collapsed;
+					break;
+				case DragDropEffects.Link:
+					CopyPath.Visibility = Visibility.Collapsed;
+					MovePath.Visibility = Visibility.Collapsed;
+					LinkPath.Visibility = Visibility.Visible;
+					break;
 				}
 			}
 		}
-		DragDropEffect = DragDropEffects.Copy;
+	}
+
+	private DragDropEffects icon;
+
+	public DragDropEffects DragDropEffect {
+		get => dragDropEffect;
+		set {
+			if (dragDropEffect == value) {
+				return;
+			}
+			Icon = value;
+			switch (value) {
+			case DragDropEffects.Copy:
+				OperationText = "DragCopyTo".L();
+				OperationBorder.Visibility = Visibility.Visible;
+				break;
+			case DragDropEffects.Move:
+				OperationText = "DragMoveTo".L();
+				OperationBorder.Visibility = Visibility.Visible;
+				break;
+			case DragDropEffects.Link:
+				OperationText = "DragLinkTo".L();
+				OperationBorder.Visibility = Visibility.Visible;
+				break;
+			case DragDropEffects.All:  // 自定义
+				OperationBorder.Visibility = Visibility.Visible;
+				break;
+			case DragDropEffects.Scroll:
+				return;
+			case DragDropEffects.None:
+				OperationBorder.Visibility = Visibility.Collapsed;
+				break;
+			}
+			dragDropEffect = value;
+		}
+	}
+
+	private DragDropEffects dragDropEffect;
+
+	public string OperationText {
+		get => operationText;
+		set {
+			if (operationText != value) {
+				operationText = value;
+				FormatOperation();
+			}
+		}
+	}
+
+	private string operationText;
+
+	public DragFilesPreview() {
+		InitializeComponent();
+		dragPreviewWindow = new DragPreviewWindow(this, new Point(50, 100), 0.8, false);
+	}
+
+	public void SetFilePaths(IList<string> filePaths) {
+		DragCountTextBlock.Text = filePaths.Count.ToString();
+		if (filePaths.Count < 3) {
+			DragImage2Border.Visibility = Visibility.Collapsed;
+			if (filePaths.Count < 2) {
+				DragImage1Border.Visibility = Visibility.Collapsed;
+			}
+		}
+		Task.Run(() => {
+			var thumbnails = new ImageSource[filePaths.Count > 3 ? 3 : filePaths.Count];
+			if (filePaths.Count > 0) {
+				thumbnails[0] = GetPathThumbnail(filePaths[0]);
+				Dispatcher.BeginInvoke(() => DragImage0.Source = thumbnails[0]);
+				if (filePaths.Count > 1) {
+					thumbnails[1] = GetPathThumbnail(filePaths[1]);
+					Dispatcher.BeginInvoke(() => {
+						DragImage1.Source = thumbnails[1];
+						DragImage1Border.Visibility = Visibility.Visible;
+					});
+					if (filePaths.Count > 2) {
+						// 最多只显示三个缩略图
+						thumbnails[2] = GetPathThumbnail(filePaths[2]);
+						Dispatcher.BeginInvoke(() => {
+							DragImage2.Source = thumbnails[2];
+							DragImage2Border.Visibility = Visibility.Visible;
+						});
+					}
+				}
+			}
+		});
+	}
+
+	private static ImageSource GetPathThumbnail(string path) {
+		if (path.Length == 3) {
+			return IconHelper.GetPathThumbnail(path);
+		}
+		if (Directory.Exists(path)) {
+			return IconHelper.EmptyFolderDrawingImage;
+		}
+		return IconHelper.GetPathThumbnail(path);
+	}
+
+	private static readonly Brush DestBrush = new SolidColorBrush(Color.FromRgb(13, 61, 206));
+	private static readonly Brush OpBrush = new SolidColorBrush(Color.FromRgb(5, 5, 105));
+
+	private void FormatOperation() {
+		OperationTextBlock.Inlines.Clear();
+		if (operationText == null) {
+			return;
+		}
+		if (operationText[0] == '*') {
+			OperationTextBlock.Inlines.Add(new Run(Destination) { Foreground = DestBrush });
+			OperationTextBlock.Inlines.Add(new Run(operationText[1..]) { Foreground = OpBrush });
+		} else if (operationText[^1] == '*') {
+			OperationTextBlock.Inlines.Add(new Run(operationText[..^1]) { Foreground = OpBrush });
+			OperationTextBlock.Inlines.Add(new Run(Destination) { Foreground = DestBrush });
+		} else {
+			for (var i = 0; i < operationText.Length; i++) {
+				if (operationText[i] == '*') {
+					OperationTextBlock.Inlines.Add(new Run(operationText[..i]) { Foreground = OpBrush });
+					OperationTextBlock.Inlines.Add(new Run(Destination) { Foreground = DestBrush });
+					OperationTextBlock.Inlines.Add(new Run(operationText[(i + 1)..]) { Foreground = OpBrush });
+					break;
+				}
+			}
+		}
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void ShowPreview() {
+		dragPreviewWindow.MoveWithCursor();
+		dragPreviewWindow.Show();
+		IsShown = true;
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void HidePreview() {
+		dragPreviewWindow.Hide();
+		IsShown = false;
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void MovePreviewWithCursor() {
+		dragPreviewWindow.MoveWithCursor();
 	}
 }

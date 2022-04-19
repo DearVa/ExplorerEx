@@ -89,6 +89,35 @@
                             </Trigger>
                         </Style.Triggers>
                     </Style>
+
+                    <Style x:Key="ButtonSmallTransparent" TargetType="Button" BasedOn="{StaticResource ButtonTransparent}">
+                        <Setter Property="BorderBrush" Value="Transparent"/>
+                        <Setter Property="Padding" Value="1"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <hc:SimplePanel>
+                                        <Border BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" CornerRadius="2">
+                                            <ContentPresenter x:Name="ContentPresenterMain" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                        </Border>
+                                    </hc:SimplePanel>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource SelectBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Opacity" Value=".6" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
                 </ResourceDictionary>
 
                 <ResourceDictionary Source="View/Controls/CustomControls.xaml"/>

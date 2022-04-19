@@ -86,7 +86,7 @@ public class BookmarkItem : FileListViewItem, IFilterable {
 	public override void LoadIcon() {
 		if (FullPath.Length == 3) {
 			IsFolder = true;
-			Icon = GetDriveThumbnail(new DriveInfo(FullPath[..1]));
+			Icon = GetPathThumbnail(FullPath);
 		} else if (Directory.Exists(FullPath)) {
 			IsFolder = true;
 			Icon = FolderUtils.IsEmptyFolder(FullPath) ? EmptyFolderDrawingImage : FolderDrawingImage;

@@ -56,7 +56,7 @@ public sealed partial class MainWindow {
 
 	private readonly FileSystemItemContextMenuConverter bookmarkItemContextMenuConverter;
 	private readonly ContextMenu sideBarPcItemContextMenu;
-	
+
 	public MainWindow(string startupPath, bool startUpLoad = true) {
 		this.startupPath = startupPath;
 		MainWindows.Add(this);
@@ -748,5 +748,44 @@ public sealed partial class MainWindow {
 	public void ClearTextBoxFocus() {
 		FocusManager.SetFocusedElement(this, null);
 		Keyboard.ClearFocus();
+	}
+
+	protected override void OnPreviewDragEnter(DragEventArgs e) {
+		DataObjectContent.HandleDragEnter(e);
+		base.OnPreviewDragEnter(e);
+	}
+
+	protected override void OnDragEnter(DragEventArgs e) {
+		base.OnDragEnter(e);
+		e.Effects = DragDropEffects.None;
+		e.Handled = true;
+	}
+
+	protected override void OnPreviewDragOver(DragEventArgs e) {
+		if (!DragFilesPreview.IsInternalDrag) {
+			DragFilesPreview.MovePreviewWithCursor();
+		}
+		base.OnPreviewDragOver(e);
+	}
+
+	protected override void OnDragOver(DragEventArgs e) {
+		base.OnDragOver(e);
+		DragFilesPreview.Instance.DragDropEffect = DragDropEffects.None;
+		e.Effects = DragDropEffects.None;
+		e.Handled = true;
+	}
+
+	protected override void OnPreviewDrop(DragEventArgs e) {
+		DragFilesPreview.HidePreview();
+		base.OnPreviewDrop(e);
+	}
+
+	protected override void OnPreviewDragLeave(DragEventArgs e) {
+		base.OnPreviewDragLeave(e);
+		var cursorHwnd = GetCursorHwnd();
+		if (MainWindows.Any(mw => mw.Hwnd.Handle == cursorHwnd)) {
+			return;  // 只有当真正离开了窗口，才取消显示
+		}
+		DataObjectContent.HandleDragLeave();
 	}
 }

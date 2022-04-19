@@ -234,7 +234,7 @@
   <data name="Other_type_disk" xml:space="preserve">
     <value>其他类型磁盘</value>
   </data>
-  <data name="Big_icons" xml:space="preserve">
+  <data name="LargeIcons" xml:space="preserve">
     <value>大图标</value>
   </data>
   <data name="SmallIcons" xml:space="preserve">
@@ -270,13 +270,13 @@
   <data name="Tip" xml:space="preserve">
     <value>提示</value>
   </data>
-  <data name="Copy_to" xml:space="preserve">
+  <data name="CopyTo" xml:space="preserve">
     <value>复制到</value>
   </data>
-  <data name="Move_to" xml:space="preserve">
+  <data name="MoveTo" xml:space="preserve">
     <value>移动到</value>
   </data>
-  <data name="Link_to" xml:space="preserve">
+  <data name="LinkTo" xml:space="preserve">
     <value>创建链接</value>
   </data>
   <data name="Bookmarks" xml:space="preserve">
@@ -518,13 +518,13 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
     <value>今天</value>
   </data>
   <data name="LastWeek" xml:space="preserve">
-    <value>一周内</value>
+    <value>上周</value>
   </data>
   <data name="Yesterday" xml:space="preserve">
     <value>昨天</value>
   </data>
-  <data name="EarlierThisMonth" xml:space="preserve">
-    <value>这个月的早些时候</value>
+  <data name="ThisMonth" xml:space="preserve">
+    <value>本月</value>
   </data>
   <data name="LastMonth" xml:space="preserve">
     <value>上个月</value>
@@ -540,5 +540,41 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name="ChooseAnotherApp" xml:space="preserve">
     <value>选择其他应用</value>
+  </data>
+  <data name="DragCopyTo" xml:space="preserve">
+    <value>复制到 *</value>
+  </data>
+  <data name="DragMoveTo" xml:space="preserve">
+    <value>移动到 *</value>
+  </data>
+  <data name="DragLinkTo" xml:space="preserve">
+    <value>在 * 创建链接</value>
+  </data>
+  <data name="DragOpenWith" xml:space="preserve">
+    <value>用 * 打开</value>
+  </data>
+  <data name="DragOpenInNewTab" xml:space="preserve">
+    <value>在新标签页打开 *</value>
+  </data>
+  <data name="Tiny" xml:space="preserve">
+    <value>微小</value>
+  </data>
+  <data name="Small" xml:space="preserve">
+    <value>小</value>
+  </data>
+  <data name="Medium" xml:space="preserve">
+    <value>中</value>
+  </data>
+  <data name="Large" xml:space="preserve">
+    <value>大</value>
+  </data>
+  <data name="Huge" xml:space="preserve">
+    <value>巨大</value>
+  </data>
+  <data name="Gigantic" xml:space="preserve">
+    <value>特大</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>未知</value>
   </data>
 </root>

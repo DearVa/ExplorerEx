@@ -12,7 +12,7 @@
     xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
     mc:Ignorable="d" d:DataContext="{d:DesignInstance v:MainWindow}" d:DesignWidth="1920" d:DesignHeight="1080"
     Title="ExplorerEx" Background="Transparent" WindowStartupLocation="Manual" PreviewMouseDown="MainWindow_OnPreviewMouseDown"
-    Foreground="{DynamicResource PrimaryTextBrush}" BorderThickness="2" BorderBrush="Transparent">
+    Foreground="{DynamicResource PrimaryTextBrush}" BorderThickness="2" BorderBrush="Transparent" AllowDrop="True">
 
     <Window.Resources>
         <c:StringFilter2VisibilityConverter x:Key="BookmarkFilter"/>

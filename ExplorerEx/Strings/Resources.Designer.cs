@@ -332,15 +332,6 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 大图标 的本地化字符串。
-        /// </summary>
-        internal static string Big_icons {
-            get {
-                return ResourceManager.GetString("Big_icons", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 收藏夹 的本地化字符串。
         /// </summary>
         internal static string Bookmarks {
@@ -485,20 +476,20 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 复制到 的本地化字符串。
-        /// </summary>
-        internal static string Copy_to {
-            get {
-                return ResourceManager.GetString("Copy_to", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 复制文件路径 的本地化字符串。
         /// </summary>
         internal static string CopyAsPath {
             get {
                 return ResourceManager.GetString("CopyAsPath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 复制到 的本地化字符串。
+        /// </summary>
+        internal static string CopyTo {
+            get {
+                return ResourceManager.GetString("CopyTo", resourceCulture);
             }
         }
         
@@ -593,6 +584,51 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 复制到 * 的本地化字符串。
+        /// </summary>
+        internal static string DragCopyTo {
+            get {
+                return ResourceManager.GetString("DragCopyTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 在 * 创建链接 的本地化字符串。
+        /// </summary>
+        internal static string DragLinkTo {
+            get {
+                return ResourceManager.GetString("DragLinkTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 移动到 * 的本地化字符串。
+        /// </summary>
+        internal static string DragMoveTo {
+            get {
+                return ResourceManager.GetString("DragMoveTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 在新标签页打开 * 的本地化字符串。
+        /// </summary>
+        internal static string DragOpenInNewTab {
+            get {
+                return ResourceManager.GetString("DragOpenInNewTab", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 用 * 打开 的本地化字符串。
+        /// </summary>
+        internal static string DragOpenWith {
+            get {
+                return ResourceManager.GetString("DragOpenWith", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 设备未就绪。 的本地化字符串。
         /// </summary>
         internal static string DriveIsNotReady {
@@ -607,15 +643,6 @@ namespace ExplorerEx.Strings {
         internal static string DuplicateTab {
             get {
                 return ResourceManager.GetString("DuplicateTab", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 这个月的早些时候 的本地化字符串。
-        /// </summary>
-        internal static string EarlierThisMonth {
-            get {
-                return ResourceManager.GetString("EarlierThisMonth", resourceCulture);
             }
         }
         
@@ -764,6 +791,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 特大 的本地化字符串。
+        /// </summary>
+        internal static string Gigantic {
+            get {
+                return ResourceManager.GetString("Gigantic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 返回到 {0} (Alt + 左箭头) 的本地化字符串。
         /// </summary>
         internal static string GoBackTo___ {
@@ -809,11 +845,38 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 巨大 的本地化字符串。
+        /// </summary>
+        internal static string Huge {
+            get {
+                return ResourceManager.GetString("Huge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 图像 的本地化字符串。
         /// </summary>
         internal static string Image {
             get {
                 return ResourceManager.GetString("Image", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 大 的本地化字符串。
+        /// </summary>
+        internal static string Large {
+            get {
+                return ResourceManager.GetString("Large", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 大图标 的本地化字符串。
+        /// </summary>
+        internal static string LargeIcons {
+            get {
+                return ResourceManager.GetString("LargeIcons", resourceCulture);
             }
         }
         
@@ -827,7 +890,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 一周内 的本地化字符串。
+        ///   查找类似 上周 的本地化字符串。
         /// </summary>
         internal static string LastWeek {
             get {
@@ -847,9 +910,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 创建链接 的本地化字符串。
         /// </summary>
-        internal static string Link_to {
+        internal static string LinkTo {
             get {
-                return ResourceManager.GetString("Link_to", resourceCulture);
+                return ResourceManager.GetString("LinkTo", resourceCulture);
             }
         }
         
@@ -890,6 +953,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 中 的本地化字符串。
+        /// </summary>
+        internal static string Medium {
+            get {
+                return ResourceManager.GetString("Medium", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 更多 的本地化字符串。
         /// </summary>
         internal static string More {
@@ -901,9 +973,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 移动到 的本地化字符串。
         /// </summary>
-        internal static string Move_to {
+        internal static string MoveTo {
             get {
-                return ResourceManager.GetString("Move_to", resourceCulture);
+                return ResourceManager.GetString("MoveTo", resourceCulture);
             }
         }
         
@@ -1286,6 +1358,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 小 的本地化字符串。
+        /// </summary>
+        internal static string Small {
+            get {
+                return ResourceManager.GetString("Small", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 小图标 的本地化字符串。
         /// </summary>
         internal static string SmallIcons {
@@ -1340,6 +1421,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 本月 的本地化字符串。
+        /// </summary>
+        internal static string ThisMonth {
+            get {
+                return ResourceManager.GetString("ThisMonth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 此电脑 的本地化字符串。
         /// </summary>
         internal static string ThisPC {
@@ -1363,6 +1453,15 @@ namespace ExplorerEx.Strings {
         internal static string Tiles {
             get {
                 return ResourceManager.GetString("Tiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 微小 的本地化字符串。
+        /// </summary>
+        internal static string Tiny {
+            get {
+                return ResourceManager.GetString("Tiny", resourceCulture);
             }
         }
         
@@ -1435,6 +1534,15 @@ namespace ExplorerEx.Strings {
         internal static string Type {
             get {
                 return ResourceManager.GetString("Type", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 未知 的本地化字符串。
+        /// </summary>
+        internal static string Unknown {
+            get {
+                return ResourceManager.GetString("Unknown", resourceCulture);
             }
         }
         

@@ -159,7 +159,7 @@ public partial class FileTabControl {
 		get => (bool)GetValue(IsFileUtilsVisibleProperty);
 		set => SetValue(IsFileUtilsVisibleProperty, value);
 	}
-	
+
 	public SimpleCommand TabCommand { get; }
 
 	public MainWindow MainWindow { get; }
@@ -437,17 +437,19 @@ public partial class FileTabControl {
 		return true;
 	}
 
-	private static void TabBorder_OnDrag(object sender, DragEventArgs args) {
-		if (args.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {
-			var folderList = fileList.Select(Directory.Exists).ToImmutableList();
+	private static void TabBorder_OnDragEnter(object s, DragEventArgs e) {
+		e.Handled = true;
+		var dragFilesPreview = DragFilesPreview.Instance;
+		if (e.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {
+			var folderList = fileList.Where(Directory.Exists).ToImmutableList();
 			if (folderList.Count > 0) {
-				var preview = FileListView.DragFilesPreview;
-				if (preview != null) {
-					preview.CustomOperation = "OpenInNewTab".L();
-					preview.DragDropEffect = DragDropEffects.All;
-				}
+				dragFilesPreview.OperationText = "DragOpenInNewTab".L();
+				dragFilesPreview.Destination = folderList[0];
+				dragFilesPreview.DragDropEffect = DragDropEffects.All;
+				return;
 			}
 		}
+		dragFilesPreview.DragDropEffect = DragDropEffects.None;
 	}
 
 	internal static void TabItem_OnDrag(FileTabItem fileTabItem, DragEventArgs args) {
@@ -455,13 +457,11 @@ public partial class FileTabControl {
 		if (!CanDragDrop(args, tab)) {
 			return;
 		}
-		if (FileListView.DragFilesPreview != null) {
-			FileListView.DragFilesPreview.Destination = tab.FullPath;
-		}
+		DragFilesPreview.Instance.Destination = tab.FullPath;
 	}
 
-	private async void TabBorder_OnDrop(object sender, DragEventArgs args) {
-		if (args.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {
+	private async void TabBorder_OnDrop(object s, DragEventArgs e) {
+		if (e.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {
 			foreach (var folderPath in fileList.Where(Directory.Exists)) {
 				await OpenPathInNewTabAsync(folderPath);
 			}
@@ -532,7 +532,8 @@ public partial class FileTabControl {
 		HeaderPanel = (FileTabPanel)GetTemplateChild(HeaderPanelKey);
 		TabBorder = (Border)GetTemplateChild(TabBorderKey)!;
 		TabBorder.MouseEnter += TabBorder_OnMouseEnter;
-		TabBorder.DragOver += TabBorder_OnDrag;
+		TabBorder.DragEnter += TabBorder_OnDragEnter;
+		TabBorder.DragOver += (_, e) => e.Handled = true;
 		TabBorder.Drop += TabBorder_OnDrop;
 		TabBorderRoot = (Border)GetTemplateChild(TabBorderRootKey);
 		headerBorder = (Border)GetTemplateChild(HeaderBorderKey);

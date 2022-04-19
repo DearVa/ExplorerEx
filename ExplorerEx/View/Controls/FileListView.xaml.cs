@@ -36,15 +36,9 @@ namespace ExplorerEx.View.Controls;
 /// </summary>
 public partial class FileListView : INotifyPropertyChanged {
 	/// <summary>
-	/// 如果不为null，说明正在Drag，可以修改Destination或者Effect
+	/// 正在拖放的路径列表
 	/// </summary>
-	public static DragFilesPreview DragFilesPreview { get; private set; }
-
-	private static DragPreviewWindow dragPreviewWindow;
-	/// <summary>
-	/// 正在拖放的items列表，从外部拖进来的不算
-	/// </summary>
-	private static FileListViewItem[] draggingItems;
+	private static string[] draggingPaths;
 
 	public new static readonly DependencyProperty ItemsSourceProperty = DependencyProperty.Register(
 		"ItemsSource", typeof(ObservableCollection<FileListViewItem>), typeof(FileListView), new PropertyMetadata(ItemsSource_OnChanged));
@@ -69,16 +63,6 @@ public partial class FileListView : INotifyPropertyChanged {
 	}
 
 	public FileTabViewModel ViewModel { get; private set; }
-
-	public delegate void FileDropEventHandler(object sender, FileDropEventArgs e);
-
-	public static readonly RoutedEvent FileDropEvent = EventManager.RegisterRoutedEvent(
-		"FileDrop", RoutingStrategy.Bubble, typeof(FileDropEventHandler), typeof(FileListView));
-
-	public event FileDropEventHandler FileDrop {
-		add => AddHandler(FileDropEvent, value);
-		remove => RemoveHandler(FileDropEvent, value);
-	}
 
 	public delegate void ItemDoubleClickEventHandler(object sender, ItemClickEventArgs e);
 
@@ -139,6 +123,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// <summary>
 	/// 文件打开方式列表
 	/// </summary>
+	// ReSharper disable once CollectionNeverQueried.Global
 	public static ObservableCollection<FileAssocItem> FileAssocList { get; } = new();
 
 	public static readonly DependencyProperty MouseItemProperty = DependencyProperty.Register(
@@ -221,9 +206,9 @@ public partial class FileListView : INotifyPropertyChanged {
 		case nameof(fileView.IsAscending):
 			var sorts = Items.SortDescriptions;
 			sorts.Clear();
-			if (fileView.GroupBy.HasValue) {
-				sorts.Add(new SortDescription("Order", ListSortDirection.Ascending));
-			}
+			//if (fileView.GroupBy.HasValue) {
+			//	sorts.Add(new SortDescription("Order", ListSortDirection.Ascending));
+			//}
 			sorts.Add(new SortDescription("IsFolder", ListSortDirection.Descending));
 			sorts.Add(new SortDescription(fileView.SortBy.ToString(), fileView.IsAscending ? ListSortDirection.Ascending : ListSortDirection.Descending));
 			break;
@@ -238,6 +223,13 @@ public partial class FileListView : INotifyPropertyChanged {
 				case DetailListType.DateDeleted:
 				case DetailListType.DateModified:
 					converter = DateTimeGroupingConverter.Instance.Value;
+					break;
+				case DetailListType.FileSize:
+				case DetailListType.TotalSpace:
+					converter = FileSizeGroupingConverter.Instance.Value;
+					break;
+				case DetailListType.Name:
+					converter = NameGroupingConverter.Instance.Value;
 					break;
 				}
 				groups.Add(new PropertyGroupDescription(fileView.GroupBy.ToString(), converter));
@@ -443,10 +435,11 @@ public partial class FileListView : INotifyPropertyChanged {
 						}
 						RaiseEvent(new ItemClickEventArgs(ItemDoubleClickedEvent, item));
 					} else {
-						if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) {
+						var keyboard = Keyboard.PrimaryDevice;
+						if (keyboard.IsKeyDown(Key.LeftCtrl) || keyboard.IsKeyDown(Key.RightCtrl)) {
 							lastMouseDownRowIndex = mouseDownRowIndex;
 							item.IsSelected = !item.IsSelected;
-						} else if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) {
+						} else if (keyboard.IsKeyDown(Key.LeftShift) || keyboard.IsKeyDown(Key.RightShift)) {
 							if (lastMouseDownRowIndex == -1) {
 								lastMouseDownRowIndex = mouseDownRowIndex;
 								item.IsSelected = true;
@@ -539,18 +532,17 @@ public partial class FileListView : INotifyPropertyChanged {
 			if (Math.Abs(point.X - startDragPosition.X) >= SystemParameters.MinimumHorizontalDragDistance ||
 				Math.Abs(point.Y - startDragPosition.Y) >= SystemParameters.MinimumVerticalDragDistance) {
 				if (mouseDownRowIndex != -1) {
-					draggingItems = SelectedItems.Cast<FileListViewItem>().ToArray();
-					var data = new DataObject(DataFormats.FileDrop, draggingItems.Select(item => item.FullPath).ToArray(), true);
-					var allowedEffects = draggingItems.Any(item => item is DiskDriveItem) ? DragDropEffects.Link : DragDropEffects.Copy | DragDropEffects.Link | DragDropEffects.Move;
-					DragFilesPreview = new DragFilesPreview(draggingItems.Select(item => item.Icon).ToArray());
+					draggingPaths = ViewModel.SelectedItems.Select(i => i.FullPath).ToArray();
+					var selectedItems = ViewModel.SelectedItems;
+					var data = new DataObject(DataFormats.FileDrop, selectedItems.Select(item => item.FullPath).ToArray(), true);
+					var allowedEffects = selectedItems.Any(item => item is DiskDriveItem) ? DragDropEffects.Link : DragDropEffects.All;
 					isDragDropping = true;
-					dragPreviewWindow = DragPreviewWindow.Show(DragFilesPreview, new Point(50, 100), 0.8, false);
+					DragFilesPreview.IsInternalDrag = true;
 					DragDrop.DoDragDrop(this, data, allowedEffects);
-					draggingItems = null;
+					DragFilesPreview.IsInternalDrag = false;
+					draggingPaths = null;
 					isDragDropping = false;
-					dragPreviewWindow.Close();
-					dragPreviewWindow = null;
-					DragFilesPreview = null;
+					DragFilesPreview.HidePreview();
 				} else {
 					if (!isRectSelecting) {
 						UnselectAll();
@@ -943,6 +935,13 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	protected override void OnDragEnter(DragEventArgs e) {
 		isDragDropping = true;
+		var data = DataObjectContent.Drag;
+		if (data is { Type: DataObjectType.FileDrop }) {  // TODO: 更多格式
+			draggingPaths = data.Data as string[];
+		} else {
+			draggingPaths = null;
+		}
+		e.Handled = true;
 	}
 
 	protected override void OnDragLeave(DragEventArgs e) {
@@ -951,9 +950,7 @@ public partial class FileListView : INotifyPropertyChanged {
 			return;
 		}
 		isDragDropping = false;
-		if (DragFilesPreview != null) {
-			DragFilesPreview.Destination = null;
-		}
+		DragFilesPreview.Instance.Destination = null;
 		if (lastDragOnItem != null) {
 			lastDragOnItem.IsSelected = false;
 			lastDragOnItem = null;
@@ -966,8 +963,9 @@ public partial class FileListView : INotifyPropertyChanged {
 	private FileListViewItem lastDragOnItem;
 
 	protected override void OnDragOver(DragEventArgs e) {
+		e.Handled = true;
 		isDragDropping = true;
-		if (FileTabItem.DraggingFileTab != null) {
+		if (FileTabItem.DraggingFileTab != null || draggingPaths == null) {
 			return;
 		}
 		FileListViewItem mouseItem;
@@ -980,22 +978,24 @@ public partial class FileListView : INotifyPropertyChanged {
 		} else {
 			mouseItem = null;
 		}
+		bool contains;
 		string destination;  // 拖放的目的地
 		if (mouseItem != null) {
-			destination = mouseItem.FullPath;
+			destination = mouseItem.DisplayText;
+			contains = draggingPaths.Any(path => path == mouseItem.FullPath);
 		} else {
 			if (FileView.PathType == PathType.Home) {
 				e.Effects = DragDropEffects.None;
-				e.Handled = true;
 				if (lastDragOnItem != null) {
 					lastDragOnItem.IsSelected = false;
 					lastDragOnItem = null;
 				}
+				DragFilesPreview.Instance.DragDropEffect = DragDropEffects.None;
 				return;
 			}
 			destination = FullPath;
+			contains = draggingPaths.Any(path => path == destination);
 		}
-		var contains = draggingItems?.Any(item => item.FullPath == destination) ?? false;
 		if (lastDragOnItem != mouseItem) {
 			if (lastDragOnItem != null) {
 				lastDragOnItem.IsSelected = false;
@@ -1005,54 +1005,73 @@ public partial class FileListView : INotifyPropertyChanged {
 				mouseItem.IsSelected = true;  // 让拖放到的item高亮
 			}
 		}
-		if (DragFilesPreview != null) {
-			if (mouseItem != null && contains) {  // 自己不能往自己身上拖放
-				e.Effects = DragDropEffects.None;
-				e.Handled = true;
-				return;
-			}
-			DragFilesPreview.Destination = destination;
+
+		if (mouseItem != null && contains) {  // 自己不能往自己身上拖放
+			e.Effects = DragDropEffects.None;
+		} else if (mouseItem is { IsFolder: false } and not FileItem { IsExecutable: true }) {  // 不是可执行文件就禁止拖放
+			e.Effects = DragDropEffects.None;
+		} else if (e.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList && Path.GetDirectoryName(fileList[0]) == destination) {  // 相同文件夹禁止移动
+			e.Effects = DragDropEffects.None;
 		}
-		if (e.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {
-			if (Path.GetDirectoryName(fileList[0]) == destination) {  // 相同文件夹禁止移动
-				e.Effects = DragDropEffects.None;
-				e.Handled = true;
-			}
+
+		var dragFilesPreview = DragFilesPreview.Instance;
+		dragFilesPreview.Destination = destination;
+		if (mouseItem is FileItem { IsExecutable: true }) {
+			dragFilesPreview.OperationText = "DragOpenWith";
+			dragFilesPreview.Icon = DragDropEffects.Move;
+			dragFilesPreview.DragDropEffect = DragDropEffects.All;
+		} else {
+			dragFilesPreview.DragDropEffect = GetEffectWithKeyboard(e.Effects);
 		}
 	}
 
 	protected override void OnDrop(DragEventArgs e) {
-		// 拖动文件到了项目上
+		isDragDropping = false;
 		var path = e.OriginalSource is DependencyObject d ? ContainerFromElement(d) switch {
 			ListBoxItem i => ((FileListViewItem)i.Content).FullPath,
 			DataGridRow r => ((FileListViewItem)r.Item).FullPath,
-			_ => null
-		} : null;
-		RaiseEvent(new FileDropEventArgs(FileDropEvent, e, path));
+			_ => FullPath
+		} : FullPath;
+		if (path == null) {
+			return;
+		}
+		FileUtils.HandleDrop(DataObjectContent.Drag, path, GetEffectWithKeyboard(e.Effects));
 	}
 
 	protected override void OnPreviewGiveFeedback(GiveFeedbackEventArgs e) {
+		var dragFilesPreview = DragFilesPreview.Instance;
 		if (e.Effects == DragDropEffects.None) {
 			Mouse.SetCursor(Cursors.No);
 			e.UseDefaultCursors = false;
-			DragFilesPreview.Destination = null;
-			e.Handled = true;
-		} else if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) {
-			if (e.Effects.HasFlag(DragDropEffects.Move)) {
-				DragFilesPreview.DragDropEffect = DragDropEffects.Move;
-			}
-		} else if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) {
-			if (e.Effects.HasFlag(DragDropEffects.Copy)) {
-				DragFilesPreview.DragDropEffect = DragDropEffects.Copy;
-			}
-		} else if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt)) {
-			if (e.Effects.HasFlag(DragDropEffects.Link)) {
-				DragFilesPreview.DragDropEffect = DragDropEffects.Link;
-			}
-		} else {
-			DragFilesPreview.DragDropEffect = e.Effects.GetActualEffect();
+			dragFilesPreview.DragDropEffect = DragDropEffects.None;
+		} else if (dragFilesPreview.DragDropEffect == DragDropEffects.All) {
+			return;
 		}
-		dragPreviewWindow.MoveWithCursor();
+		dragFilesPreview.DragDropEffect = GetEffectWithKeyboard(e.Effects);
+		DragFilesPreview.MovePreviewWithCursor();
+	}
+
+	/// <summary>
+	/// 根据键盘按键决定要执行什么操作（Shift移动，Ctrl复制，Alt链接）
+	/// </summary>
+	/// <param name="effects"></param>
+	/// <returns></returns>
+	private static DragDropEffects GetEffectWithKeyboard(DragDropEffects effects) {
+		var keyboard = Keyboard.PrimaryDevice;
+		if (keyboard.IsKeyDown(Key.LeftShift) || keyboard.IsKeyDown(Key.RightShift)) {
+			if (effects.HasFlag(DragDropEffects.Move)) {
+				return DragDropEffects.Move;
+			}
+		} else if (keyboard.IsKeyDown(Key.LeftCtrl) || keyboard.IsKeyDown(Key.RightCtrl)) {
+			if (effects.HasFlag(DragDropEffects.Copy)) {
+				return DragDropEffects.Copy;
+			}
+		} else if (keyboard.IsKeyDown(Key.LeftAlt) || keyboard.IsKeyDown(Key.RightAlt)) {
+			if (effects.HasFlag(DragDropEffects.Link)) {
+				return DragDropEffects.Link;
+			}
+		}
+		return effects.GetActualEffect();
 	}
 
 	protected override void OnLostFocus(RoutedEventArgs e) {
@@ -1113,21 +1132,5 @@ public partial class FileListView : INotifyPropertyChanged {
 	[NotifyPropertyChangedInvocator]
 	protected void UpdateUI([CallerMemberName] string propertyName = null) {
 		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-	}
-}
-
-public class FileDropEventArgs : RoutedEventArgs {
-	public DragEventArgs DragEventArgs { get; }
-	public DataObjectContent Content { get; }
-	/// <summary>
-	/// 拖动到的Path，可能是文件夹或者文件，为null表示当前路径
-	/// </summary>
-	public string Path { get; }
-
-	public FileDropEventArgs(RoutedEvent e, DragEventArgs args, string path) {
-		RoutedEvent = e;
-		DragEventArgs = args;
-		Content = DataObjectContent.Parse(args.Data);
-		Path = path;
 	}
 }

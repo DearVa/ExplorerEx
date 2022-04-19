@@ -454,17 +454,17 @@
                       Icon="{DynamicResource NewFolderDrawingImage}" Header="{u:Lang New_folder}"/>
             <MenuItem Icon="{DynamicResource ListDrawingImage}" Header="{u:Lang View}">
                 <MenuItem.Items>
-                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="0" Header="{u:Lang Big_icons}" 
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="0" Header="{u:Lang LargeIcons}" Icon="{DynamicResource LargeIconsDrawingImage}"
                               IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
-                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="1" Header="{u:Lang SmallIcons}"
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="1" Header="{u:Lang SmallIcons}" Icon="{DynamicResource SmallIconsDrawingImage}"
                               IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
-                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="2" Header="{u:Lang List}"
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="2" Header="{u:Lang List}" Icon="{DynamicResource ListDrawingImage}"
                               IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
-                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="3" Header="{u:Lang Details}"
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="3" Header="{u:Lang Details}" Icon="{DynamicResource DetailsDrawingImage}"
                               IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
-                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="4" Header="{u:Lang Tiles}"
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="4" Header="{u:Lang Tiles}" Icon="{DynamicResource TilesDrawingImage}"
                               IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=4}"/>
-                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="5" Header="{u:Lang Content}"
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="5" Header="{u:Lang Content}" Icon="{DynamicResource ContentDrawingImage}"
                               IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=5}"/>
                 </MenuItem.Items>
             </MenuItem>
@@ -578,7 +578,7 @@
                                     <Expander.Header>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding Path=Name}" VerticalAlignment="Center" />
-                                            <TextBlock Text="{Binding Path=Order, StringFormat=({0})}" VerticalAlignment="Center" Margin="5,0,0,0" />
+                                            <TextBlock Text="{Binding Path=ItemCount, StringFormat= ({0})}" VerticalAlignment="Center" Margin="5,0,0,0" />
                                         </StackPanel>
                                     </Expander.Header>
                                     <ItemsPresenter />

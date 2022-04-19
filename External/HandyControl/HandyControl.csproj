@@ -56,7 +56,6 @@
     <Page Remove="Themes\Styles\Base\LoadingCircleBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\LoadingLineBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\MagnifierBaseStyle.xaml" />
-    <Page Remove="Themes\Styles\Base\MenuBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\NavigationWindowBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\NumericUpDownBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\PasswordBoxBaseStyle.xaml" />
@@ -242,7 +241,6 @@
     <None Include="Themes\Styles\Base\LoadingCircleBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\LoadingLineBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\MagnifierBaseStyle.xaml" />
-    <None Include="Themes\Styles\Base\MenuBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\NavigationWindowBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\NumericUpDownBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\PasswordBoxBaseStyle.xaml" />
