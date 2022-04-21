@@ -158,7 +158,7 @@
   <data name="DateModified" xml:space="preserve">
     <value>Date modified</value>
   </data>
-  <data name="File_size" xml:space="preserve">
+  <data name="FileSize" xml:space="preserve">
     <value>File size</value>
   </data>
   <data name="Type" xml:space="preserve">
@@ -329,7 +329,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="Descending" xml:space="preserve">
     <value>Descending</value>
   </data>
-  <data name="Group_by" xml:space="preserve">
+  <data name="GroupBy" xml:space="preserve">
     <value>Group by</value>
   </data>
   <data name="None" xml:space="preserve">
@@ -529,5 +529,8 @@ For the application to run properly, it's recommanded that you first extract all
   </data>
   <data name="Unknown" xml:space="preserve">
     <value>Unknown</value>
+  </data>
+  <data name="OpenInTerminal" xml:space="preserve">
+    <value>Open in terminal</value>
   </data>
 </root>

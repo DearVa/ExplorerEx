@@ -91,7 +91,7 @@
                                   IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
                         <MenuItem CommandParameter="8" Header="{u:Lang Type}"
                                   IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
-                        <MenuItem CommandParameter="9" Header="{u:Lang File_size}"
+                        <MenuItem CommandParameter="9" Header="{u:Lang FileSize}"
                                   IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
                         <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
@@ -101,7 +101,7 @@
                                   IsChecked="{Binding IsAscending, Mode=OneWay, Converter={StaticResource Boolean2BooleanReConverter}}"/>
                         <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
-                        <MenuItem Header="{u:Lang Group_by}">
+                        <MenuItem Header="{u:Lang GroupBy}">
                             <MenuItem.Items>
                                 <MenuItem CommandParameter="12" Header="{u:Lang None}" 
                                           IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=-1}"/>
@@ -111,7 +111,7 @@
                                           IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
                                 <MenuItem CommandParameter="15" Header="{u:Lang Type}"
                                           IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
-                                <MenuItem CommandParameter="16" Header="{u:Lang File_size}"
+                                <MenuItem CommandParameter="16" Header="{u:Lang FileSize}"
                                           IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
                             </MenuItem.Items>
                         </MenuItem>
@@ -259,10 +259,12 @@
             </StackPanel>
 
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
-                <Button Margin="0,0,1,0" Width="22" Height="22" Style="{StaticResource ButtonSmallTransparent}">
+                <Button Margin="0,0,1,0" Width="22" Height="22" Style="{StaticResource ButtonSmallTransparent}"
+                        Command="{Binding SwitchViewCommand}" CommandParameter="3">
                     <Image Source="{DynamicResource DetailsDrawingImage}"/>
                 </Button>
-                <Button Width="22" Height="22" Style="{StaticResource ButtonSmallTransparent}">
+                <Button Width="22" Height="22" Style="{StaticResource ButtonSmallTransparent}"
+                        Command="{Binding SwitchViewCommand}" CommandParameter="1">
                     <Image Source="{DynamicResource MediumIconsDrawingImage}"/>
                 </Button>
             </StackPanel>

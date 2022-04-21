@@ -47,7 +47,7 @@ public partial class App {
 	private static NotifyMemoryMappedFile notifyMmf;
 	private static DispatcherTimer dispatcherTimer;
 
-	protected override async void OnStartup(StartupEventArgs e) {																																																														
+	protected override async void OnStartup(StartupEventArgs e) {
 		Logger.Initialize();
 		AttachConsole(-1);
 		await Console.Out.FlushAsync();
@@ -66,7 +66,7 @@ public partial class App {
 		if (Args.RequireDebugger && Debugger.Launch()) {
 			Debugger.Break();
 		}
-		mutex = new Mutex(true, "ExplorerEx", out var createdNew);
+		mutex = new Mutex(true, "ExplorerExMut", out var createdNew);
 		if (createdNew) {  // 说明没有开启ExplorerEx
 			isRunning = true;
 			notifyMmf = new NotifyMemoryMappedFile("ExplorerExIPC", 1024, true);

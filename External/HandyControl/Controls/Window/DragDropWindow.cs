@@ -13,7 +13,8 @@ public sealed class DragPreviewWindow : System.Windows.Window {
 	private Point cursorPoint;
 
 	public DragPreviewWindow(FrameworkElement element, Point cursorPoint, double opacity, bool useVisualBrush) {
-		this.cursorPoint = cursorPoint;
+		var scale = VisualTreeHelper.GetDpi(this);
+		this.cursorPoint = new Point(cursorPoint.X / scale.DpiScaleX, cursorPoint.Y / scale.DpiScaleY);
 		Opacity = opacity;
 		Topmost = true;
 		ShowInTaskbar = false;
@@ -32,8 +33,7 @@ public sealed class DragPreviewWindow : System.Windows.Window {
 		}
 		BorderBrush = null;
 		var mousePos = InteropMethods.GetCursorPos();
-		Left = mousePos.X - cursorPoint.X;
-		Top = mousePos.Y - cursorPoint.Y;
+		SetPosition(mousePos.X - cursorPoint.X, mousePos.Y - cursorPoint.Y);
 		InteropMethods.SetWindowLongPtr32(new WindowInteropHelper(this).EnsureHandle(), -20, (IntPtr)0x20);  // 设置鼠标穿透
 	}
 
@@ -52,7 +52,12 @@ public sealed class DragPreviewWindow : System.Windows.Window {
 
 	public void MoveWithCursor() {
 		var mousePos = InteropMethods.GetCursorPos();
-		Left = mousePos.X - cursorPoint.X;
-		Top = mousePos.Y - cursorPoint.Y;
+		SetPosition(mousePos.X - cursorPoint.X, mousePos.Y - cursorPoint.Y);
+	}
+
+	private void SetPosition(double left, double top) {
+		var scale = VisualTreeHelper.GetDpi(this);
+		Left = left / scale.DpiScaleX;
+		Top = top / scale.DpiScaleY;
 	}
 }

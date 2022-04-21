@@ -14,31 +14,31 @@ public abstract class FileSystemItem : FileListViewItem {
 	/// 自动更新UI
 	/// </summary>
 	public DateTime DateModified {
-		get => modificationDate;
+		get => dateModified;
 		protected set {
-			if (modificationDate != value) {
-				modificationDate = value;
+			if (dateModified != value) {
+				dateModified = value;
 				UpdateUI();
 			}
 		}
 	}
 
-	private DateTime modificationDate;
+	private DateTime dateModified;
 
 	/// <summary>
 	/// 自动更新UI
 	/// </summary>
-	public DateTime CreationTime {
-		get => creationTime;
+	public DateTime DateCreated {
+		get => dateCreated;
 		protected set {
-			if (creationTime != value) {
-				creationTime = value;
+			if (dateCreated != value) {
+				dateCreated = value;
 				UpdateUI();
 			}
 		}
 	}
 
-	private DateTime creationTime;
+	private DateTime dateCreated;
 
 	public override void StartRename() {
 		EditingName = Name;
@@ -122,7 +122,7 @@ public class FileItem : FileSystemItem {
 		}
 		FileSize = FileInfo.Length;
 		DateModified = FileInfo.LastWriteTime;
-		CreationTime = FileInfo.CreationTime;
+		DateCreated = FileInfo.CreationTime;
 	}
 
 	public override void LoadIcon() {
@@ -217,7 +217,7 @@ public class FolderItem : FileSystemItem {
 		IsEmptyFolderDictionary.Add(FullPath, isEmptyFolder);
 		var directoryInfo = new DirectoryInfo(FullPath);
 		DateModified = directoryInfo.LastWriteTime;
-		CreationTime = directoryInfo.CreationTime;
+		DateCreated = directoryInfo.CreationTime;
 	}
 
 	public override void LoadIcon() {

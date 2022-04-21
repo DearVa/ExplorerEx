@@ -53,7 +53,7 @@
                                 </ToggleButton>
                             </Grid>
                         </Border>
-                        <Popup x:Name="Popup" AllowsTransparency="true" StaysOpen="False" VerticalOffset="10" PopupAnimation="Fade" Placement="Bottom" hc:BlurPopup.Enabled="True">
+                        <Popup x:Name="Popup" AllowsTransparency="true" StaysOpen="True" VerticalOffset="10" PopupAnimation="Fade" Placement="Bottom" hc:BlurPopup.Enabled="True">
                             <Border x:Name="dropDownBorder" MaxHeight="{TemplateBinding MaxDropDownHeight}" MinWidth="{Binding ActualWidth, ElementName=templateRoot}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Background="{DynamicResource BackgroundBrush}">
                                 <ScrollViewer Margin="0,4" x:Name="DropDownScrollViewer">
                                     <hc:SimplePanel RenderOptions.ClearTypeHint="Enabled">

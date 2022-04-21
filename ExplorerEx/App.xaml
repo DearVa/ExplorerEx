@@ -92,7 +92,7 @@
 
                     <Style x:Key="ButtonSmallTransparent" TargetType="Button" BasedOn="{StaticResource ButtonTransparent}">
                         <Setter Property="BorderBrush" Value="Transparent"/>
-                        <Setter Property="Padding" Value="1"/>
+                        <Setter Property="Padding" Value="2"/>
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="Button">

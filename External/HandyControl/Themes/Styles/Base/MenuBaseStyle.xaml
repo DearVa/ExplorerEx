@@ -14,6 +14,7 @@
         <Setter Property="FontSize" Value="15"/>
         <Setter Property="hc:IconElement.Width" Value="18"/>
         <Setter Property="hc:IconElement.Height" Value="18"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="MenuItem">
@@ -165,10 +166,10 @@
                                     </Grid.ColumnDefinitions>
                                     <Image Grid.Column="0" x:Name="Icon" Source="{TemplateBinding Icon}" VerticalAlignment="Center" HorizontalAlignment="Center" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" />
                                     <ContentPresenter Grid.Column="1" Margin="9,0,0,0" x:Name="ContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" ContentSource="Header" VerticalAlignment="Center" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                    <Path x:Name="Path" Grid.Column="3" Width="10" Height="10" HorizontalAlignment="Right" Data="{StaticResource RightGeometry}" Stretch="Uniform" Fill="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
+                                    <Path x:Name="Path" Grid.Column="3" Width="10" Height="10" Margin="20,0,0,0" HorizontalAlignment="Right" Data="{StaticResource RightGeometry}" Stretch="Uniform" Fill="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
                                     <Path IsHitTestVisible="False" Grid.Column="3" x:Name="Glyph" ClipToBounds="False" HorizontalAlignment="Right" Height="16" Visibility="Collapsed" VerticalAlignment="Center" 
                                           Width="16" Margin="0,0,5,0" UseLayoutRounding="True" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource PrimaryBrush}"/>
-                                    <Popup Grid.Column="1" x:Name="PART_Popup" hc:BlurPopup.Enabled="True" AllowsTransparency="True" Focusable="False" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Right" VerticalOffset="-12">
+                                    <Popup Grid.Column="1" x:Name="PART_Popup" hc:BlurPopup.Enabled="True" AllowsTransparency="True" Focusable="False" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Right" VerticalOffset="-12" HorizontalOffset="4">
                                         <Border Background="{DynamicResource BackgroundBrush}" CornerRadius="8">
                                             <ScrollViewer Style="{StaticResource ScrollViewerUpDown}" Margin="8">
                                                 <ItemsPresenter x:Name="ItemsPresenter" KeyboardNavigation.DirectionalNavigation="Cycle" Grid.IsSharedSizeScope="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" KeyboardNavigation.TabNavigation="Cycle"/>

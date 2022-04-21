@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media.Animation;
 using ExplorerEx.Converter;
+using ExplorerEx.Utils;
 using TextBox = System.Windows.Controls.TextBox;
 
 namespace ExplorerEx.View.Controls;
@@ -130,8 +131,10 @@ public class SideBarContent : Control {
 	}
 
 	private static void DragArea_OnDragOver(object sender, DragEventArgs e) {
+		e.Handled = true;
 		if (e.Data.GetData(DataFormats.FileDrop) == null) {
 			e.Effects = DragDropEffects.None;
 		}
+		DragFilesPreview.Instance.DragDropEffect = DragDropEffects.None;
 	}
 }

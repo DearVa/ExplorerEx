@@ -103,7 +103,7 @@ public class SplitButton : ButtonBase {
 			if (popup.IsOpen) {
 				var menuItem = e.OriginalSource.FindParent<MenuItem, SplitButton>();
 				if (menuItem != null) {
-					Command.Execute(menuItem);  // 点击到了MenuItem
+					Command.Execute(menuItem.CommandParameter);  // 点击到了MenuItem
 					popup.IsOpen = false;
 				}
 			} else {

@@ -26,6 +26,7 @@ using TextBox = HandyControl.Controls.TextBox;
 using System.Windows.Media.Animation;
 using System.Windows.Media;
 using System.Diagnostics;
+using System.Windows.Threading;
 using hc = HandyControl.Controls;
 
 namespace ExplorerEx.View;
@@ -762,9 +763,7 @@ public sealed partial class MainWindow {
 	}
 
 	protected override void OnPreviewDragOver(DragEventArgs e) {
-		if (!DragFilesPreview.IsInternalDrag) {
-			DragFilesPreview.MovePreviewWithCursor();
-		}
+		DragFilesPreview.MovePreviewWithCursor();
 		base.OnPreviewDragOver(e);
 	}
 

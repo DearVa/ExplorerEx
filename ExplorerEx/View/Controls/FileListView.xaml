@@ -450,8 +450,8 @@
 
     <ListView.ContextMenu>
         <ContextMenu d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
-            <MenuItem Click="NewFolder_OnClick"
-                      Icon="{DynamicResource NewFolderDrawingImage}" Header="{u:Lang New_folder}"/>
+            <MenuItem Click="NewFolder_OnClick" Icon="{DynamicResource NewFolderDrawingImage}" Header="{u:Lang New_folder}"
+                      Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"/>
             <MenuItem Icon="{DynamicResource ListDrawingImage}" Header="{u:Lang View}">
                 <MenuItem.Items>
                     <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="0" Header="{u:Lang LargeIcons}" Icon="{DynamicResource LargeIconsDrawingImage}"
@@ -476,7 +476,7 @@
                               IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
                     <MenuItem CommandParameter="8" Command="{Binding SwitchViewCommand}" Header="{u:Lang Type}"
                               IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
-                    <MenuItem CommandParameter="9" Command="{Binding SwitchViewCommand}" Header="{u:Lang File_size}"
+                    <MenuItem CommandParameter="9" Command="{Binding SwitchViewCommand}" Header="{u:Lang FileSize}"
                               IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
                     <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
@@ -484,28 +484,28 @@
                               IsChecked="{Binding FileView.IsAscending, Mode=OneWay}"/>
                     <MenuItem CommandParameter="11" Command="{Binding SwitchViewCommand}" Header="{u:Lang Descending}"
                               IsChecked="{Binding FileView.IsAscending, Mode=OneWay, Converter={StaticResource Boolean2BooleanReConverter}}"/>
-                    <!--<Separator Style="{StaticResource SeparatorBaseStyle}"/>
-
-                    <MenuItem Header="{u:Lang Group_by}">
-                        <MenuItem.Items>
-                            <MenuItem CommandParameter="12" Command="{Binding SwitchViewCommand}" Header="{u:Lang None}" 
-                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=-1}"/>
-                            <MenuItem CommandParameter="13" Command="{Binding SwitchViewCommand}" Header="{u:Lang Name}" 
-                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
-                            <MenuItem CommandParameter="14" Command="{Binding SwitchViewCommand}" Header="{u:Lang DateModified}"
-                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
-                            <MenuItem CommandParameter="15" Command="{Binding SwitchViewCommand}" Header="{u:Lang Type}"
-                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
-                            <MenuItem CommandParameter="16" Command="{Binding SwitchViewCommand}" Header="{u:Lang File_size}"
-                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
-                        </MenuItem.Items>
-                    </MenuItem>-->
                 </MenuItem.Items>
             </MenuItem>
-            <MenuItem Click="Refresh_OnClick"
-                      Icon="{DynamicResource RefreshDrawingImage}" Header="{u:Lang Refresh}"/>
+            <MenuItem Header="{u:Lang GroupBy}">
+                <MenuItem.Items>
+                    <MenuItem CommandParameter="12" Command="{Binding SwitchViewCommand}" Header="{u:Lang None}" 
+                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=-1}"/>
+                    <MenuItem CommandParameter="13" Command="{Binding SwitchViewCommand}" Header="{u:Lang Name}" 
+                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
+                    <MenuItem CommandParameter="14" Command="{Binding SwitchViewCommand}" Header="{u:Lang DateModified}"
+                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
+                    <MenuItem CommandParameter="15" Command="{Binding SwitchViewCommand}" Header="{u:Lang Type}"
+                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
+                    <MenuItem CommandParameter="16" Command="{Binding SwitchViewCommand}" Header="{u:Lang FileSize}"
+                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
+                </MenuItem.Items>
+            </MenuItem>
+            <MenuItem Click="Refresh_OnClick" Icon="{DynamicResource RefreshDrawingImage}" Header="{u:Lang Refresh}"/>
             <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
+            <MenuItem CommandParameter="Terminal" Command="{Binding FileItemCommand}"
+                      Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"
+                      Icon="{Binding Source={x:Static u:Terminal.TerminalIcon}}" Header="{u:Lang OpenInTerminal}"/>
             <MenuItem CommandParameter="Properties"
                       Command="{Binding FileItemCommand}"
                       Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>

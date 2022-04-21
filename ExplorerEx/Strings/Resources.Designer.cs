@@ -746,20 +746,20 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 文件大小 的本地化字符串。
-        /// </summary>
-        internal static string File_size {
-            get {
-                return ResourceManager.GetString("File_size", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 文件系统 的本地化字符串。
         /// </summary>
         internal static string File_system {
             get {
                 return ResourceManager.GetString("File_system", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 文件大小 的本地化字符串。
+        /// </summary>
+        internal static string FileSize {
+            get {
+                return ResourceManager.GetString("FileSize", resourceCulture);
             }
         }
         
@@ -829,9 +829,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 分组依据 的本地化字符串。
         /// </summary>
-        internal static string Group_by {
+        internal static string GroupBy {
             get {
-                return ResourceManager.GetString("Group_by", resourceCulture);
+                return ResourceManager.GetString("GroupBy", resourceCulture);
             }
         }
         
@@ -1075,6 +1075,15 @@ namespace ExplorerEx.Strings {
         internal static string OpenInNewWindow {
             get {
                 return ResourceManager.GetString("OpenInNewWindow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 在终端中打开 的本地化字符串。
+        /// </summary>
+        internal static string OpenInTerminal {
+            get {
+                return ResourceManager.GetString("OpenInTerminal", resourceCulture);
             }
         }
         

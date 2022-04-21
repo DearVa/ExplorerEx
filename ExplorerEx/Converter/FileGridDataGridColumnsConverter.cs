@@ -59,7 +59,7 @@ internal class FileGridDataGridColumnsConverter {
 				AddColumn(columns, Type, width, "Type".L());
 				break;
 			case DetailListType.FileSize:
-				AddColumn(columns, FileSize, width, "File_size".L());
+				AddColumn(columns, FileSize, width, "FileSize".L());
 				break;
 			case DetailListType.DateCreated:
 				AddColumn(columns, CreationDate, width, "Creation_date".L());

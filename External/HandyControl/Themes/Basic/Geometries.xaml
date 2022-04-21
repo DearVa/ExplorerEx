@@ -60,92 +60,122 @@
     <Geometry o:Freeze="True" x:Key="LinkGeometry">M861.866667 164.266667c-87.466667-87.466667-230.4-89.6-320-2.133334l-68.266667 68.266667c-12.8 12.8-12.8 32 0 44.8s32 12.8 44.8 0l68.266667-68.266667c64-61.866667 166.4-61.866667 230.4 2.133334 64 64 64 168.533333 2.133333 232.533333l-117.333333 119.466667c-34.133333 34.133333-81.066667 51.2-128 49.066666-46.933333-4.266667-91.733333-27.733333-119.466667-66.133333-10.666667-14.933333-29.866667-17.066667-44.8-6.4-14.933333 10.666667-17.066667 29.866667-6.4 44.8 40.533333 53.333333 100.266667 87.466667 166.4 91.733333h17.066667c59.733333 0 119.466667-23.466667 162.133333-68.266666l117.333333-119.466667c83.2-89.6 83.2-234.666667-4.266666-322.133333zM505.6 750.933333l-66.133333 68.266667c-64 61.866667-166.4 61.866667-230.4-2.133333-64-64-64-168.533333-2.133334-232.533334l117.333334-119.466666c34.133333-34.133333 81.066667-51.2 128-49.066667 46.933333 4.266667 91.733333 27.733333 119.466666 66.133333 10.666667 14.933333 29.866667 17.066667 44.8 6.4 14.933333-10.666667 17.066667-29.866667 6.4-44.8-40.533333-53.333333-100.266667-87.466667-166.4-91.733333-66.133333-4.266667-130.133333 19.2-177.066666 66.133333l-117.333334 119.466667c-85.333333 89.6-85.333333 234.666667 2.133334 322.133333 44.8 44.8 102.4 66.133333 162.133333 66.133334 57.6 0 115.2-21.333333 160-64l66.133333-68.266667c12.8-12.8 12.8-32 0-44.8-14.933333-10.666667-34.133333-10.666667-46.933333 2.133333z</Geometry>
 
     <Geometry o:Freeze="True" x:Key="Move2NewWindowGeometry">M532.5 513h-206V495h206A19.6 19.6 0 00552 475.5v-412A19.6 19.6 0 00532.5 44h-412A19.6 19.6 0 00101 63.5v412A19.6 19.6 0 00120.5 495h8.7v18h-8.7A37.6 37.6 0 0183 475.5v-412A37.6 37.6 0 01120.5 26h412A37.6 37.6 0 01570 63.5v412A37.6 37.6 0 01532.5 513ZM426.3 462.2l-64.8-41C209.4 573.4 40 582 40 582c153-34.8 224.4-222.2 224.4-222.2l-64.8-41 216-90.5 10.6 234Z</Geometry>
-    <DrawingImage o:Freeze="True" x:Key="SplitScreenDrawingImage">
-        <DrawingImage.Drawing>
-            <DrawingGroup ClipGeometry="M0,0 V546 H546 V0 H0 Z">
-                <DrawingGroup Transform="1,0,0,1,-29,-31">
-                    <GeometryDrawing Brush="#FF000000" Geometry="F1 M546,546z M0,0z M531.7,53A21.4,21.4,0,0,1,553,74.3L553,533.7A21.4,21.4,0,0,1,531.7,555L72.3,555A21.4,21.4,0,0,1,51,533.7L51,74.3A21.4,21.4,0,0,1,72.3,53L531.7,53 M531.7,31L72.3,31A43.3,43.3,0,0,0,29,74.3L29,533.7A43.3,43.3,0,0,0,72.3,577L531.7,577A43.3,43.3,0,0,0,575,533.7L575,74.3A43.3,43.3,0,0,0,531.7,31z" />
-                </DrawingGroup>
-                <GeometryDrawing>
-                    <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="18" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
-                    </GeometryDrawing.Pen>
-                    <GeometryDrawing.Geometry>
-                        <LineGeometry StartPoint="546,289" EndPoint="0,289" />
-                    </GeometryDrawing.Geometry>
-                </GeometryDrawing>
-                <GeometryDrawing>
-                    <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="18" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
-                    </GeometryDrawing.Pen>
-                    <GeometryDrawing.Geometry>
-                        <LineGeometry StartPoint="273,5" EndPoint="273,289" />
-                    </GeometryDrawing.Geometry>
-                </GeometryDrawing>
-            </DrawingGroup>
-        </DrawingImage.Drawing>
-    </DrawingImage>
+    
     <DrawingImage o:Freeze="True" x:Key="Split2BottomDrawingImage">
         <DrawingImage.Drawing>
-            <DrawingGroup ClipGeometry="M0,0 V546 H546 V0 H0 Z">
+            <DrawingGroup ClipGeometry="M0,0 V100 H100 V0 H0 Z">
                 <GeometryDrawing Brush="#FF3FA9F5">
                     <GeometryDrawing.Geometry>
-                        <RectangleGeometry RadiusX="0" RadiusY="0" Rect="11,277,521,253" />
+                        <RectangleGeometry RadiusX="0" RadiusY="0" Rect="5,50.73,90,45.27" />
                     </GeometryDrawing.Geometry>
                 </GeometryDrawing>
-                <DrawingGroup Transform="1,0,0,1,-29,-31">
-                    <GeometryDrawing Brush="#FF000000" Geometry="F1 M546,546z M0,0z M531.7,53A21.4,21.4,0,0,1,553,74.3L553,533.7A21.4,21.4,0,0,1,531.7,555L72.3,555A21.4,21.4,0,0,1,51,533.7L51,74.3A21.4,21.4,0,0,1,72.3,53L531.7,53 M531.7,31L72.3,31A43.3,43.3,0,0,0,29,74.3L29,533.7A43.3,43.3,0,0,0,72.3,577L531.7,577A43.3,43.3,0,0,0,575,533.7L575,74.3A43.3,43.3,0,0,0,531.7,31z" />
-                </DrawingGroup>
                 <GeometryDrawing>
                     <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="18" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                        <Pen Brush="#FF000000" Thickness="6" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
                     </GeometryDrawing.Pen>
                     <GeometryDrawing.Geometry>
-                        <LineGeometry StartPoint="541,273" EndPoint="11,273" />
+                        <RectangleGeometry RadiusX="9.69" RadiusY="9.69" Rect="3,3,94,94" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#FF000000" Thickness="6" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <LineGeometry StartPoint="1.5,50.5" EndPoint="99.5,50.5" />
                     </GeometryDrawing.Geometry>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
+
     <DrawingImage o:Freeze="True" x:Key="Split2LeftDrawingImage">
         <DrawingImage.Drawing>
-            <DrawingGroup ClipGeometry="M0,0 V546 H546 V0 H0 Z">
+            <DrawingGroup ClipGeometry="M0,0 V100 H100 V0 H0 Z">
                 <GeometryDrawing Brush="#FF3FA9F5">
                     <GeometryDrawing.Geometry>
-                        <RectangleGeometry RadiusX="0" RadiusY="0" Rect="15,14,253,521" />
+                        <RectangleGeometry RadiusX="0" RadiusY="0" Rect="4,5,45.27,90" />
                     </GeometryDrawing.Geometry>
                 </GeometryDrawing>
-                <DrawingGroup Transform="1,0,0,1,-29,-31">
-                    <GeometryDrawing Brush="#FF000000" Geometry="F1 M546,546z M0,0z M531.7,53A21.4,21.4,0,0,1,553,74.3L553,533.7A21.4,21.4,0,0,1,531.7,555L72.3,555A21.4,21.4,0,0,1,51,533.7L51,74.3A21.4,21.4,0,0,1,72.3,53L531.7,53 M531.7,31L72.3,31A43.3,43.3,0,0,0,29,74.3L29,533.7A43.3,43.3,0,0,0,72.3,577L531.7,577A43.3,43.3,0,0,0,575,533.7L575,74.3A43.3,43.3,0,0,0,531.7,31z" />
+                <DrawingGroup Transform="6.12303176911189E-17,-1,1,6.12303176911189E-17,0,100">
+                    <GeometryDrawing>
+                        <GeometryDrawing.Pen>
+                            <Pen Brush="#FF000000" Thickness="6" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                        </GeometryDrawing.Pen>
+                        <GeometryDrawing.Geometry>
+                            <RectangleGeometry RadiusX="9.69" RadiusY="9.69" Rect="3,3,94,94" />
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
                 </DrawingGroup>
                 <GeometryDrawing>
                     <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="18" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                        <Pen Brush="#FF000000" Thickness="6" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
                     </GeometryDrawing.Pen>
                     <GeometryDrawing.Geometry>
-                        <LineGeometry StartPoint="273,5" EndPoint="273,535" />
+                        <LineGeometry StartPoint="49.5,98.5" EndPoint="49.5,0.5" />
                     </GeometryDrawing.Geometry>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
+
     <DrawingImage o:Freeze="True" x:Key="Split2RightDrawingImage">
         <DrawingImage.Drawing>
-            <DrawingGroup ClipGeometry="M0,0 V546 H546 V0 H0 Z">
+            <DrawingGroup ClipGeometry="M0,0 V100 H100 V0 H0 Z">
                 <GeometryDrawing Brush="#FF3FA9F5">
                     <GeometryDrawing.Geometry>
-                        <RectangleGeometry RadiusX="0" RadiusY="0" Rect="277,14,253,521" />
+                        <RectangleGeometry RadiusX="0" RadiusY="0" Rect="50.73,5,45.27,90" />
                     </GeometryDrawing.Geometry>
                 </GeometryDrawing>
-                <DrawingGroup Transform="1,0,0,1,-29,-31">
-                    <GeometryDrawing Brush="#FF000000" Geometry="F1 M546,546z M0,0z M531.7,53A21.4,21.4,0,0,1,553,74.3L553,533.7A21.4,21.4,0,0,1,531.7,555L72.3,555A21.4,21.4,0,0,1,51,533.7L51,74.3A21.4,21.4,0,0,1,72.3,53L531.7,53 M531.7,31L72.3,31A43.3,43.3,0,0,0,29,74.3L29,533.7A43.3,43.3,0,0,0,72.3,577L531.7,577A43.3,43.3,0,0,0,575,533.7L575,74.3A43.3,43.3,0,0,0,531.7,31z" />
+                <DrawingGroup Transform="6.12303176911189E-17,-1,1,6.12303176911189E-17,0,100">
+                    <GeometryDrawing>
+                        <GeometryDrawing.Pen>
+                            <Pen Brush="#FF000000" Thickness="6" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                        </GeometryDrawing.Pen>
+                        <GeometryDrawing.Geometry>
+                            <RectangleGeometry RadiusX="9.69" RadiusY="9.69" Rect="3,3,94,94" />
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
                 </DrawingGroup>
                 <GeometryDrawing>
                     <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="18" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                        <Pen Brush="#FF000000" Thickness="6" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
                     </GeometryDrawing.Pen>
                     <GeometryDrawing.Geometry>
-                        <LineGeometry StartPoint="273,5" EndPoint="273,535" />
+                        <LineGeometry StartPoint="50.5,98.5" EndPoint="50.5,0.5" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <DrawingImage o:Freeze="True" x:Key="SplitScreenDrawingImage">
+        <DrawingImage.Drawing>
+            <DrawingGroup ClipGeometry="M0,0 V100 H100 V0 H0 Z">
+                <DrawingGroup Transform="6.12303176911189E-17,-1,1,6.12303176911189E-17,0,100">
+                    <GeometryDrawing>
+                        <GeometryDrawing.Pen>
+                            <Pen Brush="#FF000000" Thickness="6" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                        </GeometryDrawing.Pen>
+                        <GeometryDrawing.Geometry>
+                            <RectangleGeometry RadiusX="9.69" RadiusY="9.69" Rect="3,3,94,94" />
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                </DrawingGroup>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#FF000000" Thickness="6" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <LineGeometry StartPoint="49.5,53" EndPoint="49.5,0.5" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#FF000000" Thickness="6" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <LineGeometry StartPoint="3,51" EndPoint="96,51" />
                     </GeometryDrawing.Geometry>
                 </GeometryDrawing>
             </DrawingGroup>

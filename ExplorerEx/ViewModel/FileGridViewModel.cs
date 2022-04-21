@@ -277,7 +277,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	}
 
 	private async void OnSwitchView(object e) {
-		if (e is MenuItem { CommandParameter: string param } && int.TryParse(param, out var type)) {
+		if (e is string param && int.TryParse(param, out var type)) {
 			await SwitchViewType(type);
 		}
 	}

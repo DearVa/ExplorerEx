@@ -193,6 +193,9 @@ public class FileItemCommand : ICommand {
 					ExtractZipWindow.Show(item.FullPath);
 				}
 				break;
+			case "Terminal":
+				Terminal.RunTerminal(CurrentFullPath);
+				break;
 			}
 			break;
 		case FileAssocItem fileAssoc:

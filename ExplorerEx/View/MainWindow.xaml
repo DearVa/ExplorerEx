@@ -237,9 +237,9 @@
                             </TreeView>
                         </ct:SideBarContent.Content>
                         <ct:SideBarContent.DragTip>
-                            <hc:SimplePanel Background="#66ffca28">
+                            <hc:SimplePanel Background="#aaffca28">
                                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{u:Lang ReleaseToAddToBookmark}" 
-                                           TextWrapping="Wrap" TextAlignment="Center" FontSize="24"/>
+                                           TextWrapping="Wrap" TextAlignment="Center" FontSize="24" Foreground="{DynamicResource PrimaryTextBrush}"/>
                             </hc:SimplePanel>
                         </ct:SideBarContent.DragTip>
                     </ct:SideBarContent>
@@ -419,9 +419,9 @@
                             </ListBox>
                         </ct:SideBarContent.Content>
                         <ct:SideBarContent.DragTip>
-                            <hc:SimplePanel Background="#66ff0000">
+                            <hc:SimplePanel Background="#aaff0000">
                                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{u:Lang Release_to_move_to_RecycleBin}" 
-                                           TextWrapping="Wrap" TextAlignment="Center" FontSize="24"/>
+                                           TextWrapping="Wrap" TextAlignment="Center" FontSize="24" Foreground="{DynamicResource ReverseTextBrush}"/>
                             </hc:SimplePanel>
                         </ct:SideBarContent.DragTip>
                     </ct:SideBarContent>
