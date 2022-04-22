@@ -201,7 +201,7 @@ public partial class DragFilesPreview {
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void MovePreviewWithCursor() {
+	public static void MoveWithCursor() {
 		dragPreviewWindow.MoveWithCursor();
 	}
 }

@@ -9,9 +9,9 @@ namespace ExplorerEx.View.Controls;
 /// <summary>
 /// 带有动画、可收起的TabControl
 /// </summary>
-public class AnimatedTabControl : TabControl {
+public class FluentTabControl : TabControl {
 	public static readonly DependencyProperty CanDeselectProperty = DependencyProperty.Register(
-		"CanDeselect", typeof(bool), typeof(AnimatedTabControl), new PropertyMetadata(default(bool)));
+		"CanDeselect", typeof(bool), typeof(FluentTabControl), new PropertyMetadata(default(bool)));
 
 	/// <summary>
 	/// 是否可以再次点击TabItem取消选择
@@ -24,7 +24,7 @@ public class AnimatedTabControl : TabControl {
 	public SimpleCommand TabItemPreviewMouseDownCommand { get; }
 	public SimpleCommand TabItemPreviewMouseUpCommand { get; }
 
-	public AnimatedTabControl() {
+	public FluentTabControl() {
 		TabStripPlacement = Dock.Left;
 		TabItemPreviewMouseDownCommand = new SimpleCommand(OnTabItemPreviewMouseDown);
 		TabItemPreviewMouseUpCommand = new SimpleCommand(OnTabItemPreviewMouseUp);

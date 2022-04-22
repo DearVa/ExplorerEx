@@ -2,22 +2,15 @@
   <PropertyGroup>
     <AssemblyName>HandyControl</AssemblyName>
     <RootNamespace>HandyControl</RootNamespace>
-    <TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <Platforms>x64</Platforms>
     <DebugType>embedded</DebugType>
     <UseWPF>True</UseWPF>
-    <PackageId />
-    <Version />
-    <SupportedOSPlatformVersion>10.0.18362.0</SupportedOSPlatformVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release | x64'">
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HandyControl.xml</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LangVersion>latest</LangVersion>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
     <Page Remove="Themes\Styles\AutoCompleteTextBox.xaml" />
@@ -43,7 +36,6 @@
     <Page Remove="Themes\Styles\Base\DividerBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\DrawerBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\EmptyBaseStyle.xaml" />
-    <Page Remove="Themes\Styles\Base\ExpanderBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\FlowDocumentBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\FrameBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\GotoTopBaseStyle.xaml" />
@@ -61,7 +53,6 @@
     <Page Remove="Themes\Styles\Base\PasswordBoxBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\PinBoxBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\PoptipBaseStyle.xaml" />
-    <Page Remove="Themes\Styles\Base\ProgressBarBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\ProgressButtonBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\PropertyGridBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\RadioButtonBaseStyle.xaml" />
@@ -228,7 +219,6 @@
     <None Include="Themes\Styles\Base\DividerBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\DrawerBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\EmptyBaseStyle.xaml" />
-    <None Include="Themes\Styles\Base\ExpanderBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\FlowDocumentBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\FrameBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\GotoTopBaseStyle.xaml" />
@@ -246,7 +236,6 @@
     <None Include="Themes\Styles\Base\PasswordBoxBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\PinBoxBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\PoptipBaseStyle.xaml" />
-    <None Include="Themes\Styles\Base\ProgressBarBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\ProgressButtonBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\PropertyGridBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\RadioButtonBaseStyle.xaml" />
@@ -355,12 +344,6 @@
     <None Include="Themes\Styles\TransitioningContentControl.xaml" />
     <None Include="Themes\Styles\TreeView.xaml" />
     <None Include="Themes\Styles\Watermark.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Costura.Fody" Version="5.7.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Themes\Basic\Colors\Colors.xaml">

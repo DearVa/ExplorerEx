@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -389,7 +390,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// <param name="fileView">为null表示新建，不为null就是修改，要确保是从Db里拿到的对象否则修改没有效果</param>
 	/// <returns></returns>
 	private async Task SaveViewToDbAsync(FileView fileView) {
-		var fullPath = FullPath ?? "ThisPC".L();
+		var fullPath = FullPath ?? "$Home";
 		fileView ??= await FileViewDbContext.Instance.FolderViewDbSet.FirstOrDefaultAsync(v => v.FullPath == fullPath);
 		if (fileView == null) {
 			fileView = new FileView {
@@ -567,7 +568,8 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		// 查找数据库看有没有存储当前目录
 		FileView savedView;
 		try {
-			savedView = await FileViewDbContext.Instance.FolderViewDbSet.FirstOrDefaultAsync(v => v.FullPath == FullPath, token);
+			var fullPath = FullPath ?? "$Home";
+			savedView = await FileViewDbContext.Instance.FolderViewDbSet.FirstOrDefaultAsync(v => v.FullPath == fullPath, token);
 			if (savedView != null) { // 如果存储了，那就获取用户定义的视图模式
 				SortBy = savedView.SortBy;
 				IsAscending = savedView.IsAscending;
@@ -678,26 +680,30 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 		try {
 			if (fileListViewItems.Count > 0) {
-				await Parallel.ForEachAsync(fileListViewItems, token, (item, token) => {
-					if (token.IsCancellationRequested) {
-						return ValueTask.FromCanceled(token);
-					}
-					item.LoadAttributes();
-					return ValueTask.CompletedTask;
-				});
-
 				var useLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content;
-				await Task.Run(() => {
-					foreach (var item in fileListViewItems) {
-						if (token.IsCancellationRequested) {
-							return;
-						}
-						if (item is FileItem fileItem) {
-							fileItem.UseLargeIcon = useLargeIcon;
-						}
-						item.LoadIcon();
+
+				await Task.WhenAll(Partitioner.Create(fileListViewItems).GetPartitions(4).Select(partition => Task.Run(() => {
+					if (token.IsCancellationRequested) {
+						return Task.FromCanceled(token);
 					}
-				}, token);
+					using (partition) {
+						while (partition.MoveNext()) {
+							var item = partition.Current!;
+							item.LoadAttributes();
+
+							if (item is FileItem fileItem) {
+								fileItem.UseLargeIcon = useLargeIcon;
+							}
+							item.LoadIcon();
+
+							if (token.IsCancellationRequested) {
+								return Task.FromCanceled(token);
+							}
+						}
+					}
+
+					return Task.CompletedTask;
+				}, token)));
 			}
 		} catch (Exception e) {
 			Logger.Exception(e);

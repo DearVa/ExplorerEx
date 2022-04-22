@@ -250,14 +250,14 @@ public partial class FileListView : INotifyPropertyChanged {
 			return;
 		}
 		if (FileView.FileViewType == FileViewType.Details) {
-			GroupStyle.Panel = ItemsPanel = virtualizingStackPanel;
+			FileGroupStyle.Panel = ItemsPanel = virtualizingStackPanel;
 			var view = new GridView();
 			columnsConverter.Convert(view.Columns, FileView);
 			View = view;
 			var padding = Padding;
 			contentPanel.Margin = new Thickness(padding.Left, 30d + padding.Top, padding.Right, padding.Bottom);
 		} else {
-			GroupStyle.Panel = ItemsPanel = virtualizingWrapPanel;
+			FileGroupStyle.Panel = ItemsPanel = virtualizingWrapPanel;
 			ItemTemplate = listBoxTemplateConverter.Convert();
 			View = null;
 			contentPanel.Margin = Padding;
@@ -885,16 +885,9 @@ public partial class FileListView : INotifyPropertyChanged {
 		FileUtils.HandleDrop(DataObjectContent.Drag, path, GetEffectWithKeyboard(e.Effects));
 	}
 
-	//protected override void OnPreviewGiveFeedback(GiveFeedbackEventArgs e) {
-	//	var dragFilesPreview = DragFilesPreview.Instance;
-	//	if (e.Effects == DragDropEffects.None) {
-	//		Mouse.SetCursor(Cursors.No);
-	//		e.UseDefaultCursors = false;
-	//		dragFilesPreview.DragDropEffect = DragDropEffects.None;
-	//	} else if (dragFilesPreview.DragDropEffect == DragDropEffects.All) {
-	//		return;
-	//	}
-	//}
+	protected override void OnPreviewGiveFeedback(GiveFeedbackEventArgs e) {
+		DragFilesPreview.MoveWithCursor();
+	}
 
 	/// <summary>
 	/// 根据键盘按键决定要执行什么操作（Shift移动，Ctrl复制，Alt链接）

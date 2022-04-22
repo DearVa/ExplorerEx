@@ -2624,7 +2624,7 @@
 					<Border x:Name="TemplateRoot" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
 						<hc:SimplePanel>
 							<Rectangle x:Name="PART_Track" />
-							<TextBlock Visibility="{Binding Visibility,ElementName=PART_GlowRect}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{TemplateBinding Foreground}" Text="{Binding Path=(hc:VisualElement.Text),RelativeSource={RelativeSource TemplatedParent}}" />
+							<TextBlock x:Name="TextBlock2" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{TemplateBinding Foreground}" Text="{Binding Path=(hc:VisualElement.Text),RelativeSource={RelativeSource TemplatedParent}}" />
 							<Border Style="{StaticResource BorderClip}" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" x:Name="PART_Indicator" HorizontalAlignment="Left">
 								<hc:SimplePanel>
 									<Border x:Name="Indicator" Background="{TemplateBinding Foreground}">
@@ -2632,7 +2632,6 @@
 											<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextIconBrush}" Text="{Binding Path=(hc:VisualElement.Text),RelativeSource={RelativeSource TemplatedParent}}" />
 										</Border>
 									</Border>
-									<Rectangle x:Name="PART_GlowRect" Fill="{StaticResource ProgressBarIndicatorAnimatedFill}" HorizontalAlignment="Left" Margin="-100,0,0,0" Width="100" />
 									<Rectangle x:Name="Animation" Visibility="Collapsed" Fill="{TemplateBinding Foreground}" RenderTransformOrigin="0.5,0.5">
 										<Rectangle.RenderTransform>
 											<TransformGroup>
@@ -2658,11 +2657,8 @@
 								<BeginStoryboard Storyboard="{StaticResource IsIndeterminate}" />
 							</Trigger.EnterActions>
 							<Setter Property="Visibility" TargetName="Indicator" Value="Collapsed" />
-							<Setter Property="Visibility" TargetName="PART_GlowRect" Value="Collapsed" />
+							<Setter Property="Visibility" TargetName="TextBlock2" Value="Collapsed" />
 							<Setter Property="Visibility" TargetName="Animation" Value="Visible" />
-						</Trigger>
-						<Trigger Property="hc:ProgressBarAttach.AnimationDisabled" Value="True">
-							<Setter Property="Visibility" TargetName="PART_GlowRect" Value="Collapsed" />
 						</Trigger>
 					</ControlTemplate.Triggers>
 				</ControlTemplate>
@@ -8740,15 +8736,19 @@
 				<RowDefinition />
 				<RowDefinition Height="Auto" />
 			</Grid.RowDefinitions>
-			<Border x:Name="BorderHeader" Grid.Row="1" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
-				<ToggleButton HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Focusable="False" Padding="10,0,0,0" Foreground="{TemplateBinding Foreground}" IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" MinHeight="{TemplateBinding MinHeight}" Style="{StaticResource ToggleButtonCustom}">
+			<Border x:Name="BorderHeader" Grid.Row="1" CornerRadius="3" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+				<ToggleButton HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Focusable="False" Padding="10,0,0,0" Foreground="{TemplateBinding Foreground}" IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" MinHeight="{TemplateBinding MinHeight}" Background="Transparent" BorderThickness="0">
 					<Grid>
 						<Grid.ColumnDefinitions>
-							<ColumnDefinition />
 							<ColumnDefinition Width="32" />
+							<ColumnDefinition />
 						</Grid.ColumnDefinitions>
-						<ContentPresenter ContentSource="Header" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-						<Path Name="PathArrow" IsHitTestVisible="False" Grid.Column="1" Stretch="Uniform" Fill="{TemplateBinding Foreground}" Data="{StaticResource UpGeometry}" Margin="0,0,10,0" Width="12" Height="12" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalAlignment="Right" />
+						<Path IsHitTestVisible="False" Grid.Column="0" Stretch="Uniform" Fill="{TemplateBinding Foreground}" Data="{StaticResource RightGeometry}" Margin="0,0,10,0" Width="12" Height="12" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalAlignment="Right" RenderTransformOrigin="0.5,0.5">
+							<Path.RenderTransform>
+								<RotateTransform x:Name="PathRotation" Angle="0" />
+							</Path.RenderTransform>
+						</Path>
+						<ContentPresenter ContentSource="Header" Grid.Column="1" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
 					</Grid>
 				</ToggleButton>
 			</Border>
@@ -8756,12 +8756,27 @@
 		</Grid>
 		<ControlTemplate.Triggers>
 			<Trigger Property="IsExpanded" Value="true">
-				<Setter Property="CornerRadius" TargetName="BorderHeader" Value="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource CornerRadiusSplitConverter}, ConverterParameter='0,0,1,1'}" />
 				<Setter Property="Visibility" TargetName="ExpandSite" Value="Visible" />
-				<Setter Property="Data" TargetName="PathArrow" Value="{StaticResource DownGeometry}" />
+				<Trigger.EnterActions>
+					<BeginStoryboard>
+						<Storyboard>
+							<DoubleAnimation Storyboard.TargetName="PathRotation" Storyboard.TargetProperty="Angle" To="90" Duration="0:0:0.3" />
+						</Storyboard>
+					</BeginStoryboard>
+				</Trigger.EnterActions>
+				<Trigger.ExitActions>
+					<BeginStoryboard>
+						<Storyboard>
+							<DoubleAnimation Storyboard.TargetName="PathRotation" Storyboard.TargetProperty="Angle" To="0" Duration="0:0:0.3" />
+						</Storyboard>
+					</BeginStoryboard>
+				</Trigger.ExitActions>
 			</Trigger>
 			<Trigger Property="IsEnabled" Value="false">
 				<Setter Property="Opacity" Value=".4" />
+			</Trigger>
+			<Trigger Property="IsMouseOver" Value="True">
+				<Setter Property="Background" Value="{DynamicResource SelectBrush}" />
 			</Trigger>
 		</ControlTemplate.Triggers>
 	</ControlTemplate>
@@ -8804,41 +8819,64 @@
 	<ControlTemplate x:Key="ExpanderDownTemplate" TargetType="Expander">
 		<Grid>
 			<Grid.RowDefinitions>
-				<RowDefinition Height="Auto" />
 				<RowDefinition />
+				<RowDefinition Height="Auto" />
 			</Grid.RowDefinitions>
-			<Border x:Name="BorderHeader" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
-				<ToggleButton HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Focusable="False" Padding="10,0,0,0" Foreground="{TemplateBinding Foreground}" IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Width="{TemplateBinding Width}" Height="{TemplateBinding MinHeight}" Style="{StaticResource ToggleButtonCustom}">
-					<Grid>
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition />
-							<ColumnDefinition Width="32" />
-						</Grid.ColumnDefinitions>
-						<ContentPresenter ContentSource="Header" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-						<Path Name="PathArrow" IsHitTestVisible="False" Grid.Column="1" Stretch="Uniform" Fill="{TemplateBinding Foreground}" Data="{StaticResource DownGeometry}" Margin="0,0,10,0" Width="12" Height="12" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalAlignment="Right" />
-					</Grid>
+			<Border x:Name="BorderHeader" Grid.Row="0" CornerRadius="3" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+				<ToggleButton x:Name="ToggleButton" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Focusable="False" Foreground="{TemplateBinding Foreground}" IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" MinHeight="{TemplateBinding MinHeight}" Background="Transparent" BorderThickness="0">
+					<ToggleButton.Template>
+						<ControlTemplate TargetType="ToggleButton">
+							<hc:SimplePanel Background="Transparent">
+								<ContentPresenter RecognizesAccessKey="True" VerticalAlignment="Center" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+							</hc:SimplePanel>
+						</ControlTemplate>
+					</ToggleButton.Template>
+					<DockPanel>
+						<Path DockPanel.Dock="Left" IsHitTestVisible="False" Stretch="Uniform" Fill="{TemplateBinding Foreground}" Data="{StaticResource RightGeometry}" Margin="10,0,10,0" Width="12" Height="12" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalAlignment="Right" RenderTransformOrigin="0.5,0.5">
+							<Path.RenderTransform>
+								<RotateTransform x:Name="PathRotation" Angle="90" />
+							</Path.RenderTransform>
+						</Path>
+						<ContentPresenter DockPanel.Dock="Left" ContentSource="Header" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+						<Rectangle DockPanel.Dock="Right" VerticalAlignment="Center" Height="1" Margin="10,0" Fill="{TemplateBinding Foreground}" />
+					</DockPanel>
 				</ToggleButton>
 			</Border>
 			<ContentPresenter Name="ExpandSite" Visibility="Collapsed" Grid.Row="1" />
 		</Grid>
 		<ControlTemplate.Triggers>
-			<Trigger Property="IsExpanded" Value="true">
-				<Setter Property="CornerRadius" TargetName="BorderHeader" Value="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource CornerRadiusSplitConverter}, ConverterParameter='1,1,0,0'}" />
+			<Trigger Property="IsExpanded" Value="True">
 				<Setter Property="Visibility" TargetName="ExpandSite" Value="Visible" />
-				<Setter Property="Data" TargetName="PathArrow" Value="{StaticResource UpGeometry}" />
+				<Trigger.EnterActions>
+					<BeginStoryboard>
+						<Storyboard>
+							<DoubleAnimation Storyboard.TargetName="PathRotation" Storyboard.TargetProperty="Angle" To="90" Duration="0:0:0.2" />
+						</Storyboard>
+					</BeginStoryboard>
+				</Trigger.EnterActions>
+				<Trigger.ExitActions>
+					<BeginStoryboard>
+						<Storyboard>
+							<DoubleAnimation Storyboard.TargetName="PathRotation" Storyboard.TargetProperty="Angle" To="0" Duration="0:0:0.2" />
+						</Storyboard>
+					</BeginStoryboard>
+				</Trigger.ExitActions>
 			</Trigger>
-			<Trigger Property="IsEnabled" Value="false">
-				<Setter Property="Opacity" Value=".4" />
+			<Trigger Property="IsEnabled" Value="False">
+				<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}" />
+			</Trigger>
+			<Trigger Property="IsMouseOver" SourceName="ToggleButton" Value="True">
+				<Setter Property="Background" Value="{DynamicResource LightSelectBrush}" />
 			</Trigger>
 		</ControlTemplate.Triggers>
 	</ControlTemplate>
 	<Style x:Key="ExpanderBaseStyle" TargetType="Expander">
 		<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-		<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}" />
+		<Setter Property="Background" Value="Transparent" />
 		<Setter Property="HorizontalContentAlignment" Value="Left" />
 		<Setter Property="VerticalContentAlignment" Value="Center" />
-		<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
-		<Setter Property="BorderThickness" Value="1" />
+		<Setter Property="BorderBrush" Value="Transparent" />
+		<Setter Property="BorderThickness" Value="0" />
 		<Setter Property="MinHeight" Value="{StaticResource DefaultControlHeight}" />
 		<Setter Property="MinWidth" Value="{StaticResource DefaultControlHeight}" />
 		<Setter Property="hc:BorderElement.CornerRadius" Value="{StaticResource DefaultCornerRadius}" />

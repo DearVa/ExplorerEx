@@ -67,8 +67,9 @@ public sealed partial class MainWindow {
 		var left = ConfigHelper.LoadInt("WindowLeft");
 		var top = ConfigHelper.LoadInt("WindowTop");
 		if (MainWindows.Count > 1) {
-			left += Random.Shared.Next(-100, 100);
-			top += Random.Shared.Next(-100, 100);
+			var rand = new Random((int)DateTime.Now.Ticks);
+			left += rand.Next(-100, 100);
+			top += rand.Next(-100, 100);
 		}
 		Left = Math.Min(Math.Max(300 - Width, left), SystemParameters.PrimaryScreenWidth - 100);
 		Top = Math.Min(Math.Max(0, top), SystemParameters.PrimaryScreenHeight - 100);
@@ -763,7 +764,9 @@ public sealed partial class MainWindow {
 	}
 
 	protected override void OnPreviewDragOver(DragEventArgs e) {
-		DragFilesPreview.MovePreviewWithCursor();
+		if (!DragFilesPreview.IsInternalDrag) {
+			DragFilesPreview.MoveWithCursor();
+		}
 		base.OnPreviewDragOver(e);
 	}
 

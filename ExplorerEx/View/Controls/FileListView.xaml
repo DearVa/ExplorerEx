@@ -134,8 +134,7 @@
                         <TextBlock Text="{Binding DisplayText, Mode=OneWay}"/>
                         <ProgressBar Value="{Binding FreeSpaceRatio, Mode=OneWay}" 
                                      Foreground="{Binding ProgressBarBackground, Mode=OneWay}"
-                                     Maximum="1" BorderThickness="1.5" Margin="0,5,0,5" 
-                                     SnapsToDevicePixels="True" hc:ProgressBarAttach.AnimationDisabled="True"
+                                     Maximum="1" BorderThickness="1.5" Margin="0,5,0,5" SnapsToDevicePixels="True"
                                      Visibility="{Binding Drive.IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
                         <TextBlock Text="{Binding SpaceOverviewString, Mode=OneWay}"
                                    Visibility="{Binding Drive.IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
@@ -204,14 +203,10 @@
             <ProgressBar d:DataContext="{d:DesignInstance m:DiskDriveItem}"
                          Value="{Binding FreeSpaceRatio, Mode=OneWay}" 
                          Foreground="{Binding ProgressBarBackground, Mode=OneWay}"
-                         Maximum="1" BorderThickness="1.5" Margin="0,2,0,2" 
-                         VerticalAlignment="Center" SnapsToDevicePixels="True" hc:ProgressBarAttach.AnimationDisabled="True"
+                         Maximum="1" BorderThickness="1.5" Margin="0,2,0,2" VerticalAlignment="Center" SnapsToDevicePixels="True"
                          Visibility="{Binding Drive.IsReady, Converter={StaticResource Boolean2VisibilityConverter}}">
                 <ProgressBar.ToolTip>
-                    <TextBlock>
-                        <Run Text="{Binding FreeSpaceRatio, Mode=OneWay, StringFormat=P}"/>
-                        <Run Text="%"/>
-                    </TextBlock>
+                    <TextBlock Text="{Binding FreeSpaceRatio, Mode=OneWay, StringFormat=P%}"/>
                 </ProgressBar.ToolTip>
             </ProgressBar>
         </DataTemplate>
@@ -568,7 +563,7 @@
     </ListView.ItemContainerStyle>
 
     <ListView.GroupStyle>
-        <GroupStyle x:Name="GroupStyle">
+        <GroupStyle x:Name="FileGroupStyle">
             <GroupStyle.ContainerStyle>
                 <Style TargetType="GroupItem">
                     <Setter Property="Template">
@@ -581,7 +576,7 @@
                                             <TextBlock Text="{Binding Path=ItemCount, StringFormat= ({0})}" VerticalAlignment="Center" Margin="5,0,0,0" />
                                         </StackPanel>
                                     </Expander.Header>
-                                    <ItemsPresenter />
+                                    <ItemsPresenter/>
                                 </Expander>
                             </ControlTemplate>
                         </Setter.Value>

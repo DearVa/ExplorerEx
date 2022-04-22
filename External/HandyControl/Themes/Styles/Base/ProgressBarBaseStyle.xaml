@@ -45,7 +45,7 @@
                     <Border x:Name="TemplateRoot" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
                         <hc:SimplePanel>
                             <Rectangle x:Name="PART_Track"/>
-                            <TextBlock Visibility="{Binding Visibility,ElementName=PART_GlowRect}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{TemplateBinding Foreground}" Text="{Binding Path=(hc:VisualElement.Text),RelativeSource={RelativeSource TemplatedParent}}"/>
+                            <TextBlock x:Name="TextBlock2" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{TemplateBinding Foreground}" Text="{Binding Path=(hc:VisualElement.Text),RelativeSource={RelativeSource TemplatedParent}}"/>
                             <Border Style="{StaticResource BorderClip}" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" x:Name="PART_Indicator" HorizontalAlignment="Left">
                                 <hc:SimplePanel>
                                     <Border x:Name="Indicator" Background="{TemplateBinding Foreground}">
@@ -53,7 +53,6 @@
                                             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextIconBrush}" Text="{Binding Path=(hc:VisualElement.Text),RelativeSource={RelativeSource TemplatedParent}}"/>
                                         </Border>
                                     </Border>
-                                    <Rectangle x:Name="PART_GlowRect" Fill="{StaticResource ProgressBarIndicatorAnimatedFill}" HorizontalAlignment="Left" Margin="-100,0,0,0" Width="100"/>
                                     <Rectangle x:Name="Animation" Visibility="Collapsed" Fill="{TemplateBinding Foreground}" RenderTransformOrigin="0.5,0.5">
                                         <Rectangle.RenderTransform>
                                             <TransformGroup>
@@ -79,11 +78,8 @@
                                 <BeginStoryboard Storyboard="{StaticResource IsIndeterminate}"/>
                             </Trigger.EnterActions>
                             <Setter Property="Visibility" TargetName="Indicator" Value="Collapsed"/>
-                            <Setter Property="Visibility" TargetName="PART_GlowRect" Value="Collapsed"/>
+                            <Setter Property="Visibility" TargetName="TextBlock2" Value="Collapsed"/>
                             <Setter Property="Visibility" TargetName="Animation" Value="Visible"/>
-                        </Trigger>
-                        <Trigger Property="hc:ProgressBarAttach.AnimationDisabled" Value="True">
-                            <Setter Property="Visibility" TargetName="PART_GlowRect" Value="Collapsed"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
