@@ -130,7 +130,7 @@
                             </hc:Interaction.Triggers>
                             <ItemsPresenter Margin="{TemplateBinding Padding}"/>
                         </StackPanel>
-                        <Border Grid.Column="0" x:Name="AnimateBorder" Width="5" Height="27" CornerRadius="3" Background="{DynamicResource PrimaryBrush}"/>
+                        <!--<Border Grid.Column="0" x:Name="AnimateBorder" Width="5" Height="27" CornerRadius="3" Background="{DynamicResource PrimaryBrush}"/>-->
                         <Border x:Name="contentPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1"
                                 KeyboardNavigation.DirectionalNavigation="Contained"
                                 KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">

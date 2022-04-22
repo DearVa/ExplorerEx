@@ -45,7 +45,7 @@ public class SplitButton : ButtonBase {
 		if (Command != null) {
 			var item = e.OriginalSource.FindParent<MenuItem>();
 			if (item != null) {
-				Command.Execute(item);
+				Command.Execute(item.CommandParameter);
 			}
 		}
 	}

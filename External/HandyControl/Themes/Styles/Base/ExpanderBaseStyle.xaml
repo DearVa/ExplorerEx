@@ -150,7 +150,7 @@
                             </Path.RenderTransform>
                         </Path>
                         <ContentPresenter DockPanel.Dock="Left" ContentSource="Header" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                        <Rectangle DockPanel.Dock="Right" VerticalAlignment="Center" Height="1" Margin="10,0" Fill="{TemplateBinding Foreground}" />
+                        <Rectangle DockPanel.Dock="Right" VerticalAlignment="Center" Height="1" Margin="10,0" Fill="{DynamicResource ThirdlyTextBrush}" />
                     </DockPanel>
                 </ToggleButton>
             </Border>
