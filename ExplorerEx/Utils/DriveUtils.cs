@@ -26,6 +26,6 @@ public static class DriveUtils {
 		if (driveInfo.IsReady) {
 			return $"{(string.IsNullOrWhiteSpace(driveInfo.VolumeLabel) ? GetTypeDescription(driveInfo) : driveInfo.VolumeLabel)} ({driveInfo.Name[..1]})";
 		}
-		return $"{GetFriendlyName(driveInfo)} ({driveInfo.Name[..1]})";
+		return $"{GetTypeDescription(driveInfo)} ({driveInfo.Name[..1]})";
 	}
 }
