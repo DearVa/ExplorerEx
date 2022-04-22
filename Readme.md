@@ -10,9 +10,13 @@ Due to unknown reasons, the file manager (Explorer) of windows 11 is very slow, 
 
 Some time ago, when I was working on Minecraft mod, I needed to switch frequently in multiple folders. Not only did it very slow, but also the "multi tab" function with high user voice has not been available yet. So I came up with the idea of developing a file manager myself.
 
+## Stable > Swift > Good appearance
+
+### 👋👋 I'm waiting for a new Icon. If you are good at design, please submit it to me!
+### 👋👋 图标长期招募中……如果您擅长设计或者有好的创意，欢迎提交您的作品！
 
 
-### ExplorerEx has the following features:
+### Features:
 
 * **Swift.** My standard is that a middle-end computer (such as i5 Series CPU or AMD CPU with the same performance) can open a folder within 500ms. Even a folder with a large number of files like C:\Windows\system32 (I just looked at it, there were 4778 files) still needs to be opened quickly.
 
