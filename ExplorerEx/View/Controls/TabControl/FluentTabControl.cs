@@ -3,7 +3,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
-using System.Windows.Shapes;
 using ExplorerEx.Command;
 
 namespace ExplorerEx.View.Controls;
@@ -28,6 +27,7 @@ public class FluentTabControl : TabControl {
 
 	private TabItem mouseDownFileTabItem;
 	private Point mouseDownPoint;
+	private Border contentPanel;
 	private FluentBorder fluentBorder;
 	private readonly Storyboard storyboard;
 	private int? targetIndex;
@@ -43,6 +43,7 @@ public class FluentTabControl : TabControl {
 
 	public override void OnApplyTemplate() {
 		base.OnApplyTemplate();
+		contentPanel = (Border)GetTemplateChild("ContentPanel");
 		fluentBorder = (FluentBorder)GetTemplateChild("FluentBorder");
 		Storyboard.SetTarget(storyboard, fluentBorder);
 	}
@@ -62,8 +63,10 @@ public class FluentTabControl : TabControl {
 			if (Math.Abs(point.X - mouseDownPoint.X) < SystemParameters.MinimumHorizontalDragDistance && Math.Abs(point.Y - mouseDownPoint.Y) < SystemParameters.MinimumVerticalDragDistance) {
 				if (!tabItem.IsSelected) {
 					SelectedItem = tabItem;
+					contentPanel.Visibility = Visibility.Visible;
 				} else if (CanDeselect) {
 					SelectedIndex = -1;
+					contentPanel.Visibility = Visibility.Collapsed;
 				}
 			}
 		}

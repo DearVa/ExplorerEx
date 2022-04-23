@@ -68,6 +68,27 @@ public static class Win32Interop {
 		return WindowFromPoint(p);
 	}
 
+	[DllImport(User32, SetLastError = true, CharSet = CharSet.Unicode)]
+	public static extern int MessageBox(IntPtr hWnd, string text, string caption, MessageBoxType type);
+
+    public enum MessageBoxType {
+        Ok = 0x0,
+        OkCancel = 0x1,
+        AbortRetryIgnore = 0x2,
+        YesNoCancel = 0x3,
+        YesNo = 0x4,
+        RetryCancel = 0x5,
+        CancelTryContinue = 0x6,
+        IconHand = 0x10,
+        IconQuestion = 0x20,
+        IconExclamation = 0x30,
+        IconAsterisk = 0x40,
+        IconWarning = IconExclamation,
+        IconError = IconHand,
+        IconInformation = IconAsterisk,
+        IconStop = IconHand,
+    }
+
 	[DllImport(Gdi32)]
 	public static extern IntPtr CreateCompatibleDC(IntPtr hdc);
 

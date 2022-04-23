@@ -45,7 +45,7 @@ public partial class App {
 	private static Mutex mutex;
 	private static NotifyIconWindow notifyIconWindow;
 	private static NotifyMemoryMappedFile notifyMmf;
-	private static DispatcherTimer dispatcherTimer;
+	// private static DispatcherTimer dispatcherTimer;
 
 	protected override async void OnStartup(StartupEventArgs e) {
 		Logger.Initialize();
@@ -155,7 +155,7 @@ public partial class App {
 	/// <param name="e"></param>
 	public static void Fatal(Exception e) {
 		Logger.Exception(e, false);
-		MessageBox.Show(string.Format("#FatalError".L(), e), "Fatal", MessageBoxButton.OK, MessageBoxImage.Stop);
+		MessageBox(IntPtr.Zero, string.Format("#FatalError".L(), e), "Fatal", MessageBoxType.IconStop);
 		Environment.Exit(-1);
 	}
 }

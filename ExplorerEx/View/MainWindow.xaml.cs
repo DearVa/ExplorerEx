@@ -179,12 +179,12 @@ public sealed partial class MainWindow {
 		}
 	}
 
-	private async void StartupLoad() {
+	private void StartupLoad() {
 		try {
 			if (startupPath == null) {
-				await SplitGrid.FileTabControl.StartUpLoad(App.Args.Paths.ToArray());
+				_ = SplitGrid.FileTabControl.StartUpLoad(App.Args.Paths.ToArray());
 			} else {
-				await SplitGrid.FileTabControl.StartUpLoad(startupPath);
+				_ = SplitGrid.FileTabControl.StartUpLoad(startupPath);
 			}
 		} catch (Exception e) {
 			App.Fatal(e);
@@ -629,7 +629,7 @@ public sealed partial class MainWindow {
 
 	private void OnSidebarSelectionChanged(object sender, SelectionChangedEventArgs e) {
 		void UpdateSidebarColumnDefinitionWidth() {
-			var width = (double)ConfigHelper.LoadInt("SidebarWidth");
+			var width = ConfigHelper.LoadDouble("SidebarWidth");
 			if (width < SidebarMinWidth) {
 				width = SidebarDefaultWidth;
 			}

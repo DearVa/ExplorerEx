@@ -83,6 +83,15 @@ public static class ConfigHelper {
 		}
 	}
 
+	public static double LoadDouble(string key, double defaultValue = default) {
+		try {
+			return Convert.ToDouble(Load(key) ?? defaultValue);
+		} catch (Exception e) {
+			Logger.Exception(e);
+			return defaultValue;
+		}
+	}
+
 	public static bool Delete(string key) {
 		try {
 			RegRoot.DeleteValue(key);
