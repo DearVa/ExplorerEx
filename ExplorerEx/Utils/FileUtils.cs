@@ -10,6 +10,7 @@ using System.Text;
 using System.Windows;
 using ExplorerEx.Shell32;
 using System.Threading;
+using System.Threading.Tasks;
 using FileAttribute = ExplorerEx.Shell32.FileAttribute;
 
 namespace ExplorerEx.Utils;
@@ -220,7 +221,7 @@ internal static class FileUtils {
 	/// <exception cref="ArgumentException"></exception>
 	/// <exception cref="IOException"></exception>
 	public static void FileOperation(FileOpType type, IList<string> sourceFiles, IList<string> destinationFiles = null) {
-		if (sourceFiles is not { Count: > 0 }) {
+		if (sourceFiles is not {Count: > 0}) {
 			return;
 		}
 		if (type != FileOpType.Delete && (destinationFiles == null || sourceFiles.Count != destinationFiles.Count)) {
@@ -246,10 +247,12 @@ internal static class FileUtils {
 		if (type != FileOpType.Delete) {
 			fo.pTo = ParseFileList(destinationFiles);
 		}
-		var result = Shell32Interop.SHFileOperation(fo);
-		if (result is not 0 and not 1223) {  // 1223: 用户取消了操作
-			throw new IOException(GetErrorPrompting(result));
-		}
+		Task.Run(() => {
+			var result = Shell32Interop.SHFileOperation(fo);
+			if (result is not 0 and not 1223) { // 1223: 用户取消了操作
+				throw new IOException(GetErrorPrompting(result));
+			}
+		});
 	}
 
 	/// <summary>
@@ -285,10 +288,12 @@ internal static class FileUtils {
 		if (type != FileOpType.Delete) {
 			fo.pTo = destinationFile + '\0';
 		}
-		var result = Shell32Interop.SHFileOperation(fo);
-		if (result != 0) {
-			throw new IOException(GetErrorPrompting(result));
-		}
+		Task.Run(() => {
+			var result = Shell32Interop.SHFileOperation(fo);
+			if (result is not 0 and not 1223) { // 1223: 用户取消了操作
+				throw new IOException(GetErrorPrompting(result));
+			}
+		});
 	}
 
 	/// <summary>

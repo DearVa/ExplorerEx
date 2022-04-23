@@ -88,24 +88,10 @@
                     <Setter Property="Background" Value="Transparent"/>
                     <Style.Triggers>
                         <Trigger Property="IsSelected" Value="True">
-                            <Trigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetProperty="Height" To="60" Duration="0:0:0.1" EasingFunction="{StaticResource CubicEase}"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetProperty="Height" To="40" Duration="0:0:0.1" EasingFunction="{StaticResource CubicEase}"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.ExitActions>
-                            <Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}"/>
+                            <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}"/>
+                            <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
                         </Trigger>
                     </Style.Triggers>
                 </Style>
@@ -114,12 +100,12 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TabControl">
-                    <Grid x:Name="templateRoot" ClipToBounds="true" SnapsToDevicePixels="true" KeyboardNavigation.TabNavigation="Local">
+                    <Grid x:Name="templateRoot" SnapsToDevicePixels="true" KeyboardNavigation.TabNavigation="Local">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <StackPanel x:Name="headerPanel" Grid.Column="0" Margin="0" KeyboardNavigation.TabIndex="1" Panel.ZIndex="1">
+                        <StackPanel x:Name="headerPanel" Grid.Column="0" Margin="{TemplateBinding Padding}" Panel.ZIndex="1" KeyboardNavigation.TabIndex="1" VerticalAlignment="Top">
                             <hc:Interaction.Triggers>
                                 <hc:RoutedEventTrigger RoutedEvent="TabItem.PreviewMouseDown">
                                     <hc:EventToCommand Command="{Binding TabItemPreviewMouseDownCommand, RelativeSource={RelativeSource AncestorType=ct:FluentTabControl}}" PassEventArgsToCommand="True"/>
@@ -128,13 +114,15 @@
                                     <hc:EventToCommand Command="{Binding TabItemPreviewMouseUpCommand, RelativeSource={RelativeSource AncestorType=ct:FluentTabControl}}" PassEventArgsToCommand="True"/>
                                 </hc:RoutedEventTrigger>
                             </hc:Interaction.Triggers>
-                            <ItemsPresenter Margin="{TemplateBinding Padding}"/>
+                            <ItemsPresenter ClipToBounds="True"/>
                         </StackPanel>
-                        <!--<Border Grid.Column="0" x:Name="AnimateBorder" Width="5" Height="27" CornerRadius="3" Background="{DynamicResource PrimaryBrush}"/>-->
+                        <hc:SimplePanel Grid.Column="0" Margin="{TemplateBinding Padding}" VerticalAlignment="Top" Height="{Binding ActualHeight, ElementName=headerPanel}" Panel.ZIndex="2" ClipToBounds="true">
+                            <ct:FluentBorder x:Name="FluentBorder" IsHitTestVisible="False" Width="5" Height="28" CornerRadius="3" Background="{DynamicResource PrimaryBrush}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        </hc:SimplePanel>
                         <Border x:Name="contentPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1"
                                 KeyboardNavigation.DirectionalNavigation="Contained"
                                 KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
-                            <ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent" Margin="0" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                            <ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                         </Border>
                     </Grid>
                 </ControlTemplate>

@@ -2,6 +2,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
 using ExplorerEx.Command;
 
 namespace ExplorerEx.View.Controls;
@@ -24,18 +26,30 @@ public class FluentTabControl : TabControl {
 	public SimpleCommand TabItemPreviewMouseDownCommand { get; }
 	public SimpleCommand TabItemPreviewMouseUpCommand { get; }
 
+	private TabItem mouseDownFileTabItem;
+	private Point mouseDownPoint;
+	private FluentBorder fluentBorder;
+	private readonly Storyboard storyboard;
+	private int? targetIndex;
+	private static readonly CubicEase CubicEase = new() { EasingMode = EasingMode.EaseInOut };
+
 	public FluentTabControl() {
 		TabStripPlacement = Dock.Left;
 		TabItemPreviewMouseDownCommand = new SimpleCommand(OnTabItemPreviewMouseDown);
 		TabItemPreviewMouseUpCommand = new SimpleCommand(OnTabItemPreviewMouseUp);
+		storyboard = new Storyboard();
+		storyboard.Completed += (_, _) => Animate();
 	}
 
-	private TabItem _mouseDownFileTabItem;
-	private Point mouseDownPoint;
+	public override void OnApplyTemplate() {
+		base.OnApplyTemplate();
+		fluentBorder = (FluentBorder)GetTemplateChild("FluentBorder");
+		Storyboard.SetTarget(storyboard, fluentBorder);
+	}
 
 	private void OnTabItemPreviewMouseDown(object args) {
 		var e = (MouseButtonEventArgs)args;
-		_mouseDownFileTabItem = (TabItem)ContainerFromElement((DependencyObject)e.OriginalSource);
+		mouseDownFileTabItem = (TabItem)ContainerFromElement((DependencyObject)e.OriginalSource);
 		mouseDownPoint = e.GetPosition(this);
 		e.Handled = true;
 	}
@@ -43,7 +57,7 @@ public class FluentTabControl : TabControl {
 	private void OnTabItemPreviewMouseUp(object args) {
 		var e = (MouseButtonEventArgs)args;
 		var tabItem = (TabItem)ContainerFromElement((DependencyObject)e.OriginalSource);
-		if (tabItem != null && tabItem == _mouseDownFileTabItem) {
+		if (tabItem != null && tabItem == mouseDownFileTabItem) {
 			var point = e.GetPosition(this);
 			if (Math.Abs(point.X - mouseDownPoint.X) < SystemParameters.MinimumHorizontalDragDistance && Math.Abs(point.Y - mouseDownPoint.Y) < SystemParameters.MinimumVerticalDragDistance) {
 				if (!tabItem.IsSelected) {
@@ -53,5 +67,48 @@ public class FluentTabControl : TabControl {
 				}
 			}
 		}
+	}
+
+	protected override void OnSelectionChanged(SelectionChangedEventArgs e) {
+		base.OnSelectionChanged(e);
+		if (targetIndex == null) {
+			targetIndex = SelectedIndex;
+			Animate();
+		} else {
+			targetIndex = SelectedIndex;
+		}
+	}
+
+	private void Animate() {
+		if (targetIndex == null) {
+			return;
+		}
+		var index = targetIndex.Value;
+		targetIndex = null;
+		double toTop;
+		var nowTop = fluentBorder.Margin.Top;
+		if (index < 0) {
+			var itemsCount = Items.Count;
+			if (nowTop > itemsCount * 20d) {
+				toTop = itemsCount * 40d + 6d;
+			} else {
+				toTop = -34d;
+			}
+		} else {
+			toTop = index * 40d + 6d;
+		}
+		var topAnimation = new DoubleAnimation(toTop, TimeSpan.FromMilliseconds(200)) { EasingFunction = CubicEase };
+		Storyboard.SetTargetProperty(topAnimation, new PropertyPath(FluentBorder.TopProperty));
+		var bottomAnimation = new DoubleAnimation(toTop + 28d, TimeSpan.FromMilliseconds(200)) { EasingFunction = CubicEase };
+		Storyboard.SetTargetProperty(bottomAnimation, new PropertyPath(FluentBorder.BottomProperty));
+		if (nowTop > toTop) {
+			bottomAnimation.BeginTime = TimeSpan.FromMilliseconds(100);
+		} else {
+			topAnimation.BeginTime = TimeSpan.FromMilliseconds(100);
+		}
+		storyboard.Children.Clear();
+		storyboard.Children.Add(topAnimation);
+		storyboard.Children.Add(bottomAnimation);
+		storyboard.Begin(fluentBorder);
 	}
 }
