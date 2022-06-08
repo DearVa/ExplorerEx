@@ -138,7 +138,7 @@ public class FolderItem : FileSystemItem {
 	/// <summary>
 	/// 注册的路径解析器
 	/// </summary>
-	public static readonly HashSet<Func<string, (FolderItem, string, PathType)>> PathParsers = new();
+	public static readonly HashSet<Func<string, (FolderItem, PathType)>> PathParsers = new();
 
 	/// <summary>
 	/// 将已经加载过的Folder判断完是否为空缓存下来
@@ -150,17 +150,17 @@ public class FolderItem : FileSystemItem {
 	/// </summary>
 	/// <param name="path"></param>
 	/// <returns></returns>
-	public static (FolderItem, string, PathType) ParsePath(string path) {
+	public static (FolderItem, PathType) ParsePath(string path) {
 		path = path?.Trim();
 		if (string.IsNullOrEmpty(path) || path == "ThisPC".L() || path.ToUpper() is "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}" or "::{5E5F29CE-E0A8-49D3-AF32-7A7BDC173478}") {  // 加载“此电脑”
-			return (HomeFolderItem.Instance, null, PathType.Home);
+			return (HomeFolderItem.Instance, PathType.Home);
 		}
 		path = path.Replace('/', '\\');
 		if (path.Length >= 3) {
 			if (path[0] is (>= 'A' and <= 'Z') or (>= 'a' and <= 'z') && path[1] == ':') {  // 以驱动器作为开头，表示是本地的目录
 				if (path.Length == 2 || (path.Length == 3 && path[2] == '\\')) {  // 长度为2或3，表示本地驱动器根目录 TODO: 可能为映射的网络驱动器
 					if (Directory.Exists(path)) {
-						return (new DiskDriveItem(new DriveInfo(path[..1])), path, PathType.LocalFolder);
+						return (new DiskDriveItem(new DriveInfo(path[..1])), PathType.LocalFolder);
 					}
 					throw new IOException("#PathNotExistOrAccessDenied".L());
 				}
@@ -168,17 +168,17 @@ public class FolderItem : FileSystemItem {
 				var zipIndex = path.IndexOf(@".zip\", StringComparison.CurrentCulture);
 				if (zipIndex == -1) { // 没找到.zip\，不是zip文件
 					if (Directory.Exists(path)) {
-						return (new FolderItem(path), path, PathType.LocalFolder);
+						return (new FolderItem(path), PathType.LocalFolder);
 					}
 					if (File.Exists(path)) {
-						return (null, null, PathType.LocalFile);
+						return (null, PathType.LocalFile);
 					}
 					throw new IOException("#PathNotExistOrAccessDenied".L());
 				}
 				if (path[^1] != '\\') {
 					throw new IOException("#ZipMustEndsWithSlash".L());
 				}
-				return (new ZipFolderItem(path, path[..(zipIndex + 4)], path[(zipIndex + 5)..]), null, PathType.Zip);
+				return (new ZipFolderItem(path, path[..(zipIndex + 4)], path[(zipIndex + 5)..]), PathType.Zip);
 			}
 		}
 		// ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
@@ -188,7 +188,7 @@ public class FolderItem : FileSystemItem {
 				return result;
 			}
 		}
-		return (null, null, PathType.Unknown);
+		return (null, PathType.Unknown);
 	}
 
 
@@ -263,4 +263,13 @@ public class FolderItem : FileSystemItem {
 		}
 		return list;
 	}
+}
+
+/// <summary>
+/// 表示Shell中的特殊文件夹，他有自己的CSIDL并且可以获取IdList
+/// </summary>
+public interface ISpecialFolder {
+	CSIDL Csidl { get; }
+
+	IntPtr IdList { get; }
 }

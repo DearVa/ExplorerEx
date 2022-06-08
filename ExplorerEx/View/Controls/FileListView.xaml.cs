@@ -747,7 +747,7 @@ public partial class FileListView : INotifyPropertyChanged {
 				}
 				previewPopup = null;
 			}
-		} else if (hoverShowTime < DateTimeOffset.Now && previewPopup == null || previewPopup.FilePath != item.FullPath) {  // 有项目且按下了Alt
+		} else if (IsFocused && hoverShowTime < DateTimeOffset.Now && previewPopup == null || previewPopup.FilePath != item.FullPath) {  // 有项目且按下了Alt
 			var newPopup = PreviewPopup.ChoosePopup(item.FullPath);
 			if (newPopup != null) {
 				if (newPopup != previewPopup) {
@@ -768,7 +768,6 @@ public partial class FileListView : INotifyPropertyChanged {
 			if (item == null) {
 				scrollViewer.ScrollToTop();
 			} else {
-				scrollViewer.ScrollToBottom(); // 确保在最上面
 				ScrollIntoView((object)item);
 			}
 		}

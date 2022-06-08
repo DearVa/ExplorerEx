@@ -25,9 +25,9 @@ public class FileItemCommand : ICommand {
 	public Func<FileTabControl> TabControlProvider { get; set; }
 
 	/// <summary>
-	/// 当前操作的目录，如果不是常规目录（比如在主页）就设为null
+	/// 当前操作的目录
 	/// </summary>
-	public string CurrentFullPath { get; set; }
+	public FolderItem Folder { get; set; }
 
 	public bool CanExecute(object parameter) => true;
 
@@ -102,7 +102,7 @@ public class FileItemCommand : ICommand {
 				break;
 			}
 			case "Paste": {
-				if (CurrentFullPath != null && Clipboard.GetDataObject() is DataObject data) {
+				if (Folder != null && Clipboard.GetDataObject() is DataObject data) {
 					if (data.GetData(DataFormats.FileDrop) is string[] filePaths) {
 						bool isCut;
 						if (data.GetData("IsCut") is bool i) {
@@ -110,7 +110,7 @@ public class FileItemCommand : ICommand {
 						} else {
 							isCut = false;
 						}
-						var destPaths = filePaths.Select(path => Path.Combine(CurrentFullPath, Path.GetFileName(path))).ToList();
+						var destPaths = filePaths.Select(path => Path.Combine(Folder.FullPath, Path.GetFileName(path))).ToList();
 						try {
 							FileUtils.FileOperation(isCut ? FileOpType.Move : FileOpType.Copy, filePaths, destPaths);
 						} catch (Exception e) {
@@ -130,7 +130,7 @@ public class FileItemCommand : ICommand {
 				break;
 			}
 			case "Delete":  // 删除一个或多个文件，按住shift就是强制删除
-				if (CurrentFullPath == null) {
+				if (Folder == null) {
 					return;
 				}
 				if ((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift) {  // 没有按Shift
@@ -175,10 +175,10 @@ public class FileItemCommand : ICommand {
 			case "Properties": {
 				var items = Items;
 				if (items.Count == 0) {
-					Shell32Interop.ShowFileProperties(CurrentFullPath);
+					Shell32Interop.ShowProperties(Folder);
 				} else {
 					foreach (var item in items) {
-						Shell32Interop.ShowFileProperties(item.FullPath);
+						Shell32Interop.ShowProperties(item);
 					}
 				}
 				break;
@@ -194,7 +194,7 @@ public class FileItemCommand : ICommand {
 				}
 				break;
 			case "Terminal":
-				Terminal.RunTerminal(CurrentFullPath);
+				Terminal.RunTerminal(Folder.FullPath);
 				break;
 			}
 			break;

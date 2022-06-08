@@ -26,7 +26,6 @@ using TextBox = HandyControl.Controls.TextBox;
 using System.Windows.Media.Animation;
 using System.Windows.Media;
 using System.Diagnostics;
-using System.Windows.Threading;
 using hc = HandyControl.Controls;
 
 namespace ExplorerEx.View;
@@ -158,7 +157,8 @@ public sealed partial class MainWindow {
 					try {
 						var psi = new ProcessStartInfo {
 							FileName = fileItem.FullPath,
-							UseShellExecute = true
+							UseShellExecute = true,
+							WorkingDirectory = Path.GetDirectoryName(fileItem.FullPath) ?? ""
 						};
 						if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) && fileItem is FileItem { IsExecutable: true }) {
 							psi.Verb = "runas";

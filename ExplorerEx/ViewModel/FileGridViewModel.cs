@@ -496,7 +496,8 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 
 		try {
-			(Folder, FileItemCommand.CurrentFullPath, PathType) = FolderItem.ParsePath(path);
+			(Folder, PathType) = FolderItem.ParsePath(path);
+			FileItemCommand.Folder = Folder;
 		} catch (Exception e) {
 			hc.MessageBox.Error(e.Message, "CannotOpenPath".L());
 		}
@@ -808,14 +809,14 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			} else if (isShiftPressed) {
 				new MainWindow(ddi.Drive.Name).Show();
 			} else if (isAltPressed) {
-				Shell32Interop.ShowFileProperties(ddi.Drive.Name);
+				Shell32Interop.ShowProperties(ddi);
 			} else {
 				await LoadDirectoryAsync(ddi.Drive.Name);
 			}
 			break;
 		case FileSystemItem fsi:
 			if (isAltPressed) {
-				Shell32Interop.ShowFileProperties(fsi.FullPath);
+				Shell32Interop.ShowProperties(fsi);
 			} else {
 				if (fsi.IsFolder) {
 					if (isCtrlPressed) {

@@ -1,0 +1,1 @@
+dotnet build ExplorerEx.sln -c Release

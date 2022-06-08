@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
@@ -10,8 +11,17 @@ namespace ExplorerEx.Model;
 /// <summary>
 /// 主页，也就是“此电脑”
 /// </summary>
-internal sealed class HomeFolderItem : FolderItem {
+internal sealed class HomeFolderItem : FolderItem, ISpecialFolder {
 	public static HomeFolderItem Instance { get; } = new();
+
+	public CSIDL Csidl => CSIDL.Drives;
+
+	public IntPtr IdList {
+		get {
+			Marshal.ThrowExceptionForHR(Shell32Interop.SHGetSpecialFolderLocation(IntPtr.Zero, Csidl, out var pIdList));
+			return pIdList;
+		}
+	}
 
 	// Explicit static constructor to tell C# compiler
 	// not to mark type as beforefieldinit

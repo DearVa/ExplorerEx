@@ -401,7 +401,14 @@ internal static class FileUtils {
 	/// <param name="windowSize"></param>
 	/// <returns></returns>
 	public static bool IsTextFile(out Encoding encoding, string filePath, int windowSize = 10240) {
-		using var fileStream = File.OpenRead(filePath);
+		FileStream fileStream;
+		try {
+			fileStream = File.OpenRead(filePath);
+		} catch {
+			encoding = null;
+			return false;
+		}
+
 		var rawData = new byte[windowSize];
 		var text = new char[windowSize];
 		var isText = true;

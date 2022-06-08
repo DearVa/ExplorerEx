@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
+using ExplorerEx.Model;
 
 namespace ExplorerEx.Shell32;
 
@@ -171,17 +172,21 @@ internal static class Shell32Interop {
 	public static extern int SHEmptyRecycleBin(IntPtr hWnd, string pszRootPath, EmptyRecycleBinFlags dwFlags);
 
 	/// <summary>
-	/// 显示文件的属性面板
+	/// 显示文件或者文件夹的属性面板
 	/// </summary>
-	/// <param name="filePath"></param>
+	/// <param name="item"></param>
 	/// <returns></returns>
-	public static void ShowFileProperties(string filePath) {
+	public static void ShowProperties(FileListViewItem item) {
 		var info = new ShellExecuteInfo {
 			lpVerb = "properties",
-			lpFile = filePath ?? string.Empty,
 			nShow = 5,
-			fMask = 12
+			fMask = 12  // SEE_MASK_INVOKEIDLIST
 		};
+		if (item is ISpecialFolder specialFolder) {
+			info.lpIDList = specialFolder.IdList;
+		} else {
+			info.lpFile = item.FullPath;
+		}
 		info.cbSize = Marshal.SizeOf(info);
 		ShellExecuteEx(ref info);
 	}

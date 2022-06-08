@@ -120,6 +120,7 @@ public partial class DragFilesPreview {
 	}
 
 	public void SetFilePaths(IList<string> filePaths) {
+		DragImage0.Source = DragImage1.Source = DragImage2.Source = null;
 		DragCountTextBlock.Text = filePaths.Count.ToString();
 		if (filePaths.Count < 3) {
 			DragImage2Border.Visibility = Visibility.Collapsed;
