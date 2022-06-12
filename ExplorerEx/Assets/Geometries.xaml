@@ -289,7 +289,7 @@
                 <DrawingGroup Transform="1,0,0,1,-33.09,-8.09">
                     <GeometryDrawing Geometry="F1 M133.82,183.82z M0,0z M164.68,46.89L130.59,10.53A4.54,4.54,0,0,0,127.27,9.09L38.64,9.09A4.55,4.55,0,0,0,34.09,13.64L34.09,186.36A4.55,4.55,0,0,0,38.64,190.91L161.36,190.91A4.55,4.55,0,0,0,165.91,186.36L165.91,50A4.55,4.55,0,0,0,164.68,46.89z">
                         <GeometryDrawing.Pen>
-                            <Pen Brush="#FF000000" Thickness="2" StartLineCap="Round" EndLineCap="Round" DashCap="Flat" LineJoin="Round">
+                            <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="2" StartLineCap="Round" EndLineCap="Round" DashCap="Flat" LineJoin="Round">
                                 <Pen.DashStyle>
                                     <DashStyle Offset="0" Dashes="9.98024559020996 4.99012279510498" />
                                 </Pen.DashStyle>
@@ -299,22 +299,22 @@
                 </DrawingGroup>
                 <GeometryDrawing Geometry="F1 M133.82,183.82z M0,0z M115.2,34.61L115.2,34.61 122.04,41.91 112.04,41.91">
                     <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                        <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
                     </GeometryDrawing.Pen>
                 </GeometryDrawing>
                 <GeometryDrawing Geometry="F1 M133.82,183.82z M0,0z M104.18,41.91L104.18,41.91 94.18,41.91 94.18,31.91">
                     <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                        <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
                     </GeometryDrawing.Pen>
                 </GeometryDrawing>
                 <GeometryDrawing Geometry="F1 M133.82,183.82z M0,0z M94.18,22.19L94.18,22.19 94.18,12.19 101.02,19.49">
                     <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                        <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
                     </GeometryDrawing.Pen>
                 </GeometryDrawing>
                 <GeometryDrawing>
                     <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="2" StartLineCap="Round" EndLineCap="Round" DashCap="Flat" LineJoin="Round">
+                        <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="2" StartLineCap="Round" EndLineCap="Round" DashCap="Flat" LineJoin="Round">
                             <Pen.DashStyle>
                                 <DashStyle Offset="0" Dashes="5.18401384353638 2.59200692176819" />
                             </Pen.DashStyle>
@@ -326,12 +326,12 @@
                 </GeometryDrawing>
                 <GeometryDrawing Geometry="F1 M133.82,183.82z M0,0z M123.73,163.73L123.73,163.73 123.73,173.73 113.73,173.73">
                     <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                        <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
                     </GeometryDrawing.Pen>
                 </GeometryDrawing>
                 <GeometryDrawing>
                     <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="2" StartLineCap="Round" EndLineCap="Round" DashCap="Flat" LineJoin="Round">
+                        <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="2" StartLineCap="Round" EndLineCap="Round" DashCap="Flat" LineJoin="Round">
                             <Pen.DashStyle>
                                 <DashStyle Offset="0" Dashes="9.36363697052002 4.68181848526001" />
                             </Pen.DashStyle>
@@ -343,12 +343,12 @@
                 </GeometryDrawing>
                 <GeometryDrawing Geometry="F1 M133.82,183.82z M0,0z M20.09,173.73L20.09,173.73 10.09,173.73 10.09,163.73">
                     <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                        <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
                     </GeometryDrawing.Pen>
                 </GeometryDrawing>
                 <GeometryDrawing>
                     <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="2" StartLineCap="Round" EndLineCap="Round" DashCap="Flat" LineJoin="Round">
+                        <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="2" StartLineCap="Round" EndLineCap="Round" DashCap="Flat" LineJoin="Round">
                             <Pen.DashStyle>
                                 <DashStyle Offset="0" Dashes="11.0489511489868 5.52447557449341" />
                             </Pen.DashStyle>
@@ -360,12 +360,12 @@
                 </GeometryDrawing>
                 <GeometryDrawing Geometry="F1 M133.82,183.82z M0,0z M10.09,20.09L10.09,20.09 10.09,10.09 20.09,10.09">
                     <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                        <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
                     </GeometryDrawing.Pen>
                 </GeometryDrawing>
                 <GeometryDrawing>
                     <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="2" StartLineCap="Round" EndLineCap="Round" DashCap="Flat" LineJoin="Round">
+                        <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="2" StartLineCap="Round" EndLineCap="Round" DashCap="Flat" LineJoin="Round">
                             <Pen.DashStyle>
                                 <DashStyle Offset="0" Dashes="7.85714387893677 3.92857193946838" />
                             </Pen.DashStyle>
@@ -377,13 +377,13 @@
                 </GeometryDrawing>
                 <GeometryDrawing Geometry="F1 M133.82,183.82z M0,0z M75.09,10.09L75.09,10.09 85.09,10.09 85.09,20.09">
                     <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                        <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
                     </GeometryDrawing.Pen>
                 </GeometryDrawing>
                 <DrawingGroup Transform="1,0,0,1,-33.09,-8.09">
                     <GeometryDrawing Geometry="F1 M133.82,183.82z M0,0z M118.18,36.41L118.18,54.55A4.55,4.55,0,0,0,122.73,59.09L142.73,59.09">
                         <GeometryDrawing.Pen>
-                            <Pen Brush="#FF000000" Thickness="2" StartLineCap="Round" EndLineCap="Round" DashCap="Flat" LineJoin="Round">
+                            <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="2" StartLineCap="Round" EndLineCap="Round" DashCap="Flat" LineJoin="Round">
                                 <Pen.DashStyle>
                                     <DashStyle Offset="0" Dashes="8.22621250152588 4.11310625076294" />
                                 </Pen.DashStyle>
@@ -393,12 +393,12 @@
                 </DrawingGroup>
                 <GeometryDrawing Geometry="F1 M133.82,183.82z M0,0z M113.73,51L113.73,51 123.73,51 123.73,61">
                     <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                        <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
                     </GeometryDrawing.Pen>
                 </GeometryDrawing>
                 <GeometryDrawing>
                     <GeometryDrawing.Pen>
-                        <Pen Brush="#FF000000" Thickness="2" StartLineCap="Round" EndLineCap="Round" DashCap="Flat" LineJoin="Round">
+                        <Pen Brush="{DynamicResource PrimaryTextBrush}" Thickness="2" StartLineCap="Round" EndLineCap="Round" DashCap="Flat" LineJoin="Round">
                             <Pen.DashStyle>
                                 <DashStyle Offset="0" Dashes="10.2727279663086 5.1363639831543" />
                             </Pen.DashStyle>

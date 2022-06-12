@@ -111,7 +111,12 @@ public sealed partial class MainWindow {
 
 		SplitGrid = new SplitGrid(this, null);
 		ContentGrid.Children.Add(SplitGrid);
-		ChangeThemeWithSystem();
+
+		if (App.IsDarkTheme) {
+			ChangeThemeWithSystem(false);
+		} else {
+			EnableMica(App.IsDarkTheme);
+		}
 
 		if (FolderOnlyItem.Home.Children.Count == 0) {
 			foreach (var driveInfo in DriveInfo.GetDrives()) {
@@ -280,7 +285,7 @@ public sealed partial class MainWindow {
 			}
 			break;
 		case WinMessage.DwmColorizationColorChanged:
-			ChangeThemeWithSystem();
+			ChangeThemeWithSystem(true);
 			break;
 		}
 		return IntPtr.Zero;
@@ -495,43 +500,9 @@ public sealed partial class MainWindow {
 		base.OnClosed(e);
 	}
 
-	private void ChangeThemeWithSystem() {
-		ChangeTheme(App.IsDarkTheme, ((SolidColorBrush)SystemParameters.WindowGlassBrush).Color);
-	}
-
-	private void ChangeTheme(bool isDarkTheme, Color primaryColor, bool useAnimation = true) {
-		var brushes = new ResourceDictionary {
-			Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Basic/Brushes.xaml", UriKind.Absolute)
-		};
-		var newColors = new ResourceDictionary {
-			Source = new Uri(isDarkTheme ? "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/ColorsDark.xaml" : "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Colors.xaml", UriKind.Absolute),
-			["PrimaryColor"] = primaryColor
-		};
-		var resources = Application.Current.Resources;
-		foreach (string brushName in brushes.Keys) {
-			if (resources[brushName] is SolidColorBrush sc) {
-				var newColorName = brushName[..^5] + "Color";
-				if (sc.Color == (Color)newColors[newColorName]) {
-					continue;
-				}
-				if (sc.IsFrozen) {
-					sc = sc.Clone();
-					if (useAnimation) {
-						sc.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation((Color)newColors[newColorName], new Duration(TimeSpan.FromMilliseconds(300))));
-					} else {
-						sc.SetValue(SolidColorBrush.ColorProperty, newColors[newColorName]);
-					}
-					resources[brushName] = sc;
-				} else {
-					if (useAnimation) {
-						sc.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation((Color)newColors[newColorName], new Duration(TimeSpan.FromMilliseconds(300))));
-					} else {
-						sc.SetValue(SolidColorBrush.ColorProperty, newColors[newColorName]);
-					}
-				}
-			}
-		}
-		EnableMica(isDarkTheme);
+	private void ChangeThemeWithSystem(bool useAnimation) {
+		App.ChangeTheme(App.IsDarkTheme, ((SolidColorBrush)SystemParameters.WindowGlassBrush).Color, useAnimation);
+		EnableMica(App.IsDarkTheme);
 	}
 
 	private void OnDragAreaMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {

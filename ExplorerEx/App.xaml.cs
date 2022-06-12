@@ -87,7 +87,6 @@ public partial class App {
 		Shell32Interop.Initialize();
 		IconHelper.InitializeDefaultIcons(Resources);
 
-
 		await BookmarkDbContext.Instance.LoadDataBase();
 		await FileViewDbContext.Instance.LoadDataBase();
 
@@ -105,6 +104,40 @@ public partial class App {
 			}
 		}));
 #endif
+	}
+
+	public static void ChangeTheme(bool isDarkTheme, Color primaryColor, bool useAnimation = true) {
+		var brushes = new ResourceDictionary {
+			Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Basic/Brushes.xaml", UriKind.Absolute)
+		};
+		var newColors = new ResourceDictionary {
+			Source = new Uri(isDarkTheme ? "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/ColorsDark.xaml" : "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Colors.xaml", UriKind.Absolute),
+			["PrimaryColor"] = primaryColor
+		};
+		var resources = Current.Resources;
+		foreach (string brushName in brushes.Keys) {
+			if (resources[brushName] is SolidColorBrush sc) {
+				var newColor = (Color)newColors[brushName[..^5] + "Color"];
+				if (sc.Color == newColor) {
+					continue;
+				}
+				if (sc.IsFrozen) {
+					sc = sc.Clone();
+					if (useAnimation) {
+						sc.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(newColor, new Duration(TimeSpan.FromMilliseconds(300))));
+					} else {
+						sc.SetValue(SolidColorBrush.ColorProperty, newColor);
+					}
+					resources[brushName] = sc;
+				} else {
+					if (useAnimation) {
+						sc.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(newColor, new Duration(TimeSpan.FromMilliseconds(300))));
+					} else {
+						sc.SetValue(SolidColorBrush.ColorProperty, newColor);
+					}
+				}
+			}
+		}
 	}
 
 	/// <summary>
