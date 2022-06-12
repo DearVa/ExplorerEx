@@ -117,7 +117,7 @@
                             <ItemsPresenter ClipToBounds="True"/>
                         </StackPanel>
                         <hc:SimplePanel Grid.Column="0" Margin="{TemplateBinding Padding}" VerticalAlignment="Top" Height="{Binding ActualHeight, ElementName=headerPanel}" Panel.ZIndex="2" ClipToBounds="true">
-                            <ct:FluentBorder x:Name="FluentBorder" IsHitTestVisible="False" Width="5" Height="28" CornerRadius="3" Background="{DynamicResource PrimaryBrush}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                            <ct:FluentBorder x:Name="FluentBorder" IsHitTestVisible="False" Margin="4,0,0,0" Width="3" Height="24" CornerRadius="1.5" Background="{DynamicResource PrimaryBrush}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                         </hc:SimplePanel>
                         <Border x:Name="ContentPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" ClipToBounds="True"
                                 KeyboardNavigation.DirectionalNavigation="Contained"

@@ -222,7 +222,7 @@ internal static class FileUtils {
 	/// <exception cref="IOException"></exception>
 	public static void FileOperation(FileOpType type, IList<string> sourceFiles, IList<string> destinationFiles = null) {
 		if (sourceFiles is not {Count: > 0}) {
-			return;
+			throw new ArgumentException("原文件个数不能为0");
 		}
 		if (type != FileOpType.Delete && (destinationFiles == null || sourceFiles.Count != destinationFiles.Count)) {
 			throw new ArgumentException("原文件与目标文件个数不匹配");

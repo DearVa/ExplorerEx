@@ -93,16 +93,16 @@ public class FluentTabControl : TabControl {
 		if (index < 0) {
 			var itemsCount = Items.Count;
 			if (nowTop > itemsCount * 20d) {
-				toTop = itemsCount * 40d + 6d;
+				toTop = itemsCount * 40d + 8d;
 			} else {
-				toTop = -34d;
+				toTop = -32d;
 			}
 		} else {
-			toTop = index * 40d + 6d;
+			toTop = index * 40d + 8d;
 		}
 		var topAnimation = new DoubleAnimation(toTop, TimeSpan.FromMilliseconds(200)) { EasingFunction = CubicEase };
 		Storyboard.SetTargetProperty(topAnimation, new PropertyPath(FluentBorder.TopProperty));
-		var bottomAnimation = new DoubleAnimation(toTop + 28d, TimeSpan.FromMilliseconds(200)) { EasingFunction = CubicEase };
+		var bottomAnimation = new DoubleAnimation(toTop + 24d, TimeSpan.FromMilliseconds(200)) { EasingFunction = CubicEase };
 		Storyboard.SetTargetProperty(bottomAnimation, new PropertyPath(FluentBorder.BottomProperty));
 		if (nowTop > toTop) {
 			bottomAnimation.BeginTime = TimeSpan.FromMilliseconds(100);

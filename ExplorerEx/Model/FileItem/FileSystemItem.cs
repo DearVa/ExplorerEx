@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
@@ -152,6 +153,7 @@ public class FolderItem : FileSystemItem {
 	/// <returns></returns>
 	public static (FolderItem, PathType) ParsePath(string path) {
 		path = path?.Trim();
+		// TODO: Shell位置解析
 		if (string.IsNullOrEmpty(path) || path == "ThisPC".L() || path.ToUpper() is "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}" or "::{5E5F29CE-E0A8-49D3-AF32-7A7BDC173478}") {  // 加载“此电脑”
 			return (HomeFolderItem.Instance, PathType.Home);
 		}
@@ -168,7 +170,7 @@ public class FolderItem : FileSystemItem {
 				var zipIndex = path.IndexOf(@".zip\", StringComparison.CurrentCulture);
 				if (zipIndex == -1) { // 没找到.zip\，不是zip文件
 					if (Directory.Exists(path)) {
-						return (new FolderItem(path), PathType.LocalFolder);
+						return (new FolderItem(path.TrimEnd('\\')), PathType.LocalFolder);
 					}
 					if (File.Exists(path)) {
 						return (null, PathType.LocalFile);
@@ -181,14 +183,7 @@ public class FolderItem : FileSystemItem {
 				return (new ZipFolderItem(path, path[..(zipIndex + 4)], path[(zipIndex + 5)..]), PathType.Zip);
 			}
 		}
-		// ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-		foreach (var pathParser in PathParsers) {
-			var result = pathParser.Invoke(path);
-			if (result.Item1 != null) {
-				return result;
-			}
-		}
-		return (null, PathType.Unknown);
+		return PathParsers.Select(pathParser => pathParser.Invoke(path)).FirstOrDefault(result => result.Item1 != null, (null, PathType.Unknown));
 	}
 
 

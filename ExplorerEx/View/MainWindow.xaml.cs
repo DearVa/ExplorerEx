@@ -111,7 +111,7 @@ public sealed partial class MainWindow {
 
 		SplitGrid = new SplitGrid(this, null);
 		ContentGrid.Children.Add(SplitGrid);
-		ChangeTheme(App.IsDarkTheme, false);
+		ChangeThemeWithSystem();
 
 		if (FolderOnlyItem.Home.Children.Count == 0) {
 			foreach (var driveInfo in DriveInfo.GetDrives()) {
@@ -244,9 +244,7 @@ public sealed partial class MainWindow {
 							case PathType.LocalFolder:
 							case PathType.Zip: {
 								if (tabItem.FullPath[0] == drive) {
-#pragma warning disable CS4014
-									tabItem.LoadDirectoryAsync(null);  // 驱动器移除，返回主页
-#pragma warning restore CS4014
+									_ = tabItem.LoadDirectoryAsync(null);  // 驱动器移除，返回主页
 								}
 								break;
 							}
@@ -498,20 +496,24 @@ public sealed partial class MainWindow {
 	}
 
 	private void ChangeThemeWithSystem() {
-		ChangeTheme(App.IsDarkTheme);
+		ChangeTheme(App.IsDarkTheme, ((SolidColorBrush)SystemParameters.WindowGlassBrush).Color);
 	}
 
-	private void ChangeTheme(bool isDarkTheme, bool useAnimation = true) {
+	private void ChangeTheme(bool isDarkTheme, Color primaryColor, bool useAnimation = true) {
 		var brushes = new ResourceDictionary {
 			Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Basic/Brushes.xaml", UriKind.Absolute)
 		};
 		var newColors = new ResourceDictionary {
-			Source = new Uri(isDarkTheme ? "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/ColorsDark.xaml" : "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Colors.xaml", UriKind.Absolute)
+			Source = new Uri(isDarkTheme ? "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/ColorsDark.xaml" : "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Colors.xaml", UriKind.Absolute),
+			["PrimaryColor"] = primaryColor
 		};
 		var resources = Application.Current.Resources;
 		foreach (string brushName in brushes.Keys) {
 			if (resources[brushName] is SolidColorBrush sc) {
 				var newColorName = brushName[..^5] + "Color";
+				if (sc.Color == (Color)newColors[newColorName]) {
+					continue;
+				}
 				if (sc.IsFrozen) {
 					sc = sc.Clone();
 					if (useAnimation) {
@@ -611,12 +613,6 @@ public sealed partial class MainWindow {
 					break;
 				case Key.Back:
 					mouseOverTab.GoBackAsync();
-					break;
-				case Key.Left:
-					ChangeTheme(true, false);
-					break;
-				case Key.Right:
-					ChangeTheme(false, false);
 					break;
 				}
 			}

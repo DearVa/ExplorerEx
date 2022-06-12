@@ -49,6 +49,7 @@ public partial class App {
 
 	protected override async void OnStartup(StartupEventArgs e) {
 		Logger.Initialize();
+
 		AttachConsole(-1);
 		await Console.Out.FlushAsync();
 		try {
@@ -66,25 +67,30 @@ public partial class App {
 		if (Args.RequireDebugger && Debugger.Launch()) {
 			Debugger.Break();
 		}
+
 		mutex = new Mutex(true, "ExplorerExMut", out var createdNew);
-		if (createdNew) {  // 说明没有开启ExplorerEx
-			isRunning = true;
-			notifyMmf = new NotifyMemoryMappedFile("ExplorerExIPC", 1024, true);
-			new Thread(IPCWork) {
-				IsBackground = true
-			}.Start();
-		} else {
+		if (!createdNew) {  // 说明已开启ExplorerEx
 			notifyMmf = new NotifyMemoryMappedFile("ExplorerExIPC", 1024, false);
 			var command = e.Args.Length > 1 ? "Open|" + e.Args[1] : "Open";
 			notifyMmf.Write(Encoding.UTF8.GetBytes(command));
 			Current.Shutdown();
 			return;
 		}
+
+		isRunning = true;
+		notifyMmf = new NotifyMemoryMappedFile("ExplorerExIPC", 1024, true);
+		new Thread(IPCWork) {
+			IsBackground = true
+		}.Start();
+
 		Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 		Shell32Interop.Initialize();
 		IconHelper.InitializeDefaultIcons(Resources);
+
+
 		await BookmarkDbContext.Instance.LoadDataBase();
 		await FileViewDbContext.Instance.LoadDataBase();
+
 		if (!Args.RunInBackground) {
 			new MainWindow(null).Show();
 		}

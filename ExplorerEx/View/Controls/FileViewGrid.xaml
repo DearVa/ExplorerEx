@@ -29,7 +29,7 @@
                     <ContextMenu.ItemContainerStyle>
                         <Style TargetType="MenuItem" BasedOn="{StaticResource MenuItemBaseStyle}">
                             <Setter Property="Icon" Value="{Binding Icon}"/>
-                            <Setter Property="Header" Value="{Binding Description}"></Setter>
+                            <Setter Property="Header" Value="{Binding Description}"/>
                         </Style>
                     </ContextMenu.ItemContainerStyle>
                 </ContextMenu>

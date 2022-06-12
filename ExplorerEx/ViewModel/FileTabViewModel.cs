@@ -478,7 +478,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	}
 
 	/// <summary>
-	/// 加载一个文件夹路径
+	/// 加载一个文件夹路径，不会产生任何异常
 	/// </summary>
 	/// <param name="path">如果为null或者WhiteSpace，就加载“此电脑”</param>
 	/// <param name="recordHistory">是否记录历史，返回、前进就为false</param>
@@ -524,7 +524,12 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			return false;
 		}
 
-		new Task(Folder.LoadIcon).Start();
+		try {
+			_ = Task.Run(Folder.LoadIcon);
+		} catch {
+			// 加载图标出错，忽略
+		}
+
 		if (Folder.GetType() == typeof(FolderItem) || Folder is DiskDriveItem) {
 			try {
 				watcher.Path = Folder.FullPath;
@@ -706,6 +711,8 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 					return Task.CompletedTask;
 				}, token)));
 			}
+		} catch (TaskCanceledException) {
+			// Ignore
 		} catch (Exception e) {
 			Logger.Exception(e);
 		}
@@ -933,7 +940,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	}
 
 	private void Watcher_OnRenamed(object sender, RenamedEventArgs e) {
-		dispatcher.Invoke(() => {
+		dispatcher.BeginInvoke(() => {
 			for (var i = 0; i < Items.Count; i++) {
 				if (((FileSystemItem)Items[i]).FullPath == e.OldFullPath) {
 					if (Directory.Exists(e.FullPath)) {
@@ -958,7 +965,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	}
 
 	private void Watcher_OnDeleted(object sender, FileSystemEventArgs e) {
-		dispatcher.Invoke(() => {
+		dispatcher.BeginInvoke(() => {
 			for (var i = 0; i < Items.Count; i++) {
 				if (((FileSystemItem)Items[i]).FullPath == e.FullPath) {
 					Items.RemoveAt(i);
@@ -969,7 +976,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	}
 
 	private void Watcher_OnCreated(object sender, FileSystemEventArgs e) {
-		dispatcher.Invoke(() => {
+		dispatcher.BeginInvoke(() => {
 			if (Items.Any(i => i.Name == e.Name)) {
 				return;
 			}
@@ -990,7 +997,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	}
 
 	private void Watcher_OnChanged(object sender, FileSystemEventArgs e) {
-		dispatcher.Invoke(() => {
+		dispatcher.BeginInvoke(() => {
 			// ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
 			foreach (FileSystemItem item in Items) {
 				if (item.FullPath == e.FullPath) {
@@ -1001,8 +1008,11 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		});
 	}
 
-	public void Dispose() {
+	~FileTabViewModel() {
 		DataObjectContent.ClipboardChanged -= OnClipboardChanged;
+	}
+
+	public void Dispose() {
 		Items.Clear();
 		watcher?.Dispose();
 		cts?.Dispose();
