@@ -297,7 +297,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			break;
 		case 1:  // 小图标
 			FileViewType = FileViewType.Icons;
-			ItemSize = new Size(80d, 170d);
+			ItemSize = new Size(80d, 130d);
 			break;
 		case 2:  // 列表，size.Width为0代表横向填充
 			FileViewType = FileViewType.List;

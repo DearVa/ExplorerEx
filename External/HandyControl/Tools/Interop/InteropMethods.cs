@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -537,6 +538,20 @@ internal static class InteropMethods {
 	}
 
 	/// <summary>
+	/// 通过注册表获取系统是否为深色模式
+	/// </summary>
+	public static bool IsDarkTheme {
+		get {
+			try {
+				using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+				return key?.GetValue("AppsUseLightTheme") is 0;
+			} catch {
+				return false;
+			}
+		}
+	}
+
+	/// <summary>
 	/// 开启窗口的亚克力透明效果
 	/// </summary>
 	/// <param name="hwnd"></param>
@@ -544,7 +559,7 @@ internal static class InteropMethods {
 		var accent = new AccentPolicy {
 			AccentState = AccentState.EnableAcrylicBlurBehind,
 			// 80: 透明度 第一个0xFFFFFF：背景色
-			GradientColor = (80 << 24) | 0xFFFFFF
+			GradientColor = (20 << 24) | (IsDarkTheme ? 0x000000u : 0xFFFFFFu)
 		};
 
 		var sizeOfAccent = Marshal.SizeOf<AccentPolicy>();

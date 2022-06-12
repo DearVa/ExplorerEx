@@ -237,116 +237,119 @@ public class FileView : INotifyPropertyChanged {
 	private readonly List<string> changedPropertiesName = new();
 
 	[Key]
-	public string FullPath { 
-        get => fullPath;
-        set {
-            if (fullPath != value) {
-                fullPath = value;
-                StageChange();
-            }
-        }
-    }
-    private string fullPath;
+	public string FullPath {
+		get => fullPath;
+		set {
+			if (fullPath != value) {
+				fullPath = value;
+				StageChange();
+			}
+		}
+	}
+	private string fullPath;
 
 	[NotMapped]
 	public PathType PathType {
-        get => pathType;
-        set {
-            if (pathType != value) {
-                pathType = value;
+		get => pathType;
+		set {
+			if (pathType != value) {
+				pathType = value;
 				StageChange();
 			}
-        }
-    }
-    private PathType pathType;
+		}
+	}
+	private PathType pathType;
 
 	public DetailListType SortBy {
-        get => sortBy;
-        set {
-            if (sortBy != value) {
-                sortBy = value;
-                StageChange();
+		get => sortBy;
+		set {
+			if (sortBy != value) {
+				sortBy = value;
+				StageChange();
 				UpdateUI(nameof(SortByIndex));
-            }
-        }
-    }
-    private DetailListType sortBy;
+			}
+		}
+	}
+	private DetailListType sortBy;
 
-    public int SortByIndex => SortBy switch {
-	    DetailListType.Name => 0,
-	    DetailListType.DateModified => 1,
-	    DetailListType.Type => 2,
-	    DetailListType.FileSize => 3,
-	    _ => 0
-    };
+	public int SortByIndex => SortBy switch {
+		DetailListType.Name => 0,
+		DetailListType.DateModified => 1,
+		DetailListType.Type => 2,
+		DetailListType.FileSize => 3,
+		_ => 0
+	};
 
 	public bool IsAscending {
-        get => isAscending;
-        set {
-            if (isAscending != value) {
-                isAscending = value;
-                StageChange();
+		get => isAscending;
+		set {
+			if (isAscending != value) {
+				isAscending = value;
+				StageChange();
 				UpdateUI(nameof(IsAscending));
-            }
-        }
-    }
-    private bool isAscending;
+			}
+		}
+	}
+	private bool isAscending;
 
-	public DetailListType? GroupBy { 
-        get => groupBy;
-        set {
-            if (groupBy != value) {
-                groupBy = value;
+	public DetailListType? GroupBy {
+		get => groupBy;
+		set {
+			if (groupBy != value) {
+				groupBy = value;
 				UpdateUI();
 				UpdateUI(nameof(GroupByIndex));
 			}
-        }
-    }
-    private DetailListType? groupBy;
+		}
+	}
+	private DetailListType? groupBy;
 
-    public int GroupByIndex => GroupBy switch {
-	    DetailListType.Name => 0,
-	    DetailListType.DateModified => 1,
-	    DetailListType.Type => 2,
-	    DetailListType.FileSize => 3,
-	    _ => -1
-    };
+	public int GroupByIndex => GroupBy switch {
+		DetailListType.Name => 0,
+		DetailListType.DateModified => 1,
+		DetailListType.Type => 2,
+		DetailListType.FileSize => 3,
+		_ => -1
+	};
 
-	public FileViewType FileViewType { 
-        get => fileViewType;
-        set {
-            if (fileViewType != value) {
-                fileViewType = value;
+	public FileViewType FileViewType {
+		get => fileViewType;
+		set {
+			if (fileViewType != value) {
+				fileViewType = value;
 				StageChange();
 				UpdateUI(nameof(FileViewTypeIndex));
 			}
-        }
-    }
-    private FileViewType fileViewType;
+		}
+	}
+	private FileViewType fileViewType;
 
-    /// <summary>
-    /// 用于绑定到下拉按钮
-    /// </summary>
-    public int FileViewTypeIndex => FileViewType switch {
-	    FileViewType.Icons when ItemSize.Width > 100d && ItemSize.Height > 130d => 0,
-	    FileViewType.Icons => 1,
-	    FileViewType.List => 2,
-	    FileViewType.Details => 3,
-	    FileViewType.Tiles => 4,
-	    FileViewType.Content => 5,
-	    _ => -1
-    };
+	/// <summary>
+	/// 用于绑定到下拉按钮
+	/// </summary>
+	public int FileViewTypeIndex => FileViewType switch {
+		FileViewType.Icons when ItemWidth > 100d && ItemHeight > 130d => 0,
+		FileViewType.Icons => 1,
+		FileViewType.List => 2,
+		FileViewType.Details => 3,
+		FileViewType.Tiles => 4,
+		FileViewType.Content => 5,
+		_ => -1
+	};
 
 	[NotMapped]
 	public Size ItemSize {
 		get => new(ItemWidth, ItemHeight);
 		set {
-			ItemWidth = value.Width;
-			ItemHeight = value.Height;
-			StageChange();
+			if (ItemWidth != value.Width || ItemHeight != value.Height) {
+				ItemWidth = value.Width;
+				ItemHeight = value.Height;
+				StageChange();
+				StageChange(nameof(FileViewTypeIndex));
+			}
 		}
 	}
-
+	
 	public double ItemWidth { get; set; }
 
 	public double ItemHeight { get; set; }
@@ -355,7 +358,7 @@ public class FileView : INotifyPropertyChanged {
 	public List<DetailList> DetailLists {
 		get => DecodeData();
 		set {
-            EncodeData(value);
+			EncodeData(value);
 			StageChange();
 		}
 	}

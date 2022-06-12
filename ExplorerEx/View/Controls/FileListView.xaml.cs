@@ -82,14 +82,11 @@ public partial class FileListView : INotifyPropertyChanged {
 		set => SetValue(FileViewProperty, value);
 	}
 
-	public Size ItemSize => FileView?.ItemSize ?? new Size(0, 30);
+	public double ItemWidth => FileView?.ItemWidth ?? 0d;
 
-	public Size ActualItemSize {
-		get {
-			var itemSize = ItemSize;
-			return new Size(itemSize.Width + 2d, itemSize.Height + 6d);
-		}
-	}
+	public double ItemHeight => FileView?.ItemHeight ?? 30d;
+
+	public Size ActualItemSize => new(ItemWidth + 2d, ItemHeight + 6d);
 
 	public static readonly DependencyProperty FullPathProperty = DependencyProperty.Register(
 		"FullPath", typeof(string), typeof(FileListView), new PropertyMetadata(null, OnFullPathChanged));
@@ -236,7 +233,8 @@ public partial class FileListView : INotifyPropertyChanged {
 			}
 			break;
 		case nameof(fileView.ItemSize):
-			UpdateUI(nameof(ItemSize));
+			UpdateUI(nameof(ItemWidth));
+			UpdateUI(nameof(ItemHeight));
 			UpdateUI(nameof(ActualItemSize));
 			break;
 		}
@@ -615,7 +613,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		for (var i = 0; i < ItemsSource.Count; i++) {
 			if (ItemContainerGenerator.ContainerFromIndex(i) is FrameworkElement element) {
 				var topLeft = element.TranslatePoint(new Point(0, 0), contentPanel);
-				var itemBounds = new Rect(topLeft.X, topLeft.Y, element.DesiredSize.Width, ItemSize.Height);
+				var itemBounds = new Rect(topLeft.X, topLeft.Y, element.DesiredSize.Width, ItemHeight);
 				if (itemBounds.IntersectsWith(selectRect)) {
 					((FileListViewItem)element.DataContext).IsSelected = true;
 				} else if (itemBounds.IntersectsWith(prevSelectRect)) {

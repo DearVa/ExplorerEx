@@ -22,8 +22,8 @@
         <DataTemplate x:Key="IconTemplate">
             <!--https://www.cnblogs.com/wuty/p/15599045.html-->
             <!--此处必须写成Binding Path=xxx，如果省略Path=，语法上没有问题，也能正确绑定，但是会引发一次异常，导致加载速度变慢-->
-            <Grid Width="{Binding Path=DataContext.ItemSize.Width, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-                  MaxHeight="{Binding Path=DataContext.ItemSize.Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+            <Grid Width="{Binding Path=ItemWidth, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                  Height="{Binding Path=ItemHeight, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
                   VerticalAlignment="Top" d:DataContext="{d:DesignInstance m:FileListViewItem}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="{Binding Path=ActualWidth, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
@@ -52,8 +52,8 @@
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="ListTemplate">
-            <Grid Width="{Binding Path=DataContext.ItemSize.Width, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-                  Height="{Binding Path=DataContext.ItemSize.Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" 
+            <Grid Width="{Binding Path=ItemWidth, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                  Height="{Binding Path=ItemHeight, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" 
                   HorizontalAlignment="Left" d:DataContext="{d:DesignInstance m:FileListViewItem}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="{Binding Path=Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
@@ -81,8 +81,8 @@
         </DataTemplate>
         <DataTemplate x:Key="TileTemplate">
             <Grid d:DataContext="{d:DesignInstance m:FileListViewItem}"
-                  Width="{Binding Path=DataContext.ItemSize.Width, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-                  Height="{Binding Path=DataContext.ItemSize.Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}">
+                  Width="{Binding Path=ItemWidth, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                  Height="{Binding Path=ItemHeight, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="{Binding Path=Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
                     <ColumnDefinition/>
@@ -122,8 +122,8 @@
         <!--主页显示驱动器-->
         <DataTemplate x:Key="TileHomeTemplate">
             <Grid d:DataContext="{d:DesignInstance m:DiskDriveItem}"
-                  Width="{Binding Path=DataContext.ItemSize.Width, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-                  Height="{Binding Path=DataContext.ItemSize.Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}">
+                  Width="{Binding Path=ItemWidth, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                  Height="{Binding Path=ItemHeight, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}">
                 <Grid Margin="5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="{Binding Path=Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
