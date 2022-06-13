@@ -12,6 +12,7 @@ public interface IPersist {
 [ComImport, Guid(Shell32Interop.IID_IPersistFile), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 public interface IPersistFile : IPersist {
     new void GetClassID(out Guid pClassID);
+	
     [PreserveSig]
     int IsDirty();
 
@@ -26,4 +27,15 @@ public interface IPersistFile : IPersist {
 
     [PreserveSig]
     void GetCurFile([In, MarshalAs(UnmanagedType.LPWStr)] string ppszFileName);
+}
+
+[ComImport, Guid(Shell32Interop.IID_IPersistIDList), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+public interface IPersistIDList : IPersist {
+    new void GetClassID(out Guid pClassID);
+	
+    [PreserveSig]
+	int GetIDList(out IntPtr ppidl);
+	
+    [PreserveSig]
+	int SetIDList(IntPtr ppidl);
 }

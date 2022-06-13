@@ -533,4 +533,10 @@ For the application to run properly, it's recommanded that you first extract all
   <data name="OpenInTerminal" xml:space="preserve">
     <value>Open in terminal</value>
   </data>
+  <data name="ShowMoreOptions" xml:space="preserve">
+    <value>Show more options</value>
+  </data>
+  <data name="#ShowMore" xml:space="preserve">
+    <value>"Show more options" is just a temporary function to make up for some missing functions. In the future, I will remove it and add a custom right-click menu function. Please look forward to it. :)</value>
+  </data>
 </root>

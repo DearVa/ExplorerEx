@@ -196,6 +196,13 @@ public class FileItemCommand : ICommand {
 			case "Terminal":
 				Terminal.RunTerminal(Folder.FullPath);
 				break;
+			case "ShowMore":
+				if (!ConfigHelper.LoadBoolean("ShowMore")) {
+					hc.MessageBox.Info("#ShowMore".L());
+					ConfigHelper.Save("ShowMore", true);
+				}
+				Shell32Interop.ShowFilesContextMenu(Items.Select(i => i.FullPath).ToArray());
+				break;
 			}
 			break;
 		case FileAssocItem fileAssoc:

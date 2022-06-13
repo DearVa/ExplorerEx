@@ -89,10 +89,12 @@ public partial class App {
 
 		await BookmarkDbContext.Instance.LoadDataBase();
 		await FileViewDbContext.Instance.LoadDataBase();
-
+		
+		ChangeTheme(IsDarkTheme, ((SolidColorBrush)SystemParameters.WindowGlassBrush).Color, false);
 		if (!Args.RunInBackground) {
 			new MainWindow(null).Show();
 		}
+		
 		notifyIconWindow = new NotifyIconWindow();
 		//dispatcherTimer = new DispatcherTimer(TimeSpan.FromSeconds(5), DispatcherPriority.Background, LowFrequencyWork, Dispatcher);
 		//dispatcherTimer.Start();
@@ -110,9 +112,19 @@ public partial class App {
 		var brushes = new ResourceDictionary {
 			Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Basic/Brushes.xaml", UriKind.Absolute)
 		};
+		var primaryHsvColor = primaryColor.ToHSV();
+		var lightPrimaryColor = new HSVColor(primaryHsvColor.hue, primaryHsvColor.saturation * 0.8, primaryHsvColor.value).ToRGB();
+		var darkPrimaryColor = new HSVColor(primaryHsvColor.hue, primaryHsvColor.saturation * 1.25, primaryHsvColor.value).ToRGB();
 		var newColors = new ResourceDictionary {
 			Source = new Uri(isDarkTheme ? "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/ColorsDark.xaml" : "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Colors.xaml", UriKind.Absolute),
-			["PrimaryColor"] = primaryColor
+			["LightPrimaryColor"] = lightPrimaryColor,
+			["PrimaryColor"] = primaryColor,
+			["DarkPrimaryColor"] = darkPrimaryColor,
+			["LightSelectionColor"] = Color.FromArgb(0x66, lightPrimaryColor.R, lightPrimaryColor.G, lightPrimaryColor.B),
+			["SelectionColor"] = Color.FromArgb(0x99, primaryColor.R, primaryColor.G, primaryColor.B),
+			["DarkSelectionColor"] = Color.FromArgb(0xCC, darkPrimaryColor.R, darkPrimaryColor.G, darkPrimaryColor.B),
+			["TitleColor"] = primaryColor,
+			["SecondaryTitleColor"] = lightPrimaryColor,
 		};
 		var resources = Current.Resources;
 		foreach (string brushName in brushes.Keys) {

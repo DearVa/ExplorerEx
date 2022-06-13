@@ -580,4 +580,10 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="OpenInTerminal" xml:space="preserve">
     <value>在终端中打开</value>
   </data>
+  <data name="ShowMoreOptions" xml:space="preserve">
+    <value>显示更多选项</value>
+  </data>
+  <data name="#ShowMore" xml:space="preserve">
+    <value>显示更多选项只是一项临时功能，为了暂时弥补一些功能上的缺失。在未来我会将其移除，并添加自定义右键菜单功能，敬请期待。 :)</value>
+  </data>
 </root>

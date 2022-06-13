@@ -214,6 +214,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 显示更多选项只是一项临时功能，为了暂时弥补一些功能上的缺失。在未来我会将其移除，并添加自定义右键菜单功能，敬请期待。 :) 的本地化字符串。
+        /// </summary>
+        internal static string _ShowMore {
+            get {
+                return ResourceManager.GetString("#ShowMore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 此文件是二进制文件或者使用了不支持的编码方式。 的本地化字符串。
         /// </summary>
         internal static string _Unsupported_encoding {
@@ -1354,6 +1363,15 @@ namespace ExplorerEx.Strings {
         internal static string Shortcut {
             get {
                 return ResourceManager.GetString("Shortcut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 显示更多选项 的本地化字符串。
+        /// </summary>
+        internal static string ShowMoreOptions {
+            get {
+                return ResourceManager.GetString("ShowMoreOptions", resourceCulture);
             }
         }
         

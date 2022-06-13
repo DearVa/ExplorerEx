@@ -1,10 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using ExplorerEx.Command;
 using ExplorerEx.Model;
+using ExplorerEx.Utils;
+using ExplorerEx.Win32;
+using static ExplorerEx.Win32.Win32Interop;
 
 namespace ExplorerEx.Shell32;
 
@@ -43,9 +50,14 @@ internal static class Shell32Interop {
 	public static Guid GUID_IShellLink = new(IID_IShellLink);
 
 	public const string IID_IPersistFile = "0000010b-0000-0000-C000-000000000046";
-	public static Guid GUID_IPersistFile = new(IID_IPersistFile);
+	public static Guid GUID_IPersistFile = new(IID_IPersistFile);	
+	
+	public const string IID_IPersistIDList = "1079acfc-29bd-11d3-8e0d-00c04f6837d5";
+	public static Guid GUID_IPersistIDList = new(IID_IPersistIDList);
 
 	public static Guid BHID_DataObject = new("b8c0bd9f-ed24-455c-83e6-d5390c4fe8c4");
+	public static Guid BHID_SFObject = new("3981e224-f559-11d3-8e3a-00c04f6837d5");
+	public static Guid BHID_SFUIObject = new("3981e225-f559-11d3-8e3a-00c04f6837d5");
 
 	/// <summary>
 	/// Shell操作共用的锁
@@ -157,8 +169,14 @@ internal static class Shell32Interop {
 	[DllImport(Shell32, CharSet = CharSet.Unicode)]
 	public static extern int SHAssocEnumHandlers(string pszExtra, AssocFilter afFilter, out IEnumAssocHandlers ppEnumHandler);
 
-	[DllImport("shell32", CharSet = CharSet.Unicode)]
+	[DllImport(Shell32, CharSet = CharSet.Unicode)]
 	public static extern int SHCreateItemFromParsingName(string pszPath, IBindCtx pbc, [MarshalAs(UnmanagedType.LPStruct)] Guid riid, out IShellItem ppv);
+
+	[DllImport(Shell32, CharSet = CharSet.Unicode)]
+	public static extern int SHCreateShellItemArrayFromIDLists(uint cidl, IntPtr[] rgpidl, out IShellItemArray ppsiItemArray);
+
+	[DllImport(Shell32, CharSet = CharSet.Unicode)]
+	public static extern int SHGetIDListFromObject([In, MarshalAs(UnmanagedType.IUnknown)] object punk, out IntPtr pidl);
 
 	[Flags]
 	public enum EmptyRecycleBinFlags {
@@ -170,6 +188,10 @@ internal static class Shell32Interop {
 
 	[DllImport(Shell32)]
 	public static extern int SHEmptyRecycleBin(IntPtr hWnd, string pszRootPath, EmptyRecycleBinFlags dwFlags);
+
+	public static T GetTypedObjectForIUnknown<T>(IntPtr pUnk) {
+		return (T)Marshal.GetTypedObjectForIUnknown(pUnk, typeof(T));
+	}
 
 	/// <summary>
 	/// 显示文件或者文件夹的属性面板
@@ -221,7 +243,7 @@ internal static class Shell32Interop {
 	/// <param name="iconPath"></param>
 	public static void CreateLnk(string targetPath, string lnkPath, string description = null, string iconPath = null) {
 		Marshal.ThrowExceptionForHR(CoCreateInstance(ref CLSID_ShellLink, null, 1, ref GUID_IShellLink, out var pShellLink));
-		var shellLink = (IShellLinkW)Marshal.GetTypedObjectForIUnknown(pShellLink, typeof(IShellLinkW));
+		var shellLink = GetTypedObjectForIUnknown<IShellLinkW>(pShellLink);
 		shellLink.SetPath(targetPath);
 		if (description != null) {
 			shellLink.SetDescription(description);
@@ -234,7 +256,7 @@ internal static class Shell32Interop {
 			Marshal.ReleaseComObject(shellLink);
 			throw exception;
 		}
-		var persistFile = (IPersistFile)Marshal.GetTypedObjectForIUnknown(pPersistFile, typeof(IPersistFile));
+		var persistFile = GetTypedObjectForIUnknown<IPersistFile>(pPersistFile);
 		exception = Marshal.GetExceptionForHR(persistFile.Save(lnkPath, true));
 		Marshal.ReleaseComObject(persistFile);
 		Marshal.ReleaseComObject(shellLink);
@@ -249,13 +271,13 @@ internal static class Shell32Interop {
 	/// <param name="lnkPath"></param>
 	public static string GetLnkTargetPath(string lnkPath) {
 		Marshal.ThrowExceptionForHR(CoCreateInstance(ref CLSID_ShellLink, null, 1, ref GUID_IShellLink, out var pShellLink));
-		var shellLink = (IShellLinkW)Marshal.GetTypedObjectForIUnknown(pShellLink, typeof(IShellLinkW));
+		var shellLink = GetTypedObjectForIUnknown<IShellLinkW>(pShellLink);
 		var exception = Marshal.GetExceptionForHR(Marshal.QueryInterface(pShellLink, ref GUID_IPersistFile, out var pPersistFile));
 		if (exception != null) {
 			Marshal.ReleaseComObject(shellLink);
 			throw exception;
 		}
-		var persistFile = (IPersistFile)Marshal.GetTypedObjectForIUnknown(pPersistFile, typeof(IPersistFile));
+		var persistFile = GetTypedObjectForIUnknown<IPersistFile>(pPersistFile);
 		exception = Marshal.GetExceptionForHR(persistFile.Load(lnkPath, 0));
 		if (exception != null) {
 			Marshal.ReleaseComObject(persistFile);
@@ -286,14 +308,14 @@ internal static class Shell32Interop {
 			}
 
 			Marshal.ThrowExceptionForHR(SHGetMalloc(out var pMalloc));
-			Malloc = (IMalloc)Marshal.GetTypedObjectForIUnknown(pMalloc, typeof(IMalloc));
+			Malloc = GetTypedObjectForIUnknown<IMalloc>(pMalloc);
 
 			Marshal.ThrowExceptionForHR(SHGetDesktopFolder(out var desktopFolder));
 			DesktopFolder = desktopFolder;
 
 			Marshal.ThrowExceptionForHR(SHGetSpecialFolderLocation(IntPtr.Zero, CSIDL.BitBucket, out var pidlRecycleBin));
 			Marshal.ThrowExceptionForHR(DesktopFolder.BindToObject(pidlRecycleBin, IntPtr.Zero, GUID_IShellFolder2, out var pRecycleBin));
-			RecycleBinFolder = (IShellFolder2)Marshal.GetTypedObjectForIUnknown(pRecycleBin, typeof(IShellFolder2));
+			RecycleBinFolder = GetTypedObjectForIUnknown<IShellFolder2>(pRecycleBin);
 			Malloc.Free(pidlRecycleBin);
 
 			Marshal.ThrowExceptionForHR(SHGetImageList(SHIL.Jumbo, ref GUID_IImageList, out var imageList));
@@ -301,6 +323,115 @@ internal static class Shell32Interop {
 
 			isInitialized = true;
 		}
+	}
+
+	public static void ShowFilesContextMenu(string[] filePaths) {
+		var list = new List<(IntPtr, IShellItem)>();
+		foreach (var filePath in filePaths) {
+			Marshal.ThrowExceptionForHR(SHCreateItemFromParsingName(filePath, null, GUID_IShellItem, out var item));
+			Marshal.ThrowExceptionForHR(SHGetIDListFromObject(item, out var pidl));
+			if (pidl == IntPtr.Zero) {
+				Marshal.ReleaseComObject(item);
+				continue;
+			}
+			list.Add((pidl, item));
+		}
+		if (list.Count == 0) {
+			return;
+		}
+
+		Marshal.ThrowExceptionForHR(SHCreateShellItemArrayFromIDLists((uint)list.Count, list.Select(i => i.Item1).ToArray(), out var itemArray));
+		itemArray.BindToHandler(IntPtr.Zero, BHID_SFUIObject, GUID_IContextMenu, out var pMenu);
+		var menu = (IContextMenu)Marshal.GetTypedObjectForIUnknown(pMenu, typeof(IContextMenu));
+		var hMenuCtx = CreatePopupMenu();
+
+		var typeStrBuf = Marshal.AllocCoTaskMem(512);
+		var mii = new MenuItemInfo {
+			cbSize = (uint)Marshal.SizeOf<MenuItemInfo>(),
+			fMask = MenuItemInfoMask.Bitmap | MenuItemInfoMask.FType | MenuItemInfoMask.String | MenuItemInfoMask.ID | MenuItemInfoMask.Submenu,
+			dwTypeData = typeStrBuf,
+			cch = 511
+		};
+
+		var contextMenu = EnumerateContextMenu(menu, hMenuCtx, typeStrBuf, ref mii);
+
+		Marshal.FreeCoTaskMem(typeStrBuf);
+		Marshal.ReleaseComObject(itemArray);
+		foreach (var tuple in list) {
+			Marshal.ReleaseComObject(tuple.Item2);
+		}
+		contextMenu.IsOpen = true;
+		contextMenu.Closed += (_, _) => {
+			DestroyMenu(hMenuCtx);
+			Marshal.ReleaseComObject(menu);
+		};
+	}
+
+	private static ContextMenu EnumerateContextMenu(IContextMenu menu, IntPtr hMenuCtx, IntPtr typeStrBuf, ref MenuItemInfo mii) {
+		Marshal.ThrowExceptionForHR(menu.QueryContextMenu(hMenuCtx, 0, 1, 0x7FFF, CMF.Explore | CMF.ItemMenu));
+		var itemCount = GetMenuItemCount(hMenuCtx);
+		
+		var contextMenu = new ContextMenu();
+		for (uint i = 0; i < itemCount; i++) {
+			var id = GetMenuItemID(hMenuCtx, i);
+			if (id is 0 or uint.MaxValue) {
+				continue;
+			}
+			var uiCommand = (IntPtr)(id - 1);
+
+			mii.cch = 511;
+			var hr = GetMenuItemInfo(hMenuCtx, i, true, ref mii);
+			if (!hr) {
+				continue;
+			}
+			if (mii.fType == MenuItemType.String) {
+				var header = Marshal.PtrToStringUni(typeStrBuf, (int)mii.cch) ?? string.Empty;
+				var item = new MenuItem {
+					Command = new SimpleCommand(() => {
+						var cmi = new CtxMenuInvokeCommandInfo {
+							cbSize = Marshal.SizeOf<CtxMenuInvokeCommandInfo>(),
+							fMask = 0x400, // CMIC_MASK_FLAG_NO_UI
+							hwnd = IntPtr.Zero,
+							lpParameters = null,
+							lpDirectory = null,
+							lpVerb = uiCommand,
+							nShow = 1, // SW_SHOWNORMAL
+							dwHotKey = 0,
+							hIcon = IntPtr.Zero
+						};
+						menu.InvokeCommand(cmi);
+						DestroyMenu(hMenuCtx);
+						Marshal.ReleaseComObject(menu);
+					})
+				};
+				var indexOfAnd = header.IndexOf('&');
+				if (indexOfAnd != -1 && indexOfAnd < header.Length - 1) {
+					item.InputGestureText = char.ToUpper(header[indexOfAnd + 1]).ToString();
+					if (indexOfAnd == 0) {
+						header = header[1..];
+					} else if (indexOfAnd < header.Length - 2 && header[indexOfAnd - 1] == '(' && header[indexOfAnd + 2] == ')') {
+						header = header[..(indexOfAnd - 1)] + header[(indexOfAnd + 3)..];
+					} else {
+						header = header[..indexOfAnd] + header[(indexOfAnd + 1)..];
+					}
+				}
+				item.Header = header;
+				if (mii.hbmpItem != IntPtr.Zero && !Enum.IsDefined(typeof(HBitmapHMenu), mii.hbmpItem.ToInt64())) {
+					item.Icon = IconHelper.HBitmap2BitmapSource(mii.hbmpItem);
+				}
+				if (mii.hSubMenu != IntPtr.Zero) {
+					try {
+						// WM_INITMENUPOPUP弹出
+						(menu as IContextMenu2)?.HandleMenuMsg(279u, mii.hSubMenu, new IntPtr(i));
+					} catch {
+						// Only for dynamic/owner drawn? (open with, etc)
+					}
+					item.ContextMenu = EnumerateContextMenu(menu, mii.hSubMenu, typeStrBuf, ref mii);
+				}
+				contextMenu.Items.Add(item);
+			}
+		}
+		return contextMenu;
 	}
 	// ReSharper restore InconsistentNaming
 	// ReSharper restore IdentifierTypo

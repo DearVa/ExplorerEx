@@ -111,12 +111,8 @@ public sealed partial class MainWindow {
 
 		SplitGrid = new SplitGrid(this, null);
 		ContentGrid.Children.Add(SplitGrid);
-
-		if (App.IsDarkTheme) {
-			ChangeThemeWithSystem(false);
-		} else {
-			EnableMica(App.IsDarkTheme);
-		}
+		
+		EnableMica(App.IsDarkTheme);
 
 		if (FolderOnlyItem.Home.Children.Count == 0) {
 			foreach (var driveInfo in DriveInfo.GetDrives()) {
@@ -285,7 +281,8 @@ public sealed partial class MainWindow {
 			}
 			break;
 		case WinMessage.DwmColorizationColorChanged:
-			ChangeThemeWithSystem(true);
+			App.ChangeTheme(App.IsDarkTheme, ((SolidColorBrush)SystemParameters.WindowGlassBrush).Color);
+			EnableMica(App.IsDarkTheme);
 			break;
 		}
 		return IntPtr.Zero;
@@ -498,11 +495,6 @@ public sealed partial class MainWindow {
 			RecycleBinItem.UnregisterWatcher();
 		}
 		base.OnClosed(e);
-	}
-
-	private void ChangeThemeWithSystem(bool useAnimation) {
-		App.ChangeTheme(App.IsDarkTheme, ((SolidColorBrush)SystemParameters.WindowGlassBrush).Color, useAnimation);
-		EnableMica(App.IsDarkTheme);
 	}
 
 	private void OnDragAreaMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {

@@ -3,6 +3,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using static ExplorerEx.Win32.Win32Interop;
+using System.Windows.Controls;
 
 namespace ExplorerEx.Win32;
 
@@ -49,13 +51,13 @@ public static class Win32Interop {
 
 	[DllImport(User32)]
 	public static extern int GetMenuString(IntPtr hMenu, uint uIDItem, [Out] StringBuilder lpString, int nMaxCount, uint uFlag);
-	
+
 	[DllImport(User32)]
 	public static extern uint GetMenuItemID(IntPtr hMenu, uint uIDItem);
 
 	[DllImport(User32)]
 	public static extern bool DestroyMenu(IntPtr hMenu);
-	
+
 	[DllImport(User32)]
 	public static extern IntPtr WindowFromPoint(Point pos);
 
@@ -71,23 +73,23 @@ public static class Win32Interop {
 	[DllImport(User32, SetLastError = true, CharSet = CharSet.Unicode)]
 	public static extern int MessageBox(IntPtr hWnd, string text, string caption, MessageBoxType type);
 
-    public enum MessageBoxType {
-        Ok = 0x0,
-        OkCancel = 0x1,
-        AbortRetryIgnore = 0x2,
-        YesNoCancel = 0x3,
-        YesNo = 0x4,
-        RetryCancel = 0x5,
-        CancelTryContinue = 0x6,
-        IconHand = 0x10,
-        IconQuestion = 0x20,
-        IconExclamation = 0x30,
-        IconAsterisk = 0x40,
-        IconWarning = IconExclamation,
-        IconError = IconHand,
-        IconInformation = IconAsterisk,
-        IconStop = IconHand,
-    }
+	public enum MessageBoxType {
+		Ok = 0x0,
+		OkCancel = 0x1,
+		AbortRetryIgnore = 0x2,
+		YesNoCancel = 0x3,
+		YesNo = 0x4,
+		RetryCancel = 0x5,
+		CancelTryContinue = 0x6,
+		IconHand = 0x10,
+		IconQuestion = 0x20,
+		IconExclamation = 0x30,
+		IconAsterisk = 0x40,
+		IconWarning = IconExclamation,
+		IconError = IconHand,
+		IconInformation = IconAsterisk,
+		IconStop = IconHand,
+	}
 
 	[DllImport(Gdi32)]
 	public static extern IntPtr CreateCompatibleDC(IntPtr hdc);
@@ -531,6 +533,334 @@ public static class Win32Interop {
 	public static extern int ClosePackageInfo(IntPtr pPackageInfo);
 
 	#endregion
+
+	[Flags]
+	public enum MenuItemInfoMask : uint {
+		//
+		// Summary:
+		//     Retrieves or sets the fState member.
+		State = 1,
+		//
+		// Summary:
+		//     Retrieves or sets the wID member.
+		ID = 2,
+		//
+		// Summary:
+		//     Retrieves or sets the hSubMenu member.
+		Submenu = 4,
+		//
+		// Summary:
+		//     Retrieves or sets the hbmpChecked and hbmpUnchecked members.
+		CheckMarks = 8,
+		//
+		// Summary:
+		//     Retrieves or sets the fType and dwTypeData members.
+		//     MIIM_TYPE is replaced by MIIM_BITMAP, MIIM_FTYPE, and MIIM_STRING.
+		Type = 16,
+		//
+		// Summary:
+		//     Retrieves or sets the dwItemData member.
+		Data = 32,
+		//
+		// Summary:
+		//     Retrieves or sets the dwTypeData member.
+		String = 64,
+		//
+		// Summary:
+		//     Retrieves or sets the hbmpItem member.
+		Bitmap = 128,
+		//
+		// Summary:
+		//     Retrieves or sets the fType member.
+		FType = 256
+	}
+
+	public enum MenuItemType : uint {
+		//
+		// Summary:
+		//     Displays the menu item using a text string. The dwTypeData member is the pointer
+		//     to a null-terminated string, and the cch member is the length of the string.
+		//     MFT_STRING is replaced by MIIM_STRING.
+		String = 0,
+		//
+		// Summary:
+		//     Displays the menu item using a bitmap. The low-order word of the dwTypeData member
+		//     is the bitmap handle, and the cch member is ignored.
+		//     MFT_BITMAP is replaced by MIIM_BITMAP and hbmpItem.
+		Bitmap = 4,
+		//
+		// Summary:
+		//     Places the menu item on a new line (for a menu bar) or in a new column (for a
+		//     drop-down menu, submenu, or shortcut menu). For a drop-down menu, submenu, or
+		//     shortcut menu, a vertical line separates the new column from the old.
+		MenuBarBreak = 32,
+		//
+		// Summary:
+		//     Places the menu item on a new line (for a menu bar) or in a new column (for a
+		//     drop-down menu, submenu, or shortcut menu). For a drop-down menu, submenu, or
+		//     shortcut menu, the columns are not separated by a vertical line.
+		MenuBreak = 64,
+		//
+		// Summary:
+		//     Assigns responsibility for drawing the menu item to the window that owns the
+		//     menu. The window receives a WM_MEASUREITEM message before the menu is displayed
+		//     for the first time, and a WM_DRAWITEM message whenever the appearance of the
+		//     menu item must be updated. If this value is specified, the dwTypeData member
+		//     contains an application-defined value.
+		OwnerDraw = 256,
+		//
+		// Summary:
+		//     Displays selected menu items using a radio-button mark instead of a check mark
+		//     if the hbmpChecked member is NULL.
+		RadioCheck = 512,
+		//
+		// Summary:
+		//     Specifies that the menu item is a separator. A menu item separator appears as
+		//     a horizontal dividing line. The dwTypeData and cch members are ignored. This
+		//     value is valid only in a drop-down menu, submenu, or shortcut menu.
+		Separator = 2048,
+		//
+		// Summary:
+		//     Specifies that menus cascade right-to-left (the default is left-to-right). This
+		//     is used to support right-to-left languages, such as Arabic and Hebrew.
+		RightOrder = 8192,
+		//
+		// Summary:
+		//     Right-justifies the menu item and any subsequent items. This value is valid only
+		//     if the menu item is in a menu bar.
+		RightJustify = 16384
+	}
+
+	[Flags]
+	public enum MenuItemState : uint {
+		//
+		// Summary:
+		//     Enables the menu item so that it can be selected. This is the default state.
+		Enabled = 0,
+		//
+		// Summary:
+		//     Unchecks the menu item. For more information about clear menu items, see the
+		//     hbmpChecked member.
+		Unchecked = 0,
+		//
+		// Summary:
+		//     Removes the highlight from the menu item. This is the default state.
+		UnHilite = 0,
+		//
+		// Summary:
+		//     Disables the menu item and grays it so that it cannot be selected. This is equivalent
+		//     to MFS_DISABLED.
+		Grayed = 3,
+		//
+		// Summary:
+		//     Disables the menu item and grays it so that it cannot be selected. This is equivalent
+		//     to MFS_GRAYED.
+		Disabled = 3,
+		//
+		// Summary:
+		//     Checks the menu item. For more information about selected menu items, see the
+		//     hbmpChecked member.
+		Checked = 8,
+		//
+		// Summary:
+		//     Highlights the menu item.
+		Hilite = 128,
+		//
+		// Summary:
+		//     Specifies that the menu item is the default. A menu can contain only one default
+		//     menu item, which is displayed in bold.
+		Default = 4096
+	}
+
+	public struct MenuItemInfo {
+		//
+		// Summary:
+		//     Type: UINT
+		//     The size of the structure, in bytes. The caller must set this member to .
+		public uint cbSize;
+		//
+		// Summary:
+		//     Type: UINT
+		//     Indicates the members to be retrieved or set. This member can be one or more
+		//     of the following values.
+		//     Value – Meaning –
+		//     MIIM_BITMAP 0x00000080 – Retrieves or sets the hbmpItem member. –
+		//     MIIM_CHECKMARKS 0x00000008 – Retrieves or sets the hbmpChecked and hbmpUnchecked
+		//     members. –
+		//     MIIM_DATA 0x00000020 – Retrieves or sets the dwItemData member. –
+		//     MIIM_FTYPE 0x00000100 – Retrieves or sets the fType member. –
+		//     MIIM_ID 0x00000002 – Retrieves or sets the wID member. –
+		//     MIIM_STATE 0x00000001 – Retrieves or sets the fState member. –
+		//     MIIM_STRING 0x00000040 – Retrieves or sets the dwTypeData member. –
+		//     MIIM_SUBMENU 0x00000004 – Retrieves or sets the hSubMenu member. –
+		//     MIIM_TYPE 0x00000010 – Retrieves or sets the fType and dwTypeData members. MIIM_TYPE
+		//     is replaced by MIIM_BITMAP, MIIM_FTYPE, and MIIM_STRING. –
+		public MenuItemInfoMask fMask;
+		//
+		// Summary:
+		//     Type: UINT
+		//     The menu item type. This member can be one or more of the following values.
+		//     The MFT_BITMAP, MFT_SEPARATOR, and MFT_STRING values cannot be combined with
+		//     one another. Set fMask to MIIM_TYPE to use fType.
+		//     fType is used only if fMask has a value of MIIM_FTYPE.
+		//     Value – Meaning –
+		//     MFT_BITMAP 0x00000004L – Displays the menu item using a bitmap. The low-order
+		//     word of the dwTypeData member is the bitmap handle, and the cch member is ignored.
+		//     MFT_BITMAP is replaced by MIIM_BITMAP and hbmpItem. –
+		//     MFT_MENUBARBREAK 0x00000020L – Places the menu item on a new line (for a menu
+		//     bar) or in a new column (for a drop-down menu, submenu, or shortcut menu). For
+		//     a drop-down menu, submenu, or shortcut menu, a vertical line separates the new
+		//     column from the old. –
+		//     MFT_MENUBREAK 0x00000040L – Places the menu item on a new line (for a menu bar)
+		//     or in a new column (for a drop-down menu, submenu, or shortcut menu). For a drop-down
+		//     menu, submenu, or shortcut menu, the columns are not separated by a vertical
+		//     line. –
+		//     MFT_OWNERDRAW 0x00000100L – Assigns responsibility for drawing the menu item
+		//     to the window that owns the menu. The window receives a WM_MEASUREITEM message
+		//     before the menu is displayed for the first time, and a WM_DRAWITEM message whenever
+		//     the appearance of the menu item must be updated. If this value is specified,
+		//     the dwTypeData member contains an application-defined value. –
+		//     MFT_RADIOCHECK 0x00000200L – Displays selected menu items using a radio-button
+		//     mark instead of a check mark if the hbmpChecked member is NULL. –
+		//     MFT_RIGHTJUSTIFY 0x00004000L – Right-justifies the menu item and any subsequent
+		//     items. This value is valid only if the menu item is in a menu bar. –
+		//     MFT_RIGHTORDER 0x00002000L – Specifies that menus cascade right-to-left (the
+		//     default is left-to-right). This is used to support right-to-left languages, such
+		//     as Arabic and Hebrew. –
+		//     MFT_SEPARATOR 0x00000800L – Specifies that the menu item is a separator. A menu
+		//     item separator appears as a horizontal dividing line. The dwTypeData and cch
+		//     members are ignored. This value is valid only in a drop-down menu, submenu, or
+		//     shortcut menu. –
+		//     MFT_STRING 0x00000000L – Displays the menu item using a text string. The dwTypeData
+		//     member is the pointer to a null-terminated string, and the cch member is the
+		//     length of the string. MFT_STRING is replaced by MIIM_STRING. –
+		public MenuItemType fType;
+		//
+		// Summary:
+		//     Type: UINT
+		//     The menu item state. This member can be one or more of these values. Set fMask
+		//     to MIIM_STATE to use fState.
+		//     Value – Meaning –
+		//     MFS_CHECKED 0x00000008L – Checks the menu item. For more information about selected
+		//     menu items, see the hbmpChecked member. –
+		//     MFS_DEFAULT 0x00001000L – Specifies that the menu item is the default. A menu
+		//     can contain only one default menu item, which is displayed in bold. –
+		//     MFS_DISABLED 0x00000003L – Disables the menu item and grays it so that it cannot
+		//     be selected. This is equivalent to MFS_GRAYED. –
+		//     MFS_ENABLED 0x00000000L – Enables the menu item so that it can be selected. This
+		//     is the default state. –
+		//     MFS_GRAYED 0x00000003L – Disables the menu item and grays it so that it cannot
+		//     be selected. This is equivalent to MFS_DISABLED. –
+		//     MFS_HILITE 0x00000080L – Highlights the menu item. –
+		//     MFS_UNCHECKED 0x00000000L – Unchecks the menu item. For more information about
+		//     clear menu items, see the hbmpChecked member. –
+		//     MFS_UNHILITE 0x00000000L – Removes the highlight from the menu item. This is
+		//     the default state. –
+		public MenuItemState fState;
+		//
+		// Summary:
+		//     Type: UINT
+		//     An application-defined value that identifies the menu item. Set fMask to MIIM_ID
+		//     to use wID.
+		public uint wID;
+		//
+		// Summary:
+		//     Type: HMENU
+		//     A handle to the drop-down menu or submenu associated with the menu item. If the
+		//     menu item is not an item that opens a drop-down menu or submenu, this member
+		//     is NULL. Set fMask to MIIM_SUBMENU to use hSubMenu.
+		public IntPtr hSubMenu;
+		//
+		// Summary:
+		//     Type: HBITMAP
+		//     A handle to the bitmap to display next to the item if it is selected. If this
+		//     member is NULL, a default bitmap is used. If the MFT_RADIOCHECK type value is
+		//     specified, the default bitmap is a bullet. Otherwise, it is a check mark. Set
+		//     fMask to MIIM_CHECKMARKS to use hbmpChecked.
+		public IntPtr hbmpChecked;
+		//
+		// Summary:
+		//     Type: HBITMAP
+		//     A handle to the bitmap to display next to the item if it is not selected. If
+		//     this member is NULL, no bitmap is used. Set fMask to MIIM_CHECKMARKS to use hbmpUnchecked.
+		public IntPtr hbmpUnchecked;
+		//
+		// Summary:
+		//     Type: ULONG_PTR
+		//     An application-defined value associated with the menu item. Set fMask to MIIM_DATA
+		//     to use dwItemData.
+		public IntPtr dwItemData;
+		//
+		// Summary:
+		//     Type: LPTSTR
+		//     The contents of the menu item. The meaning of this member depends on the value
+		//     of fType and is used only if the MIIM_TYPE flag is set in the fMask member.
+		//     To retrieve a menu item of type MFT_STRING, first find the size of the string
+		//     by setting the dwTypeData member of MENUITEMINFO to NULL and then calling GetMenuItemInfo.
+		//     The value of cch+1 is the size needed. Then allocate a buffer of this size, place
+		//     the pointer to the buffer in dwTypeData, increment cch, and call GetMenuItemInfo
+		//     once again to fill the buffer with the string. If the retrieved menu item is
+		//     of some other type, then GetMenuItemInfo sets the dwTypeData member to a value
+		//     whose type is specified by the fType member.
+		//     When using with the SetMenuItemInfo function, this member should contain a value
+		//     whose type is specified by the fType member.
+		//     dwTypeData is used only if the MIIM_STRING flag is set in the fMask member
+		public IntPtr dwTypeData;
+		//
+		// Summary:
+		//     Type: UINT
+		//     The length of the menu item text, in characters, when information is received
+		//     about a menu item of the MFT_STRING type. However, cch is used only if the MIIM_TYPE
+		//     flag is set in the fMask member and is zero otherwise. Also, cch is ignored when
+		//     the content of a menu item is set by calling SetMenuItemInfo.
+		//     Note that, before calling GetMenuItemInfo, the application must set cch to the
+		//     length of the buffer pointed to by the dwTypeData member. If the retrieved menu
+		//     item is of type MFT_STRING (as indicated by the fType member), then GetMenuItemInfo
+		//     changes cch to the length of the menu item text. If the retrieved menu item is
+		//     of some other type, GetMenuItemInfo sets the cch field to zero.
+		//     The cch member is used when the MIIM_STRING flag is set in the fMask member.
+		public uint cch;
+		//
+		// Summary:
+		//     Type: HBITMAP
+		//     A handle to the bitmap to be displayed, or it can be one of the values in the
+		//     following table. It is used when the MIIM_BITMAP flag is set in the fMask member.
+		//     Value – Meaning –
+		//     HBMMENU_CALLBACK ((HBITMAP) -1) – A bitmap that is drawn by the window that owns
+		//     the menu. The application must process the WM_MEASUREITEM and WM_DRAWITEM messages.
+		//     –
+		//     HBMMENU_MBAR_CLOSE ((HBITMAP) 5) – Close button for the menu bar. –
+		//     HBMMENU_MBAR_CLOSE_D ((HBITMAP) 6) – Disabled close button for the menu bar.
+		//     –
+		//     HBMMENU_MBAR_MINIMIZE ((HBITMAP) 3) – Minimize button for the menu bar. –
+		//     HBMMENU_MBAR_MINIMIZE_D ((HBITMAP) 7) – Disabled minimize button for the menu
+		//     bar. –
+		//     HBMMENU_MBAR_RESTORE ((HBITMAP) 2) – Restore button for the menu bar. –
+		//     HBMMENU_POPUP_CLOSE ((HBITMAP) 8) – Close button for the submenu. –
+		//     HBMMENU_POPUP_MAXIMIZE ((HBITMAP) 10) – Maximize button for the submenu. –
+		//     HBMMENU_POPUP_MINIMIZE ((HBITMAP) 11) – Minimize button for the submenu. –
+		//     HBMMENU_POPUP_RESTORE ((HBITMAP) 9) – Restore button for the submenu. –
+		//     HBMMENU_SYSTEM ((HBITMAP) 1) – Windows icon or the icon of the window specified
+		//     in dwItemData. –
+		public IntPtr hbmpItem;
+	}
+
+	public enum HBitmapHMenu : long {
+		Callback = -1,
+		MbarClose = 5,
+		MbarCloseD = 6,
+		MbarMinimize = 3,
+		MbarMinimizeD = 7,
+		MbarRestore = 2,
+		PopupClose = 8,
+		PopupMaximize = 10,
+		PopupMinimize = 11,
+		PopupRestore = 9,
+		System = 1
+	}
+
+	[DllImport(User32, CharSet = CharSet.Unicode)]
+	public static extern bool GetMenuItemInfo(IntPtr hmenu, uint item, bool fByPosition, ref MenuItemInfo lpmii);
 	// ReSharper restore InconsistentNaming
 	// ReSharper restore IdentifierTypo
 	// ReSharper restore StringLiteralTypo

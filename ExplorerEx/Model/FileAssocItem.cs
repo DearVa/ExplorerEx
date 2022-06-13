@@ -61,8 +61,11 @@ public class FileAssocItem : IRunnableApp {
 		Marshal.ThrowExceptionForHR(SHCreateItemFromParsingName(args, null, GUID_IShellItem, out var item));
 		item.BindToHandler(null, BHID_DataObject, typeof(IDataObject).GUID, out var pDataObject);
 		if (pDataObject != IntPtr.Zero) {
-			assocHandler.Invoke((IDataObject)Marshal.GetTypedObjectForIUnknown(pDataObject, typeof(IDataObject)));
+			var dataObj = (IDataObject)Marshal.GetTypedObjectForIUnknown(pDataObject, typeof(IDataObject));
+			assocHandler.Invoke(dataObj);
+			Marshal.ReleaseComObject(dataObj);
 		}
+		Marshal.ReleaseComObject(item);
 	}
 
 	/// <summary>
@@ -76,7 +79,7 @@ public class FileAssocItem : IRunnableApp {
 		Monitor.Enter(FileAssocLists);
 		if (!FileAssocLists.TryGetValue(extension, out var list)) {
 			Monitor.Exit(FileAssocLists);
-			
+
 			list = new List<FileAssocItem>();
 			Marshal.ThrowExceptionForHR(SHAssocEnumHandlers(extension, AssocFilter.Recommended, out var handlers));
 			var count = 0;

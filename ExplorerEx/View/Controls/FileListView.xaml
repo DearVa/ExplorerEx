@@ -95,7 +95,6 @@
                         <RowDefinition/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-
                     <TextBlock Grid.Row="0" Text="{Binding DisplayText, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Center"
                                TextTrimming="CharacterEllipsis" Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityReConverter}}"/>
                     <hc:TextBox x:Name="RenameTextBox" Grid.Row="0" hc:BorderElement.CornerRadius="3" HorizontalAlignment="Left"
@@ -330,7 +329,7 @@
         <c:FileAssocTemplateSelector x:Key="FileAssocTemplateSelector" DefaultStyle="{StaticResource MenuItemBaseStyle}">
             <c:FileAssocTemplateSelector.CustomStyle>
                 <Style BasedOn="{StaticResource MenuItemBaseStyle}" TargetType="MenuItem">
-                    <Setter Property="Command" Value="{Binding DataContext.ViewModel.FileItemCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                    <Setter Property="Command" Value="{Binding Path=DataContext.(ct:FileListView.ViewModel).FileItemCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
                     <Setter Property="CommandParameter" Value="{Binding}"/>
                     <Setter Property="Template">
                         <Setter.Value>
@@ -409,6 +408,11 @@
             <MenuItem CommandParameter="Properties"
                       Command="{Binding ViewModel.FileItemCommand}"
                       Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
+            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+
+            <MenuItem CommandParameter="ShowMore"
+                      Command="{Binding ViewModel.FileItemCommand}"
+                      Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang ShowMoreOptions}"/>
         </ContextMenu>
 
         <c:FileSystemItemContextMenuConverter x:Key="FileSystemItemContextMenuConverter"
@@ -484,15 +488,15 @@
             <MenuItem Header="{u:Lang GroupBy}">
                 <MenuItem.Items>
                     <MenuItem CommandParameter="12" Command="{Binding SwitchViewCommand}" Header="{u:Lang None}" 
-                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=-1}"/>
+                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=-1}"/>
                     <MenuItem CommandParameter="13" Command="{Binding SwitchViewCommand}" Header="{u:Lang Name}" 
-                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
+                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
                     <MenuItem CommandParameter="14" Command="{Binding SwitchViewCommand}" Header="{u:Lang DateModified}"
-                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
+                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
                     <MenuItem CommandParameter="15" Command="{Binding SwitchViewCommand}" Header="{u:Lang Type}"
-                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
+                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
                     <MenuItem CommandParameter="16" Command="{Binding SwitchViewCommand}" Header="{u:Lang FileSize}"
-                                      IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
+                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
                 </MenuItem.Items>
             </MenuItem>
             <MenuItem Click="Refresh_OnClick" Icon="{DynamicResource RefreshDrawingImage}" Header="{u:Lang Refresh}"/>
@@ -545,7 +549,7 @@
                     </hc:ToggleBlock.UnCheckedContent>
                 </hc:ToggleBlock>
                 <hc:SimplePanel x:Name="ContentPanel" ClipToBounds="True">
-                    <Border x:Name="SelectionRect" CornerRadius="3" Background="#66326cf3" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1" Visibility="Collapsed" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                    <Border x:Name="SelectionRect" CornerRadius="3" Opacity="0.6" Background="{DynamicResource LightPrimaryBrush}" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1" Visibility="Collapsed" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 </hc:SimplePanel>
             </hc:SimplePanel>
         </ControlTemplate>

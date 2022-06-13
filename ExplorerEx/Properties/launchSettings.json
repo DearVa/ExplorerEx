@@ -2,6 +2,7 @@
   "profiles": {
     "ExplorerEx": {
       "commandName": "Project",
+      "hotReloadEnabled": true,
       "nativeDebugging": false
     }
   }

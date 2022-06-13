@@ -69,34 +69,8 @@
             </Setter.Value>
         </Setter>
         <Style.Triggers>
-            <MultiTrigger>
-                <MultiTrigger.Conditions>
-                    <Condition Property="IsSelected" Value="True"/>
-                    <Condition Property="Selector.IsSelectionActive" Value="True"/>
-                </MultiTrigger.Conditions>
-                <MultiTrigger.EnterActions>
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <ColorAnimation Storyboard.TargetProperty="Background.Color" To="{StaticResource SelectColor}" Duration="0:0:0.1" />
-                        </Storyboard>
-                    </BeginStoryboard>
-                </MultiTrigger.EnterActions>
-            </MultiTrigger>
             <Trigger Property="IsSelected" Value="True">
-                <Trigger.EnterActions>
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <ColorAnimation Storyboard.TargetProperty="Background.Color" To="{StaticResource SelectColor}" Duration="0:0:0.1" />
-                        </Storyboard>
-                    </BeginStoryboard>
-                </Trigger.EnterActions>
-                <Trigger.ExitActions>
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <ColorAnimation Storyboard.TargetProperty="Background.Color" To="Transparent" Duration="0:0:0.1" />
-                        </Storyboard>
-                    </BeginStoryboard>
-                </Trigger.ExitActions>
+                <Setter Property="Background" Value="{DynamicResource SelectBrush}"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource DarkSelectBrush}"/>
             </Trigger>
             <MultiTrigger>
@@ -106,7 +80,6 @@
                 </MultiTrigger.Conditions>
                 <Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}"/>
             </MultiTrigger>
-
             <MultiTrigger>
                 <MultiTrigger.Conditions>
                     <Condition Property="IsMouseOver" Value="True" />
