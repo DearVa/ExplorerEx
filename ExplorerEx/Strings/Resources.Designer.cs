@@ -325,9 +325,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 可用空间 的本地化字符串。
         /// </summary>
-        internal static string Available_space {
+        internal static string AvailableSpace {
             get {
-                return ResourceManager.GetString("Available_space", resourceCulture);
+                return ResourceManager.GetString("AvailableSpace", resourceCulture);
             }
         }
         
@@ -755,15 +755,6 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 文件系统 的本地化字符串。
-        /// </summary>
-        internal static string File_system {
-            get {
-                return ResourceManager.GetString("File_system", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 文件大小 的本地化字符串。
         /// </summary>
         internal static string FileSize {
@@ -773,11 +764,20 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 文件系统 的本地化字符串。
+        /// </summary>
+        internal static string FileSystem {
+            get {
+                return ResourceManager.GetString("FileSystem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 填充占比 的本地化字符串。
         /// </summary>
-        internal static string Fill_ratio {
+        internal static string FillRatio {
             get {
-                return ResourceManager.GetString("Fill_ratio", resourceCulture);
+                return ResourceManager.GetString("FillRatio", resourceCulture);
             }
         }
         
@@ -796,6 +796,15 @@ namespace ExplorerEx.Strings {
         internal static string FormatDrive {
             get {
                 return ResourceManager.GetString("FormatDrive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 完整路径 的本地化字符串。
+        /// </summary>
+        internal static string FullPath {
+            get {
+                return ResourceManager.GetString("FullPath", resourceCulture);
             }
         }
         

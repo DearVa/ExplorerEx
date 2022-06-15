@@ -215,6 +215,12 @@
                        VerticalAlignment="Center"
                        IsHitTestVisible="False"/>
         </DataTemplate>
+        <DataTemplate x:Key="FullPathColumn">
+            <TextBlock d:DataContext="{d:DesignInstance m:FileSystemItem}"
+                       Text="{Binding FullPath, Mode=OneWay}" 
+                       VerticalAlignment="Center"
+                       IsHitTestVisible="False"/>
+        </DataTemplate>
 
         <!-- 该资源在C#逻辑中获取 -->
         <!-- ReSharper disable once Xaml.RedundantResource -->
@@ -222,7 +228,8 @@
                                         Name="{StaticResource NameColumn}" DateModified="{StaticResource ModificationDateColumn}"
                                         Type="{StaticResource TypeColumn}" FileSize="{StaticResource FileSizeColumn}"
                                         AvailableSpace="{StaticResource AvailableSpaceColumn}" TotalSpace="{StaticResource TotalSpaceColumn}"
-                                        FillRatio="{StaticResource FillRatioColumn}" FileSystem="{StaticResource FileSystemColumn}"/>
+                                        FillRatio="{StaticResource FillRatioColumn}" FileSystem="{StaticResource FileSystemColumn}"
+                                        FullPath="{StaticResource FullPathColumn}"/>
 
         <!-- 该资源在C#逻辑中获取 -->
         <!-- ReSharper disable once Xaml.RedundantResource -->

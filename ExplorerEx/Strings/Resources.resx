@@ -252,16 +252,16 @@
   <data name="Content" xml:space="preserve">
     <value>内容</value>
   </data>
-  <data name="Available_space" xml:space="preserve">
+  <data name="AvailableSpace" xml:space="preserve">
     <value>可用空间</value>
   </data>
   <data name="TotalSpace" xml:space="preserve">
     <value>总容量</value>
   </data>
-  <data name="Fill_ratio" xml:space="preserve">
+  <data name="FillRatio" xml:space="preserve">
     <value>填充占比</value>
   </data>
-  <data name="File_system" xml:space="preserve">
+  <data name="FileSystem" xml:space="preserve">
     <value>文件系统</value>
   </data>
   <data name="#YouHaveOpenedMoreThanOneTab" xml:space="preserve">
@@ -585,5 +585,8 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name="#ShowMore" xml:space="preserve">
     <value>显示更多选项只是一项临时功能，为了暂时弥补一些功能上的缺失。在未来我会将其移除，并添加自定义右键菜单功能，敬请期待。 :)</value>
+  </data>
+  <data name="FullPath" xml:space="preserve">
+    <value>完整路径</value>
   </data>
 </root>

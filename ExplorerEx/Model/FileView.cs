@@ -89,7 +89,7 @@ public enum DetailListType : byte {
 	/// <summary>
 	/// 所在文件夹
 	/// </summary>
-	Folder,
+	FullPath,
 
 	#endregion
 
@@ -108,7 +108,7 @@ public enum DetailListType : byte {
 	/// <summary>
 	/// 创建日期
 	/// </summary>
-	DateCreated,
+	DateCreated
 }
 
 /// <summary>
@@ -152,7 +152,7 @@ public class DetailList : IByteCodec {
 		new(DetailListType.DateModified, 100),
 		new(DetailListType.Type, 200),
 		new(DetailListType.FileSize, 100),
-		new(DetailListType.Folder, 300)
+		new(DetailListType.FullPath, 800)
 	};
 
 	public static DetailList[] GetDefaultLists(PathType pathType) {

@@ -205,16 +205,16 @@ Are you sure you want to change?</value>
   <data name="Content" xml:space="preserve">
     <value>Content</value>
   </data>
-  <data name="Available_space" xml:space="preserve">
+  <data name="AvailableSpace" xml:space="preserve">
     <value>Free space</value>
   </data>
   <data name="TotalSpace" xml:space="preserve">
     <value>Total space</value>
   </data>
-  <data name="Fill_ratio" xml:space="preserve">
+  <data name="FillRatio" xml:space="preserve">
     <value>Fill ratio</value>
   </data>
-  <data name="File_system" xml:space="preserve">
+  <data name="FileSystem" xml:space="preserve">
     <value>File system</value>
   </data>
   <data name="#YouHaveOpenedMoreThanOneTab" xml:space="preserve">
@@ -538,5 +538,8 @@ For the application to run properly, it's recommanded that you first extract all
   </data>
   <data name="#ShowMore" xml:space="preserve">
     <value>"Show more options" is just a temporary function to make up for some missing functions. In the future, I will remove it and add a custom right-click menu function. Please look forward to it. :)</value>
+  </data>
+  <data name="FullPath" xml:space="preserve">
+    <value>Full path</value>
   </data>
 </root>

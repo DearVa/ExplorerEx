@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 using ExplorerEx.Utils;
@@ -154,6 +158,46 @@ public abstract class FileListViewItem : SimpleNotifyPropertyChanged {
 	}
 
 	#endregion
+
+	/// <summary>
+	/// 加载详细信息，包括文件大小、类型、图标等
+	/// </summary>
+	/// <param name="list"></param>
+	/// <param name="token"></param>
+	/// <param name="useLargeIcon"></param>
+	/// <returns></returns>
+	public static async Task LoadDetails(IReadOnlyCollection<FileListViewItem> list, CancellationToken token, bool useLargeIcon) {
+		try {
+			if (list.Count > 0) {
+				await Task.WhenAll(Partitioner.Create(list).GetPartitions(4).Select(partition => Task.Run(() => {
+					if (token.IsCancellationRequested) {
+						return Task.FromCanceled(token);
+					}
+					using (partition) {
+						while (partition.MoveNext()) {
+							var item = partition.Current!;
+							item.LoadAttributes();
+
+							if (item is FileItem fileItem) {
+								fileItem.UseLargeIcon = useLargeIcon;
+							}
+							item.LoadIcon();
+
+							if (token.IsCancellationRequested) {
+								return Task.FromCanceled(token);
+							}
+						}
+					}
+
+					return Task.CompletedTask;
+				}, token)));
+			}
+		} catch (TaskCanceledException) {
+			// Ignore
+		} catch (Exception e) {
+			Logger.Exception(e);
+		}
+	}
 }
 
 public class FileItemAttach {

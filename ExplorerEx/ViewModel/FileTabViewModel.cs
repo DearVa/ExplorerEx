@@ -684,38 +684,8 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		sw.Restart();
 #endif
 
-		try {
-			if (fileListViewItems.Count > 0) {
-				var useLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content;
-
-				await Task.WhenAll(Partitioner.Create(fileListViewItems).GetPartitions(4).Select(partition => Task.Run(() => {
-					if (token.IsCancellationRequested) {
-						return Task.FromCanceled(token);
-					}
-					using (partition) {
-						while (partition.MoveNext()) {
-							var item = partition.Current!;
-							item.LoadAttributes();
-
-							if (item is FileItem fileItem) {
-								fileItem.UseLargeIcon = useLargeIcon;
-							}
-							item.LoadIcon();
-
-							if (token.IsCancellationRequested) {
-								return Task.FromCanceled(token);
-							}
-						}
-					}
-
-					return Task.CompletedTask;
-				}, token)));
-			}
-		} catch (TaskCanceledException) {
-			// Ignore
-		} catch (Exception e) {
-			Logger.Exception(e);
-		}
+		var useLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content;
+		await FileListViewItem.LoadDetails(fileListViewItems, token, useLargeIcon);
 
 #if DEBUG
 		Trace.WriteLine($"Async load costs: {sw.ElapsedMilliseconds}ms");
@@ -862,7 +832,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	private void UpdateSearch() {
 		everythingReplyCts?.Cancel();
 		if (string.IsNullOrEmpty(searchText)) {
-			LoadDirectoryAsync(FullPath).Wait();
+			_ = LoadDirectoryAsync(FullPath);
 			return;
 		}
 		if (EverythingInterop.IsAvailable) {
@@ -870,11 +840,8 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 			PathType = PathType.Search;
 			FileView.CommitChange();
-			// EverythingInterop.Reset();
 			EverythingInterop.Search = PathType == PathType.LocalFolder ? FullPath + ' ' + searchText : searchText;
 			EverythingInterop.Max = 999;
-			// EverythingInterop.SetRequestFlags(EverythingInterop.RequestType.FullPathAndFileName | EverythingInterop.RequestType.DateModified | EverythingInterop.RequestType.Size);
-			// EverythingInterop.SetSort(EverythingInterop.SortMode.NameAscending);
 			var mainWindow = OwnerTabControl.MainWindow;
 			mainWindow.UnRegisterEverythingQuery(everythingQueryId);
 			everythingQueryId = mainWindow.RegisterEverythingQuery();
@@ -894,18 +861,18 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		everythingReplyCts?.Cancel();
 		everythingReplyCts = new CancellationTokenSource();
 		var token = everythingReplyCts.Token;
-		List<FileSystemItem> list = null;
+		List<FileSystemItem> fileListViewItems = null;
 		await Task.Run(() => {
-			list = new List<FileSystemItem>(reply.FullPaths.Length);
+			fileListViewItems = new List<FileSystemItem>(reply.FullPaths.Length);
 			foreach (var fullPath in reply.FullPaths) {
 				if (token.IsCancellationRequested) {
 					return;
 				}
 				try {
 					if (Directory.Exists(fullPath)) {
-						list.Add(new FolderItem(fullPath));
+						fileListViewItems.Add(new FolderItem(fullPath));
 					} else if (File.Exists(fullPath)) {
-						list.Add(new FileItem(new FileInfo(fullPath)));
+						fileListViewItems.Add(new FileItem(new FileInfo(fullPath)));
 					}
 				} catch (Exception e) {
 					Logger.Exception(e, false);
@@ -918,21 +885,14 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 
 		Items.Clear();
-		foreach (var fileListViewItem in list) {
+		foreach (var fileListViewItem in fileListViewItems) {
 			Items.Add(fileListViewItem);
 		}
 
 		UpdateFolderUI();
 		UpdateFileUI();
 
-		await Task.Run(() => {
-			foreach (var fileViewBaseItem in list.Where(item => !item.IsFolder)) {
-				if (token.IsCancellationRequested) {
-					return;
-				}
-				fileViewBaseItem.LoadIcon();
-			}
-		}, token);
+		await FileListViewItem.LoadDetails(fileListViewItems, token, false);
 	}
 
 	private static void Watcher_OnError(object sender, ErrorEventArgs e) {
@@ -967,7 +927,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	private void Watcher_OnDeleted(object sender, FileSystemEventArgs e) {
 		dispatcher.BeginInvoke(() => {
 			for (var i = 0; i < Items.Count; i++) {
-				if (((FileSystemItem)Items[i]).FullPath == e.FullPath) {
+				if (Items[i].FullPath == e.FullPath) {
 					Items.RemoveAt(i);
 					return;
 				}

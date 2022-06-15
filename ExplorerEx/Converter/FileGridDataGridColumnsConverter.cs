@@ -21,6 +21,8 @@ internal class FileGridDataGridColumnsConverter {
 	public DataTemplate TotalSpace { get; set; }
 	public DataTemplate FillRatio { get; set; }
 	public DataTemplate FileSystem { get; set; }
+
+	public DataTemplate FullPath { get; set; }
 	#endregion
 
 	private static void AddColumn(in GridViewColumnCollection columns, DataTemplate template, double width, string header = null) {
@@ -41,16 +43,19 @@ internal class FileGridDataGridColumnsConverter {
 				AddColumn(columns, Name, width, "Name".L());
 				break;
 			case DetailListType.AvailableSpace:
-				AddColumn(columns, AvailableSpace, width, "Available_space".L());
+				AddColumn(columns, AvailableSpace, width, "AvailableSpace".L());
 				break;
 			case DetailListType.TotalSpace:
 				AddColumn(columns, TotalSpace, width, "TotalSpace".L());
 				break;
 			case DetailListType.FileSystem:
-				AddColumn(columns, FileSystem, width, "File_system".L());
+				AddColumn(columns, FileSystem, width, "FileSystem".L());
 				break;
 			case DetailListType.FillRatio:
-				AddColumn(columns, FillRatio, width, "Fill_ratio".L());
+				AddColumn(columns, FillRatio, width, "FillRatio".L());
+				break;
+			case DetailListType.FullPath:
+				AddColumn(columns, FullPath, width, "FullPath".L());
 				break;
 			case DetailListType.DateModified:
 				AddColumn(columns, DateModified, width, "DateModified".L());
@@ -62,7 +67,7 @@ internal class FileGridDataGridColumnsConverter {
 				AddColumn(columns, FileSize, width, "FileSize".L());
 				break;
 			case DetailListType.DateCreated:
-				AddColumn(columns, CreationDate, width, "Creation_date".L());
+				AddColumn(columns, CreationDate, width, "DateCreated".L());
 				break;
 			}
 		}
