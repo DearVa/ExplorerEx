@@ -30,7 +30,7 @@
                     <RowDefinition/>
                 </Grid.RowDefinitions>
                 <Image Grid.Row="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
-                       VerticalAlignment="Center" Margin="10"/>
+                       VerticalAlignment="Center" Margin="10" UseLayoutRounding="True"/>
                 <TextBlock Grid.Row="1" Text="{Binding DisplayText, Mode=OneWay}" HorizontalAlignment="Center" 
                            TextAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="Wrap"
                            Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityReConverter}}"/>
@@ -60,7 +60,7 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Image Grid.Column="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
-                       VerticalAlignment="Center" Margin="5"/>
+                       VerticalAlignment="Center" Margin="5" UseLayoutRounding="True"/>
                 <TextBlock Grid.Column="1" Text="{Binding DisplayText, Mode=OneWay}" VerticalAlignment="Center" 
                            TextTrimming="CharacterEllipsis" Visibility="{Binding EditingName, Converter={StaticResource Object2VisibilityReConverter}}"/>
                 <hc:TextBox x:Name="RenameTextBox" Grid.Column="1" hc:BorderElement.CornerRadius="3" TextWrapping="Wrap" HorizontalAlignment="Center"
@@ -254,7 +254,7 @@
             </StackPanel>
         </ControlTemplate>
 
-        <ContextMenu x:Key="DiskDriveItemContextMenu" StaysOpen="True" d:DataContext="{d:DesignInstance ct:FileListView}" Style="{StaticResource ContextMenuBaseStyle}">
+        <ContextMenu x:Key="DiskDriveItemContextMenu" d:DataContext="{d:DesignInstance ct:FileListView}" Style="{StaticResource ContextMenuBaseStyle}">
             <MenuItem Height="35">
                 <MenuItem.Template>
                     <ControlTemplate>
@@ -331,6 +331,11 @@
             <MenuItem CommandParameter="Properties"
                       Command="{Binding ViewModel.FileItemCommand}"
                       Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
+            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+
+            <MenuItem CommandParameter="ShowMore"
+                      Command="{Binding ViewModel.FileItemCommand}"
+                      Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang ShowMoreOptions}"/>
         </ContextMenu>
 
         <c:FileAssocTemplateSelector x:Key="FileAssocTemplateSelector" DefaultStyle="{StaticResource MenuItemBaseStyle}">
@@ -515,6 +520,11 @@
             <MenuItem CommandParameter="Properties"
                       Command="{Binding FileItemCommand}"
                       Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
+            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+
+            <MenuItem CommandParameter="ShowMore"
+                      Command="{Binding FileItemCommand}"
+                      Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang ShowMoreOptions}"/>
         </ContextMenu>
     </ListView.ContextMenu>
 

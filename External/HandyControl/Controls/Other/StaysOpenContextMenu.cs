@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿#if DEBUG
+using System.Windows;
 using System.Windows.Controls;
 
 namespace HandyControl.Controls; 
@@ -37,3 +38,4 @@ public class StaysOpenContextMenu : ContextMenu {
 		IsOpen = false;
 	}
 }
+#endif

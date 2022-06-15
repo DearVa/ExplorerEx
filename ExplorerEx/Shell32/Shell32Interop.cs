@@ -50,8 +50,8 @@ internal static class Shell32Interop {
 	public static Guid GUID_IShellLink = new(IID_IShellLink);
 
 	public const string IID_IPersistFile = "0000010b-0000-0000-C000-000000000046";
-	public static Guid GUID_IPersistFile = new(IID_IPersistFile);	
-	
+	public static Guid GUID_IPersistFile = new(IID_IPersistFile);
+
 	public const string IID_IPersistIDList = "1079acfc-29bd-11d3-8e0d-00c04f6837d5";
 	public static Guid GUID_IPersistIDList = new(IID_IPersistIDList);
 
@@ -325,10 +325,17 @@ internal static class Shell32Interop {
 		}
 	}
 
-	public static void ShowFilesContextMenu(string[] filePaths) {
+	/// <summary>
+	/// 在鼠标处显示文件或者文件夹的右键菜单
+	/// </summary>
+	/// <param name="fullPaths"></param>
+	public static void ShowShellContextMenu(params string[] fullPaths) {
 		var list = new List<(IntPtr, IShellItem)>();
-		foreach (var filePath in filePaths) {
-			Marshal.ThrowExceptionForHR(SHCreateItemFromParsingName(filePath, null, GUID_IShellItem, out var item));
+		foreach (var fullPath in fullPaths) {
+			if (string.IsNullOrWhiteSpace(fullPath)) {
+				continue;
+			}
+			Marshal.ThrowExceptionForHR(SHCreateItemFromParsingName(fullPath, null, GUID_IShellItem, out var item));
 			Marshal.ThrowExceptionForHR(SHGetIDListFromObject(item, out var pidl));
 			if (pidl == IntPtr.Zero) {
 				Marshal.ReleaseComObject(item);
@@ -353,7 +360,10 @@ internal static class Shell32Interop {
 			cch = 511
 		};
 
-		var contextMenu = EnumerateContextMenu(menu, hMenuCtx, typeStrBuf, ref mii);
+		Marshal.ThrowExceptionForHR(menu.QueryContextMenu(hMenuCtx, 0, 1, 0x7FFF, CMF.Explore | CMF.ItemMenu));
+		var contextMenu = new ContextMenu();
+		var paramters = string.Join(' ', fullPaths);
+		EnumerateContextMenu(contextMenu.Items, menu, hMenuCtx, typeStrBuf, ref mii, paramters);
 
 		Marshal.FreeCoTaskMem(typeStrBuf);
 		Marshal.ReleaseComObject(itemArray);
@@ -367,46 +377,20 @@ internal static class Shell32Interop {
 		};
 	}
 
-	private static ContextMenu EnumerateContextMenu(IContextMenu menu, IntPtr hMenuCtx, IntPtr typeStrBuf, ref MenuItemInfo mii) {
-		Marshal.ThrowExceptionForHR(menu.QueryContextMenu(hMenuCtx, 0, 1, 0x7FFF, CMF.Explore | CMF.ItemMenu));
+	private static void EnumerateContextMenu(in ItemCollection collection, IContextMenu menu, IntPtr hMenuCtx, IntPtr typeStrBuf, ref MenuItemInfo mii, string paramters) {
 		var itemCount = GetMenuItemCount(hMenuCtx);
-		
-		var contextMenu = new ContextMenu();
 		for (uint i = 0; i < itemCount; i++) {
-			var id = GetMenuItemID(hMenuCtx, i);
-			if (id is 0 or uint.MaxValue) {
-				continue;
-			}
-			var uiCommand = (IntPtr)(id - 1);
-
 			mii.cch = 511;
 			var hr = GetMenuItemInfo(hMenuCtx, i, true, ref mii);
 			if (!hr) {
 				continue;
 			}
-			if (mii.fType == MenuItemType.String) {
-				var header = Marshal.PtrToStringUni(typeStrBuf, (int)mii.cch) ?? string.Empty;
-				var item = new MenuItem {
-					Command = new SimpleCommand(() => {
-						var cmi = new CtxMenuInvokeCommandInfo {
-							cbSize = Marshal.SizeOf<CtxMenuInvokeCommandInfo>(),
-							fMask = 0x400, // CMIC_MASK_FLAG_NO_UI
-							hwnd = IntPtr.Zero,
-							lpParameters = null,
-							lpDirectory = null,
-							lpVerb = uiCommand,
-							nShow = 1, // SW_SHOWNORMAL
-							dwHotKey = 0,
-							hIcon = IntPtr.Zero
-						};
-						menu.InvokeCommand(cmi);
-						DestroyMenu(hMenuCtx);
-						Marshal.ReleaseComObject(menu);
-					})
-				};
+			switch (mii.fType) {
+			case MenuItemType.String: {
+				var header = Marshal.PtrToStringUni(typeStrBuf, (int)mii.cch);
 				var indexOfAnd = header.IndexOf('&');
 				if (indexOfAnd != -1 && indexOfAnd < header.Length - 1) {
-					item.InputGestureText = char.ToUpper(header[indexOfAnd + 1]).ToString();
+					// item.InputGestureText = char.ToUpper(header[indexOfAnd + 1]).ToString();
 					if (indexOfAnd == 0) {
 						header = header[1..];
 					} else if (indexOfAnd < header.Length - 2 && header[indexOfAnd - 1] == '(' && header[indexOfAnd + 2] == ')') {
@@ -415,10 +399,37 @@ internal static class Shell32Interop {
 						header = header[..indexOfAnd] + header[(indexOfAnd + 1)..];
 					}
 				}
-				item.Header = header;
+				var item = new MenuItem {
+					Header = header
+				};
+
+				// 命令
+				var id = GetMenuItemID(hMenuCtx, i);  
+				if (id is not uint.MinValue and not uint.MaxValue) {
+					item.Command = new SimpleCommand(() => {
+						var cmi = new CtxMenuInvokeCommandInfo {
+							cbSize = Marshal.SizeOf<CtxMenuInvokeCommandInfo>(),
+							fMask = 0,
+							hwnd = IntPtr.Zero,
+							lpParameters = paramters,
+							lpDirectory = null,
+							lpVerb = (IntPtr)(id - 1),
+							nShow = 1, // SW_SHOWNORMAL
+							dwHotKey = 0,
+							hIcon = IntPtr.Zero
+						};
+						menu.InvokeCommand(cmi);
+						DestroyMenu(hMenuCtx);
+						Marshal.ReleaseComObject(menu);
+					});
+				}
+
+				// 图标
 				if (mii.hbmpItem != IntPtr.Zero && !Enum.IsDefined(typeof(HBitmapHMenu), mii.hbmpItem.ToInt64())) {
 					item.Icon = IconHelper.HBitmap2BitmapSource(mii.hbmpItem);
 				}
+
+				// 子菜单
 				if (mii.hSubMenu != IntPtr.Zero) {
 					try {
 						// WM_INITMENUPOPUP弹出
@@ -426,12 +437,16 @@ internal static class Shell32Interop {
 					} catch {
 						// Only for dynamic/owner drawn? (open with, etc)
 					}
-					item.ContextMenu = EnumerateContextMenu(menu, mii.hSubMenu, typeStrBuf, ref mii);
+					EnumerateContextMenu(item.Items, menu, mii.hSubMenu, typeStrBuf, ref mii, paramters);
 				}
-				contextMenu.Items.Add(item);
+				collection.Add(item);
+				break;
+			}
+			case MenuItemType.Separator:
+				collection.Add(new Separator());
+				break;
 			}
 		}
-		return contextMenu;
 	}
 	// ReSharper restore InconsistentNaming
 	// ReSharper restore IdentifierTypo
