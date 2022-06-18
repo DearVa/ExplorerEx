@@ -122,7 +122,7 @@
         <hc:SplitButton Padding="0" Height="35" Margin="10,0,0,0" HitMode="None" Command="{Binding SwitchViewCommand}"
                         Style="{StaticResource SplitButtonTransparent}">
             <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
-                <Image Margin="10,0,0,0" Width="20" Height="20" Source="{StaticResource ListDrawingImage}"/>
+                <Image Margin="10,0,0,0" Width="20" Height="20" Source="{StaticResource ContentDrawingImage}"/>
                 <TextBlock Text="{u:Lang View}" VerticalAlignment="Center" Margin="10,0,5,0"/>
             </StackPanel>
             <hc:SplitButton.DropDownContent>
@@ -258,14 +258,19 @@
                            Text="{Binding SelectedFileItemsSizeText, Mode=OneWay}"/>
             </StackPanel>
 
-            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" d:DataContext="{d:DesignInstance vm:FileTabViewModel}"
+                        UseLayoutRounding="True" SnapsToDevicePixels="True">
+                <Button Width="22" Height="22" Style="{StaticResource ButtonSmallTransparent}"
+                        Command="{Binding SwitchViewCommand}" CommandParameter="1">
+                    <Image Source="{DynamicResource MediumIconsDrawingImage}"/>
+                </Button>
                 <Button Margin="0,0,1,0" Width="22" Height="22" Style="{StaticResource ButtonSmallTransparent}"
                         Command="{Binding SwitchViewCommand}" CommandParameter="3">
                     <Image Source="{DynamicResource DetailsDrawingImage}"/>
                 </Button>
                 <Button Width="22" Height="22" Style="{StaticResource ButtonSmallTransparent}"
-                        Command="{Binding SwitchViewCommand}" CommandParameter="1">
-                    <Image Source="{DynamicResource MediumIconsDrawingImage}"/>
+                        Command="{Binding SwitchViewCommand}" CommandParameter="4">
+                    <Image Source="{DynamicResource TilesDrawingImage}"/>
                 </Button>
             </StackPanel>
         </hc:SimplePanel>

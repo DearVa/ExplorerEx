@@ -617,6 +617,7 @@ public sealed partial class MainWindow {
 		}
 	}
 
+	private bool mouseDownOnSidebar;
 	private double sidebarStartOffset;
 	private const double SidebarMinWidth = 200;
 
@@ -628,6 +629,7 @@ public sealed partial class MainWindow {
 	/// <exception cref="NotImplementedException"></exception>
 	private void SidebarSplitter_OnPreviewMouseDown(object sender, MouseButtonEventArgs e) {
 		if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed) {
+			mouseDownOnSidebar = true;
 			var splitter = (GridSplitter)sender;
 			splitter.CaptureMouse();
 			sidebarStartOffset = SidebarColumnDefinition.ActualWidth - e.GetPosition(this).X;
@@ -636,7 +638,7 @@ public sealed partial class MainWindow {
 	}
 
 	private void SidebarSplitter_OnPreviewMouseMove(object sender, MouseEventArgs e) {
-		if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed) {
+		if (mouseDownOnSidebar) {
 			var isOpen = SidebarTabControl.SelectedIndex != -1;
 			var width = sidebarStartOffset + e.GetPosition(this).X;
 			if (width > SidebarMinWidth / 2) {
@@ -661,6 +663,9 @@ public sealed partial class MainWindow {
 	}
 
 	private void SidebarSplitter_OnPreviewMouseUp(object sender, MouseButtonEventArgs e) {
+		if (mouseDownOnSidebar && e.ChangedButton is MouseButton.Left or MouseButton.Right) {
+			mouseDownOnSidebar = false;
+		}
 		var splitter = (GridSplitter)sender;
 		splitter.ReleaseMouseCapture();
 		e.Handled = true;

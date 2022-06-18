@@ -739,18 +739,17 @@ public partial class FileListView : INotifyPropertyChanged {
 		var item = MouseItem;
 		// 如果鼠标处没有项目或者没有按下Alt
 		if (item == null || (Keyboard.IsKeyUp(Key.LeftAlt) && Keyboard.IsKeyUp(Key.RightAlt))) {
-			if (previewPopup != null) {  // 如果popup是打开状态，那就关闭
-				if (previewPopup.IsOpen) {
-					previewPopup.Close();
-				}
+			if (previewPopup is { IsOpen: true }) {  // 如果popup是打开状态，那就关闭
+				previewPopup.Close();
 				previewPopup = null;
 			}
-		} else if (IsFocused && hoverShowTime < DateTimeOffset.Now && previewPopup == null || previewPopup.FilePath != item.FullPath) {  // 有项目且按下了Alt
+		} else if (IsFocused && hoverShowTime < DateTimeOffset.Now && (previewPopup == null || previewPopup.FilePath != item.FullPath)) {  // 有项目且按下了Alt
 			var newPopup = PreviewPopup.ChoosePopup(item.FullPath);
+			if (previewPopup is { IsOpen: true } && newPopup != previewPopup) {
+				previewPopup.Close();
+				previewPopup = null;
+			}
 			if (newPopup != null) {
-				if (newPopup != previewPopup) {
-					previewPopup?.Close();
-				}
 				previewPopup = newPopup;
 				previewPopup.PlacementTarget = this;
 				var mousePos = Mouse.GetPosition(this);

@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 
 namespace ExplorerEx.View.Controls;

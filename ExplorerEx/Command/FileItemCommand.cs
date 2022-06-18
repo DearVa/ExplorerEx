@@ -20,9 +20,9 @@ using hc = HandyControl.Controls;
 namespace ExplorerEx.Command;
 
 public class FileItemCommand : ICommand {
-	public Func<IEnumerable<FileListViewItem>> SelectedItemsProvider { get; set; }
+	public Func<IEnumerable<FileListViewItem>> SelectedItemsProvider { get; init; }
 
-	public Func<FileTabControl> TabControlProvider { get; set; }
+	public Func<FileTabControl> TabControlProvider { get; init; }
 
 	/// <summary>
 	/// 当前操作的目录
@@ -258,7 +258,8 @@ public class FileItemCommand : ICommand {
 		try {
 			var psi = new ProcessStartInfo {
 				FileName = filePath,
-				UseShellExecute = true
+				UseShellExecute = true,
+				WorkingDirectory = Path.GetDirectoryName(filePath) ?? string.Empty
 			};
 			if (runAs && FileUtils.IsExecutable(filePath)) {
 				psi.Verb = "runas";

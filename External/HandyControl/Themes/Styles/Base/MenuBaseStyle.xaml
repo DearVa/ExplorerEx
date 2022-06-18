@@ -19,7 +19,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="MenuItem">
                     <Border x:Name="Bd" MinWidth="120" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" UseLayoutRounding="True" SnapsToDevicePixels="True" CornerRadius="5">
-                        <Grid x:Name="Grid" HorizontalAlignment="Left" Margin="4">
+                        <Grid x:Name="Grid" HorizontalAlignment="Left" Margin="4" UseLayoutRounding="True">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition SharedSizeGroup="MenuItemIColumnGroup" Width="Auto"/>
                                 <ColumnDefinition SharedSizeGroup="MenuItemCPColumnGroup" Width="Auto"/>
@@ -27,11 +27,11 @@
                                 <ColumnDefinition SharedSizeGroup="MenuItemIGTColumnGroup" Width="Auto"/>
                                 <ColumnDefinition SharedSizeGroup="MenuItemPColumnGroup" Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <Image Grid.Column="0" x:Name="Icon" Source="{TemplateBinding Icon}" VerticalAlignment="Center" HorizontalAlignment="Center" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                            <Image Grid.Column="0" x:Name="Icon" Source="{TemplateBinding Icon}" VerticalAlignment="Center" HorizontalAlignment="Center" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}"/>
                             <ContentPresenter Grid.Column="1" Margin="9,0,0,0" x:Name="ContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" ContentSource="Header" VerticalAlignment="Center" RecognizesAccessKey="True" />
                             <TextBlock x:Name="InputGestureText" Margin="0,0,10,0" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Left" Text="{TemplateBinding InputGestureText}" FontSize="12"/>
                             <Path IsHitTestVisible="False" Grid.Column="4" x:Name="Glyph" ClipToBounds="False" HorizontalAlignment="Right" Height="16" Visibility="Collapsed" VerticalAlignment="Center" 
-                                  Width="16" Margin="0,0,5,0" UseLayoutRounding="True" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource PrimaryBrush}"/>
+                                  Width="16" Margin="0,0,5,0" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource PrimaryBrush}"/>
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -55,14 +55,14 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="MenuItem">
                             <Border MinWidth="44" x:Name="templateRoot" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,1,1,0" Background="{TemplateBinding Background}" UseLayoutRounding="True" SnapsToDevicePixels="True" CornerRadius="5">
-                                <Grid VerticalAlignment="Center" Margin="{TemplateBinding Padding}">
+                                <Grid VerticalAlignment="Center" Margin="{TemplateBinding Padding}" UseLayoutRounding="True">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Image Margin="0,0,10,0" x:Name="Icon" Source="{TemplateBinding Icon}" HorizontalAlignment="Right" Height="16"  VerticalAlignment="Center" Width="16" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                                    <Image Margin="0,0,10,0" x:Name="Icon" Source="{TemplateBinding Icon}" HorizontalAlignment="Right" Height="16"  VerticalAlignment="Center" Width="16"/>
                                     <Path IsHitTestVisible="False" Grid.Column="0" x:Name="Glyph" ClipToBounds="False" HorizontalAlignment="Center" Height="16" Visibility="Collapsed" VerticalAlignment="Center" 
-                                          Width="16" UseLayoutRounding="True" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource PrimaryBrush}"/>
+                                          Width="16" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource PrimaryBrush}"/>
                                     <ContentPresenter x:Name="menuHeaderContainer" ContentTemplate="{TemplateBinding HeaderTemplate}" Grid.Column="1" ContentStringFormat="{TemplateBinding HeaderStringFormat}" ContentSource="Header" RecognizesAccessKey="True" />
                                     <Popup Grid.Column="0" x:Name="PART_Popup" PlacementTarget="{Binding ElementName=templateRoot}" AllowsTransparency="True" Focusable="False" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Bottom">
                                         <hc:SimplePanel Margin="8,0,8,8">
@@ -106,15 +106,15 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="MenuItem">
-                            <Border x:Name="templateRoot" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,1,1,0" Background="{TemplateBinding Background}" UseLayoutRounding="True" SnapsToDevicePixels="True" CornerRadius="5">
-                                <Grid Margin="{TemplateBinding Padding}">
+                            <Border x:Name="templateRoot" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,1,1,0" Background="{TemplateBinding Background}" SnapsToDevicePixels="True" CornerRadius="5">
+                                <Grid Margin="{TemplateBinding Padding}" UseLayoutRounding="True">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition/>
                                     </Grid.ColumnDefinitions>
-                                    <Image Margin="0,0,10,0" x:Name="Icon" HorizontalAlignment="Left" Source="{TemplateBinding Icon}" Height="16" VerticalAlignment="Center" Width="16" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                                    <Image Margin="0,0,10,0" x:Name="Icon" HorizontalAlignment="Left" Source="{TemplateBinding Icon}" Height="16" VerticalAlignment="Center" Width="16"/>
                                     <Path IsHitTestVisible="False" Grid.Column="0" x:Name="Glyph" ClipToBounds="False" HorizontalAlignment="Center" Height="16" Visibility="Collapsed" VerticalAlignment="Center" 
-                                          Width="16" UseLayoutRounding="True" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource PrimaryBrush}"/>
+                                          Width="16" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource PrimaryBrush}"/>
                                     <ContentPresenter x:Name="menuHeaderContainer" ContentTemplate="{TemplateBinding HeaderTemplate}" Grid.Column="1" ContentStringFormat="{TemplateBinding HeaderStringFormat}" ContentSource="Header" HorizontalAlignment="Left" RecognizesAccessKey="True"  VerticalAlignment="Center"/>
                                 </Grid>
                             </Border>
@@ -157,18 +157,18 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="MenuItem">
                             <Border x:Name="Bd" MinWidth="120" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" UseLayoutRounding="True" SnapsToDevicePixels="True" CornerRadius="5">
-                                <Grid x:Name="Grid" Margin="4">
+                                <Grid x:Name="Grid" Margin="4" UseLayoutRounding="True">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition SharedSizeGroup="MenuItemIColumnGroup" Width="Auto"/>
                                         <ColumnDefinition SharedSizeGroup="MenuItemCPColumnGroup" Width="Auto"/>
                                         <ColumnDefinition Width="30"/>
                                         <ColumnDefinition SharedSizeGroup="MenuItemPEColumnGroup" Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Image Grid.Column="0" x:Name="Icon" Source="{TemplateBinding Icon}" VerticalAlignment="Center" HorizontalAlignment="Center" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                    <Image Grid.Column="0" x:Name="Icon" Source="{TemplateBinding Icon}" VerticalAlignment="Center" HorizontalAlignment="Center" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" />
                                     <ContentPresenter Grid.Column="1" Margin="9,0,0,0" x:Name="ContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" ContentSource="Header" VerticalAlignment="Center" RecognizesAccessKey="True"  />
                                     <Path x:Name="Path" Grid.Column="3" Width="10" Height="10" Margin="20,0,0,0" HorizontalAlignment="Right" Data="{StaticResource RightGeometry}" Stretch="Uniform" Fill="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
                                     <Path IsHitTestVisible="False" Grid.Column="3" x:Name="Glyph" ClipToBounds="False" HorizontalAlignment="Right" Height="16" Visibility="Collapsed" VerticalAlignment="Center" 
-                                          Width="16" Margin="0,0,5,0" UseLayoutRounding="True" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource PrimaryBrush}"/>
+                                          Width="16" Margin="0,0,5,0" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource PrimaryBrush}"/>
                                     <Popup Grid.Column="1" x:Name="PART_Popup" hc:BlurPopup.Enabled="True" AllowsTransparency="True" Focusable="False" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Right" VerticalOffset="-12" HorizontalOffset="4">
                                         <Border Background="{DynamicResource BackgroundBrush}" CornerRadius="8">
                                             <ScrollViewer Style="{StaticResource ScrollViewerUpDown}" Margin="8">
