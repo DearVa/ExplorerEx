@@ -69,7 +69,6 @@
     <Page Remove="Themes\Styles\Base\StepBarBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\TagBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\TextBlockBaseStyle.xaml" />
-    <Page Remove="Themes\Styles\Base\TextBoxBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\TimePickerBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\ToggleBlockBaseStyle.xaml" />
     <Page Remove="Themes\Styles\Base\ToggleButtonBaseStyle.xaml" />
@@ -252,7 +251,6 @@
     <None Include="Themes\Styles\Base\StepBarBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\TagBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\TextBlockBaseStyle.xaml" />
-    <None Include="Themes\Styles\Base\TextBoxBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\TimePickerBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\ToggleBlockBaseStyle.xaml" />
     <None Include="Themes\Styles\Base\ToggleButtonBaseStyle.xaml" />

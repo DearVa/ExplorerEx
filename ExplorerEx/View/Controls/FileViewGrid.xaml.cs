@@ -14,19 +14,9 @@ namespace ExplorerEx.View.Controls;
 /// 对应一个Tab，但是VisualTree中，这个Grid只有一个，切换Tab的时候ViewModel会随之切换
 /// </summary>
 public partial class FileViewGrid {
-	/// <summary>
-	/// 创建文件或文件夹
-	/// </summary>
-	public SimpleCommand CreateCommand { get; }
-
 	public FileTabViewModel TabViewModel { get; private set; }
 
 	public FileViewGrid() {
-		CreateCommand = new SimpleCommand(e => {
-			if (e is MenuItem menuItem) {
-				Create((CreateFileItem)menuItem.DataContext);
-			}
-		});
 		DataContextChanged += DataContext_OnChanged;
 
 		InitializeComponent();
@@ -36,21 +26,6 @@ public partial class FileViewGrid {
 		TabViewModel = (FileTabViewModel)e.NewValue;
 		if (TabViewModel != null) {
 			TabViewModel.FileListView = FileListView;
-		}
-	}
-
-	/// <summary>
-	/// 创建文件或文件夹
-	/// </summary>
-	public void Create(CreateFileItem item) {
-		var viewModel = TabViewModel;
-		if (viewModel.PathType == PathType.Home) {
-			return;
-		}
-		try {
-			FileListView.StartRename(item.Create(viewModel.FullPath));
-		} catch (Exception e) {
-			hc.MessageBox.Error(e.Message, "Cannot_create".L());
 		}
 	}
 

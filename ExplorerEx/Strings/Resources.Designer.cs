@@ -368,15 +368,6 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 无法创建 的本地化字符串。
-        /// </summary>
-        internal static string Cannot_create {
-            get {
-                return ResourceManager.GetString("Cannot_create", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 无法打开 的本地化字符串。
         /// </summary>
         internal static string Cannot_open {
@@ -391,6 +382,15 @@ namespace ExplorerEx.Strings {
         internal static string CannotAccessDirectory {
             get {
                 return ResourceManager.GetString("CannotAccessDirectory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 无法创建 的本地化字符串。
+        /// </summary>
+        internal static string CannotCreate {
+            get {
+                return ResourceManager.GetString("CannotCreate", resourceCulture);
             }
         }
         

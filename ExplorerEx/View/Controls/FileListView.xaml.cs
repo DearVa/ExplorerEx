@@ -19,6 +19,7 @@ using ExplorerEx.Command;
 using ExplorerEx.Converter;
 using ExplorerEx.Converter.Grouping;
 using ExplorerEx.Model;
+using ExplorerEx.Model.Enums;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 using ExplorerEx.ViewModel;
@@ -171,7 +172,7 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	private async void OnSwitchView(object e) {
 		if (e is string param && int.TryParse(param, out var type)) {
-			await ViewModel.SwitchViewType(type);
+			await ViewModel.SwitchViewType((ViewSortGroup)type);
 		}
 	}
 

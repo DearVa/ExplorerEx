@@ -24,7 +24,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Border x:Name="PART_TabBorderRoot" Margin="{TemplateBinding TabBorderRootMargin}" Background="{x:Null}" ClipToBounds="True">
+                    <Border x:Name="PART_TabBorderRoot" Margin="{TemplateBinding TabBorderRootMargin}" Background="{x:Null}">
                         <hc:SimplePanel>
                             <Border x:Name="PART_TabBorder" AllowDrop="True" Panel.ZIndex="2000" Margin="8,0,36,-1" Background="Transparent" 
                                     MouseLeftButtonDown="TabBorder_OnMouseLeftButtonDown" MouseMove="TabBorder_OnMouseMove" MouseLeftButtonUp="TabBorder_OnMouseLeftButtonUp">
@@ -43,7 +43,7 @@
                             </Button>
                         </hc:SimplePanel>
                     </Border>
-                    <Border x:Name="contentPanel" Background="{DynamicResource ThirdlyRegionBrush}" CornerRadius="5" Grid.Column="0" KeyboardNavigation.DirectionalNavigation="Contained" Grid.Row="1" KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
+                    <Border x:Name="contentPanel" Grid.Column="0" KeyboardNavigation.DirectionalNavigation="Contained" Grid.Row="1" KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
                         <ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent" Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                     </Border>
                 </Grid>

@@ -120,7 +120,6 @@ public partial class DragFilesPreview {
 	}
 
 	public void SetFilePaths(IList<string> filePaths) {
-		DragImage0.Source = DragImage1.Source = DragImage2.Source = null;
 		DragCountTextBlock.Text = filePaths.Count.ToString();
 		if (filePaths.Count < 3) {
 			DragImage2Border.Visibility = Visibility.Collapsed;
@@ -132,7 +131,10 @@ public partial class DragFilesPreview {
 			var thumbnails = new ImageSource[filePaths.Count > 3 ? 3 : filePaths.Count];
 			if (filePaths.Count > 0) {
 				thumbnails[0] = GetPathThumbnail(filePaths[0]);
-				Dispatcher.BeginInvoke(() => DragImage0.Source = thumbnails[0]);
+				Dispatcher.BeginInvoke(() => {
+					DragImage0.Source = thumbnails[0];
+					DragImage0.Visibility = Visibility.Visible;
+				});
 				if (filePaths.Count > 1) {
 					thumbnails[1] = GetPathThumbnail(filePaths[1]);
 					Dispatcher.BeginInvoke(() => {
@@ -197,6 +199,7 @@ public partial class DragFilesPreview {
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void HidePreview() {
+		Instance.DragImage0.Visibility = Visibility.Collapsed;
 		dragPreviewWindow.Hide();
 		IsShown = false;
 	}

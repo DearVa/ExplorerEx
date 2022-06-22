@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -13,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using ExplorerEx.Command;
 using ExplorerEx.Model;
+using ExplorerEx.Model.Enums;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 using ExplorerEx.View;
@@ -163,7 +163,15 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	public bool CanDeleteOrCut => IsItemSelected && SelectedItems.All(i => i is FileSystemItem);
 
+	/// <summary>
+	/// 文件项的Command
+	/// </summary>
 	public FileItemCommand FileItemCommand { get; }
+
+	/// <summary>
+	/// 创建文件或文件夹
+	/// </summary>
+	public SimpleCommand CreateCommand { get; }
 
 	/// <summary>
 	/// 改变文件视图模式
@@ -260,6 +268,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			TabControlProvider = () => OwnerTabControl,
 			SelectedItemsProvider = () => SelectedItems
 		};
+		CreateCommand = new SimpleCommand(OnCreate);
 		SwitchViewCommand = new SimpleCommand(OnSwitchView);
 		ItemDoubleClickedCommand = new SimpleCommand(FileListViewItem_OnDoubleClicked);
 
@@ -277,8 +286,21 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		DataObjectContent.ClipboardChanged += OnClipboardChanged;
 	}
 
+	private void OnCreate(object param) {
+		if (PathType == PathType.Home) {
+			return;
+		}
+		if (param is CreateFileItem item) {
+			try {
+				FileListView.StartRename(item.Create(FullPath));
+			} catch (Exception e) {
+				hc.MessageBox.Error(e.Message, "CannotCreate".L());
+			}
+		}
+	}
+
 	private async void OnSwitchView(object e) {
-		if (e is string param && int.TryParse(param, out var type)) {
+		if (e is ViewSortGroup type) {
 			await SwitchViewType(type);
 		}
 	}
@@ -289,77 +311,73 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// </summary>
 	private CancellationTokenSource switchIconCts;
 
-	public async Task SwitchViewType(int type) {
+	public async Task SwitchViewType(ViewSortGroup type) {
 		switch (type) {
-		case 0:  // 大图标
+		case ViewSortGroup.LargeIcons:  // 大图标
 			FileViewType = FileViewType.Icons;
 			ItemSize = new Size(120d, 170d);
 			break;
-		case 1:  // 小图标
+		case ViewSortGroup.SmallIcons:  // 小图标
 			FileViewType = FileViewType.Icons;
 			ItemSize = new Size(80d, 130d);
 			break;
-		case 2:  // 列表，size.Width为0代表横向填充
+		case ViewSortGroup.List:  // 列表，size.Width为0代表横向填充
 			FileViewType = FileViewType.List;
 			ItemSize = new Size(260d, 30d);
 			break;
-		case 3:  // 详细信息
+		case ViewSortGroup.Details:  // 详细信息
 			FileViewType = FileViewType.Details;
 			ItemSize = new Size(0d, 30d);
 			break;
-		case 4:  // 平铺
+		case ViewSortGroup.Tiles:  // 平铺
 			FileViewType = FileViewType.Tiles;
 			ItemSize = new Size(280d, 70d);
 			break;
-		case 5:  // 内容
+		case ViewSortGroup.Content:  // 内容
 			FileViewType = FileViewType.Content;
 			ItemSize = new Size(0d, 70d);
 			break;
 
-		case 6:
+		case ViewSortGroup.SortByName:
 			SortBy = DetailListType.Name;
 			break;
-		case 7:
+		case ViewSortGroup.SortByDateModified:
 			SortBy = DetailListType.DateModified;
 			break;
-		case 8:
+		case ViewSortGroup.SortByType:
 			SortBy = DetailListType.Type;
 			break;
-		case 9:
+		case ViewSortGroup.SortByFileSize:
 			SortBy = DetailListType.FileSize;
 			break;
 
-		case 10:
+		case ViewSortGroup.Ascending:
 			IsAscending = true;
 			break;
-		case 11:
+		case ViewSortGroup.Descending:
 			IsAscending = false;
 			break;
 
-		case 12:
+		case ViewSortGroup.GroupByNone:
 			GroupBy = null;
 			break;
-		case 13:
+		case ViewSortGroup.GroupByName:
 			GroupBy = DetailListType.Name;
 			break;
-		case 14:
+		case ViewSortGroup.GroupByDateModified:
 			GroupBy = DetailListType.DateModified;
 			break;
-		case 15:
+		case ViewSortGroup.GroupByType:
 			GroupBy = DetailListType.Type;
 			break;
-		case 16:
+		case ViewSortGroup.GroupByFileSize:
 			GroupBy = DetailListType.FileSize;
 			break;
 		}
 
 		FileView.CommitChange();
-		if (type is >= 0 and <= 5) {
-			await SaveViewToDbAsync(null);
-			await LoadThumbnailsAsync();
-		} else {
-			await SaveViewToDbAsync(null);
-		}
+		await SaveViewToDbAsync(null);
+		await LoadThumbnailsAsync();
 	}
 
 	/// <summary>

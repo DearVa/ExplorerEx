@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using ExplorerEx.Annotations;
+using ExplorerEx.Model.Enums;
 using ExplorerEx.Utils;
 using Microsoft.EntityFrameworkCore;
 
@@ -272,11 +273,11 @@ public class FileView : INotifyPropertyChanged {
 	}
 	private DetailListType sortBy;
 
-	public int SortByIndex => SortBy switch {
-		DetailListType.Name => 0,
-		DetailListType.DateModified => 1,
-		DetailListType.Type => 2,
-		DetailListType.FileSize => 3,
+	public ViewSortGroup SortByIndex => SortBy switch {
+		DetailListType.Name => ViewSortGroup.SortByName,
+		DetailListType.DateModified => ViewSortGroup.SortByDateModified,
+		DetailListType.Type => ViewSortGroup.SortByType,
+		DetailListType.FileSize => ViewSortGroup.SortByFileSize,
 		_ => 0
 	};
 
@@ -304,12 +305,12 @@ public class FileView : INotifyPropertyChanged {
 	}
 	private DetailListType? groupBy;
 
-	public int GroupByIndex => GroupBy switch {
-		DetailListType.Name => 0,
-		DetailListType.DateModified => 1,
-		DetailListType.Type => 2,
-		DetailListType.FileSize => 3,
-		_ => -1
+	public ViewSortGroup GroupByIndex => GroupBy switch {
+		DetailListType.Name => ViewSortGroup.GroupByName,
+		DetailListType.DateModified => ViewSortGroup.GroupByDateModified,
+		DetailListType.Type => ViewSortGroup.GroupByType,
+		DetailListType.FileSize => ViewSortGroup.GroupByFileSize,
+		_ => ViewSortGroup.GroupByNone
 	};
 
 	public FileViewType FileViewType {
@@ -327,14 +328,14 @@ public class FileView : INotifyPropertyChanged {
 	/// <summary>
 	/// 用于绑定到下拉按钮
 	/// </summary>
-	public int FileViewTypeIndex => FileViewType switch {
-		FileViewType.Icons when ItemWidth > 100d && ItemHeight > 130d => 0,
-		FileViewType.Icons => 1,
-		FileViewType.List => 2,
-		FileViewType.Details => 3,
-		FileViewType.Tiles => 4,
-		FileViewType.Content => 5,
-		_ => -1
+	public ViewSortGroup FileViewTypeIndex => FileViewType switch {
+		FileViewType.Icons when ItemWidth > 100d && ItemHeight > 130d => ViewSortGroup.LargeIcons,
+		FileViewType.Icons => ViewSortGroup.SmallIcons,
+		FileViewType.List => ViewSortGroup.List,
+		FileViewType.Details => ViewSortGroup.Details,
+		FileViewType.Tiles => ViewSortGroup.Tiles,
+		FileViewType.Content => ViewSortGroup.Content,
+		_ => ViewSortGroup.Details
 	};
 
 	[NotMapped]

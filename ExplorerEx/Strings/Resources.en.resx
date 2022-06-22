@@ -38,7 +38,7 @@
   <data name="Folder" xml:space="preserve">
     <value>Folder</value>
   </data>
-  <data name="Cannot_create" xml:space="preserve">
+  <data name="CannotCreate" xml:space="preserve">
     <value>Cannot create</value>
   </data>
   <data name="Available: " xml:space="preserve">

@@ -85,7 +85,7 @@
   <data name="Folder" xml:space="preserve">
     <value>文件夹</value>
   </data>
-  <data name="Cannot_create" xml:space="preserve">
+  <data name="CannotCreate" xml:space="preserve">
     <value>无法创建</value>
   </data>
   <data name="Available: " xml:space="preserve">

@@ -9,7 +9,7 @@ internal class Equality2BooleanConverter : IValueConverter {
 		return value switch {
 			int i => i == System.Convert.ToInt32(parameter),
 			string s => s.Equals(parameter as string),
-			_ => false
+			_ => value?.Equals(parameter) ?? parameter == null
 		};
 	}
 

@@ -126,7 +126,7 @@ public class FileTabItem : TabItem {
 	/// </summary>
 	private Point mouseDownTabPoint;
 
-	private FileTabPanel _fileTabPanel;
+	private FileTabPanel fileTabPanel;
 
 	private Grid templateRoot;
 
@@ -139,7 +139,6 @@ public class FileTabItem : TabItem {
 	public FileTabItem() {
 		CommandBindings.Add(new CommandBinding(ControlCommands.Close, (_, _) => Close()));
 		CommandBindings.Add(new CommandBinding(ControlCommands.CloseOther, (_, _) => TabControlParent.CloseOtherItems(this)));
-		CommandBindings.Add(new CommandBinding(ControlCommands.TabCommand, (_, e) => RaiseEvent(new TabItemCommandArgs(TabCommandEvent, (string)e.Parameter, this))));
 		Loaded += (s, _) => {
 			var tab = (FileTabItem)s;
 			if (tab.ViewModel.playTabAnimation) {
@@ -175,13 +174,13 @@ public class FileTabItem : TabItem {
 	/// </summary>
 	internal FileTabPanel FileTabPanel {
 		get {
-			if (_fileTabPanel == null && TabControlParent != null) {
-				_fileTabPanel = TabControlParent.HeaderPanel;
+			if (fileTabPanel == null && TabControlParent != null) {
+				fileTabPanel = TabControlParent.HeaderPanel;
 			}
 
-			return _fileTabPanel;
+			return fileTabPanel;
 		}
-		set => _fileTabPanel = value;
+		set => fileTabPanel = value;
 	}
 
 	/// <summary>
@@ -471,7 +470,7 @@ public class FileTabItem : TabItem {
 				list.Insert(index, item);
 			}
 
-			_fileTabPanel.SetValue(FileTabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromMilliseconds(0)));
+			fileTabPanel.SetValue(FileTabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromMilliseconds(0)));
 			FileTabPanel.Measure(new Size(FileTabPanel.DesiredSize.Width, ActualHeight));
 
 			Focus();
@@ -510,17 +509,5 @@ public class FileTabItem : TabItem {
 		var result = rest / ItemWidth > .5 ? div + 1 : div;
 
 		return result > maxIndex ? maxIndex : result;
-	}
-}
-
-public class TabItemCommandArgs : RoutedEventArgs {
-	public string CommandParameter { get; }
-
-	public FileTabItem FileTabItem { get; }
-
-	public TabItemCommandArgs(RoutedEvent routedEvent, string commandParameter, FileTabItem fileTabItem) {
-		RoutedEvent = routedEvent;
-		CommandParameter = commandParameter;
-		FileTabItem = fileTabItem;
 	}
 }

@@ -2,7 +2,7 @@
           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-          xmlns:e="clr-namespace:ExplorerEx"
+          xmlns:ex="clr-namespace:ExplorerEx"
           xmlns:hc="https://handyorg.github.io/handycontrol"
           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
           xmlns:u="clr-namespace:ExplorerEx.Utils"
@@ -11,6 +11,7 @@
           xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
           xmlns:vw="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
           xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
+          xmlns:e="clr-namespace:ExplorerEx.Model.Enums"
           d:DataContext="{d:DesignInstance ct:FileListView}"
           mc:Ignorable="d" AllowDrop="True" SelectionMode="Extended"
           VirtualizingStackPanel.IsVirtualizingWhenGrouping="True"
@@ -392,7 +393,7 @@
             <MenuItem Header="{u:Lang Edit}" CommandParameter="Edit"
                       Command="{Binding Path=ViewModel.FileItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileItem.IsEditable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                      Icon="{Binding TextEditor, Source={x:Static e:Settings.Instance}, Mode=OneWay, Converter={StaticResource FileName2IconConverter}}"/>
+                      Icon="{Binding TextEditor, Source={x:Static ex:Settings.Instance}, Mode=OneWay, Converter={StaticResource FileName2IconConverter}}"/>
             <MenuItem Header="{u:Lang Extract}" CommandParameter="Unzip"
                       Command="{Binding Path=ViewModel.FileItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileItem.IsZip), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"/>
@@ -463,52 +464,61 @@
         <ContextMenu d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
             <MenuItem Click="NewFolder_OnClick" Icon="{DynamicResource NewFolderDrawingImage}" Header="{u:Lang New_folder}"
                       Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"/>
-            <MenuItem Icon="{DynamicResource ListDrawingImage}" Header="{u:Lang View}">
+            <MenuItem Icon="{DynamicResource NewDrawingImage}" Header="{u:Lang New}" Command="{Binding CreateCommand}"
+                      Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"
+                      ItemsSource="{Binding Source={x:Static m:CreateFileItem.Items}}"
+                      ItemContainerStyle="{StaticResource CreateMenuItemContainerStyle}">
+            </MenuItem>
+            <Separator Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"/>
+            <MenuItem Icon="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource ViewIndex2ImageSourceConverter}}" Header="{u:Lang View}">
                 <MenuItem.Items>
-                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="0" Header="{u:Lang LargeIcons}" Icon="{DynamicResource LargeIconsDrawingImage}"
-                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
-                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="1" Header="{u:Lang SmallIcons}" Icon="{DynamicResource SmallIconsDrawingImage}"
-                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
-                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="2" Header="{u:Lang List}" Icon="{DynamicResource ListDrawingImage}"
-                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
-                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="3" Header="{u:Lang Details}" Icon="{DynamicResource DetailsDrawingImage}"
-                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
-                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="4" Header="{u:Lang Tiles}" Icon="{DynamicResource TilesDrawingImage}"
-                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=4}"/>
-                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="5" Header="{u:Lang Content}" Icon="{DynamicResource ContentDrawingImage}"
-                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=5}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.LargeIcons}" Header="{u:Lang LargeIcons}" Icon="{DynamicResource LargeIconsDrawingImage}"
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.LargeIcons}}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.SmallIcons}" Header="{u:Lang SmallIcons}" Icon="{DynamicResource SmallIconsDrawingImage}"
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SmallIcons}}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.List}" Header="{u:Lang List}" Icon="{DynamicResource ListDrawingImage}"
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.List}}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.Details}" Header="{u:Lang Details}" Icon="{DynamicResource DetailsDrawingImage}"
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Details}}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.Tiles}" Header="{u:Lang Tiles}" Icon="{DynamicResource TilesDrawingImage}"
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Tiles}}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.Content}" Header="{u:Lang Content}" Icon="{DynamicResource ContentDrawingImage}"
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Content}}"/>
                 </MenuItem.Items>
             </MenuItem>
-            <MenuItem Icon="{DynamicResource SortDrawingImage}" Header="{u:Lang Sort}">
+            <MenuItem Icon="{Binding FileView.IsAscending, Mode=OneWay, Converter={StaticResource IsAscending2ImageSourceConverter}}"
+                      Header="{u:Lang Sort}">
                 <MenuItem.Items>
-                    <MenuItem CommandParameter="6" Command="{Binding SwitchViewCommand}" Header="{u:Lang Name}" 
-                              IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
-                    <MenuItem CommandParameter="7" Command="{Binding SwitchViewCommand}" Header="{u:Lang DateModified}"
-                              IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
-                    <MenuItem CommandParameter="8" Command="{Binding SwitchViewCommand}" Header="{u:Lang Type}"
-                              IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
-                    <MenuItem CommandParameter="9" Command="{Binding SwitchViewCommand}" Header="{u:Lang FileSize}"
-                              IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByName}" Command="{Binding SwitchViewCommand}" Header="{u:Lang Name}" 
+                              IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByName}}"/>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByDateModified}" Command="{Binding SwitchViewCommand}" Header="{u:Lang DateModified}"
+                              IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByDateModified}}"/>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByType}" Command="{Binding SwitchViewCommand}" Header="{u:Lang Type}"
+                              IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByType}}"/>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByFileSize}" Command="{Binding SwitchViewCommand}" Header="{u:Lang FileSize}"
+                              IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByFileSize}}"/>
                     <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
-                    <MenuItem CommandParameter="10" Command="{Binding SwitchViewCommand}" Header="{u:Lang Ascending}"
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Ascending}" Command="{Binding SwitchViewCommand}" 
+                              Icon="{DynamicResource SortAscendingDrawingImage}" Header="{u:Lang Ascending}"
                               IsChecked="{Binding FileView.IsAscending, Mode=OneWay}"/>
-                    <MenuItem CommandParameter="11" Command="{Binding SwitchViewCommand}" Header="{u:Lang Descending}"
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Descending}" Command="{Binding SwitchViewCommand}"
+                              Icon="{DynamicResource SortDescendingDrawingImage}" Header="{u:Lang Descending}"
                               IsChecked="{Binding FileView.IsAscending, Mode=OneWay, Converter={StaticResource Boolean2BooleanReConverter}}"/>
                 </MenuItem.Items>
             </MenuItem>
-            <MenuItem Header="{u:Lang GroupBy}">
+            <MenuItem Icon="{DynamicResource GroupDrawingImage}" Header="{u:Lang GroupBy}">
                 <MenuItem.Items>
-                    <MenuItem CommandParameter="12" Command="{Binding SwitchViewCommand}" Header="{u:Lang None}" 
-                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=-1}"/>
-                    <MenuItem CommandParameter="13" Command="{Binding SwitchViewCommand}" Header="{u:Lang Name}" 
-                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=0}"/>
-                    <MenuItem CommandParameter="14" Command="{Binding SwitchViewCommand}" Header="{u:Lang DateModified}"
-                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=1}"/>
-                    <MenuItem CommandParameter="15" Command="{Binding SwitchViewCommand}" Header="{u:Lang Type}"
-                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=2}"/>
-                    <MenuItem CommandParameter="16" Command="{Binding SwitchViewCommand}" Header="{u:Lang FileSize}"
-                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter=3}"/>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByNone}" Command="{Binding SwitchViewCommand}" Header="{u:Lang None}" 
+                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByNone}}"/>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByName}" Command="{Binding SwitchViewCommand}" Header="{u:Lang Name}" 
+                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByName}}"/>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByDateModified}" Command="{Binding SwitchViewCommand}" Header="{u:Lang DateModified}"
+                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByDateModified}}"/>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByType}" Command="{Binding SwitchViewCommand}" Header="{u:Lang Type}"
+                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByType}}"/>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByFileSize}" Command="{Binding SwitchViewCommand}" Header="{u:Lang FileSize}"
+                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByFileSize}}"/>
                 </MenuItem.Items>
             </MenuItem>
             <MenuItem Click="Refresh_OnClick" Icon="{DynamicResource RefreshDrawingImage}" Header="{u:Lang Refresh}"/>

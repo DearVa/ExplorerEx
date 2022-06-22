@@ -18,6 +18,8 @@ using ExplorerEx.Command;
 using System.Windows.Controls;
 using System.Collections.Specialized;
 using System.Collections;
+using System.Diagnostics;
+using HandyControl.Interactivity;
 
 namespace ExplorerEx.View.Controls;
 
@@ -160,8 +162,6 @@ public partial class FileTabControl {
 		set => SetValue(IsFileUtilsVisibleProperty, value);
 	}
 
-	public SimpleCommand TabCommand { get; }
-
 	public MainWindow MainWindow { get; }
 
 	public SplitGrid OwnerSplitGrid { get; set; }
@@ -186,7 +186,7 @@ public partial class FileTabControl {
 		MainWindow = mainWindow;
 		OwnerSplitGrid = ownerSplitGrid;
 		DataContext = this;
-		TabCommand = new SimpleCommand(OnTabCommand);
+		CommandBindings.Add(new CommandBinding(ControlCommands.TabCommand, OnTabCommand));
 		TabControls.Add(this);
 		TabItems.CollectionChanged += (_, _) => UpdateTabContextMenu();
 		FocusedTabControl ??= this;
@@ -307,12 +307,13 @@ public partial class FileTabControl {
 			FocusedTabControl = focused ?? TabControls[0];
 		}
 	}
-
-	private async void OnTabCommand(object args) {
-		var e = (TabItemCommandArgs)args;
-		var tabItem = e.FileTabItem;
+	
+	private async void OnTabCommand(object sender, ExecutedRoutedEventArgs e) {
+		if (e.OriginalSource is not FileTabItem tabItem) {
+			return;
+		}
 		var tab = (FileTabViewModel)tabItem.DataContext;
-		switch (e.CommandParameter) {
+		switch (e.Parameter) {
 		case "Duplicate":
 			await OpenPathInNewTabAsync(tab.FullPath);
 			break;

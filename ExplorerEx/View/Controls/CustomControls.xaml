@@ -46,7 +46,7 @@
                                         hc:InfoElement.Placeholder="{u:Lang Search}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         </hc:SimplePanel>
 
-                        <Border Grid.Row="0" Margin="0,10,0,0" CornerRadius="10,10,0,0" Background="{DynamicResource BackgroundBrush}">
+                        <Border Grid.Row="0" Margin="0,10,0,0" CornerRadius="5,5,0,0" Background="{DynamicResource DefaultBrush}">
                             <hc:SimplePanel >
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" Text="{Binding Header, Mode=OneWay}" 
                                            FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -245,15 +245,33 @@
                                 </ItemsControl>
                             </ScrollViewer>
                             <Border CornerRadius="4" BorderThickness="1,1,1,0" BorderBrush="{DynamicResource BorderBrush}" Background="{x:Null}" SnapsToDevicePixels="True" IsHitTestVisible="False"/>
+                            <Border x:Name="mask" Panel.ZIndex="2" CornerRadius="2" Background="{DynamicResource BorderBrush}" Opacity="0" IsHitTestVisible="False"/>
                         </hc:SimplePanel>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="false">
                             <Setter Property="Opacity" TargetName="border" Value="0.4" />
                         </Trigger>
-                        <Trigger Property="IsMouseOver" Value="true">
-                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource SecondaryBorderBrush}" />
-                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="true"/>
+                                <Condition Property="IsFocused" Value="False"/>
+                            </MultiTrigger.Conditions>
+                            <MultiTrigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="mask" Duration="0:0:0.1" To="0.4" Storyboard.TargetProperty="Opacity"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </MultiTrigger.EnterActions>
+                            <MultiTrigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="mask" Duration="0:0:0.1" To="0" Storyboard.TargetProperty="Opacity"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </MultiTrigger.ExitActions>
+                        </MultiTrigger>
                         <Trigger Property="IsFocused" Value="true">
                             <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource PrimaryBrush}" />
                         </Trigger>
@@ -300,44 +318,26 @@
         <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
         <Setter Property="BorderThickness" Value="1,0,1,1"/>
         <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Margin" Value="0,0,1,0"/>
         <Setter Property="Padding" Value="10,0,0,0"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="VerticalContentAlignment" Value="Stretch"/>
         <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
         <Setter Property="ContextMenu" Value="{StaticResource TabItemExMenu}"/>
-        <Setter Property="Effect" Value="{StaticResource EffectShadow4}"/>
+        <Setter Property="Effect" Value="{StaticResource EffectShadow1}"/>
         <Setter Property="Opacity" Value="0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ct:FileTabItem">
-                    <Grid x:Name="templateRoot" AllowDrop="True" SnapsToDevicePixels="true" ContextMenu="{TemplateBinding ContextMenu}" Margin="0,0,0,-4">
+                    <Grid x:Name="templateRoot" AllowDrop="True" SnapsToDevicePixels="true" ContextMenu="{TemplateBinding ContextMenu}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <Grid Grid.ColumnSpan="3" x:Name="mainBorder">
-                            <Border Margin="0" x:Name="mouseOverBorder" CornerRadius="10,10,0,0" Background="{DynamicResource SecondaryRegionBrush}" Opacity="0" />
-                            <hc:SimplePanel Margin="0" x:Name="selectedGrid" Visibility="Collapsed">
-                                <Border CornerRadius="10,10,0,0" Background="{DynamicResource RegionBrush}" />
-                                <hc:SimplePanel Background="{DynamicResource RegionBrush}" Width="8" Height="8" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-8,0,0,0">
-                                    <hc:SimplePanel.Clip>
-                                        <GeometryGroup>
-                                            <RectangleGeometry Rect="0,0,8,8" />
-                                            <EllipseGeometry RadiusX="8" RadiusY="8" />
-                                        </GeometryGroup>
-                                    </hc:SimplePanel.Clip>
-                                </hc:SimplePanel>
-                                <hc:SimplePanel Background="{DynamicResource RegionBrush}" Width="8" Height="8" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-8,0">
-                                    <hc:SimplePanel.Clip>
-                                        <GeometryGroup>
-                                            <RectangleGeometry Rect="0,0,8,8" />
-                                            <EllipseGeometry RadiusX="8" RadiusY="8" Center="8,0" />
-                                        </GeometryGroup>
-                                    </hc:SimplePanel.Clip>
-                                </hc:SimplePanel>
-                            </hc:SimplePanel>
+                            <Border Margin="0" x:Name="mouseOverBorder" CornerRadius="5" Background="{DynamicResource SecondaryRegionBrush}" Opacity="0" />
+                            <Border x:Name="selectedGrid" Visibility="Collapsed" CornerRadius="5" Background="{DynamicResource DefaultBrush}" />
                         </Grid>
                         <Path x:Name="PathMain" Margin="10,0,0,0" Grid.Column="0" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Data="{TemplateBinding hc:IconElement.Geometry}"/>
                         <ContentPresenter Grid.Column="1" x:Name="contentPresenter" ContentSource="Header" Focusable="False" HorizontalAlignment="Stretch" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center"/>

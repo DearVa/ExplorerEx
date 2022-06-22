@@ -23,7 +23,6 @@ using static ExplorerEx.Win32.Win32Interop;
 using static ExplorerEx.Shell32.Shell32Interop;
 using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
 using TextBox = HandyControl.Controls.TextBox;
-using System.Windows.Media.Animation;
 using System.Windows.Media;
 using System.Diagnostics;
 using hc = HandyControl.Controls;
