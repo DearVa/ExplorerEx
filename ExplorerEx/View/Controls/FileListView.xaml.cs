@@ -55,7 +55,6 @@ public partial class FileListView : INotifyPropertyChanged {
 		} else {
 			((ItemsControl)fileGrid).ItemsSource = null;
 		}
-		fileGrid.UpdateView();
 	}
 
 	public new ObservableCollection<FileListViewItem> ItemsSource {
@@ -177,9 +176,20 @@ public partial class FileListView : INotifyPropertyChanged {
 	}
 
 	private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
-		if (e.NewValue is FileTabViewModel viewModel) {
-			ViewModel = viewModel;
-			ContextMenu!.DataContext = viewModel;
+		var oldViewModel = e.OldValue as FileTabViewModel;
+		var newViewModel = e.NewValue as FileTabViewModel;
+		if (oldViewModel != null) {
+			oldViewModel.ScrollViewX = scrollViewer.HorizontalOffset;
+			oldViewModel.ScrollViewY = scrollViewer.VerticalOffset;
+		}
+		if (newViewModel != null) {
+			ViewModel = newViewModel;
+			ContextMenu!.DataContext = newViewModel;
+			if (oldViewModel != null) {
+				newViewModel.FileView.StageChangesFromOther(oldViewModel.FileView);
+			}
+			scrollViewer.ScrollToHorizontalOffset(newViewModel.ScrollViewX);
+			scrollViewer.ScrollToVerticalOffset(newViewModel.ScrollViewY);
 		}
 	}
 
@@ -188,7 +198,9 @@ public partial class FileListView : INotifyPropertyChanged {
 		if (e.NewValue is FileView fileView) {
 			fileView.Changed += fileGrid.UpdateView;
 			fileView.PropertyChanged += fileGrid.OnFileViewPropertyChanged;
-			fileGrid.UpdateView();
+			if (!fileView.CommitChange()) {
+				fileGrid.UpdateView();
+			}
 		}
 	}
 
@@ -739,7 +751,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	private void MouseHoverTimerWork(object s, EventArgs e) {
 		var item = MouseItem;
 		// 如果鼠标处没有项目或者没有按下Alt
-		if (item == null || (Keyboard.IsKeyUp(Key.LeftAlt) && Keyboard.IsKeyUp(Key.RightAlt))) {
+		if (item == null || Keyboard.IsKeyUp(Key.Space)) {
 			if (previewPopup is { IsOpen: true }) {  // 如果popup是打开状态，那就关闭
 				previewPopup.Close();
 				previewPopup = null;

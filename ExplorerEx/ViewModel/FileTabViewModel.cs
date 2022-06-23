@@ -164,6 +164,13 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	public bool CanDeleteOrCut => IsItemSelected && SelectedItems.All(i => i is FileSystemItem);
 
 	/// <summary>
+	/// 视窗的滚动位置
+	/// </summary>
+	public double ScrollViewX { get; set; }
+
+	public double ScrollViewY { get; set; }
+
+	/// <summary>
 	/// 文件项的Command
 	/// </summary>
 	public FileItemCommand FileItemCommand { get; }

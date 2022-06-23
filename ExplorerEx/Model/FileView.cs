@@ -235,7 +235,7 @@ public enum PathType {
 /// </summary>
 [Serializable]
 public class FileView : INotifyPropertyChanged {
-	private readonly List<string> changedPropertiesName = new();
+	private readonly HashSet<string> changedPropertiesName = new();
 
 	[Key]
 	public string FullPath {
@@ -396,14 +396,18 @@ public class FileView : INotifyPropertyChanged {
 
 	public event Action Changed;
 
-	public void CommitChange() {
-		Changed?.Invoke();
+	public bool CommitChange() {
 		lock (changedPropertiesName) {
-			for (var i = changedPropertiesName.Count - 1; i >= 0; i--) {
-				UpdateUI(changedPropertiesName[i]);
-				changedPropertiesName.RemoveAt(i);
+			if (changedPropertiesName.Count == 0) {
+				return false;
 			}
+			foreach (var changedName in changedPropertiesName) {
+				UpdateUI(changedName);
+			}
+			changedPropertiesName.Clear();
 		}
+		Changed?.Invoke();
+		return true;
 	}
 
 	public event PropertyChangedEventHandler PropertyChanged;
@@ -419,9 +423,40 @@ public class FileView : INotifyPropertyChanged {
 	/// <param name="propertyName"></param>
 	private void StageChange([CallerMemberName] string propertyName = null) {
 		lock (changedPropertiesName) {
-			if (!changedPropertiesName.Contains(propertyName)) {
-				changedPropertiesName.Add(propertyName);
-			}
+			changedPropertiesName.Add(propertyName);
+		}
+	}
+
+	/// <summary>
+	/// 与另一个FileView对比，将差异暂存
+	/// </summary>
+	/// <param name="other"></param>
+	public void StageChangesFromOther(FileView other) {
+		if (fullPath != other.fullPath) {
+			StageChange(nameof(FullPath));
+		}
+		if (pathType != other.pathType) {
+			StageChange(nameof(PathType));
+		}
+		if (sortBy != other.sortBy) {
+			StageChange(nameof(SortBy));
+		}
+		if (isAscending != other.isAscending) {
+			StageChange(nameof(IsAscending));
+		}
+		if (groupBy != other.groupBy) {
+			StageChange(nameof(GroupBy));
+		}
+		if (fileViewType != other.fileViewType) {
+			StageChange(nameof(FileViewType));
+		}
+		if (ItemSize != other.ItemSize) {
+			StageChange(nameof(ItemSize));
+		}
+		if ((DetailListsData != null && other.DetailListsData == null) ||
+			(DetailListsData == null && other.DetailListsData != null) ||
+			(DetailListsData != null && other.DetailListsData != null && !DetailListsData.SequenceEqual(other.DetailListsData))) {
+			StageChange(nameof(DetailListsData));
 		}
 	}
 }
