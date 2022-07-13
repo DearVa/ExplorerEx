@@ -1,1 +1,1 @@
-dotnet build ExplorerEx.sln -c Release
+dotnet build ./ExplorerEx/ExplorerEx.csproj -c Release

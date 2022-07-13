@@ -26,7 +26,7 @@
                     </Grid.RowDefinitions>
                     <Border x:Name="PART_TabBorderRoot" Margin="{TemplateBinding TabBorderRootMargin}" Background="{x:Null}">
                         <hc:SimplePanel>
-                            <Border x:Name="PART_TabBorder" AllowDrop="True" Panel.ZIndex="2000" Margin="8,0,36,-1" Background="Transparent" 
+                            <Border x:Name="PART_TabBorder" AllowDrop="True" Panel.ZIndex="2000" Margin="12,0,36,-1" Background="Transparent" 
                                     MouseLeftButtonDown="TabBorder_OnMouseLeftButtonDown" MouseMove="TabBorder_OnMouseMove" MouseLeftButtonUp="TabBorder_OnMouseLeftButtonUp">
                                 <ct:FileTabPanel MinHeight="{TemplateBinding TabItemHeight}" TabItemHeight="{TemplateBinding TabItemHeight}" TabItemWidth="{TemplateBinding TabItemWidth}" Margin="0,0,-1,-1" x:Name="PART_HeaderPanel" HorizontalAlignment="Left" Background="Transparent" IsItemsHost="true" KeyboardNavigation.TabIndex="1" Panel.ZIndex="1">
                                     <hc:Interaction.Behaviors>
