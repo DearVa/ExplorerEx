@@ -437,9 +437,6 @@ For the application to run properly, it's recommanded that you first extract all
   <data name="Extract" xml:space="preserve">
     <value>Extract</value>
   </data>
-  <data name="#ErrorExtractFiles" xml:space="preserve">
-    <value>解压下列文件时发生错误：</value>
-  </data>
   <data name="And...More" xml:space="preserve">
     <value>还有 {0} 个。</value>
   </data>
@@ -541,5 +538,8 @@ For the application to run properly, it's recommanded that you first extract all
   </data>
   <data name="FullPath" xml:space="preserve">
     <value>Full path</value>
+  </data>
+  <data name="#ErrorExtractFiles" xml:space="preserve">
+    <value>Error occurs when extracting following files:</value>
   </data>
 </root>

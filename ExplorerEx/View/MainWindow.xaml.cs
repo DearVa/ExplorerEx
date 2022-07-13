@@ -25,14 +25,24 @@ using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
 using TextBox = HandyControl.Controls.TextBox;
 using System.Windows.Media;
 using System.Diagnostics;
+using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using hc = HandyControl.Controls;
+using HandyControl.Data;
 
 namespace ExplorerEx.View;
 
 public sealed partial class MainWindow {
 	public event Action<uint, EverythingInterop.QueryReply> EverythingQueryReplied;
 
-	public static List<MainWindow> MainWindows { get; } = new();
+	private static readonly List<MainWindow> MainWindows = new();
+
+	/// <summary>
+	/// 窗口打开时，每100ms触发一次
+	/// </summary>
+	public static event Action FrequentTimerElapsed;
+
+	private static DispatcherTimer frequentTimer;
 
 	public SimpleCommand SideBarItemPreviewMouseUpCommand { get; }
 	public SimpleCommand SideBarItemClickCommand { get; }
@@ -60,17 +70,29 @@ public sealed partial class MainWindow {
 		this.startupPath = startupPath;
 		MainWindows.Add(this);
 
-		Width = ConfigHelper.LoadInt("WindowWidth", 1200);
+		var screenWidth = SystemParameters.PrimaryScreenWidth;
+		var screenHeight = SystemParameters.PrimaryScreenHeight;
+		Width = Math.Min(ConfigHelper.LoadInt("WindowWidth", 1200), screenWidth);
 		Height = ConfigHelper.LoadInt("WindowHeight", 800);
+
 		var left = ConfigHelper.LoadInt("WindowLeft");
 		var top = ConfigHelper.LoadInt("WindowTop");
-		if (MainWindows.Count > 1) {
+		var isInvalidPos = false;
+		if (left < 300 - Width || left > screenWidth - 100) {
+			left = (int)(screenWidth - Width) / 2;
+			isInvalidPos = true;
+		}
+		if (top < 0 || left > screenHeight - 100) {
+			left = (int)(screenHeight - Height) / 2;
+			isInvalidPos = true;
+		}
+		if (MainWindows.Count > 1 || isInvalidPos) {
 			var rand = new Random((int)DateTime.Now.Ticks);
 			left += rand.Next(-100, 100);
 			top += rand.Next(-100, 100);
 		}
-		Left = Math.Min(Math.Max(300 - Width, left), SystemParameters.PrimaryScreenWidth - 100);
-		Top = Math.Min(Math.Max(0, top), SystemParameters.PrimaryScreenHeight - 100);
+		Left = Math.Min(Math.Max(300 - Width, left), screenWidth - 100);
+		Top = Math.Min(Math.Max(0, top), screenHeight - 100);
 
 		DataContext = this;
 		InitializeComponent();
@@ -95,6 +117,7 @@ public sealed partial class MainWindow {
 				AddToBookmarks(selectedItem.FullPath);
 			}
 		});
+		RenameTextBox.VerifyFunc = (fileName) => new OperationResult<bool> { Data = !FileUtils.IsProhibitedFileName(fileName) };
 
 		if (ConfigHelper.LoadBoolean("WindowMaximized")) {
 			WindowState = WindowState.Maximized;
@@ -105,12 +128,18 @@ public sealed partial class MainWindow {
 		if (MainWindows.Count == 1) {  // 只在一个窗口上检测剪贴板变化事件
 			RegisterClipboard();
 			RecycleBinItem.RegisterWatcher();
+
+			if (frequentTimer == null) {
+				frequentTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Input, (_, _) => FrequentTimerElapsed?.Invoke(), Dispatcher);
+			} else {
+				frequentTimer.Start();
+			}
 		}
 		Hwnd.AddHook(WndProc);
 
 		SplitGrid = new SplitGrid(this, null);
 		ContentGrid.Children.Add(SplitGrid);
-		
+
 		EnableMica(App.IsDarkTheme);
 
 		if (FolderOnlyItem.Home.Children.Count == 0) {
@@ -470,6 +499,87 @@ public sealed partial class MainWindow {
 	}
 	#endregion
 
+	#region 消息框
+
+	private DispatcherFrame messageBoxFrame;
+	private MessageBoxResult messageBoxResult;
+
+	/// <summary>
+	/// 还未封装完，目前只用来重命名
+	/// </summary>
+	/// <returns></returns>
+	public MessageBoxResult ShowMessageBox() {
+		if (messageBoxFrame != null) {
+			Logger.Error("Error");
+		}
+		MessageBoxMaskBorder.BeginAnimation(OpacityProperty, new DoubleAnimation(1d, TimeSpan.FromMilliseconds(300d)) {
+			EasingFunction = new CubicEase {
+				EasingMode = EasingMode.EaseOut
+			}
+		});
+		var scaleInAnimation = new DoubleAnimation(0.8d, 1d, TimeSpan.FromMilliseconds(300d)) {
+			EasingFunction = new BackEase {
+				EasingMode = EasingMode.EaseOut,
+				Amplitude = 1.2d
+			}
+		};
+		scaleInAnimation.Completed += (_, _) => RenameTextBox.Focus();
+		MessageBoxBorderScaleTf.BeginAnimation(ScaleTransform.ScaleXProperty, scaleInAnimation);
+		MessageBoxBorderScaleTf.BeginAnimation(ScaleTransform.ScaleYProperty, scaleInAnimation);
+		MessageBoxMaskBorder.Visibility = Visibility.Visible;
+		messageBoxFrame = new DispatcherFrame();
+		Dispatcher.PushFrame(messageBoxFrame);
+		return messageBoxResult;
+	}
+
+	private void CloseMessageBox() {
+		var easingFunction = new CubicEase {
+			EasingMode = EasingMode.EaseOut
+		};
+		MessageBoxMaskBorder.BeginAnimation(OpacityProperty, new DoubleAnimation(0d, TimeSpan.FromMilliseconds(300d)) {
+			EasingFunction = easingFunction
+		});
+		var scaleXAnimation = new DoubleAnimation(1d, 1.2d, TimeSpan.FromMilliseconds(300d)) {
+			EasingFunction = easingFunction
+		};
+		var scaleYAnimation = new DoubleAnimation(1d, 1.2d, TimeSpan.FromMilliseconds(300d)) {
+			EasingFunction = easingFunction
+		};
+		scaleYAnimation.Completed += (_, _) => {
+			messageBoxFrame.Continue = false;
+			messageBoxFrame = null;
+			MessageBoxMaskBorder.Visibility = Visibility.Collapsed;
+		};
+		MessageBoxBorderScaleTf.BeginAnimation(ScaleTransform.ScaleXProperty, scaleXAnimation);
+		MessageBoxBorderScaleTf.BeginAnimation(ScaleTransform.ScaleYProperty, scaleYAnimation);
+	}
+
+	private void MessageBoxOk_OnClick(object sender, RoutedEventArgs e) {
+		messageBoxResult = MessageBoxResult.OK;
+		CloseMessageBox();
+	}
+
+	private void MessageBoxCancel_OnClick(object sender, RoutedEventArgs e) {
+		messageBoxResult = MessageBoxResult.Cancel;
+		CloseMessageBox();
+	}
+
+	public string StartRename(string originalName) {
+		RenameTextBox.Text = originalName;
+		var lastDot = originalName.LastIndexOf('.');
+		if (lastDot != -1) {
+			RenameTextBox.Select(0, lastDot);
+		} else {
+			RenameTextBox.SelectAll();
+		}
+		if (ShowMessageBox() == MessageBoxResult.OK && !RenameTextBox.IsError) {
+			return RenameTextBox.Text;
+		}
+		return originalName;
+	}
+	#endregion
+
+
 	protected override void OnClosing(CancelEventArgs e) {
 		if (SplitGrid.FileTabControl.TabItems.Count > 1 || SplitGrid.AnySplitScreen) {
 			if (!MessageBoxHelper.AskWithDefault("CloseMultiTabs", "#YouHaveOpenedMoreThanOneTab".L())) {
@@ -491,6 +601,7 @@ public sealed partial class MainWindow {
 			}
 		}
 		if (MainWindows.Count == 0) {
+			frequentTimer.Stop();
 			RecycleBinItem.UnregisterWatcher();
 		}
 		base.OnClosed(e);
@@ -753,4 +864,5 @@ public sealed partial class MainWindow {
 		}
 		DataObjectContent.HandleDragLeave();
 	}
+
 }

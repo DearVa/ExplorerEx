@@ -2,11 +2,9 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using ExplorerEx.Command;
 using ExplorerEx.Model;
 using ExplorerEx.Utils;
 using ExplorerEx.ViewModel;
-using hc = HandyControl.Controls;
 
 namespace ExplorerEx.View.Controls;
 

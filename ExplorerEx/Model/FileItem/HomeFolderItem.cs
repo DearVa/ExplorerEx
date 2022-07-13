@@ -41,11 +41,7 @@ internal sealed class HomeFolderItem : FolderItem, ISpecialFolder {
 
 	public override void LoadIcon() { }
 
-	public override void StartRename() {
-		throw new InvalidOperationException();
-	}
-
-	protected override bool Rename() {
+	protected override bool InternalRename(string newName) {
 		throw new InvalidOperationException();
 	}
 

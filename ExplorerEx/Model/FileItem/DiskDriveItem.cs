@@ -64,17 +64,17 @@ public sealed class DiskDriveItem : FolderItem {
 		throw new NotImplementedException();
 	}
 
-	public override void StartRename() {
+	public override string GetRenameName() {
 		if (Drive.IsReady) {
-			EditingName = string.IsNullOrWhiteSpace(Drive.VolumeLabel) ? Type : Drive.VolumeLabel;
-		} else {
-			MessageBox.Error("DriveIsNotReady".L());
+			return string.IsNullOrWhiteSpace(Drive.VolumeLabel) ? Type : Drive.VolumeLabel;
 		}
+		MessageBox.Error("DriveIsNotReady".L());
+		return null;
 	}
 
-	protected override bool Rename() {
+	protected override bool InternalRename(string newName) {
 		try {
-			Drive.VolumeLabel = EditingName;
+			Drive.VolumeLabel = newName;
 			return true;
 		} catch (Exception e) {
 			Logger.Error(e.Message);

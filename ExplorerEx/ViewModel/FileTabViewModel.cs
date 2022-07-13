@@ -299,10 +299,69 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 		if (param is CreateFileItem item) {
 			try {
-				FileListView.StartRename(item.Create(FullPath));
+				var fileName = item.Create(FullPath);
+				var newItem = AddSingleItem(fileName);
+				FileListView.ScrollIntoView(newItem);
+				StartRename(newItem);
 			} catch (Exception e) {
 				hc.MessageBox.Error(e.Message, "CannotCreate".L());
 			}
+		}
+	}
+
+	/// <summary>
+	/// 添加单个项目，这将会验证文件是否存在，之后将其添加，这在创建新文件时很有用
+	/// </summary>
+	/// <param name="name">文件或文件夹名，不包含路径</param>
+	/// <returns>成功返回添加的项，失败返回null</returns>
+	public FileListViewItem AddSingleItem(string name) {
+		if (Folder is HomeFolderItem) {
+			return null;
+		}
+		var fullPath = Path.Combine(FullPath, name);
+		FileListViewItem item;
+		lock (Items) {
+			foreach (var fileListViewItem in Items) {
+				if (fileListViewItem.Name == name) {
+					return fileListViewItem;
+				}
+			}
+			if (File.Exists(fullPath)) {
+				item = new FileItem(new FileInfo(fullPath)) {
+					UseLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content
+				};
+			} else if (Directory.Exists(fullPath)) {
+				item = new FolderItem(fullPath);
+			} else {
+				return null;
+			}
+			Items.Add(item);
+		}
+		UpdateFolderUI();
+		Task.Run(() => {
+			item.LoadAttributes();
+			item.LoadIcon();
+		});
+		return item;
+	}
+
+	public void StartRename(string fileName) {
+		var item = Items.FirstOrDefault(item => item.Name == fileName);
+		if (item == null) {
+			if ((item = AddSingleItem(fileName)) == null) {
+				return;
+			}
+		}
+		StartRename(item);
+	}
+
+	public void StartRename(FileListViewItem item) {
+		FileListView.ScrollIntoView(item);
+		item.IsSelected = true;
+		var originalName = item.GetRenameName();
+		var newName = OwnerWindow.StartRename(originalName);
+		if (newName != originalName) {
+			item.Rename(newName);
 		}
 	}
 
@@ -464,42 +523,6 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	public Task Refresh() {
 		return LoadDirectoryAsync(FullPath, false);
-	}
-
-	/// <summary>
-	/// 添加单个项目，这将会验证文件是否存在，之后将其添加，这在创建新文件时很有用
-	/// </summary>
-	/// <param name="name">文件或文件夹名，不包含路径</param>
-	/// <returns>成功返回添加的项，失败返回null</returns>
-	public FileListViewItem AddSingleItem(string name) {
-		if (Folder is HomeFolderItem) {
-			return null;
-		}
-		var fullPath = Path.Combine(FullPath, name);
-		FileListViewItem item;
-		lock (Items) {
-			foreach (var fileListViewItem in Items) {
-				if (fileListViewItem.Name == name) {
-					return fileListViewItem;
-				}
-			}
-			if (File.Exists(fullPath)) {
-				item = new FileItem(new FileInfo(fullPath)) {
-					UseLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content
-				};
-			} else if (Directory.Exists(fullPath)) {
-				item = new FolderItem(fullPath);
-			} else {
-				return null;
-			}
-			Items.Add(item);
-		}
-		UpdateFolderUI();
-		Task.Run(() => {
-			item.LoadAttributes();
-			item.LoadIcon();
-		});
-		return item;
 	}
 
 	/// <summary>

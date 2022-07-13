@@ -485,7 +485,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
     <value>解压缩</value>
   </data>
   <data name="#ErrorExtractFiles" xml:space="preserve">
-    <value>Error occurs when extracting following files:</value>
+    <value>解压下列文件时发生错误：</value>
   </data>
   <data name="And...More" xml:space="preserve">
     <value>And {0} more.</value>

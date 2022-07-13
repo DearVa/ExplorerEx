@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -11,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -25,6 +25,7 @@ using ExplorerEx.Utils;
 using ExplorerEx.ViewModel;
 using ExplorerEx.Win32;
 using HandyControl.Controls;
+using HandyControl.Data;
 using HandyControl.Tools;
 using GridView = System.Windows.Controls.GridView;
 using ScrollViewer = System.Windows.Controls.ScrollViewer;
@@ -63,6 +64,14 @@ public partial class FileListView : INotifyPropertyChanged {
 	}
 
 	public FileTabViewModel ViewModel { get; private set; }
+
+	public static readonly DependencyProperty OwnerWindowProperty = DependencyProperty.Register(
+		"OwnerWindow", typeof(MainWindow), typeof(FileListView), new PropertyMetadata(default(MainWindow)));
+
+	public MainWindow OwnerWindow {
+		get => (MainWindow)GetValue(OwnerWindowProperty);
+		set => SetValue(OwnerWindowProperty, value);
+	}
 
 	public delegate void ItemDoubleClickEventHandler(object sender, ItemClickEventArgs e);
 
@@ -156,17 +165,19 @@ public partial class FileListView : INotifyPropertyChanged {
 	public FileListView() {
 		DataContextChanged += OnDataContextChanged;
 		InitializeComponent();
-		EventManager.RegisterClassHandler(typeof(TextBox), GotFocusEvent, new RoutedEventHandler(RenameTextBox_OnGotFocus));
-		EventManager.RegisterClassHandler(typeof(TextBox), PreviewKeyDownEvent, new RoutedEventHandler(RenameTextBox_OnPreviewKeyDown));
 		SelectCommand = new SimpleCommand(Select);
-		StartRenameCommand = new SimpleCommand(e => StartRename((string)e));
+		StartRenameCommand = new SimpleCommand(e => ViewModel.StartRename((string)e));
 		SwitchViewCommand = new SimpleCommand(OnSwitchView);
 		columnsConverter = (FileGridDataGridColumnsConverter)Resources["ColumnsConverter"];
 		listBoxTemplateConverter = (FileGridListBoxTemplateConverter)Resources["ListBoxTemplateConverter"];
 		virtualizingWrapPanel = (ItemsPanelTemplate)Resources["VirtualizingWrapPanel"];
 		virtualizingStackPanel = (ItemsPanelTemplate)Resources["VirtualizingStackPanel"];
 		((FileGridListBoxTemplateConverter)Resources["ListBoxTemplateConverter"]).FileListView = this;
-		hoverTimer ??= new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Input, MouseHoverTimerWork, Dispatcher);
+
+		if (!isPreviewTimerInitialized) {
+			MainWindow.FrequentTimerElapsed += MouseHoverTimerWork;
+			isPreviewTimerInitialized = true;
+		}
 	}
 
 	private async void OnSwitchView(object e) {
@@ -177,30 +188,30 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
 		var oldViewModel = e.OldValue as FileTabViewModel;
-		var newViewModel = e.NewValue as FileTabViewModel;
 		if (oldViewModel != null) {
 			oldViewModel.ScrollViewX = scrollViewer.HorizontalOffset;
 			oldViewModel.ScrollViewY = scrollViewer.VerticalOffset;
 		}
-		if (newViewModel != null) {
+		if (e.NewValue is FileTabViewModel newViewModel) {
 			ViewModel = newViewModel;
 			ContextMenu!.DataContext = newViewModel;
 			if (oldViewModel != null) {
 				newViewModel.FileView.StageChangesFromOther(oldViewModel.FileView);
+			} else {
+				newViewModel.FileView.StageAllChanges();
 			}
-			scrollViewer.ScrollToHorizontalOffset(newViewModel.ScrollViewX);
-			scrollViewer.ScrollToVerticalOffset(newViewModel.ScrollViewY);
+			if (scrollViewer != null) {
+				scrollViewer.ScrollToHorizontalOffset(newViewModel.ScrollViewX);
+				scrollViewer.ScrollToVerticalOffset(newViewModel.ScrollViewY);
+			}
 		}
 	}
 
 	private static void OnViewChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		var fileGrid = (FileListView)d;
 		if (e.NewValue is FileView fileView) {
-			fileView.Changed += fileGrid.UpdateView;
 			fileView.PropertyChanged += fileGrid.OnFileViewPropertyChanged;
-			if (!fileView.CommitChange()) {
-				fileGrid.UpdateView();
-			}
+			fileView.CommitChange();
 		}
 	}
 
@@ -210,6 +221,29 @@ public partial class FileListView : INotifyPropertyChanged {
 			return;
 		}
 		switch (e.PropertyName) {
+		case nameof(fileView.FileViewType):
+			if (fileView.FileViewType == FileViewType.Details) {
+				FileGroupStyle.Panel = ItemsPanel = virtualizingStackPanel;
+				var view = new GridView();
+				columnsConverter.Convert(view.Columns, fileView);
+				View = view;
+				var padding = Padding;
+				contentPanel.Margin = new Thickness(padding.Left, 30d + padding.Top, padding.Right, padding.Bottom);
+			} else {
+				FileGroupStyle.Panel = ItemsPanel = virtualizingWrapPanel;
+				ItemTemplate = listBoxTemplateConverter.Convert();
+				View = null;
+				contentPanel.Margin = Padding;
+			}
+			break;
+		case nameof(fileView.PathType):
+		case nameof(fileView.DetailLists):
+			if (View is GridView gridView) {
+				columnsConverter.Convert(gridView.Columns, fileView);
+			} else {
+				ItemTemplate = listBoxTemplateConverter.Convert();
+			}
+			break;
 		case nameof(fileView.SortBy):
 		case nameof(fileView.IsAscending):
 			var sorts = Items.SortDescriptions;
@@ -253,28 +287,6 @@ public partial class FileListView : INotifyPropertyChanged {
 		}
 	}
 
-	/// <summary>
-	/// 更新视图
-	/// </summary>
-	public void UpdateView() {
-		if (FileView == null) {
-			return;
-		}
-		if (FileView.FileViewType == FileViewType.Details) {
-			FileGroupStyle.Panel = ItemsPanel = virtualizingStackPanel;
-			var view = new GridView();
-			columnsConverter.Convert(view.Columns, FileView);
-			View = view;
-			var padding = Padding;
-			contentPanel.Margin = new Thickness(padding.Left, 30d + padding.Top, padding.Right, padding.Bottom);
-		} else {
-			FileGroupStyle.Panel = ItemsPanel = virtualizingWrapPanel;
-			ItemTemplate = listBoxTemplateConverter.Convert();
-			View = null;
-			contentPanel.Margin = Padding;
-		}
-	}
-
 	public override void OnApplyTemplate() {
 		base.OnApplyTemplate();
 		scrollViewer = (ScrollViewer)GetTemplateChild("ViewScrollViewer");
@@ -291,45 +303,6 @@ public partial class FileListView : INotifyPropertyChanged {
 		if (item != null) {
 			ScrollIntoView(item);
 			item.IsSelected = true;
-		}
-	}
-
-	public void StartRename(string fileName) {
-		Focus();
-		var item = ItemsSource.FirstOrDefault(item => item.Name == fileName);
-		if (item == null) {
-			if (ViewModel == null || (item = ViewModel.AddSingleItem(fileName)) == null) {
-				return;
-			}
-		}
-		ScrollIntoView(item);
-		item.IsSelected = true;
-		item.StartRename();
-	}
-
-	private void RenameTextBox_OnGotFocus(object sender, RoutedEventArgs e) {
-		var textBox = (TextBox)sender;
-		if (textBox.DataContext is FileListViewItem item) {
-			renamingItem = item;
-			if (item.IsFolder) {
-				textBox.SelectAll();
-			} else {
-				var lastIndexOfDot = textBox.Text.LastIndexOf('.');
-				if (lastIndexOfDot == -1) {
-					textBox.SelectAll();
-				} else {
-					textBox.Select(0, lastIndexOfDot);
-				}
-			}
-			e.Handled = true;
-		}
-	}
-
-	private void RenameTextBox_OnPreviewKeyDown(object sender, RoutedEventArgs e) {
-		if (renamingItem != null && ((KeyEventArgs)e).Key is Key.Enter or Key.Escape) {
-			renamingItem.FinishRename();
-			renamingItem = null;
-			e.Handled = true;
 		}
 	}
 
@@ -406,10 +379,6 @@ public partial class FileListView : INotifyPropertyChanged {
 	protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
 		isDoubleClicked = false;
 		if (e.OriginalSource.FindParent<VirtualizingPanel, ListView>() == null) {  // 如果没有点击在VirtualizingPanel的范围内
-			if (renamingItem != null) {  // 如果正在重命名就停止
-				renamingItem.FinishRename();
-				renamingItem = null;
-			}
 			return;  // 如果没有点击在VirtualizingPanel或者点击在了TextBox内就不处理事件，直接返回
 		}
 
@@ -495,15 +464,11 @@ public partial class FileListView : INotifyPropertyChanged {
 				mouseDownRowIndex = -1;
 				if (Settings.Instance.DoubleClickGoBack && lastMouseUpItem == null && e.ChangedButton == MouseButton.Left) {
 					if (Math.Abs(mouseDownPoint.X - prevMouseUpPoint.X) < SystemParameters.MinimumHorizontalDragDistance &&
-					    Math.Abs(mouseDownPoint.Y - prevMouseUpPoint.Y) < SystemParameters.MinimumVerticalDragDistance &&
-					    DateTimeOffset.Now <= lastMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime())) {
+						Math.Abs(mouseDownPoint.Y - prevMouseUpPoint.Y) < SystemParameters.MinimumVerticalDragDistance &&
+						DateTimeOffset.Now <= lastMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime())) {
 						ViewModel.GoToUpperLevelAsync();
 					}
 				}
-			}
-			if (renamingItem != null) {  // 如果正在重命名就停止
-				renamingItem.FinishRename();
-				renamingItem = null;
 			}
 			var x = Math.Min(Math.Max(mouseDownPoint.X, 0), contentPanel.ActualWidth);
 			var y = Math.Min(Math.Max(mouseDownPoint.Y, 0), contentPanel.ActualHeight);
@@ -525,17 +490,11 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseMove(MouseEventArgs e) {
 		if (e.OriginalSource is DependencyObject o) {
-			var mouseItem = ContainerFromElement(o) switch {
+			MouseItem = ContainerFromElement(o) switch {
 				ListBoxItem i => (FileListViewItem)i.Content,
 				DataGridRow r => (FileListViewItem)r.Item,
 				_ => null
 			};
-			if (MouseItem != mouseItem) {
-				MouseItem = mouseItem;
-				if (hoverTimer == null && (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))) {
-					hoverShowTime = DateTimeOffset.Now.AddMilliseconds(500);
-				}
-			}
 		} else {
 			MouseItem = null;
 		}
@@ -668,9 +627,7 @@ public partial class FileListView : INotifyPropertyChanged {
 							Task.Run(() => {
 								Thread.Sleep(Win32Interop.GetDoubleClickTime());
 								if (shouldRename) {
-									Trace.WriteLine(item);
-									renamingItem = item;
-									item.StartRename();
+									ViewModel.StartRename(item);
 								}
 							});
 						} else {
@@ -744,19 +701,18 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// <param name="e"></param>
 	protected override void OnIsMouseCapturedChanged(DependencyPropertyChangedEventArgs e) { }
 
-	private static DispatcherTimer hoverTimer;
-	private static DateTimeOffset hoverShowTime;
+	private static bool isPreviewTimerInitialized;
 	private static PreviewPopup previewPopup;
 
-	private void MouseHoverTimerWork(object s, EventArgs e) {
+	private void MouseHoverTimerWork() {
 		var item = MouseItem;
-		// 如果鼠标处没有项目或者没有按下Alt
+		// 如果鼠标处没有项目或者没有按下Space
 		if (item == null || Keyboard.IsKeyUp(Key.Space)) {
 			if (previewPopup is { IsOpen: true }) {  // 如果popup是打开状态，那就关闭
 				previewPopup.Close();
 				previewPopup = null;
 			}
-		} else if (IsFocused && hoverShowTime < DateTimeOffset.Now && (previewPopup == null || previewPopup.FilePath != item.FullPath)) {  // 有项目且按下了Alt
+		} else if (OwnerWindow.IsActive && (previewPopup == null || previewPopup.FilePath != item.FullPath)) {  // 有项目且按下了Alt
 			var newPopup = PreviewPopup.ChoosePopup(item.FullPath);
 			if (previewPopup is { IsOpen: true } && newPopup != previewPopup) {
 				previewPopup.Close();
@@ -921,14 +877,6 @@ public partial class FileListView : INotifyPropertyChanged {
 		return effects.GetActualEffect();
 	}
 
-	protected override void OnLostFocus(RoutedEventArgs e) {
-		if (!IsKeyboardFocusWithin && renamingItem != null) {
-			renamingItem.FinishRename();
-			renamingItem = null;
-		}
-		base.OnLostFocus(e);
-	}
-
 	public class ItemClickEventArgs : RoutedEventArgs {
 		public FileListViewItem Item { get; }
 
@@ -952,7 +900,7 @@ public partial class FileListView : INotifyPropertyChanged {
 			Logger.Error(ex.Message);
 			return;
 		}
-		StartRename(folderName);
+		ViewModel.StartRename(folderName);
 	}
 
 	private void FormatDiskDrive_OnClick(object sender, RoutedEventArgs e) {

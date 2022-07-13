@@ -98,66 +98,42 @@ public abstract class FileListViewItem : SimpleNotifyPropertyChanged {
 	/// </summary>
 	public abstract void LoadIcon();
 
-	/// <summary>
-	/// 开始重命名，就是把EditingName设为非null的初始值
-	/// </summary>
-	public abstract void StartRename();
-
 	#region 文件重命名
+	/// <summary>
+	/// 获取刚开始重命名时的文件名
+	/// </summary>
+	/// <returns></returns>
+	public abstract string GetRenameName();
 
 	/// <summary>
-	/// 当前正在编辑中的名字，不为null就显示编辑的TextBox
+	/// 重命名
 	/// </summary>
-	[NotMapped]
-	public string EditingName {
-		get => editingName;
-		set {
-			if (editingName == null) {
-				originalName = value;  // 刚开始重命名记录一下原始的名字
-			}
-			if (editingName != value) {
-				editingName = value;
-				UpdateUI();
-			}
+	public bool Rename(string newName) {
+		if (string.IsNullOrWhiteSpace(newName)) {
+			return false;
 		}
-	}
-
-	private string editingName;
-
-	/// <summary>
-	/// 重命名之前的名字
-	/// </summary>
-	private string originalName;
-
-	/// <summary>
-	/// 校验文件名是否有效
-	/// </summary>
-	public Func<string, OperationResult<bool>> VerifyFunc { get; } = fn => new OperationResult<bool> {
-		Data = !FileUtils.IsProhibitedFileName(fn)
-	};
-
-	public void FinishRename() {
-		if (!FileUtils.IsProhibitedFileName(EditingName)) {
-			EditingName = EditingName.Trim();
-			if (EditingName != originalName && Rename()) {
-				Name = EditingName;
+		newName = newName.Trim();
+		if (!FileUtils.IsProhibitedFileName(newName)) {
+			if (newName != Name && InternalRename(newName)) {
+				Name = newName;
 				UpdateUI(nameof(Name));
+				return true;
 			}
 		}
-		originalName = EditingName = null;
+		return false;
 	}
 
 	/// <summary>
-	/// 重命名，此时EditingName是新的名字
+	/// 重命名
 	/// <returns>成功返回true</returns>
 	/// </summary>
-	protected abstract bool Rename();
+	protected abstract bool InternalRename(string newName);
+
+	#endregion
 
 	public override string ToString() {
 		return FullPath;
 	}
-
-	#endregion
 
 	/// <summary>
 	/// 加载详细信息，包括文件大小、类型、图标等

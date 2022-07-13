@@ -98,11 +98,11 @@ public class BookmarkItem : FileListViewItem, IFilterable {
 		}
 	}
 
-	public override void StartRename() {
+	public override string GetRenameName() {
 		throw new InvalidOperationException();
 	}
 
-	protected override bool Rename() {
+	protected override bool InternalRename(string newName) {
 		throw new InvalidOperationException();
 	}
 

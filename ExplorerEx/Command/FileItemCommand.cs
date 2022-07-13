@@ -122,10 +122,15 @@ public class FileItemCommand : ICommand {
 			}
 			case "Rename": {
 				var items = Items;
-				if (items.Count == 1) {
-					items[0].StartRename();
-				} else {  // TODO: 批量重命名
-					items[0].StartRename();
+				switch (items.Count) {
+				case < 0:
+					return;
+				case 1:
+					FileTabControl.MouseOverTabControl.SelectedTab.StartRename(items[0]);
+					break;
+				default: // TODO: 批量重命名
+					FileTabControl.MouseOverTabControl.SelectedTab.StartRename(items[0]);
+					break;
 				}
 				break;
 			}

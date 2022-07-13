@@ -350,7 +350,7 @@ public class FileView : INotifyPropertyChanged {
 			}
 		}
 	}
-	
+
 	public double ItemWidth { get; set; }
 
 	public double ItemHeight { get; set; }
@@ -394,20 +394,13 @@ public class FileView : INotifyPropertyChanged {
 		return detailLists;
 	}
 
-	public event Action Changed;
-
-	public bool CommitChange() {
+	public void CommitChange() {
 		lock (changedPropertiesName) {
-			if (changedPropertiesName.Count == 0) {
-				return false;
-			}
 			foreach (var changedName in changedPropertiesName) {
 				UpdateUI(changedName);
 			}
 			changedPropertiesName.Clear();
 		}
-		Changed?.Invoke();
-		return true;
 	}
 
 	public event PropertyChangedEventHandler PropertyChanged;
@@ -458,6 +451,20 @@ public class FileView : INotifyPropertyChanged {
 			(DetailListsData != null && other.DetailListsData != null && !DetailListsData.SequenceEqual(other.DetailListsData))) {
 			StageChange(nameof(DetailListsData));
 		}
+	}
+
+	/// <summary>
+	/// 将所有属性标记为已更改
+	/// </summary>
+	public void StageAllChanges() {
+		StageChange(nameof(FullPath));
+		StageChange(nameof(PathType));
+		StageChange(nameof(SortBy));
+		StageChange(nameof(IsAscending));
+		StageChange(nameof(GroupBy));
+		StageChange(nameof(FileViewType));
+		StageChange(nameof(ItemSize));
+		StageChange(nameof(DetailListsData));
 	}
 }
 

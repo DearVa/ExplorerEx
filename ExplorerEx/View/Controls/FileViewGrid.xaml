@@ -223,11 +223,12 @@
                                BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
                                Background="{DynamicResource RegionBrush}">
                 <ct:FileListView x:Name="FileListView" d:DataContext="{d:DesignInstance vm:FileTabViewModel}"
-                             ItemsSource="{Binding Items, Mode=OneWay}" 
-                             FileView="{Binding FileView, Mode=OneWay}"
-                             FullPath="{Binding FullPath, Mode=OneWay}"
-                             Folder="{Binding Folder, Mode=OneWay}"
-                             Background="{DynamicResource RegionBrush}">
+                                 ItemsSource="{Binding Items, Mode=OneWay}" 
+                                 FileView="{Binding FileView, Mode=OneWay}"
+                                 FullPath="{Binding FullPath, Mode=OneWay}"
+                                 Folder="{Binding Folder, Mode=OneWay}"
+                                 Background="{DynamicResource RegionBrush}"
+                                 OwnerWindow="{Binding OwnerWindow, Mode=OneTime}">
                     <hc:Interaction.Triggers>
                         <hc:RoutedEventTrigger RoutedEvent="ListBox.SelectionChanged">
                             <hc:EventToCommand Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True"/>

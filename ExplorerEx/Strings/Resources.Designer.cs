@@ -118,7 +118,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 Error occurs when extracting following files: 的本地化字符串。
+        ///   查找类似 解压下列文件时发生错误： 的本地化字符串。
         /// </summary>
         internal static string _ErrorExtractFiles {
             get {

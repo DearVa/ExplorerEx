@@ -13,6 +13,7 @@ using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 using ExplorerEx.View;
 using ExplorerEx.Win32;
+using HandyControl.Data;
 using Microsoft.Win32;
 using static ExplorerEx.Win32.Win32Interop;
 
@@ -120,9 +121,9 @@ public partial class App {
 			["LightPrimaryColor"] = lightPrimaryColor,
 			["PrimaryColor"] = primaryColor,
 			["DarkPrimaryColor"] = darkPrimaryColor,
-			["LightSelectionColor"] = Color.FromArgb(0x66, lightPrimaryColor.R, lightPrimaryColor.G, lightPrimaryColor.B),
-			["SelectionColor"] = Color.FromArgb(0x99, primaryColor.R, primaryColor.G, primaryColor.B),
-			["DarkSelectionColor"] = Color.FromArgb(0xCC, darkPrimaryColor.R, darkPrimaryColor.G, darkPrimaryColor.B),
+			["LightSelectColor"] = Color.FromArgb(0x66, lightPrimaryColor.R, lightPrimaryColor.G, lightPrimaryColor.B),
+			["SelectColor"] = Color.FromArgb(0x99, primaryColor.R, primaryColor.G, primaryColor.B),
+			["DarkSelectColor"] = Color.FromArgb(0xCC, darkPrimaryColor.R, darkPrimaryColor.G, darkPrimaryColor.B),
 			["TitleColor"] = primaryColor,
 			["SecondaryTitleColor"] = lightPrimaryColor,
 		};

@@ -41,22 +41,22 @@ public abstract class FileSystemItem : FileListViewItem {
 
 	private DateTime dateCreated;
 
-	public override void StartRename() {
-		EditingName = Name;
+	public override string GetRenameName() {
+		return Name;
 	}
 
-	protected override bool Rename() {
-		if (EditingName == null) {
+	protected override bool InternalRename(string newName) {
+		if (newName == null) {
 			return false;
 		}
 		var basePath = Path.GetDirectoryName(FullPath);
-		if (Path.GetExtension(FullPath) != Path.GetExtension(EditingName)) {
+		if (Path.GetExtension(FullPath) != Path.GetExtension(newName)) {
 			if (!MessageBoxHelper.AskWithDefault("RenameExtension", "#AreYouSureToChangeExtension".L())) {
 				return false;
 			}
 		}
 		try {
-			FileUtils.FileOperation(FileOpType.Rename, FullPath, Path.Combine(basePath!, EditingName!));
+			FileUtils.FileOperation(FileOpType.Rename, FullPath, Path.Combine(basePath!, newName));
 			return true;
 		} catch (Exception e) {
 			Logger.Exception(e);
