@@ -26,8 +26,8 @@
                     <c:Bytes2StringConverter x:Key="Bytes2StringConverter"/>
 
                     <Style x:Key="ButtonLikeMenuItem" TargetType="MenuItem">
-                        <Setter Property="Width" Value="40"/>
-                        <Setter Property="Height" Value="35"/>
+                        <Setter Property="Width" Value="38"/>
+                        <Setter Property="Height" Value="34"/>
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="MenuItem">

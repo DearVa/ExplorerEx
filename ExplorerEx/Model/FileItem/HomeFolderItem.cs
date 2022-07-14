@@ -35,11 +35,11 @@ internal sealed class HomeFolderItem : FolderItem, ISpecialFolder {
 
 	public override string DisplayText => Name;
 
-	public override void LoadAttributes() {
+	public override void LoadAttributes(LoadDetailsOptions options) {
 		throw new InvalidOperationException();
 	}
 
-	public override void LoadIcon() { }
+	public override void LoadIcon(LoadDetailsOptions options) { }
 
 	protected override bool InternalRename(string newName) {
 		throw new InvalidOperationException();

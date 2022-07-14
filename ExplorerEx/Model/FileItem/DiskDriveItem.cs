@@ -41,7 +41,7 @@ public sealed class DiskDriveItem : FolderItem {
 		Name = drive.Name;
 	}
 
-	public override void LoadAttributes() {
+	public override void LoadAttributes(LoadDetailsOptions options) {
 		Type = DriveUtils.GetTypeDescription(Drive);
 		if (Drive.IsReady) {
 			TotalSpace = Drive.TotalSize;
@@ -56,7 +56,7 @@ public sealed class DiskDriveItem : FolderItem {
 		UpdateUI(nameof(SpaceOverviewString));
 	}
 
-	public override void LoadIcon() {
+	public override void LoadIcon(LoadDetailsOptions options) {
 		Icon = IconHelper.GetPathThumbnail(Drive.Name);
 	}
 

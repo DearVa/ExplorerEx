@@ -64,12 +64,15 @@ public abstract class FileSystemItem : FileListViewItem {
 		return false;
 	}
 
-	public void Refresh() {
+	/// <summary>
+	/// 重新加载图标和详细信息
+	/// </summary>
+	public void Refresh(LoadDetailsOptions options) {
 		if (!IsFolder) {
-			LoadIcon();
+			LoadIcon(options);
 		}
 		UpdateUI(nameof(Icon));
-		LoadAttributes();
+		LoadAttributes(options);
 	}
 }
 
@@ -95,11 +98,6 @@ public class FileItem : FileSystemItem {
 
 	public override string DisplayText => Name;
 
-	/// <summary>
-	/// 是否使用大图标
-	/// </summary>
-	public bool UseLargeIcon { get; set; }
-
 	protected FileItem() { }
 
 	public FileItem(FileInfo fileInfo) {
@@ -111,7 +109,7 @@ public class FileItem : FileSystemItem {
 		Icon = UnknownFileDrawingImage;
 	}
 
-	public override void LoadAttributes() {
+	public override void LoadAttributes(LoadDetailsOptions options) {
 		if (FileInfo == null) {
 			return;
 		}
@@ -126,8 +124,8 @@ public class FileItem : FileSystemItem {
 		DateCreated = FileInfo.CreationTime;
 	}
 
-	public override void LoadIcon() {
-		if (UseLargeIcon) {
+	public override void LoadIcon(LoadDetailsOptions options) {
+		if (options.UseLargeIcon) {
 			Icon = GetPathThumbnail(FullPath);
 		} else {
 			Icon = GetSmallIcon(FullPath, false);
@@ -206,7 +204,7 @@ public class FolderItem : FileSystemItem {
 
 	public override string DisplayText => Name;
 
-	public override void LoadAttributes() {
+	public override void LoadAttributes(LoadDetailsOptions options) {
 		isEmptyFolder = FolderUtils.IsEmptyFolder(FullPath);
 		Type = isEmptyFolder ? "EmptyFolder".L() : "Folder".L();
 		IsEmptyFolderDictionary.Add(FullPath, isEmptyFolder);
@@ -215,7 +213,7 @@ public class FolderItem : FileSystemItem {
 		DateCreated = directoryInfo.CreationTime;
 	}
 
-	public override void LoadIcon() {
+	public override void LoadIcon(LoadDetailsOptions options) {
 		if (isEmptyFolder) {
 			Icon = EmptyFolderDrawingImage;
 		} else {

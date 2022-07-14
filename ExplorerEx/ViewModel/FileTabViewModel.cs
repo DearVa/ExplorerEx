@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -20,6 +21,7 @@ using ExplorerEx.View.Controls;
 using ExplorerEx.Win32;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using static ExplorerEx.Model.FileListViewItem;
 using static ExplorerEx.View.Controls.FileListView;
 using hc = HandyControl.Controls;
 
@@ -254,6 +256,8 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	private CancellationTokenSource cts;
 
+	private readonly LoadDetailsOptions loadDetailsOptions = new();
+
 	/// <summary>
 	/// 给FileTabItem使用
 	/// </summary>
@@ -327,9 +331,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 				}
 			}
 			if (File.Exists(fullPath)) {
-				item = new FileItem(new FileInfo(fullPath)) {
-					UseLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content
-				};
+				item = new FileItem(new FileInfo(fullPath));
 			} else if (Directory.Exists(fullPath)) {
 				item = new FolderItem(fullPath);
 			} else {
@@ -339,8 +341,8 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 		UpdateFolderUI();
 		Task.Run(() => {
-			item.LoadAttributes();
-			item.LoadIcon();
+			item.LoadAttributes(loadDetailsOptions);
+			item.LoadIcon(loadDetailsOptions);
 		});
 		return item;
 	}
@@ -370,8 +372,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			await SwitchViewType(type);
 		}
 	}
-
-	private bool isLastViewTypeUseLargeIcon;
+	
 	/// <summary>
 	/// 切换视图时，有的要使用大图标，有的要使用小图标，所以要运行一个Task去更改，取消这个来中断Task
 	/// </summary>
@@ -443,29 +444,27 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 		FileView.CommitChange();
 		await SaveViewToDbAsync(null);
-		await LoadThumbnailsAsync();
+
+		var useLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content;
+		if (PathType == PathType.LocalFolder && useLargeIcon != loadDetailsOptions.UseLargeIcon) {
+			loadDetailsOptions.UseLargeIcon = useLargeIcon;
+			await LoadThumbnailsAsync();
+		}
 	}
 
 	/// <summary>
 	/// 切换视图模式后可能需要重新加载缩略图
 	/// </summary>
 	/// <returns></returns>
-	private async Task LoadThumbnailsAsync() {
-		if (PathType == PathType.LocalFolder) {
-			var useLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content;
-			if (useLargeIcon != isLastViewTypeUseLargeIcon) {
-				switchIconCts?.Cancel();
-				var list = Items.Where(item => item is FileItem).Cast<FileItem>().Where(item => item.UseLargeIcon != useLargeIcon).ToArray();
-				var cts = switchIconCts = new CancellationTokenSource();
-				await Task.Run((() => {
-					foreach (var item in list) {
-						item.UseLargeIcon = useLargeIcon;
-						item.LoadIcon();
-					}
-				}), cts.Token);
-				isLastViewTypeUseLargeIcon = useLargeIcon;
+	private Task LoadThumbnailsAsync() {
+		switchIconCts?.Cancel();
+		var list = Items.Where(item => item is FileItem).Cast<FileItem>().ToImmutableArray();
+		var cts = switchIconCts = new CancellationTokenSource();
+		return Task.Run(() => {
+			foreach (var item in list) {
+				item.LoadIcon(loadDetailsOptions);
 			}
-		}
+		}, cts.Token);
 	}
 
 	/// <summary>
@@ -521,8 +520,8 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		historyCount = nextHistoryIndex;
 	}
 
-	public Task Refresh() {
-		return LoadDirectoryAsync(FullPath, false);
+	public void Refresh() {
+		_ = LoadDirectoryAsync(FullPath, false);
 	}
 
 	/// <summary>
@@ -573,7 +572,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 
 		try {
-			_ = Task.Run(Folder.LoadIcon);
+			_ = Task.Run(() => Folder.LoadIcon(loadDetailsOptions));
 		} catch {
 			// 加载图标出错，忽略
 		}
@@ -729,11 +728,12 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 #if DEBUG
 		Trace.WriteLine($"Update UI costs: {sw.ElapsedMilliseconds}ms");
-		sw.Restart();
+sw.Restart();
+
 #endif
 
-		var useLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content;
-		await FileListViewItem.LoadDetails(fileListViewItems, token, useLargeIcon);
+		loadDetailsOptions.UseLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content;
+		await LoadDetails(fileListViewItems, token, loadDetailsOptions);
 
 #if DEBUG
 		Trace.WriteLine($"Async load costs: {sw.ElapsedMilliseconds}ms");
@@ -940,7 +940,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		UpdateFolderUI();
 		UpdateFileUI();
 
-		await FileListViewItem.LoadDetails(fileListViewItems, token, false);
+		await LoadDetails(fileListViewItems, token, loadDetailsOptions);
 	}
 
 	private static void Watcher_OnError(object sender, ErrorEventArgs e) {
@@ -955,15 +955,15 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 						var item = new FolderItem(e.FullPath);
 						Items[i] = item;
 						Task.Run(() => {
-							item.LoadAttributes();
-							item.LoadIcon();
+							item.LoadAttributes(loadDetailsOptions);
+							item.LoadIcon(loadDetailsOptions);
 						});
 					} else if (File.Exists(e.FullPath)) {
 						var item = new FileItem(new FileInfo(e.FullPath));
 						Items[i] = item;
 						Task.Run(() => {
-							item.LoadAttributes();
-							item.LoadIcon();
+							item.LoadAttributes(loadDetailsOptions);
+							item.LoadIcon(loadDetailsOptions);
 						});
 					}
 					return;
@@ -998,8 +998,8 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			}
 			Items.Add(item);
 			Task.Run(() => {
-				item.LoadAttributes();
-				item.LoadIcon();
+				item.LoadAttributes(loadDetailsOptions);
+				item.LoadIcon(loadDetailsOptions);
 			});
 		});
 	}
@@ -1007,12 +1007,14 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	private void Watcher_OnChanged(object sender, FileSystemEventArgs e) {
 		dispatcher.BeginInvoke(() => {
 			// ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
-			foreach (FileSystemItem item in Items) {
-				if (item.FullPath == e.FullPath) {
-					Task.Run(item.Refresh);
-					return;
+			Task.Run(() => {
+				foreach (FileSystemItem item in Items) {
+					if (item.FullPath == e.FullPath) {
+						item.Refresh(loadDetailsOptions);
+						return;
+					}
 				}
-			}
+			});
 		});
 	}
 

@@ -6182,13 +6182,12 @@
 								<ColumnDefinition SharedSizeGroup="MenuItemIColumnGroup" Width="Auto" />
 								<ColumnDefinition SharedSizeGroup="MenuItemCPColumnGroup" Width="Auto" />
 								<ColumnDefinition Width="30" />
-								<ColumnDefinition SharedSizeGroup="MenuItemIGTColumnGroup" Width="Auto" />
-								<ColumnDefinition SharedSizeGroup="MenuItemPColumnGroup" Width="Auto" />
+								<ColumnDefinition SharedSizeGroup="MenuItemPEColumnGroup" Width="Auto" />
 							</Grid.ColumnDefinitions>
-							<Image Grid.Column="0" x:Name="Icon" Source="{TemplateBinding Icon}" VerticalAlignment="Center" HorizontalAlignment="Center" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" />
+							<Image Grid.Column="0" x:Name="Icon" Margin="6,0" Source="{TemplateBinding Icon}" VerticalAlignment="Center" HorizontalAlignment="Center" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" />
 							<ContentPresenter Grid.Column="1" Margin="9,0,0,0" x:Name="ContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" ContentSource="Header" VerticalAlignment="Center" RecognizesAccessKey="True" />
 							<TextBlock x:Name="InputGestureText" Margin="0,0,10,0" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Left" Text="{TemplateBinding InputGestureText}" FontSize="12" />
-							<Path IsHitTestVisible="False" Grid.Column="4" x:Name="Glyph" ClipToBounds="False" HorizontalAlignment="Right" Height="16" Visibility="Collapsed" VerticalAlignment="Center" Width="16" Margin="0,0,5,0" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource PrimaryBrush}" />
+							<Path IsHitTestVisible="False" Grid.Column="3" x:Name="Glyph" ClipToBounds="False" HorizontalAlignment="Right" Height="16" Visibility="Collapsed" VerticalAlignment="Center" Width="16" Margin="0,0,5,0" Data="{StaticResource CheckedGeometry}" StrokeThickness="2" Stretch="Uniform" Stroke="{DynamicResource PrimaryBrush}" />
 						</Grid>
 					</Border>
 					<ControlTemplate.Triggers>

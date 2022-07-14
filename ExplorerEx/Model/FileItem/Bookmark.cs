@@ -9,6 +9,8 @@ using System.Windows.Media;
 using ExplorerEx.Converter;
 using ExplorerEx.Utils;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using static ExplorerEx.Model.FileListViewItem;
 using static ExplorerEx.Utils.IconHelper;
 
 namespace ExplorerEx.Model;
@@ -79,11 +81,11 @@ public class BookmarkItem : FileListViewItem, IFilterable {
 		category.AddBookmark(this);
 	}
 
-	public override void LoadAttributes() {
+	public override void LoadAttributes(LoadDetailsOptions options) {
 		throw new InvalidOperationException();
 	}
 
-	public override void LoadIcon() {
+	public override void LoadIcon(LoadDetailsOptions options) {
 		if (FullPath.Length == 3) {
 			IsFolder = true;
 			Icon = GetPathThumbnail(FullPath);
@@ -144,7 +146,7 @@ public class BookmarkDbContext : DbContext {
 			}
 			await Task.Run(() => {
 				foreach (var item in BookmarkDbSet.Local) {
-					item.LoadIcon();
+					item.LoadIcon(LoadDetailsOptions.Default);
 				}
 			});
 		} catch (Exception e) {

@@ -466,7 +466,7 @@ public sealed partial class MainWindow {
 						var item = new BookmarkItem(bookmarkItem, window.BookmarkName, categoryItem);
 						await bookmarkDb.BookmarkDbSet.AddAsync(item);
 						await bookmarkDb.SaveChangesAsync();
-						item.LoadIcon();
+						item.LoadIcon(FileListViewItem.LoadDetailsOptions.Default);
 					}
 					foreach (var updateItem in MainWindows.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
 						updateItem.UpdateUI(nameof(updateItem.IsBookmarked));

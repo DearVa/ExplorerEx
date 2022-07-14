@@ -29,11 +29,11 @@ public class ZipFileItem : FileItem {
 		extension = Path.GetExtension(zipArchiveEntry.Name);
 	}
 
-	public override void LoadAttributes() {
+	public override void LoadAttributes(LoadDetailsOptions options) {
 		Type = FileUtils.GetFileTypeDescription(extension);
 	}
 
-	public override void LoadIcon() {
+	public override void LoadIcon(LoadDetailsOptions options) {
 		Icon = IconHelper.GetSmallIcon(extension, true);
 	}
 
@@ -80,9 +80,9 @@ public class ZipFolderItem : FolderItem, IDisposable {
 		this.relativePath = relativePath;
 	}
 
-	public override void LoadAttributes() { }
+	public override void LoadAttributes(LoadDetailsOptions options) { }
 
-	public override void LoadIcon() {
+	public override void LoadIcon(LoadDetailsOptions options) {
 		if (relativePath == string.Empty) {
 			Icon = IconHelper.GetSmallIcon(".zip", true);
 		} else if (hasItems) {

@@ -41,14 +41,20 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 		});
 	}
 
-	public override void LoadAttributes() {
+	public override void LoadAttributes(LoadDetailsOptions options) {
 		throw new InvalidOperationException();
 	}
 
-	public override void LoadIcon() {
+	public override void LoadIcon(LoadDetailsOptions options) {
 		var shFileInfo = new ShFileInfo();
 		lock (ShellLock) {
-			var hr = SHGetFileInfo(pidl, 0, ref shFileInfo, Marshal.SizeOf<ShFileInfo>(), SHGFI.Icon | SHGFI.SmallIcon | SHGFI.Pidl);
+			var flags = SHGFI.Icon | SHGFI.Pidl;
+			if (options.UseLargeIcon) {
+				flags |= SHGFI.LargeIcon;
+			} else {
+				flags |= SHGFI.SmallIcon;
+			}
+			var hr = SHGetFileInfo(pidl, 0, ref shFileInfo, Marshal.SizeOf<ShFileInfo>(), flags);
 			if (hr < 0) {
 				Icon = IconHelper.UnknownFileDrawingImage;
 			} else {
@@ -150,7 +156,7 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 						break;
 					}
 					var item = new RecycleBinItem(pidl);
-					item.LoadIcon();
+					item.LoadIcon(LoadDetailsOptions.Default);
 					dispatcher.Invoke(() => Items.Add(item));
 				}
 				Marshal.ReleaseComObject(enumFiles);

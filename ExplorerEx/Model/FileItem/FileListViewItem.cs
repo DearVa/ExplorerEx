@@ -91,12 +91,12 @@ public abstract class FileListViewItem : SimpleNotifyPropertyChanged {
 	/// <summary>
 	/// 加载文件的各项属性
 	/// </summary>
-	public abstract void LoadAttributes();
+	public abstract void LoadAttributes(LoadDetailsOptions options);
 
 	/// <summary>
 	/// LoadIcon用到了shell，那并不是一个可以多线程的方法，所以与其每次都Task.Run，不如提高粗粒度
 	/// </summary>
-	public abstract void LoadIcon();
+	public abstract void LoadIcon(LoadDetailsOptions options);
 
 	#region 文件重命名
 	/// <summary>
@@ -142,7 +142,7 @@ public abstract class FileListViewItem : SimpleNotifyPropertyChanged {
 	/// <param name="token"></param>
 	/// <param name="useLargeIcon"></param>
 	/// <returns></returns>
-	public static async Task LoadDetails(IReadOnlyCollection<FileListViewItem> list, CancellationToken token, bool useLargeIcon) {
+	public static async Task LoadDetails(IReadOnlyCollection<FileListViewItem> list, CancellationToken token, LoadDetailsOptions options) {
 		try {
 			if (list.Count > 0) {
 				await Task.WhenAll(Partitioner.Create(list).GetPartitions(4).Select(partition => Task.Run(() => {
@@ -152,12 +152,8 @@ public abstract class FileListViewItem : SimpleNotifyPropertyChanged {
 					using (partition) {
 						while (partition.MoveNext()) {
 							var item = partition.Current!;
-							item.LoadAttributes();
-
-							if (item is FileItem fileItem) {
-								fileItem.UseLargeIcon = useLargeIcon;
-							}
-							item.LoadIcon();
+							item.LoadAttributes(options);
+							item.LoadIcon(options);
 
 							if (token.IsCancellationRequested) {
 								return Task.FromCanceled(token);
@@ -173,6 +169,18 @@ public abstract class FileListViewItem : SimpleNotifyPropertyChanged {
 		} catch (Exception e) {
 			Logger.Exception(e);
 		}
+	}
+
+
+	/// <summary>
+	/// 加载详细信息时的设置，例如是否使用大图标
+	/// </summary>
+	public class LoadDetailsOptions {
+		public static LoadDetailsOptions Default { get; } = new() {
+			UseLargeIcon = false
+		};
+
+		public bool UseLargeIcon { get; set; }
 	}
 }
 

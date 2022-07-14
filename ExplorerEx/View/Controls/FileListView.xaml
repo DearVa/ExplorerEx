@@ -302,7 +302,7 @@
         </c:FileAssocTemplateSelector>
 
         <ContextMenu x:Key="FileItemContextMenu" d:DataContext="{d:DesignInstance ct:FileListView}">
-            <MenuItem Height="45" Template="{StaticResource FileOperationsTemplate}"/>
+            <MenuItem Height="40" Template="{StaticResource FileOperationsTemplate}"/>
             <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
             <MenuItem Header="{u:Lang Open}" CommandParameter="Open"
@@ -507,8 +507,6 @@
                         <hc:SimplePanel Background="Transparent">
                             <TextBlock Text="{u:Lang ThisIsAnEmptyFolder}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14"
                                        Visibility="{Binding Path=ViewModel.(vm:FileTabViewModel.IsLoading), Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileListView}, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
-                            <TextBlock Text="{u:Lang Loading}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14"
-                                       Visibility="{Binding Path=ViewModel.(vm:FileTabViewModel.IsLoading), Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileListView}, Converter={StaticResource Boolean2VisibilityConverter}}"/>
                         </hc:SimplePanel>
                     </hc:ToggleBlock.UnCheckedContent>
                 </hc:ToggleBlock>

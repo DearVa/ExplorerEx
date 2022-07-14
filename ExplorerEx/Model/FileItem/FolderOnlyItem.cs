@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using ExplorerEx.Utils;
+using Microsoft.Extensions.Options;
 
 namespace ExplorerEx.Model;
 
@@ -101,11 +102,11 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 		Application.Current.Dispatcher.Invoke(() => actualChildren = new ObservableCollection<FolderOnlyItem>());
 	}
 
-	public override void LoadAttributes() {
+	public override void LoadAttributes(LoadDetailsOptions options) {
 		throw new InvalidOperationException();
 	}
 
-	public override void LoadIcon() {
+	public override void LoadIcon(LoadDetailsOptions options) {
 		if (zipPath != null) {
 			if (relativePath == string.Empty) {
 				Icon = IconHelper.GetSmallIcon(".zip", true);
@@ -217,7 +218,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 								if (token.IsCancellationRequested) {
 									return;
 								}
-								item.LoadIcon();
+								item.LoadIcon(LoadDetailsOptions.Default);
 							}
 						}
 					}, token);
