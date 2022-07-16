@@ -34,19 +34,28 @@ public class CreateFileItem : SimpleNotifyPropertyChanged {
 	}
 
 	/// <summary>
-	/// 创建该文件，方法会自动枚举文件，防止重名
+	/// 自动枚举文件获取下一个可以创建的文件
 	/// </summary>
 	/// <param name="path">文件夹路径</param>
 	/// <returns>创建的文件名，不包括路径</returns>
-	public virtual string Create(string path) {
-		var fileName = FileUtils.GetNewFileName(path, $"{"New".L()} {Description}{Extension}");
-		File.Create(Path.Combine(path, fileName)).Dispose();
-		return fileName;
+	public virtual string GetCreateName(string path) {
+		return FileUtils.GetNewFileName(path, $"{"New".L()} {Description}{Extension}");
+	}
+
+	public virtual bool Create(string path, string fileName) {
+		var filePath = Path.Combine(path, fileName);
+		if (File.Exists(filePath)) {
+			return false;
+		}
+		File.Create(filePath).Dispose();
+		return true;
 	}
 
 	public static ObservableCollection<CreateFileItem> Items {
 		get {
-			UpdateItems();
+			if (items.Count == 0) {
+				UpdateItems();
+			}
 			return items;
 		}
 	}
@@ -58,12 +67,11 @@ public class CreateFileItem : SimpleNotifyPropertyChanged {
 		var newItems = (string[])Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\Discardable\PostSetup\ShellNew")!.GetValue("Classes")!;
 		items.Clear();
 		items.Add(new CreateDirectoryItem());
-		items.Add(new CreateFileLinkItem());
-		items.Add(new CreateFileItem(".txt"));
+		// items.Add(new CreateFileLinkItem());
+		// items.Add(new CreateFileItem(".txt"));
 		foreach (var item in newItems) {
 			if (item[0] == '.') {
 				switch (item) {
-				case ".txt":
 				case ".lnk":
 				case ".library-ms":
 					continue;
@@ -85,10 +93,17 @@ internal class CreateDirectoryItem : CreateFileItem {
 		Description = "Folder".L();
 	}
 
-	public override string Create(string path) {
-		var folderName = FileUtils.GetNewFileName(path, "New_folder".L());
-		Directory.CreateDirectory(Path.Combine(path, folderName));
-		return folderName;
+	public override string GetCreateName(string path) {
+		return FileUtils.GetNewFileName(path, "New_folder".L());
+	}
+
+	public override bool Create(string path, string folderName) {
+		var folderPath = Path.Combine(path, folderName);
+		if (Directory.Exists(folderPath)) {
+			return false;
+		}
+		Directory.CreateDirectory(folderPath);
+		return true;
 	}
 }
 

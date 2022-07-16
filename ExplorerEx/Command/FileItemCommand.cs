@@ -112,7 +112,8 @@ public class FileItemCommand : ICommand {
 						}
 						var destPaths = filePaths.Select(path => Path.Combine(Folder.FullPath, Path.GetFileName(path))).ToList();
 						try {
-							FileUtils.FileOperation(isCut ? FileOpType.Move : FileOpType.Copy, filePaths, destPaths);
+							await FileUtils.FileOperation(isCut ? FileOpType.Move : FileOpType.Copy, filePaths, destPaths);
+							FileTabControl.MouseOverTabControl.SelectedTab.FileListView.SelectItems(destPaths);
 						} catch (Exception e) {
 							Logger.Exception(e);
 						}
@@ -143,7 +144,7 @@ public class FileItemCommand : ICommand {
 						return;
 					}
 					try {
-						FileUtils.FileOperation(FileOpType.Delete, Items.Where(item => item is FileSystemItem).Select(item => item.FullPath).ToArray());
+						await FileUtils.FileOperation(FileOpType.Delete, Items.Where(item => item is FileSystemItem).Select(item => item.FullPath).ToArray());
 					} catch (Exception e) {
 						Logger.Exception(e);
 					}

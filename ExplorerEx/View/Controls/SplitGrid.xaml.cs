@@ -67,14 +67,12 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 	/// </summary>
 	private bool IsTopRightGrid {
 		set {
-			if (isTopRightGrid != value) {
-				isTopRightGrid = value;
-				if (value) {
-					FileTabControl.TabBorderRootMargin = new Thickness(0, 0, 160, 0);
-				} else {
-					FileTabControl.TabBorderRootMargin = new Thickness();
-				}
+			if (value) {
+				FileTabControl.TabBorderRootMargin = new Thickness(0, 0, 130, 0);
+			} else {
+				FileTabControl.TabBorderRootMargin = new Thickness();
 			}
+			isTopRightGrid = value;
 		}
 	}
 
@@ -93,6 +91,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 		MainWindow = mainWindow;
 		this.ownerSplitGrid = ownerSplitGrid;
 		InitializeComponent();
+		
 #if DEBUG
 		Name = $"SplitGrid{id++}";
 #endif
@@ -101,10 +100,10 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 	public SplitGrid(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileTabViewModel tab = null) : this(mainWindow, ownerSplitGrid) {
 		FileTabControl = new FileTabControl(mainWindow, this, tab);
 		Children.Insert(0, FileTabControl);
+		FileTabControl.UpdateTabContextMenu();
 		if (ownerSplitGrid == null) {
 			IsTopRightGrid = true;
 		}
-		FileTabControl.UpdateTabContextMenu();
 	}
 
 	public SplitGrid(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileTabControl tab) : this(mainWindow, ownerSplitGrid) {
@@ -112,6 +111,9 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 		FileTabControl.OwnerSplitGrid = this;
 		Children.Insert(0, tab);
 		FileTabControl.UpdateTabContextMenu();
+		if (ownerSplitGrid == null) {
+			IsTopRightGrid = true;
+		}
 	}
 
 	/// <summary>
@@ -174,8 +176,8 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 				FirstSplit();
 				otherSplitGrid = new SplitGrid(MainWindow, this, tab);
 				if (isTopRightGrid) {
-					otherSplitGrid.isTopRightGrid = true;
-					isTopRightGrid = false;
+					otherSplitGrid.IsTopRightGrid = true;
+					IsTopRightGrid = false;
 					FileTabControl.TabBorderRoot.Margin = new Thickness();
 				}
 				otherSplitGrid.SetValue(ColumnProperty, 2);

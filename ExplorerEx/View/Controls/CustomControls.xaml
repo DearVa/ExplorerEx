@@ -40,7 +40,7 @@
                             </EventTrigger>
                         </Grid.Triggers>
 
-                        <hc:SimplePanel x:Name="SearchBoxGrid" Grid.Row="1" Height="0" ClipToBounds="True" 
+                        <hc:SimplePanel x:Name="SearchBoxGrid" Grid.Row="1" Height="0" ClipToBounds="True" Background="{DynamicResource DefaultBrush}"
                                         Visibility="{Binding ShowSearchButton, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}">
                             <hc:TextBox x:Name="SearchTextBox" Margin="5,0,5,5" Height="30" VerticalAlignment="Bottom" ShowClearButton="True" 
                                         hc:InfoElement.Placeholder="{u:Lang Search}" Foreground="{DynamicResource PrimaryTextBrush}"/>
@@ -201,7 +201,7 @@
                         <hc:SimplePanel>
                             <ScrollViewer Padding="{TemplateBinding Padding}" Margin="-2,0,-1,0" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" Visibility="Collapsed" />
                             <ScrollViewer x:Name="ScrollViewer" Cursor="Hand" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Left" Margin="0,0,50,0">
-                                <ItemsControl Padding="1,0,0,0" ItemsSource="{Binding Path=Items, RelativeSource={RelativeSource AncestorType=ct:AddressBar}}">
+                                <ItemsControl Padding="3" ItemsSource="{Binding Path=Items, RelativeSource={RelativeSource AncestorType=ct:AddressBar}}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <StackPanel Orientation="Horizontal"/>

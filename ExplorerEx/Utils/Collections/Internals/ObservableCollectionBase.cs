@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.Specialized;
@@ -16,22 +17,17 @@ public abstract class ObservableCollectionBase<T> : INotifyCollectionChanged, IN
 		Items = new List<T>();
 	}
 
-	protected ObservableCollectionBase(IEnumerable<T> items) {
+	protected ObservableCollectionBase(IEnumerable<T>? items) {
 		if (items == null) {
 			Items = new List<T>();
 		} else {
 			Items = new List<T>(items);
 		}
 	}
-
-#if NET6_0_OR_GREATER
+	
 	public void EnsureCapacity(int capacity) {
 		Items.EnsureCapacity(capacity);
 	}
-#elif NET5_0 || NETCOREAPP3_1 || NET461
-#else
-#error Platform not supported
-#endif
 
 	protected void ReplaceItem(int index, T item) {
 		var oldItem = Items[index];
@@ -86,8 +82,9 @@ public abstract class ObservableCollectionBase<T> : INotifyCollectionChanged, IN
 
 	protected bool RemoveItem(T item) {
 		var index = Items.IndexOf(item);
-		if (index < 0)
+		if (index < 0) {
 			return false;
+		}
 
 		Items.RemoveAt(index);
 

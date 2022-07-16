@@ -755,6 +755,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 文件或文件夹已存在。 的本地化字符串。
+        /// </summary>
+        internal static string FileOrFolderAlreadyExist {
+            get {
+                return ResourceManager.GetString("FileOrFolderAlreadyExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 文件大小 的本地化字符串。
         /// </summary>
         internal static string FileSize {

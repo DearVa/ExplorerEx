@@ -589,4 +589,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="FullPath" xml:space="preserve">
     <value>完整路径</value>
   </data>
+  <data name="FileOrFolderAlreadyExist" xml:space="preserve">
+    <value>文件或文件夹已存在。</value>
+  </data>
 </root>

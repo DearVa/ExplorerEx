@@ -8,7 +8,6 @@
                 xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
                 xmlns:hc="https://handyorg.github.io/handycontrol"
                 xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
-                xmlns:c="clr-namespace:ExplorerEx.Converter"
                 xmlns:e="clr-namespace:ExplorerEx.Model.Enums"
                 mc:Ignorable="d" d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
 
@@ -144,13 +143,13 @@
                     </ContextMenu>
                 </hc:SplitButton.DropDownContent>
             </hc:SplitButton>
-            <Rectangle Width="1" Height="30" Fill="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
+            <!--<Rectangle Width="1" Height="30" Fill="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
 
             <Button
                 VerticalAlignment="Stretch" Width="45" Height="35" Padding="0" ToolTip="{u:Lang More}"
                 Style="{StaticResource ButtonTransparent}">
                 <Image Width="24" Height="24" Source="{DynamicResource MoreDrawingImage}"/>
-            </Button>
+            </Button>-->
         </StackPanel>
 
         <Border Grid.Row="1" BorderThickness="0,1,0,0" Margin="10,0" Padding="0,3" BorderBrush="{DynamicResource BorderBrush}">
@@ -223,16 +222,13 @@
                                BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
                                Background="{DynamicResource RegionBrush}">
                 <ct:FileListView x:Name="FileListView" d:DataContext="{d:DesignInstance vm:FileTabViewModel}"
-                                 ItemsSource="{Binding Items, Mode=OneWay}" 
+                                 ItemsSource="{Binding Items.AsObservable, Mode=OneWay}" 
                                  FileView="{Binding FileView, Mode=OneWay}"
                                  FullPath="{Binding FullPath, Mode=OneWay}"
                                  Folder="{Binding Folder, Mode=OneWay}"
                                  Background="{DynamicResource RegionBrush}"
                                  OwnerWindow="{Binding OwnerWindow, Mode=OneTime}">
                     <hc:Interaction.Triggers>
-                        <hc:RoutedEventTrigger RoutedEvent="ListBox.SelectionChanged">
-                            <hc:EventToCommand Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True"/>
-                        </hc:RoutedEventTrigger>
                         <hc:RoutedEventTrigger RoutedEvent="ct:FileListView.ItemDoubleClicked">
                             <hc:EventToCommand Command="{Binding ItemDoubleClickedCommand}" PassEventArgsToCommand="True"/>
                         </hc:RoutedEventTrigger>
@@ -243,7 +239,7 @@
             <hc:SimplePanel Grid.Row="1" Margin="20,0,10,0">
                 <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
                     <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center">
-                    <Run Text="{Binding FileItemsCount, Mode=OneWay}"/>
+                    <Run Text="{Binding Items.AsObservable.Count, Mode=OneWay}"/>
                     <Run Text="{u:Lang Run_ItemsCount}"/>
                     </TextBlock>
                     <Rectangle Width="1" Height="18" Fill="{DynamicResource ThirdlyTextBrush}" Margin="10,2,10,2"/>

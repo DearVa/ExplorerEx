@@ -220,8 +220,8 @@ internal static class FileUtils {
 	/// <param name="destinationFiles"></param>
 	/// <exception cref="ArgumentException"></exception>
 	/// <exception cref="IOException"></exception>
-	public static void FileOperation(FileOpType type, IList<string> sourceFiles, IList<string> destinationFiles = null) {
-		if (sourceFiles is not {Count: > 0}) {
+	public static Task FileOperation(FileOpType type, IList<string> sourceFiles, IList<string> destinationFiles = null) {
+		if (sourceFiles is not { Count: > 0 }) {
 			throw new ArgumentException("原文件个数不能为0");
 		}
 		if (type != FileOpType.Delete && (destinationFiles == null || sourceFiles.Count != destinationFiles.Count)) {
@@ -247,7 +247,7 @@ internal static class FileUtils {
 		if (type != FileOpType.Delete) {
 			fo.pTo = ParseFileList(destinationFiles);
 		}
-		Task.Run(() => {
+		return Task.Run(() => {
 			var result = Shell32Interop.SHFileOperation(fo);
 			if (result is not 0 and not 1223) { // 1223: 用户取消了操作
 				throw new IOException(GetErrorPrompting(result));
@@ -264,7 +264,7 @@ internal static class FileUtils {
 	/// <exception cref="ArgumentNullException"></exception>
 	/// <exception cref="ArgumentException"></exception>
 	/// <exception cref="IOException"></exception>
-	public static void FileOperation(FileOpType type, string sourceFile, string destinationFile = null) {
+	public static Task FileOperation(FileOpType type, string sourceFile, string destinationFile = null) {
 		if (sourceFile == null) {
 			throw new ArgumentNullException(nameof(sourceFile));
 		}
@@ -288,7 +288,7 @@ internal static class FileUtils {
 		if (type != FileOpType.Delete) {
 			fo.pTo = destinationFile + '\0';
 		}
-		Task.Run(() => {
+		return Task.Run(() => {
 			var result = Shell32Interop.SHFileOperation(fo);
 			if (result is not 0 and not 1223) { // 1223: 用户取消了操作
 				throw new IOException(GetErrorPrompting(result));
@@ -305,9 +305,19 @@ internal static class FileUtils {
 
 	}
 
-	public static void HandleDrop(DataObjectContent content, string destPath, DragDropEffects type) {
+	/// <summary>
+	/// 处理拖放事件，返回受影响的文件列表
+	/// </summary>
+	/// <param name="content"></param>
+	/// <param name="destPath"></param>
+	/// <param name="type"></param>
+	/// <exception cref="ArgumentNullException"></exception>
+	public static async Task<string[]> HandleDrop(DataObjectContent content, string destPath, DragDropEffects type) {
+		if (content == null) {
+			throw new ArgumentNullException(nameof(content));
+		}
 		if (destPath == null) {
-			return;
+			throw new ArgumentNullException(nameof(destPath));
 		}
 		Debug.Assert(type is DragDropEffects.Copy or DragDropEffects.Move or DragDropEffects.Link);
 		if (destPath.Length > 4 && destPath[^4..] is ".exe" or ".lnk") {  // 拖文件运行
@@ -318,6 +328,7 @@ internal static class FileUtils {
 						Arguments = string.Join(' ', (string[])content.Data),
 						UseShellExecute = true
 					});
+					return new[] { destPath };
 				} catch (Exception ex) {
 					Logger.Exception(ex);
 				}
@@ -331,21 +342,23 @@ internal static class FileUtils {
 				case DataObjectType.FileDrop:
 					var filePaths = (string[])content.Data;
 					if (filePaths is { Length: > 0 }) {
-						var destPaths = filePaths.Select(p => Path.Combine(destPath, Path.GetFileName(p))).ToList();
+						var destPaths = filePaths.Select(p => Path.Combine(destPath, Path.GetFileName(p))).ToArray();
 						try {
 							if (type == DragDropEffects.Link) {
 								for (var i = 0; i < filePaths.Length; i++) {
-									var path = destPaths[i];
-									if (path.Length == 3) {  // 处理驱动器号这种特殊情况
-										path = path + filePaths[i][0] + ".lnk";
+									var lnkPath = destPaths[i];
+									if (lnkPath.Length == 3) {  // 处理驱动器号这种特殊情况
+										lnkPath = lnkPath + filePaths[i][0] + ".lnk";
 									} else {
-										path = Path.ChangeExtension(path, ".lnk");
+										lnkPath = Path.ChangeExtension(lnkPath, ".lnk");
 									}
-									Shell32Interop.CreateLnk(filePaths[i], path);
+									Shell32Interop.CreateLnk(filePaths[i], lnkPath);
+									destPaths[i] = lnkPath;
 								}
 							} else {
-								FileOperation(type == DragDropEffects.Move ? FileOpType.Move : FileOpType.Copy, filePaths, destPaths);
+								await FileOperation(type == DragDropEffects.Move ? FileOpType.Move : FileOpType.Copy, filePaths, destPaths);
 							}
+							return destPaths;
 						} catch (Exception ex) {
 							Logger.Exception(ex);
 						}
@@ -365,6 +378,7 @@ internal static class FileUtils {
 				}
 			}
 		}
+		return null;
 	}
 
 	private static string ParseFileList(IEnumerable<string> files) {

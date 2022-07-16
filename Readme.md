@@ -69,7 +69,8 @@ Some time ago, when I was working on Minecraft mod, I needed to switch frequentl
 → fastcopy (Multi-thread copy)   
 
 
-### Thanks to
-* HandyControl
-* pinvoke.NET
-* SvgToXaml
+### Special Thanks to
+* [HandyControl](https://github.com/HandyOrg/HandyControl)
+* [pinvoke.net](https://www.pinvoke.net/)
+* [SvgToXaml](https://github.com/BerndK/SvgToXaml)
+* [Meziantou.Framework](https://github.com/meziantou/Meziantou.Framework)

@@ -7,7 +7,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:m="clr-namespace:ExplorerEx.Model"
              xmlns:e="clr-namespace:ExplorerEx.Model.Enums"
-             xmlns:system="clr-namespace:System;assembly=System.Runtime"
              mc:Ignorable="d">
     <Application.Resources>
         <ResourceDictionary>

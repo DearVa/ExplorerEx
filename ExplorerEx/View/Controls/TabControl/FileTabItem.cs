@@ -280,7 +280,7 @@ public class FileTabItem : TabItem {
 		maxMoveLeft = -mouseDownIndex * ItemWidth - mouseDownOffsetX;
 		maxMoveRight = parent.ActualWidth - ActualWidth + maxMoveLeft;
 
-		Trace.WriteLine(maxMoveLeft + ", " + maxMoveRight);
+		// Trace.WriteLine(maxMoveLeft + ", " + maxMoveRight);
 		isDragging = true;
 		isItemDragging = true;
 		isWaiting = true;
@@ -338,6 +338,7 @@ public class FileTabItem : TabItem {
 			RenderTransform = new TranslateTransform(left, 0);
 			dragPoint = p;
 
+			return;
 			if (p.X < 0 || p.X > parent.ActualWidth || p.Y < -10 || p.Y > parent.ActualHeight + 10) {  // 开始拖动标签页
 				DraggingFileTab = this;
 				Opacity = 0d;  // 不能设置Visibility = Hidden; 会导致MouseCapture被取消

@@ -16,11 +16,11 @@ using ExplorerEx.Model;
 using ExplorerEx.Model.Enums;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
+using ExplorerEx.Utils.Collections;
 using ExplorerEx.View;
 using ExplorerEx.View.Controls;
 using ExplorerEx.Win32;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using static ExplorerEx.Model.FileListViewItem;
 using static ExplorerEx.View.Controls.FileListView;
 using hc = HandyControl.Controls;
@@ -93,7 +93,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// <summary>
 	/// 当前文件夹内的文件列表
 	/// </summary>
-	public ObservableCollection<FileListViewItem> Items { get; } = new();
+	public ConcurrentObservableCollection<FileListViewItem> Items { get; } = new();
 
 	/// <summary>
 	/// 当前文件夹是否在加载
@@ -110,9 +110,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	private bool isLoading;
 
-	public ObservableHashSet<FileListViewItem> SelectedItems { get; } = new();
-
-	public SimpleCommand SelectionChangedCommand { get; }
+	public HashSet<FileListViewItem> SelectedItems { get; } = new();
 
 	public bool CanGoBack => nextHistoryIndex > 1;
 
@@ -201,8 +199,6 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	private bool canPaste;
 
-	public int FileItemsCount => Items.Count;
-
 	public Visibility SelectedFileItemsCountVisibility => SelectedItems.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
 
 	public int SelectedFileItemsCount => SelectedItems.Count;
@@ -274,7 +270,6 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		GoBackCommand = new SimpleCommand(GoBackAsync);
 		GoForwardCommand = new SimpleCommand(GoForwardAsync);
 		GoToUpperLevelCommand = new SimpleCommand(GoToUpperLevelAsync);
-		SelectionChangedCommand = new SimpleCommand(OnSelectionChanged);
 		FileItemCommand = new FileItemCommand {
 			TabControlProvider = () => OwnerTabControl,
 			SelectedItemsProvider = () => SelectedItems
@@ -303,10 +298,17 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 		if (param is CreateFileItem item) {
 			try {
-				var fileName = item.Create(FullPath);
-				var newItem = AddSingleItem(fileName);
-				FileListView.ScrollIntoView(newItem);
-				StartRename(newItem);
+				var fileName = item.GetCreateName(FullPath);
+				var newName = OwnerWindow.StartRename(fileName);
+				if (newName != null) {
+					if (item.Create(FullPath, newName)) {
+						var newItem = AddSingleItem(newName);
+						newItem.IsSelected = true;
+						FileListView.ScrollIntoView(newItem);
+					} else {
+						hc.MessageBox.Error("", "CannotCreate".L());
+					}
+				}
 			} catch (Exception e) {
 				hc.MessageBox.Error(e.Message, "CannotCreate".L());
 			}
@@ -324,21 +326,19 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 		var fullPath = Path.Combine(FullPath, name);
 		FileListViewItem item;
-		lock (Items) {
-			foreach (var fileListViewItem in Items) {
-				if (fileListViewItem.Name == name) {
-					return fileListViewItem;
-				}
+		foreach (var fileListViewItem in Items) {
+			if (fileListViewItem.Name == name) {
+				return fileListViewItem;
 			}
-			if (File.Exists(fullPath)) {
-				item = new FileItem(new FileInfo(fullPath));
-			} else if (Directory.Exists(fullPath)) {
-				item = new FolderItem(fullPath);
-			} else {
-				return null;
-			}
-			Items.Add(item);
 		}
+		if (File.Exists(fullPath)) {
+			item = new FileItem(new FileInfo(fullPath));
+		} else if (Directory.Exists(fullPath)) {
+			item = new FolderItem(fullPath);
+		} else {
+			return null;
+		}
+		Items.Add(item);
 		UpdateFolderUI();
 		Task.Run(() => {
 			item.LoadAttributes(loadDetailsOptions);
@@ -362,7 +362,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		item.IsSelected = true;
 		var originalName = item.GetRenameName();
 		var newName = OwnerWindow.StartRename(originalName);
-		if (newName != originalName) {
+		if (newName != null && newName != originalName) {
 			item.Rename(newName);
 		}
 	}
@@ -705,9 +705,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		FileView.CommitChange();  // 一旦调用这个，模板就会改变，所以要在清空之后，不然会导致排版混乱和绑定失败
 
 		if (fileListViewItems.Count > 0) {
-			foreach (var fileListViewItem in fileListViewItems) {
-				Items.Add(fileListViewItem);
-			}
+			Items.AddRange(fileListViewItems);
 			_ = dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => {
 				GroupBy = savedView?.GroupBy;  // Loaded之后再执行，不然会非常卡QAQ
 				FileListView.ScrollIntoView(scrollIntoItem);
@@ -795,7 +793,6 @@ sw.Restart();
 		UpdateUI(nameof(GoForwardButtonToolTip));
 		UpdateUI(nameof(CanGoToUpperLevel));
 		UpdateUI(nameof(GoToUpperLevelButtonToolTip));
-		UpdateUI(nameof(FileItemsCount));
 		UpdateUI(nameof(SearchPlaceholderText));
 	}
 
@@ -859,8 +856,7 @@ sw.Restart();
 		}
 	}
 
-	private void OnSelectionChanged(object args) {
-		var e = (SelectionChangedEventArgs)args;
+	public void ChangeSelection(SelectionChangedEventArgs e) {
 		foreach (FileListViewItem addedItem in e.AddedItems) {
 			SelectedItems.Add(addedItem);
 			addedItem.IsSelected = true;
@@ -932,10 +928,7 @@ sw.Restart();
 			return;
 		}
 
-		Items.Clear();
-		foreach (var fileListViewItem in fileListViewItems) {
-			Items.Add(fileListViewItem);
-		}
+		Items.Reset(fileListViewItems);
 
 		UpdateFolderUI();
 		UpdateFileUI();
@@ -948,7 +941,7 @@ sw.Restart();
 	}
 
 	private void Watcher_OnRenamed(object sender, RenamedEventArgs e) {
-		dispatcher.BeginInvoke(() => {
+		Task.Run(() => {
 			for (var i = 0; i < Items.Count; i++) {
 				if (((FileSystemItem)Items[i]).FullPath == e.OldFullPath) {
 					if (Directory.Exists(e.FullPath)) {
@@ -973,9 +966,10 @@ sw.Restart();
 	}
 
 	private void Watcher_OnDeleted(object sender, FileSystemEventArgs e) {
-		dispatcher.BeginInvoke(() => {
+		Task.Run(() => {
 			for (var i = 0; i < Items.Count; i++) {
 				if (Items[i].FullPath == e.FullPath) {
+					SelectedItems.Remove(Items[i]);
 					Items.RemoveAt(i);
 					return;
 				}
@@ -984,7 +978,7 @@ sw.Restart();
 	}
 
 	private void Watcher_OnCreated(object sender, FileSystemEventArgs e) {
-		dispatcher.BeginInvoke(() => {
+		Task.Run(() => {
 			if (Items.Any(i => i.Name == e.Name)) {
 				return;
 			}
@@ -1005,16 +999,13 @@ sw.Restart();
 	}
 
 	private void Watcher_OnChanged(object sender, FileSystemEventArgs e) {
-		dispatcher.BeginInvoke(() => {
-			// ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
-			Task.Run(() => {
-				foreach (FileSystemItem item in Items) {
-					if (item.FullPath == e.FullPath) {
-						item.Refresh(loadDetailsOptions);
-						return;
-					}
+		Task.Run(() => {
+			foreach (var item in Items.OfType<FileSystemItem>()) {
+				if (item.FullPath == e.FullPath) {
+					item.Refresh(loadDetailsOptions);
+					return;
 				}
-			});
+			}
 		});
 	}
 

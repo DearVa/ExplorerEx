@@ -140,7 +140,7 @@ public abstract class FileListViewItem : SimpleNotifyPropertyChanged {
 	/// </summary>
 	/// <param name="list"></param>
 	/// <param name="token"></param>
-	/// <param name="useLargeIcon"></param>
+	/// <param name="options"></param>
 	/// <returns></returns>
 	public static async Task LoadDetails(IReadOnlyCollection<FileListViewItem> list, CancellationToken token, LoadDetailsOptions options) {
 		try {

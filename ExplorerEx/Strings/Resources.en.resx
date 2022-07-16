@@ -542,4 +542,7 @@ For the application to run properly, it's recommanded that you first extract all
   <data name="#ErrorExtractFiles" xml:space="preserve">
     <value>Error occurs when extracting following files:</value>
   </data>
+  <data name="FileOrFolderAlreadyExist" xml:space="preserve">
+    <value>File or Folder already exist.</value>
+  </data>
 </root>

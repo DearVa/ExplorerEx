@@ -575,7 +575,7 @@ public sealed partial class MainWindow {
 		if (ShowMessageBox() == MessageBoxResult.OK && !RenameTextBox.IsError) {
 			return RenameTextBox.Text;
 		}
-		return originalName;
+		return null;
 	}
 	#endregion
 

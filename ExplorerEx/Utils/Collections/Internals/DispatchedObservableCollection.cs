@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -9,28 +10,29 @@ using System.Windows.Threading;
 namespace ExplorerEx.Utils.Collections.Internals;
 
 public sealed class DispatchedObservableCollection<T> : ObservableCollectionBase<T>, IReadOnlyObservableCollection<T>, IList<T>, IList {
-	private readonly ConcurrentQueue<PendingEvent<T>> _pendingEvents = new();
-	private readonly ConcurrentObservableCollection<T> _collection;
-	private readonly Dispatcher _dispatcher;
+	private readonly ConcurrentQueue<PendingEvent<T>> pendingEvents = new();
+	private readonly ConcurrentObservableCollection<T> collection;
+	private readonly Dispatcher dispatcher;
 
-	private bool _isDispatcherPending;
+	private bool isDispatcherPending;
 
 	public DispatchedObservableCollection(ConcurrentObservableCollection<T> collection, Dispatcher dispatcher)
 		: base(collection) {
-		_collection = collection;
-		_dispatcher = dispatcher;
+		this.collection = collection;
+		this.dispatcher = dispatcher;
 	}
 
 	private void AssertIsOnDispatcherThread() {
-		if (!IsOnDispatcherThread()) {
+		if (!dispatcher.CheckAccess()) {
 			var currentThreadId = Environment.CurrentManagedThreadId;
 			throw new InvalidOperationException("The collection must be accessed from the dispatcher thread only. Current thread ID: " + currentThreadId.ToString(CultureInfo.InvariantCulture));
 		}
 	}
 
 	private static void AssertType(object? value, string argumentName) {
-		if (value is null || value is T)
+		if (value is null or T) {
 			return;
+		}
 
 		throw new ArgumentException($"value must be of type '{typeof(T).FullName}'", argumentName);
 	}
@@ -45,7 +47,7 @@ public sealed class DispatchedObservableCollection<T> : ObservableCollectionBase
 	bool ICollection<T>.IsReadOnly {
 		get {
 			AssertIsOnDispatcherThread();
-			return ((ICollection<T>)_collection).IsReadOnly;
+			return ((ICollection<T>)collection).IsReadOnly;
 		}
 	}
 
@@ -94,7 +96,7 @@ public sealed class DispatchedObservableCollection<T> : ObservableCollectionBase
 			// it will immediately modify both collections as we are on the dispatcher thread
 			AssertType(value, nameof(value));
 			AssertIsOnDispatcherThread();
-			_collection[index] = (T)value!;
+			collection[index] = (T)value!;
 		}
 	}
 
@@ -106,7 +108,7 @@ public sealed class DispatchedObservableCollection<T> : ObservableCollectionBase
 		set {
 			// it will immediately modify both collections as we are on the dispatcher thread
 			AssertIsOnDispatcherThread();
-			_collection[index] = value;
+			collection[index] = value;
 		}
 	}
 
@@ -177,15 +179,15 @@ public sealed class DispatchedObservableCollection<T> : ObservableCollectionBase
 	}
 
 	private void EnqueueEvent(PendingEvent<T> @event) {
-		_pendingEvents.Enqueue(@event);
+		pendingEvents.Enqueue(@event);
 		ProcessPendingEventsOrDispatch();
 	}
 
 	private void ProcessPendingEventsOrDispatch() {
-		if (!IsOnDispatcherThread()) {
-			if (!_isDispatcherPending) {
-				_isDispatcherPending = true;
-				_dispatcher.BeginInvoke(ProcessPendingEvents);
+		if (!dispatcher.CheckAccess()) {
+			if (!isDispatcherPending) {
+				isDispatcherPending = true;
+				dispatcher.BeginInvoke(ProcessPendingEvents);
 			}
 
 			return;
@@ -195,15 +197,15 @@ public sealed class DispatchedObservableCollection<T> : ObservableCollectionBase
 	}
 
 	private void ProcessPendingEvents() {
-		_isDispatcherPending = false;
-		while (_pendingEvents.TryDequeue(out var pendingEvent)) {
+		isDispatcherPending = false;
+		while (pendingEvents.TryDequeue(out var pendingEvent)) {
 			switch (pendingEvent.Type) {
 			case PendingEventType.Add:
 				AddItem(pendingEvent.Item);
 				break;
 
 			case PendingEventType.AddRange:
-				AddItems(pendingEvent.Items);
+				AddItems(pendingEvent.Items!);
 				break;
 
 			case PendingEventType.Remove:
@@ -219,7 +221,7 @@ public sealed class DispatchedObservableCollection<T> : ObservableCollectionBase
 				break;
 
 			case PendingEventType.InsertRange:
-				InsertItems(pendingEvent.Index, pendingEvent.Items);
+				InsertItems(pendingEvent.Index, pendingEvent.Items!);
 				break;
 
 			case PendingEventType.RemoveAt:
@@ -231,44 +233,40 @@ public sealed class DispatchedObservableCollection<T> : ObservableCollectionBase
 				break;
 
 			case PendingEventType.Reset:
-				Reset(pendingEvent.Items);
+				Reset(pendingEvent.Items!);
 				break;
 			}
 		}
 	}
 
-	private bool IsOnDispatcherThread() {
-		return _dispatcher.Thread == Thread.CurrentThread;
-	}
-
 	void IList<T>.Insert(int index, T item) {
 		// it will immediately modify both collections as we are on the dispatcher thread
 		AssertIsOnDispatcherThread();
-		_collection.Insert(index, item);
+		collection.Insert(index, item);
 	}
 
 	void IList<T>.RemoveAt(int index) {
 		// it will immediately modify both collections as we are on the dispatcher thread
 		AssertIsOnDispatcherThread();
-		_collection.RemoveAt(index);
+		collection.RemoveAt(index);
 	}
 
 	void ICollection<T>.Add(T item) {
 		// it will immediately modify both collections as we are on the dispatcher thread
 		AssertIsOnDispatcherThread();
-		_collection.Add(item);
+		collection.Add(item);
 	}
 
 	void ICollection<T>.Clear() {
 		// it will immediately modify both collections as we are on the dispatcher thread
 		AssertIsOnDispatcherThread();
-		_collection.Clear();
+		collection.Clear();
 	}
 
 	bool ICollection<T>.Remove(T item) {
 		// it will immediately modify both collections as we are on the dispatcher thread
 		AssertIsOnDispatcherThread();
-		return _collection.Remove(item);
+		return collection.Remove(item);
 	}
 
 	void ICollection.CopyTo(Array array, int index) {
@@ -279,20 +277,20 @@ public sealed class DispatchedObservableCollection<T> : ObservableCollectionBase
 		// it will immediately modify both collections as we are on the dispatcher thread
 		AssertType(value, nameof(value));
 		AssertIsOnDispatcherThread();
-		return ((IList)_collection).Add(value);
+		return ((IList)collection).Add(value);
 	}
 
 	bool IList.Contains(object? value) {
 		// it will immediately modify both collections as we are on the dispatcher thread
 		AssertType(value, nameof(value));
 		AssertIsOnDispatcherThread();
-		return ((IList)_collection).Contains(value);
+		return ((IList)collection).Contains(value);
 	}
 
 	void IList.Clear() {
 		// it will immediately modify both collections as we are on the dispatcher thread
 		AssertIsOnDispatcherThread();
-		((IList)_collection).Clear();
+		((IList)collection).Clear();
 	}
 
 	int IList.IndexOf(object? value) {
@@ -306,19 +304,19 @@ public sealed class DispatchedObservableCollection<T> : ObservableCollectionBase
 		// it will immediately modify both collections as we are on the dispatcher thread
 		AssertType(value, nameof(value));
 		AssertIsOnDispatcherThread();
-		((IList)_collection).Insert(index, value);
+		((IList)collection).Insert(index, value);
 	}
 
 	void IList.Remove(object? value) {
 		// it will immediately modify both collections as we are on the dispatcher thread
 		AssertType(value, nameof(value));
 		AssertIsOnDispatcherThread();
-		((IList)_collection).Remove(value);
+		((IList)collection).Remove(value);
 	}
 
 	void IList.RemoveAt(int index) {
 		// it will immediately modify both collections as we are on the dispatcher thread
 		AssertIsOnDispatcherThread();
-		((IList)_collection).RemoveAt(index);
+		((IList)collection).RemoveAt(index);
 	}
 }

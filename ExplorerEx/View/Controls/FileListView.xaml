@@ -387,13 +387,13 @@
         <!-- 该资源在C#逻辑中获取 -->
         <!-- ReSharper disable once Xaml.RedundantResource -->
         <ItemsPanelTemplate x:Key="VirtualizingWrapPanel">
-            <vw:VirtualizingWrapPanel Background="Transparent" CanHorizontallyScroll="False" VirtualizationMode="Recycling" SnapsToDevicePixels="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ListView}}"/>
+            <vw:VirtualizingWrapPanel Background="Transparent" CanHorizontallyScroll="False" UseLayoutRounding="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ListView}}"/>
         </ItemsPanelTemplate>
 
         <!-- 该资源在C#逻辑中获取 -->
         <!-- ReSharper disable once Xaml.RedundantResource -->
         <ItemsPanelTemplate x:Key="VirtualizingStackPanel">
-            <VirtualizingStackPanel Background="Transparent" CanHorizontallyScroll="False" VirtualizationMode="Recycling" SnapsToDevicePixels="True"/>
+            <VirtualizingStackPanel Background="Transparent" CanHorizontallyScroll="False" UseLayoutRounding="True"/>
         </ItemsPanelTemplate>
     </ListView.Resources>
 
@@ -404,8 +404,7 @@
             <MenuItem Icon="{DynamicResource NewDrawingImage}" Header="{u:Lang New}" Command="{Binding CreateCommand}"
                       Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"
                       ItemsSource="{Binding Source={x:Static m:CreateFileItem.Items}}"
-                      ItemContainerStyle="{StaticResource CreateMenuItemContainerStyle}">
-            </MenuItem>
+                      ItemContainerStyle="{StaticResource CreateMenuItemContainerStyle}"/>
             <Separator Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"/>
             <MenuItem Icon="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource ViewIndex2ImageSourceConverter}}" Header="{u:Lang View}">
                 <MenuItem.Items>
