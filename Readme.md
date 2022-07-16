@@ -2,7 +2,7 @@
 
 ### ExplorerEx is a Swift, Multi-Tabbed, Modern UI and Humanized File Explorer.
 
-![Preview](https://github.com/DearVa/ExplorerEx/blob/master/Images/preview.png)
+![Preview](https://raw.githubusercontent.com/DearVa/ExplorerEx/master/Images/preview.png)
 
 [🇨🇳中文版](https://github.com/DearVa/ExplorerEx/blob/master/Readme_zh_CN.md)
 
