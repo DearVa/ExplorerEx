@@ -755,6 +755,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 致命错误 的本地化字符串。
+        /// </summary>
+        internal static string FatalError {
+            get {
+                return ResourceManager.GetString("FatalError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 文件或文件夹已存在。 的本地化字符串。
         /// </summary>
         internal static string FileOrFolderAlreadyExist {
@@ -886,6 +895,15 @@ namespace ExplorerEx.Strings {
         internal static string Image {
             get {
                 return ResourceManager.GetString("Image", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 无法初始化日志系统。 的本地化字符串。
+        /// </summary>
+        internal static string InitializeLoggerFailed {
+            get {
+                return ResourceManager.GetString("InitializeLoggerFailed", resourceCulture);
             }
         }
         

@@ -592,4 +592,10 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="FileOrFolderAlreadyExist" xml:space="preserve">
     <value>文件或文件夹已存在。</value>
   </data>
+  <data name="InitializeLoggerFailed" xml:space="preserve">
+    <value>无法初始化日志系统。</value>
+  </data>
+  <data name="FatalError" xml:space="preserve">
+    <value>致命错误</value>
+  </data>
 </root>

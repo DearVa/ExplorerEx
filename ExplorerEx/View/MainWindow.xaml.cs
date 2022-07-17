@@ -64,7 +64,12 @@ public sealed partial class MainWindow {
 	private readonly string startupPath;
 
 	private readonly FileSystemItemContextMenuConverter bookmarkItemContextMenuConverter;
+	/// <summary>
+	/// 侧边栏“此电脑”项目的右键菜单
+	/// </summary>
 	private readonly ContextMenu sideBarPcItemContextMenu;
+
+	private readonly ContextMenu bookmarkCategoryItemContextMenu;
 
 	public MainWindow(string startupPath, bool startUpLoad = true) {
 		this.startupPath = startupPath;
@@ -100,6 +105,8 @@ public sealed partial class MainWindow {
 		bookmarkItemContextMenuConverter = (FileSystemItemContextMenuConverter)Resources["BookmarkItemContextMenuConverter"];
 		sideBarPcItemContextMenu = (ContextMenu)Resources["SideBarPcItemContextMenu"];
 		sideBarPcItemContextMenu.DataContext = this;
+		bookmarkCategoryItemContextMenu = (ContextMenu)Resources["BookmarkCategoryItemContextMenu"];
+		bookmarkCategoryItemContextMenu.DataContext = this;
 
 		SideBarItemPreviewMouseUpCommand = new SimpleCommand(SideBarItem_OnPreviewMouseUp);
 		SideBarItemClickCommand = new SimpleCommand(SideBarItem_OnClick);
@@ -112,9 +119,12 @@ public sealed partial class MainWindow {
 			SelectedItemsProvider = () => SideBarThisPcTreeView.SelectedItem is FolderOnlyItem selectedItem ? new[] { selectedItem } : Array.Empty<FileListViewItem>(),
 			TabControlProvider = () => FileTabControl.MouseOverTabControl
 		};
-		EditBookmarkCommand = new SimpleCommand(_ => {
-			if (SideBarBookmarksTreeView.SelectedItem is BookmarkItem selectedItem) {
-				AddToBookmarks(selectedItem.FullPath);
+		EditBookmarkCommand = new SimpleCommand(e => {
+			var contextMenu = e.FindParent<ContextMenu>()!;
+			if (contextMenu.GetValue(FileItemAttach.FileItemProperty) is FileListViewItem item) {
+				AddToBookmarks(item.FullPath);
+			} else if (contextMenu.GetValue(CustomDataAttach.DataProperty) is BookmarkCategory category) {
+
 			}
 		});
 		RenameTextBox.VerifyFunc = (fileName) => new OperationResult<bool> { Data = !FileUtils.IsProhibitedFileName(fileName) };
@@ -155,22 +165,30 @@ public sealed partial class MainWindow {
 
 	private void SideBarItem_OnPreviewMouseUp(object args) {
 		var e = (MouseButtonEventArgs)args;
-		if (e.ChangedButton == MouseButton.Right && e.OriginalSource is FrameworkElement { DataContext: FileListViewItem fileItem }) {
-			fileItem.IsSelected = true;
-			switch (fileItem) {
-			case BookmarkItem bookmarkItem:
-				var menu = (ContextMenu)bookmarkItemContextMenuConverter.Convert(bookmarkItem, null, null, null)!;
-				menu.DataContext = this;
-				menu.SetValue(FileItemAttach.FileItemProperty, bookmarkItem);
-				menu.IsOpen = true;
-				e.Handled = true;
-				break;
-			case FolderOnlyItem pcItem:
-				sideBarPcItemContextMenu.SetValue(FileItemAttach.FileItemProperty, pcItem);
-				sideBarPcItemContextMenu.IsOpen = true;
-				e.Handled = true;
-				break;
+		if (e.ChangedButton == MouseButton.Right && e.OriginalSource is FrameworkElement frameworkElement) {
+			if (frameworkElement.DataContext is FileListViewItem fileListViewItem) {
+				switch (fileListViewItem) {
+				case BookmarkItem bookmarkItem:
+					if (!File.Exists(bookmarkItem.FullPath) && !Directory.Exists(bookmarkItem.FullPath)) {
+						
+					} else {
+						var menu = (ContextMenu)bookmarkItemContextMenuConverter.Convert(bookmarkItem, null, null, null)!;
+						menu.DataContext = this;
+						menu.SetValue(FileItemAttach.FileItemProperty, bookmarkItem);
+						menu.IsOpen = true;
+					}
+					break;
+				case FolderOnlyItem folderOnlyItem:
+					sideBarPcItemContextMenu.SetValue(FileItemAttach.FileItemProperty, folderOnlyItem);
+					sideBarPcItemContextMenu.IsOpen = true;
+					break;
+				}
+			} else {
+				var bookmarkCategory = (BookmarkCategory)frameworkElement.DataContext;
+				bookmarkCategoryItemContextMenu.SetValue(CustomDataAttach.DataProperty, bookmarkCategory);
+				bookmarkCategoryItemContextMenu.IsOpen = true;
 			}
+			e.Handled = true;
 		}
 	}
 

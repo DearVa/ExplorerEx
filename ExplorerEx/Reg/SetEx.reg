@@ -1,13 +1,13 @@
 Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\Folder\shell\opennewprocess\command]
-@="G:\\Source\\C#\\ExplorerEx\\ExplorerEx\\bin\\x64\\Release\\net6.0-windows\\win-x64\\ExplorerEx.exe %1"
+@="G:\\Source\\C#\\ExplorerEx\\ExplorerEx\\build\\ExplorerEx.exe %1"
 "DelegateExecute"=""
 
 [HKEY_CLASSES_ROOT\Folder\shell\opennewtab\command]
-@="G:\\Source\\C#\\ExplorerEx\\ExplorerEx\\bin\\x64\\Release\\net6.0-windows\\win-x64\\ExplorerEx.exe %1"
+@="G:\\Source\\C#\\ExplorerEx\\ExplorerEx\\build\\ExplorerEx.exe %1"
 "DelegateExecute"=""
 
 [HKEY_CLASSES_ROOT\Folder\shell\opennewwindow\command]
-@="G:\\Source\\C#\\ExplorerEx\\ExplorerEx\\bin\\x64\\Release\\net6.0-windows\\win-x64\\ExplorerEx.exe %1"
+@="G:\\Source\\C#\\ExplorerEx\\ExplorerEx\\build\\ExplorerEx.exe %1"
 "DelegateExecute"=""

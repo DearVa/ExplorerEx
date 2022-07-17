@@ -10,7 +10,6 @@ using System.Windows;
 using System.Windows.Media;
 using ExplorerEx.Utils;
 using ExplorerEx.View.Controls;
-using HandyControl.Data;
 
 namespace ExplorerEx.Model; 
 

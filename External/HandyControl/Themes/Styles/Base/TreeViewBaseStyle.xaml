@@ -70,25 +70,33 @@
                         <ItemsPresenter x:Name="ItemsHost" Grid.Row="1"/>
                     </Grid>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="true" SourceName="Bd">
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="true"/>
+                                <Condition Property="Focusable" Value="true"/>
+                            </MultiTrigger.Conditions>
                             <Setter Property="Background" TargetName="Bd" Value="{DynamicResource LightSelectBrush}"/>
-                        </Trigger>
+                        </MultiTrigger>
                         <Trigger Property="IsExpanded" Value="false">
                             <Setter Property="Visibility" TargetName="ItemsHost" Value="Collapsed"/>
                         </Trigger>
                         <Trigger Property="HasItems" Value="false">
                             <Setter Property="Visibility" TargetName="Expander" Value="Hidden"/>
                         </Trigger>
-                        <Trigger Property="IsSelected" Value="true">
-                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource SelectBrush}"/>
-                        </Trigger>
                         <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="true"/>
+                                <Condition Property="Focusable" Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource SelectBrush}"/>
+                        </MultiTrigger>
+                        <!--<MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsSelected" Value="true"/>
                                 <Condition Property="IsSelectionActive" Value="false"/>
                             </MultiTrigger.Conditions>
                             <Setter Property="Background" TargetName="Bd" Value="{DynamicResource DarkDefaultBrush}"/>
-                        </MultiTrigger>
+                        </MultiTrigger>-->
                         <Trigger Property="IsEnabled" Value="false">
                             <Setter Property="Foreground" Value="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}"/>
                         </Trigger>

@@ -545,4 +545,10 @@ For the application to run properly, it's recommanded that you first extract all
   <data name="FileOrFolderAlreadyExist" xml:space="preserve">
     <value>File or Folder already exist.</value>
   </data>
+  <data name="InitializeLoggerFailed" xml:space="preserve">
+    <value>Initialize Log system Failed.</value>
+  </data>
+  <data name="FatalError" xml:space="preserve">
+    <value>Fatal error</value>
+  </data>
 </root>

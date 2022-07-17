@@ -33,17 +33,27 @@
                       Icon="{DynamicResource ShareDrawingImage}" Header="{u:Lang OpenFileLocation}"/>
             <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
+            <MenuItem Command="{Binding EditBookmarkCommand}"
+                      CommandParameter="{Binding RelativeSource={RelativeSource Self}}"
+                      Icon="{DynamicResource EditDrawingImage}" Header="{u:Lang EditBookmark}"/>
             <MenuItem CommandParameter="RemoveFromBookmarks"
                       Command="{Binding BookmarkItemCommand}"
                       Icon="{DynamicResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
-            <MenuItem Command="{Binding EditBookmarkCommand}"
-                      Icon="{DynamicResource EditDrawingImage}" Header="{u:Lang EditBookmark}"/>
             <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
             <MenuItem CommandParameter="Properties"
                       Command="{Binding BookmarkItemCommand}"
                       Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
+        </ContextMenu>
+
+        <!-- ReSharper disable once Xaml.RedundantResource -->
+        <ContextMenu x:Key="BookmarkCategoryItemContextMenu" d:DataContext="{d:DesignInstance v:MainWindow}">
+            <MenuItem CommandParameter="{Binding RelativeSource={RelativeSource Self}}"
+                      Command="{Binding EditBookmarkCommand}"
+                      Icon="{DynamicResource EditDrawingImage}" Header="{u:Lang Edit}"/>
+            <MenuItem CommandParameter="Delete"
+                      Command="{Binding BookmarkItemCommand}"
+                      Icon="{DynamicResource DeleteDrawingImage}" Header="{u:Lang Delete}"/>
         </ContextMenu>
 
         <ContextMenu x:Key="BookmarkFileItemContextMenu" d:DataContext="{d:DesignInstance v:MainWindow}">
@@ -160,7 +170,7 @@
                         </TabItem.Header>
                         <ct:SideBarContent Header="{u:Lang Bookmarks}" Filter="{StaticResource BookmarkFilter}" FileDrop="BookmarksSideBarContent_OnFileDrop">
                             <ct:SideBarContent.Content>
-                                <TreeView x:Name="SideBarBookmarksTreeView" BorderThickness="0"
+                                <TreeView x:Name="SideBarBookmarksTreeView" BorderThickness="0" Focusable="False"
                                       ItemsSource="{Binding Source={x:Static m:BookmarkDbContext.BookmarkCategories}}">
                                     <TreeView.ItemContainerStyle>
                                         <Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemBaseStyle}">
@@ -215,7 +225,7 @@
                                                 </hc:Interaction.Triggers>
 
                                                 <Button Cursor="Hand" VerticalAlignment="Center" HorizontalAlignment="Left" BorderThickness="0"
-                                                    Background="Transparent" Padding="0">
+                                                        Background="Transparent" Padding="0" Focusable="False">
                                                     <hc:Interaction.Triggers>
                                                         <hc:RoutedEventTrigger RoutedEvent="Button.Click">
                                                             <hc:EventToCommand Command="{Binding SideBarItemClickCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>

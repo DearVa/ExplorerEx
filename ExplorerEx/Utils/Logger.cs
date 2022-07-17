@@ -14,13 +14,13 @@ public static class Logger {
 	public static void Initialize() {
 		System.Diagnostics.Debug.Assert(logger == null);
 		try {
-			GlobalDiagnosticsContext.Set("LogPath", Path.Combine(Environment.CurrentDirectory, "Logs"));
+			GlobalDiagnosticsContext.Set("LogPath", Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Logs"));
 			using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ExplorerEx.Assets.LogConfig.xml");
 			LogManager.Configuration = new XmlLoggingConfiguration(XmlReader.Create(stream!));
 			logger = LogManager.GetLogger("logger");
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_OnUnhandledException;
 		} catch (Exception e) {
-			MessageBox(IntPtr.Zero, "未能初始化Logger\n" + e, "Fatal", MessageBoxType.IconStop);
+			MessageBox(IntPtr.Zero, "InitializeLoggerFailed".L() + '\n' + e, "FatalError".L(), MessageBoxType.IconStop);
 		}
 	}
 

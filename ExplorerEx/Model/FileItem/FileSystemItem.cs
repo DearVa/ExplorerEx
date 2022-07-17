@@ -155,7 +155,7 @@ public class FolderItem : FileSystemItem {
 		if (string.IsNullOrEmpty(path) || path == "ThisPC".L() || path.ToUpper() is "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}" or "::{5E5F29CE-E0A8-49D3-AF32-7A7BDC173478}") {  // 加载“此电脑”
 			return (HomeFolderItem.Instance, PathType.Home);
 		}
-		path = path.Replace('/', '\\');
+		path = Environment.ExpandEnvironmentVariables(path.Replace('/', '\\'));
 		if (path.Length >= 3) {
 			if (path[0] is (>= 'A' and <= 'Z') or (>= 'a' and <= 'z') && path[1] == ':') {  // 以驱动器作为开头，表示是本地的目录
 				if (path.Length == 2 || (path.Length == 3 && path[2] == '\\')) {  // 长度为2或3，表示本地驱动器根目录 TODO: 可能为映射的网络驱动器
