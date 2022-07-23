@@ -299,7 +299,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		if (param is CreateFileItem item) {
 			try {
 				var fileName = item.GetCreateName(FullPath);
-				var newName = OwnerWindow.StartRename(fileName);
+				var newName = OwnerWindow.StartRename("Create".L(), fileName, item != CreateFolderItem.Singleton);
 				if (newName != null) {
 					if (item.Create(FullPath, newName)) {
 						var newItem = AddSingleItem(newName);
@@ -361,7 +361,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		FileListView.ScrollIntoView(item);
 		item.IsSelected = true;
 		var originalName = item.GetRenameName();
-		var newName = OwnerWindow.StartRename(originalName);
+		var newName = OwnerWindow.StartRename("Rename".L(), originalName, item.IsFolder);
 		if (newName != null && newName != originalName) {
 			item.Rename(newName);
 		}

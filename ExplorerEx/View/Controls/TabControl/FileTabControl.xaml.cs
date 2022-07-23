@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using ExplorerEx.Utils;
 using ExplorerEx.ViewModel;
 using HandyControl.Data;
@@ -14,11 +16,9 @@ using ExplorerEx.Win32;
 using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
 using MessageBox = HandyControl.Controls.MessageBox;
 using System.IO;
-using ExplorerEx.Command;
 using System.Windows.Controls;
 using System.Collections.Specialized;
 using System.Collections;
-using System.Diagnostics;
 using HandyControl.Interactivity;
 
 namespace ExplorerEx.View.Controls;
@@ -70,7 +70,7 @@ public partial class FileTabControl {
 		set => SetValue(TabBorderRootMarginProperty, value);
 	}
 
-	private Border headerBorder;
+	private Border? headerBorder;
 
 	public Border TabBorder { get; private set; }
 
@@ -85,7 +85,7 @@ public partial class FileTabControl {
 	/// </summary>
 	internal bool IsInternalAction;
 
-	public FileTabPanel HeaderPanel { get; private set; }
+	public FileTabPanel? HeaderPanel { get; private set; }
 
 	/// <summary>
 	///     标签宽度
@@ -108,11 +108,13 @@ public partial class FileTabControl {
 	/// <summary>
 	/// 获取当前被聚焦的TabControl
 	/// </summary>
-	public static FileTabControl FocusedTabControl { get; private set; }
+	public static FileTabControl? FocusedTabControl { get; private set; }
+
 	/// <summary>
 	/// 当前鼠标正在其上的FileTabControl
 	/// </summary>
-	public static FileTabControl MouseOverTabControl { get; private set; }
+	public static FileTabControl? MouseOverTabControl { get; private set; }
+
 	/// <summary>
 	/// 所有的TabControl，一个分屏一个
 	/// </summary>
@@ -144,7 +146,7 @@ public partial class FileTabControl {
 	public FileTabViewModel SelectedTab {
 		get {
 			if (TabItems.Count == 0) {
-				return null;
+				throw new IndexOutOfRangeException();
 			}
 			var index = SelectedIndex;
 			if (index < 0 || index > TabItems.Count) {
@@ -182,7 +184,9 @@ public partial class FileTabControl {
 		set => SetValue(CanSplitScreenProperty, value);
 	}
 
-	public FileTabControl(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileTabViewModel tab) {
+#pragma warning disable CS8618
+	public FileTabControl(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileTabViewModel? tab) {
+#pragma warning restore CS8618
 		MainWindow = mainWindow;
 		OwnerSplitGrid = ownerSplitGrid;
 		DataContext = this;
@@ -198,7 +202,7 @@ public partial class FileTabControl {
 		}
 	}
 
-	public async Task StartUpLoad(params string[] startupPaths) {
+	public async Task StartUpLoad(params string[]? startupPaths) {
 		if (startupPaths == null || startupPaths.Length == 0) {
 			await OpenPathInNewTabAsync(null);
 		} else {
@@ -262,7 +266,7 @@ public partial class FileTabControl {
 		newWindow.BringToFront();
 	}
 
-	public async Task OpenPathInNewTabAsync(string path, string selectedPath = null) {
+	public async Task OpenPathInNewTabAsync(string? path, string? selectedPath = null) {
 		var newTabIndex = Math.Max(Math.Min(SelectedIndex + 1, TabItems.Count), 0);
 		var item = new FileTabViewModel(this);
 		TabItems.Insert(newTabIndex, item);
@@ -474,7 +478,7 @@ public partial class FileTabControl {
 		if (!CanDragDrop(args, tab)) {
 			return;
 		}
-		FileUtils.HandleDrop(DataObjectContent.Parse(args.Data), tab.FullPath, args.Effects.GetActualEffect());
+		_ = FileUtils.HandleDrop(DataObjectContent.Parse(args.Data), tab.FullPath, args.Effects.GetActualEffect());
 	}
 
 	protected override void OnMouseEnter(MouseEventArgs e) {
@@ -530,16 +534,16 @@ public partial class FileTabControl {
 
 	public override void OnApplyTemplate() {
 		base.OnApplyTemplate();
-		HeaderPanel = (FileTabPanel)GetTemplateChild(HeaderPanelKey);
+		HeaderPanel = (FileTabPanel)GetTemplateChild(HeaderPanelKey)!;
 		TabBorder = (Border)GetTemplateChild(TabBorderKey)!;
 		TabBorder.MouseEnter += TabBorder_OnMouseEnter;
 		TabBorder.DragEnter += TabBorder_OnDragEnter;
 		TabBorder.DragOver += (_, e) => e.Handled = true;
 		TabBorder.Drop += TabBorder_OnDrop;
-		TabBorderRoot = (Border)GetTemplateChild(TabBorderRootKey);
-		headerBorder = (Border)GetTemplateChild(HeaderBorderKey);
-		NewTabButton = (Button)GetTemplateChild(NewTabButtonKey);
-		ContentPanel = (Border)GetTemplateChild(ContentPanelKey);
+		TabBorderRoot = (Border)GetTemplateChild(TabBorderRootKey)!;
+		headerBorder = (Border)GetTemplateChild(HeaderBorderKey)!;
+		NewTabButton = (Button)GetTemplateChild(NewTabButtonKey)!;
+		ContentPanel = (Border)GetTemplateChild(ContentPanelKey)!;
 	}
 
 	private void TabBorder_OnMouseEnter(object sender, MouseEventArgs e) {
@@ -565,14 +569,10 @@ public partial class FileTabControl {
 		}
 	}
 
-	internal void CloseOtherItems(FileTabItem currentItem) {
+	internal void CloseOtherItems(FileTabItem? currentItem) {
 		var actualItem = currentItem != null ? ItemContainerGenerator.ItemFromContainer(currentItem) : null;
 
 		var list = GetActualList();
-		if (list == null) {
-			return;
-		}
-
 		IsInternalAction = true;
 
 		for (var i = 0; i < Items.Count; i++) {
@@ -592,8 +592,8 @@ public partial class FileTabControl {
 
 	internal IList GetActualList() {
 		IList list;
-		if (ItemsSource != null) {
-			list = ItemsSource as IList;
+		if (ItemsSource is IList iList) {
+			list = iList;
 		} else {
 			list = Items;
 		}

@@ -151,7 +151,7 @@
         <WindowChrome GlassFrameThickness="-1" ResizeBorderThickness="8"/>
     </WindowChrome.WindowChrome>
 
-    <Grid>
+    <hc:SimplePanel x:Name="RootPanel">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition x:Name="SidebarColumnDefinition" Width="300"/>
@@ -511,41 +511,5 @@
                 <Border MouseLeftButtonDown="OnDragAreaMouseLeftButtonDown" Background="Transparent"/>
             </hc:SimplePanel>
         </Grid>
-
-        <Border x:Name="MessageBoxMaskBorder" Background="#44000000" SnapsToDevicePixels="True" UseLayoutRounding="True" Opacity="0" Visibility="Collapsed">
-            <Border BorderBrush="{DynamicResource PrimaryTextBrush}" CornerRadius="8"
-                    HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="350" MinHeight="160"
-                    Effect="{StaticResource EffectShadow4}">
-                <Border.RenderTransformOrigin>0.5,0.5</Border.RenderTransformOrigin>
-                <Border.RenderTransform>
-                    <ScaleTransform x:Name="MessageBoxBorderScaleTf"/>
-                </Border.RenderTransform>
-                <ct:ClippingBorder CornerRadius="8" Background="{DynamicResource RegionBrush}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Grid.Row="0" Text="{u:Lang Rename}" FontSize="20" Margin="26,26,26,20"/>
-
-                        <StackPanel Grid.Row="1" Margin="26,0,26,20">
-                            <hc:TextBox x:Name="RenameTextBox"/>
-                            <TextBlock Margin="0,10" Text="{u:Lang #InvalidFileName}" Foreground="{DynamicResource DangerBrush}"
-                                       Visibility="{Binding IsError, ElementName=RenameTextBox, Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                        </StackPanel>
-
-                        <Border Grid.Row="2" Background="{DynamicResource BorderBrush}" BorderBrush="{DynamicResource SecondaryBorderBrush}" BorderThickness="0,1,0,0">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10">
-                                <Button Content="{u:Lang Ok}" Width="100" Margin="0,0,10,0" Style="{StaticResource ButtonPrimary}" Click="MessageBoxOk_OnClick"
-                                        IsEnabled="{Binding IsError, ElementName=RenameTextBox, Converter={StaticResource Boolean2BooleanReConverter}}"/>
-                                <Button Content="{u:Lang Cancel}" Width="100" Click="MessageBoxCancel_OnClick"/>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-                </ct:ClippingBorder>
-            </Border>
-        </Border>
-    </Grid>
+    </hc:SimplePanel>
 </Window>

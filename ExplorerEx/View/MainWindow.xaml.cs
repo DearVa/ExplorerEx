@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -25,6 +27,7 @@ using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
 using TextBox = HandyControl.Controls.TextBox;
 using System.Windows.Media;
 using System.Diagnostics;
+using System.Windows.Data;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using hc = HandyControl.Controls;
@@ -33,16 +36,24 @@ using HandyControl.Data;
 namespace ExplorerEx.View;
 
 public sealed partial class MainWindow {
-	public event Action<uint, EverythingInterop.QueryReply> EverythingQueryReplied;
+	/// <summary>
+	/// 获取聚焦的窗口，可能为null
+	/// </summary>
+	public static MainWindow? FocusedWindow => All.FirstOrDefault(mw => mw.IsFocused);
 
-	private static readonly List<MainWindow> MainWindows = new();
+	public event Action<uint, EverythingInterop.QueryReply>? EverythingQueryReplied;
+
+	/// <summary>
+	/// 所有打开的窗口
+	/// </summary>
+	private static readonly List<MainWindow> All = new();
 
 	/// <summary>
 	/// 窗口打开时，每100ms触发一次
 	/// </summary>
-	public static event Action FrequentTimerElapsed;
+	public static event Action? FrequentTimerElapsed;
 
-	private static DispatcherTimer frequentTimer;
+	private static DispatcherTimer frequentTimer = new(TimeSpan.FromMilliseconds(100), DispatcherPriority.Input, (_, _) => FrequentTimerElapsed?.Invoke(), Application.Current.Dispatcher);
 
 	public SimpleCommand SideBarItemPreviewMouseUpCommand { get; }
 	public SimpleCommand SideBarItemClickCommand { get; }
@@ -61,7 +72,7 @@ public sealed partial class MainWindow {
 	private static volatile uint globalEverythingQueryId;
 	private readonly HashSet<uint> everythingQueryIds = new();
 
-	private readonly string startupPath;
+	private readonly string? startupPath;
 
 	private readonly FileSystemItemContextMenuConverter bookmarkItemContextMenuConverter;
 	/// <summary>
@@ -71,9 +82,9 @@ public sealed partial class MainWindow {
 
 	private readonly ContextMenu bookmarkCategoryItemContextMenu;
 
-	public MainWindow(string startupPath, bool startUpLoad = true) {
+	public MainWindow(string? startupPath, bool startUpLoad = true) {
 		this.startupPath = startupPath;
-		MainWindows.Add(this);
+		All.Add(this);
 
 		var screenWidth = SystemParameters.PrimaryScreenWidth;
 		var screenHeight = SystemParameters.PrimaryScreenHeight;
@@ -91,7 +102,7 @@ public sealed partial class MainWindow {
 			left = (int)(screenHeight - Height) / 2;
 			isInvalidPos = true;
 		}
-		if (MainWindows.Count > 1 || isInvalidPos) {
+		if (All.Count > 1 || isInvalidPos) {
 			var rand = new Random((int)DateTime.Now.Ticks);
 			left += rand.Next(-100, 100);
 			top += rand.Next(-100, 100);
@@ -127,23 +138,43 @@ public sealed partial class MainWindow {
 
 			}
 		});
-		RenameTextBox.VerifyFunc = (fileName) => new OperationResult<bool> { Data = !FileUtils.IsProhibitedFileName(fileName) };
+
+		var renameDialogContent = new RenameDialogContent {
+			RenameTextBox = {
+				VerifyFunc = fileName => new OperationResult<bool>(!FileUtils.IsProhibitedFileName(fileName))
+			}
+		};
+		renameContentDialog = new ContentDialog {
+			Content = renameDialogContent,
+			PrimaryButtonText = "Ok".L(),
+			CancelButtonText = "Cancel".L()
+		};
+		renameContentDialog.SetBinding(ContentDialog.IsPrimaryButtonEnabledProperty, new Binding {
+			Source = renameDialogContent.RenameTextBox,
+			Path = new PropertyPath(TextBox.IsErrorProperty),
+			Mode = BindingMode.OneWay,
+			Converter = Application.Current.Resources["Boolean2BooleanReConverter"] as IValueConverter
+		});
+		renameTextBox = renameDialogContent.RenameTextBox;
+		renameContentDialog.Shown += () => {
+			if (renameSelectLength != -1) {
+				renameTextBox.Select(0, renameSelectLength);
+			} else {
+				renameTextBox.SelectAll();
+			}
+			renameTextBox.Focus();
+		};
 
 		if (ConfigHelper.LoadBoolean("WindowMaximized")) {
 			WindowState = WindowState.Maximized;
 			BorderThickness = new Thickness(8);
 		}
 
+		frequentTimer.Start();
 		Hwnd = HwndSource.FromHwnd(new WindowInteropHelper(this).EnsureHandle())!;
-		if (MainWindows.Count == 1) {  // 只在一个窗口上检测剪贴板变化事件
+		if (All.Count == 1) {  // 只在一个窗口上检测剪贴板变化事件
 			RegisterClipboard();
 			RecycleBinItem.RegisterWatcher();
-
-			if (frequentTimer == null) {
-				frequentTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Input, (_, _) => FrequentTimerElapsed?.Invoke(), Dispatcher);
-			} else {
-				frequentTimer.Start();
-			}
 		}
 		Hwnd.AddHook(WndProc);
 
@@ -339,7 +370,7 @@ public sealed partial class MainWindow {
 	/// </summary>
 	/// <param name="path"></param>
 	public static async Task OpenPath(string path) {
-		if (MainWindows.Count == 0) {  // 窗口都关闭了
+		if (All.Count == 0) {  // 窗口都关闭了
 			new MainWindow(path).Show();
 		} else {
 			var tabControl = FileTabControl.FocusedTabControl;
@@ -352,10 +383,10 @@ public sealed partial class MainWindow {
 	/// 显示主窗口
 	/// </summary>
 	public static void ShowWindow() {
-		if (MainWindows.Count == 0) {  // 窗口都关闭了
+		if (All.Count == 0) {  // 窗口都关闭了
 			new MainWindow(null).Show();
 		} else {
-			MainWindows[0].BringToFront();
+			All[0].BringToFront();
 		}
 	}
 
@@ -486,7 +517,7 @@ public sealed partial class MainWindow {
 						await bookmarkDb.SaveChangesAsync();
 						item.LoadIcon(FileListViewItem.LoadDetailsOptions.Default);
 					}
-					foreach (var updateItem in MainWindows.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
+					foreach (var updateItem in All.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
 						updateItem.UpdateUI(nameof(updateItem.IsBookmarked));
 					}
 				}
@@ -509,7 +540,7 @@ public sealed partial class MainWindow {
 			if (item != null) {
 				bookmarkDb.BookmarkDbSet.Remove(item);
 				await bookmarkDb.SaveChangesAsync();
-				foreach (var updateItem in MainWindows.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
+				foreach (var updateItem in All.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
 					updateItem.UpdateUI(nameof(updateItem.IsBookmarked));
 				}
 			}
@@ -517,198 +548,37 @@ public sealed partial class MainWindow {
 	}
 	#endregion
 
-	#region 消息框
+	#region 重命名
 
-	private DispatcherFrame messageBoxFrame;
-	private MessageBoxResult messageBoxResult;
+	private readonly ContentDialog renameContentDialog;
+	private readonly TextBox renameTextBox;
+	private int renameSelectLength;
 
 	/// <summary>
-	/// 还未封装完，目前只用来重命名
+	/// 弹出重命名对话框
 	/// </summary>
+	/// <param name="title"></param>
+	/// <param name="originalName"></param>
+	/// <param name="isFolder"></param>
 	/// <returns></returns>
-	public MessageBoxResult ShowMessageBox() {
-		if (messageBoxFrame != null) {
-			Logger.Error("Error");
-		}
-		MessageBoxMaskBorder.BeginAnimation(OpacityProperty, new DoubleAnimation(1d, TimeSpan.FromMilliseconds(300d)) {
-			EasingFunction = new CubicEase {
-				EasingMode = EasingMode.EaseOut
-			}
-		});
-		var scaleInAnimation = new DoubleAnimation(0.8d, 1d, TimeSpan.FromMilliseconds(300d)) {
-			EasingFunction = new BackEase {
-				EasingMode = EasingMode.EaseOut,
-				Amplitude = 1.2d
-			}
-		};
-		scaleInAnimation.Completed += (_, _) => RenameTextBox.Focus();
-		MessageBoxBorderScaleTf.BeginAnimation(ScaleTransform.ScaleXProperty, scaleInAnimation);
-		MessageBoxBorderScaleTf.BeginAnimation(ScaleTransform.ScaleYProperty, scaleInAnimation);
-		MessageBoxMaskBorder.Visibility = Visibility.Visible;
-		messageBoxFrame = new DispatcherFrame();
-		Dispatcher.PushFrame(messageBoxFrame);
-		return messageBoxResult;
-	}
-
-	private void CloseMessageBox() {
-		var easingFunction = new CubicEase {
-			EasingMode = EasingMode.EaseOut
-		};
-		MessageBoxMaskBorder.BeginAnimation(OpacityProperty, new DoubleAnimation(0d, TimeSpan.FromMilliseconds(300d)) {
-			EasingFunction = easingFunction
-		});
-		var scaleXAnimation = new DoubleAnimation(1d, 1.2d, TimeSpan.FromMilliseconds(300d)) {
-			EasingFunction = easingFunction
-		};
-		var scaleYAnimation = new DoubleAnimation(1d, 1.2d, TimeSpan.FromMilliseconds(300d)) {
-			EasingFunction = easingFunction
-		};
-		scaleYAnimation.Completed += (_, _) => {
-			messageBoxFrame.Continue = false;
-			messageBoxFrame = null;
-			MessageBoxMaskBorder.Visibility = Visibility.Collapsed;
-		};
-		MessageBoxBorderScaleTf.BeginAnimation(ScaleTransform.ScaleXProperty, scaleXAnimation);
-		MessageBoxBorderScaleTf.BeginAnimation(ScaleTransform.ScaleYProperty, scaleYAnimation);
-	}
-
-	private void MessageBoxOk_OnClick(object sender, RoutedEventArgs e) {
-		messageBoxResult = MessageBoxResult.OK;
-		CloseMessageBox();
-	}
-
-	private void MessageBoxCancel_OnClick(object sender, RoutedEventArgs e) {
-		messageBoxResult = MessageBoxResult.Cancel;
-		CloseMessageBox();
-	}
-
-	public string StartRename(string originalName) {
-		RenameTextBox.Text = originalName;
-		var lastDot = originalName.LastIndexOf('.');
-		if (lastDot != -1) {
-			RenameTextBox.Select(0, lastDot);
+	public string? StartRename(string title, string originalName, bool isFolder) {
+		renameContentDialog.Title = title;
+		renameTextBox.Text = originalName;
+		if (isFolder) {
+			renameSelectLength = -1;
 		} else {
-			RenameTextBox.SelectAll();
+			renameSelectLength = originalName.LastIndexOf('.');
 		}
-		if (ShowMessageBox() == MessageBoxResult.OK && !RenameTextBox.IsError) {
-			return RenameTextBox.Text;
+		if (renameContentDialog.Show(this) == ContentDialog.ContentDialogResult.Primary && !renameTextBox.IsError) {
+			return renameTextBox.Text;
 		}
 		return null;
 	}
+
 	#endregion
-
-
-	protected override void OnClosing(CancelEventArgs e) {
-		if (SplitGrid.FileTabControl.TabItems.Count > 1 || SplitGrid.AnySplitScreen) {
-			if (!MessageBoxHelper.AskWithDefault("CloseMultiTabs", "#YouHaveOpenedMoreThanOneTab".L())) {
-				e.Cancel = true;
-			}
-		}
-		base.OnClosing(e);
-	}
-
-	protected override void OnClosed(EventArgs e) {
-		MainWindows.Remove(this);
-		SplitGrid.Close();
-		if (isClipboardRegistered) {
-			if (nextClipboardViewer != IntPtr.Zero) {
-				ChangeClipboardChain(Hwnd.Handle, nextClipboardViewer);
-			}
-			if (MainWindows.Count > 0) { // 通知下一个Window进行Hook
-				MainWindows[0].RegisterClipboard();
-			}
-		}
-		if (MainWindows.Count == 0) {
-			frequentTimer.Stop();
-			RecycleBinItem.UnregisterWatcher();
-		}
-		base.OnClosed(e);
-	}
 
 	private void OnDragAreaMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
 		DragMove();
-	}
-
-	protected override void OnStateChanged(EventArgs e) {
-		base.OnStateChanged(e);
-		var isMaximized = WindowState == WindowState.Maximized;
-		ConfigHelper.Save("WindowMaximized", isMaximized);
-		if (isMaximized) {
-			BorderThickness = new Thickness(8);
-		} else {
-			BorderThickness = new Thickness(2);
-		}
-	}
-
-	protected override void OnLocationChanged(EventArgs e) {
-		base.OnLocationChanged(e);
-		ConfigHelper.SaveToBuffer("WindowLeft", (int)Left);
-		ConfigHelper.SaveToBuffer("WindowTop", (int)Top);
-	}
-
-	protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
-		base.OnRenderSizeChanged(sizeInfo);
-		if (sizeInfo.WidthChanged && (int)sizeInfo.NewSize.Width != (int)sizeInfo.PreviousSize.Width) {
-			ConfigHelper.SaveToBuffer("WindowWidth", (int)sizeInfo.NewSize.Width);
-		}
-		if (sizeInfo.HeightChanged && (int)sizeInfo.NewSize.Height != (int)sizeInfo.PreviousSize.Height) {
-			ConfigHelper.SaveToBuffer("WindowHeight", (int)sizeInfo.NewSize.Height);
-		}
-	}
-
-	protected override void OnKeyDown(KeyEventArgs e) {
-		var mouseOverTab = FileTabControl.MouseOverTabControl?.SelectedTab;
-		if (mouseOverTab != null) {
-			if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
-				switch (e.Key) {
-				case Key.Z:
-					break;
-				case Key.X:
-					mouseOverTab.FileItemCommand.Execute("Cut");
-					break;
-				case Key.C:
-					mouseOverTab.FileItemCommand.Execute("Copy");
-					break;
-				case Key.V:
-					mouseOverTab.FileItemCommand.Execute("Paste");
-					break;
-				case Key.A:
-					mouseOverTab.FileListView.SelectAll();
-					break;
-				case Key.I:
-					mouseOverTab.FileListView.InverseSelection();
-					break;
-				case Key.W:
-					FileTabControl.MouseOverTabControl.CloseTab(mouseOverTab);
-					break;
-				}
-			} else if ((Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt) {
-				switch (e.SystemKey) {
-				case Key.Left:
-					mouseOverTab.GoBackAsync();
-					break;
-				case Key.Right:
-					mouseOverTab.GoForwardAsync();
-					break;
-				case Key.Up:
-					mouseOverTab.GoToUpperLevelAsync();
-					break;
-				}
-			} else {
-				switch (e.Key) {
-				case Key.Enter:
-					mouseOverTab.FileItemCommand.Execute("Open");
-					break;
-				case Key.Delete:
-					mouseOverTab.FileItemCommand.Execute("Delete");
-					break;
-				case Key.Back:
-					mouseOverTab.GoBackAsync();
-					break;
-				}
-			}
-		}
-		base.OnKeyDown(e);
 	}
 
 	private bool loaded;
@@ -844,6 +714,119 @@ public sealed partial class MainWindow {
 		Keyboard.ClearFocus();
 	}
 
+	#region Overrides
+
+	protected override void OnClosing(CancelEventArgs e) {
+		if (SplitGrid.FileTabControl.TabItems.Count > 1 || SplitGrid.AnySplitScreen) {
+			if (!MessageBoxHelper.AskWithDefault("CloseMultiTabs", "#YouHaveOpenedMoreThanOneTab".L())) {
+				e.Cancel = true;
+			}
+		}
+		base.OnClosing(e);
+	}
+
+	protected override void OnClosed(EventArgs e) {
+		All.Remove(this);
+		SplitGrid.Close();
+		if (isClipboardRegistered) {
+			if (nextClipboardViewer != IntPtr.Zero) {
+				ChangeClipboardChain(Hwnd.Handle, nextClipboardViewer);
+			}
+			if (All.Count > 0) { // 通知下一个Window进行Hook
+				All[0].RegisterClipboard();
+			}
+		}
+		if (All.Count == 0) {
+			frequentTimer.Stop();
+			RecycleBinItem.UnregisterWatcher();
+		}
+		base.OnClosed(e);
+	}
+
+	protected override void OnStateChanged(EventArgs e) {
+		base.OnStateChanged(e);
+		var isMaximized = WindowState == WindowState.Maximized;
+		ConfigHelper.Save("WindowMaximized", isMaximized);
+		if (isMaximized) {
+			BorderThickness = new Thickness(8);
+		} else {
+			BorderThickness = new Thickness(2);
+		}
+	}
+
+	protected override void OnLocationChanged(EventArgs e) {
+		base.OnLocationChanged(e);
+		ConfigHelper.SaveToBuffer("WindowLeft", (int)Left);
+		ConfigHelper.SaveToBuffer("WindowTop", (int)Top);
+	}
+
+	protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
+		base.OnRenderSizeChanged(sizeInfo);
+		if (sizeInfo.WidthChanged && (int)sizeInfo.NewSize.Width != (int)sizeInfo.PreviousSize.Width) {
+			ConfigHelper.SaveToBuffer("WindowWidth", (int)sizeInfo.NewSize.Width);
+		}
+		if (sizeInfo.HeightChanged && (int)sizeInfo.NewSize.Height != (int)sizeInfo.PreviousSize.Height) {
+			ConfigHelper.SaveToBuffer("WindowHeight", (int)sizeInfo.NewSize.Height);
+		}
+	}
+
+	protected override void OnKeyDown(KeyEventArgs e) {
+		if (RootPanel.Children.Count == 1) {  // 没有打开任何对话框
+			var mouseOverTab = FileTabControl.MouseOverTabControl?.SelectedTab;
+			if (mouseOverTab != null) {
+				if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
+					switch (e.Key) {
+					case Key.Z:
+						break;
+					case Key.X:
+						mouseOverTab.FileItemCommand.Execute("Cut");
+						break;
+					case Key.C:
+						mouseOverTab.FileItemCommand.Execute("Copy");
+						break;
+					case Key.V:
+						mouseOverTab.FileItemCommand.Execute("Paste");
+						break;
+					case Key.A:
+						mouseOverTab.FileListView.SelectAll();
+						break;
+					case Key.I:
+						mouseOverTab.FileListView.InverseSelection();
+						break;
+					case Key.W:
+						FileTabControl.MouseOverTabControl.CloseTab(mouseOverTab);
+						break;
+					}
+				} else if ((Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt) {
+					switch (e.SystemKey) {
+					case Key.Left:
+						mouseOverTab.GoBackAsync();
+						break;
+					case Key.Right:
+						mouseOverTab.GoForwardAsync();
+						break;
+					case Key.Up:
+						mouseOverTab.GoToUpperLevelAsync();
+						break;
+					}
+				} else {
+					switch (e.Key) {
+					case Key.Enter:
+						mouseOverTab.FileItemCommand.Execute("Open");
+						break;
+					case Key.Delete:
+						mouseOverTab.FileItemCommand.Execute("Delete");
+						break;
+					case Key.Back:
+						mouseOverTab.GoBackAsync();
+						break;
+					}
+				}
+			}
+		}
+		base.OnKeyDown(e);
+	}
+
 	protected override void OnPreviewDragEnter(DragEventArgs e) {
 		DataObjectContent.HandleDragEnter(e);
 		base.OnPreviewDragEnter(e);
@@ -877,10 +860,11 @@ public sealed partial class MainWindow {
 	protected override void OnPreviewDragLeave(DragEventArgs e) {
 		base.OnPreviewDragLeave(e);
 		var cursorHwnd = GetCursorHwnd();
-		if (MainWindows.Any(mw => mw.Hwnd.Handle == cursorHwnd)) {
+		if (All.Any(mw => mw.Hwnd.Handle == cursorHwnd)) {
 			return;  // 只有当真正离开了窗口，才取消显示
 		}
 		DataObjectContent.HandleDragLeave();
 	}
 
+	#endregion
 }

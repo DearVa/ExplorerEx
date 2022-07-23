@@ -229,7 +229,11 @@ public class FileItemCommand : ICommand {
 	/// <param name="item"></param>
 	/// <param name="runAs">是否以管理员方式执行，仅对可执行文件有效</param>
 	public static void OpenFile(FileListViewItem item, bool runAs) {
-		if (item is ZipFileItem zipFile) {
+		switch (item) {
+		case FolderItem folder:
+			_ = FileTabControl.MouseOverTabControl.SelectedTab.LoadDirectoryAsync(folder.FullPath);
+			break;
+		case ZipFileItem zipFile:
 			var zipArchive = zipFile.ZipArchive;
 			if (zipFile.IsExecutable && zipArchive.Entries.Count > 1) {
 				var result = hc.MessageBox.Show(new MessageBoxInfo {
@@ -255,8 +259,10 @@ public class FileItemCommand : ICommand {
 				var tempPath = FolderUtils.GetRandomFolderInTemp(Path.GetFileName(zipFile.ZipPath));
 				OpenFile(zipFile.Extract(tempPath, false), runAs);
 			});
-		} else {
+			break;
+		default:
 			OpenFile(item.FullPath, runAs);
+			break;
 		}
 	}
 

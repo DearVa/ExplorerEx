@@ -938,23 +938,15 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	#region MenuItem点击事件，用Binding的话太浪费资源了
 	private void Refresh_OnClick(object sender, RoutedEventArgs e) {
-		ViewModel?.Refresh();
+		viewModel?.Refresh();
 	}
 
 	private void NewFolder_OnClick(object sender, RoutedEventArgs e) {
-		string folderName;
-		try {
-			folderName = FileUtils.GetNewFileName(FullPath, "New_folder".L());
-			Directory.CreateDirectory(Path.Combine(FullPath, folderName));
-		} catch (Exception ex) {
-			Logger.Error(ex.Message);
-			return;
-		}
-		ViewModel.StartRename(folderName);
+		viewModel.CreateCommand.Execute(CreateFolderItem.Singleton);
 	}
 
 	private void FormatDiskDrive_OnClick(object sender, RoutedEventArgs e) {
-		if (ViewModel == null) {
+		if (viewModel == null) {
 			return;
 		}
 		foreach (var item in ViewModel.SelectedItems.Where(i => i is DiskDriveItem).Cast<DiskDriveItem>().ToImmutableList()) {

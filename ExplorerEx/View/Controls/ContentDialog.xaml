@@ -1,0 +1,46 @@
+﻿<Border x:Class="ExplorerEx.View.Controls.ContentDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
+        mc:Ignorable="d" KeyboardNavigation.TabNavigation="Cycle"
+        Background="#44000000" SnapsToDevicePixels="True" UseLayoutRounding="True" Opacity="0"
+        d:DataContext="{d:DesignInstance ct:ContentDialog}">
+    <Border BorderBrush="{DynamicResource PrimaryTextBrush}" CornerRadius="8"
+            HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="350" MinHeight="160"
+            Effect="{StaticResource EffectShadow4}">
+        <Border.RenderTransformOrigin>0.5,0.5</Border.RenderTransformOrigin>
+        <Border.RenderTransform>
+            <ScaleTransform x:Name="ScaleTf"/>
+        </Border.RenderTransform>
+        <ct:ClippingBorder CornerRadius="8" Background="{DynamicResource RegionBrush}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="{Binding Title, Mode=OneWay}" FontSize="20" Margin="26,26,26,20"/>
+
+                <ContentPresenter x:Name="ContentPresenter" Grid.Row="1" Content="{Binding Content, Mode=OneWay}" Margin="26,0,26,20"/>
+
+                <Border Grid.Row="2" Background="{DynamicResource BorderBrush}" BorderBrush="{DynamicResource SecondaryBorderBrush}" BorderThickness="0,1,0,0">
+                    <DockPanel HorizontalAlignment="Stretch" Margin="25,10">
+                        <Button x:Name="PrimaryButton" TabIndex="0" Content="{Binding PrimaryButtonText, Mode=OneWay}" MinWidth="100" MaxWidth="200"
+                                Visibility="{Binding PrimaryButtonText, Converter={StaticResource Object2VisibilityConverter}, Mode=OneWay}"
+                                IsEnabled="{Binding IsPrimaryButtonEnabled, Mode=OneWay}" Command="{Binding PrimaryButtonCommand, Mode=OneWay}"
+                                DockPanel.Dock="Left" Style="{StaticResource ButtonPrimary}" Click="ContentDialogPrimaryButton_OnClick"/>
+                        <Button x:Name="SecondaryButton" TabIndex="1" Content="{Binding SecondaryButtonText, Mode=OneWay}" MinWidth="100" MaxWidth="200"
+                                Visibility="{Binding SecondaryButtonText, Converter={StaticResource Object2VisibilityConverter}, Mode=OneWay}"
+                                Command="{Binding SecondaryButtonCommand, Mode=OneWay}" Click="ContentDialogSecondaryButton_OnClick"/>
+                        <Button TabIndex="2" Content="{Binding CancelButtonText, Mode=OneWay}" MinWidth="100" MaxWidth="200"
+                                Visibility="{Binding CancelButtonText, Converter={StaticResource Object2VisibilityConverter}, Mode=OneWay}"
+                                DockPanel.Dock="Right" HorizontalAlignment="Right" Command="{Binding CancelButtonCommand, Mode=OneWay}" Click="ContentDialogCancelButton_OnClick"/>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </ct:ClippingBorder>
+    </Border>
+</Border>
