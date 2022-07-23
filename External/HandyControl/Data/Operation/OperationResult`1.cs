@@ -19,5 +19,11 @@
         ///     操作消息（包含错误原因等数据）
         /// </summary>
         public string Message { get; set; }
+
+        public OperationResult() { }
+
+        public OperationResult(T data) {
+	        Data = data;
+        }
     }
 }

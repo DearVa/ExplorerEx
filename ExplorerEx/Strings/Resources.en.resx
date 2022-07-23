@@ -551,4 +551,10 @@ For the application to run properly, it's recommanded that you first extract all
   <data name="FatalError" xml:space="preserve">
     <value>Fatal error</value>
   </data>
+  <data name="Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="File" xml:space="preserve">
+    <value>File</value>
+  </data>
 </root>

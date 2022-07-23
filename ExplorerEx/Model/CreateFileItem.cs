@@ -12,6 +12,10 @@ namespace ExplorerEx.Model;
 /// 新建 一个文件
 /// </summary>
 public class CreateFileItem : SimpleNotifyPropertyChanged {
+	public static CreateFileItem NoExtension { get; } = new(string.Empty, false) {
+		Description = "File".L()
+	};
+
 	public ImageSource Icon { get; protected set; }
 
 	public string Description { get; protected set; }
@@ -66,12 +70,14 @@ public class CreateFileItem : SimpleNotifyPropertyChanged {
 	public static void UpdateItems() {
 		var newItems = (string[])Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\Discardable\PostSetup\ShellNew")!.GetValue("Classes")!;
 		items.Clear();
-		items.Add(new CreateDirectoryItem());
+		items.Add(CreateFolderItem.Singleton);
 		// items.Add(new CreateFileLinkItem());
-		// items.Add(new CreateFileItem(".txt"));
+		items.Add(NoExtension);
+		items.Add(new CreateFileItem(".txt"));
 		foreach (var item in newItems) {
 			if (item[0] == '.') {
 				switch (item) {
+				case ".txt":
 				case ".lnk":
 				case ".library-ms":
 					continue;
@@ -87,8 +93,10 @@ public class CreateFileItem : SimpleNotifyPropertyChanged {
 /// <summary>
 /// 新建文件夹
 /// </summary>
-internal class CreateDirectoryItem : CreateFileItem {
-	public CreateDirectoryItem() : base(null, false) {
+internal class CreateFolderItem : CreateFileItem {
+	public static CreateFolderItem Singleton { get; } = new();
+
+	private CreateFolderItem() : base(null, false) {
 		Icon = EmptyFolderDrawingImage;
 		Description = "Folder".L();
 	}
