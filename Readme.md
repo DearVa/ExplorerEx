@@ -1,5 +1,7 @@
 # ExplorerEx
 
+[![.NET Desktop](https://github.com/DearVa/ExplorerEx/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/DearVa/ExplorerEx/actions/workflows/dotnet-desktop.yml)
+
 ### ExplorerEx is a Swift, Multi-Tabbed, Modern UI and Humanized File Explorer.
 
 ![Preview](https://raw.githubusercontent.com/DearVa/ExplorerEx/master/Images/preview.png)
