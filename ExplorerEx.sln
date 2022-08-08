@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExplorerEx", "ExplorerEx\Ex
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HandyControl", "External\HandyControl\HandyControl.csproj", "{BD0EEA59-836D-4C13-A6F1-207224630962}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExplorerHook", "ExplorerHook\ExplorerHook.vcxproj", "{23638E0E-4A22-483A-BC25-CEF7B13A2899}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -23,10 +21,6 @@ Global
 		{BD0EEA59-836D-4C13-A6F1-207224630962}.Debug|x64.Build.0 = Debug|x64
 		{BD0EEA59-836D-4C13-A6F1-207224630962}.Release|x64.ActiveCfg = Release|x64
 		{BD0EEA59-836D-4C13-A6F1-207224630962}.Release|x64.Build.0 = Release|x64
-		{23638E0E-4A22-483A-BC25-CEF7B13A2899}.Debug|x64.ActiveCfg = Debug|x64
-		{23638E0E-4A22-483A-BC25-CEF7B13A2899}.Debug|x64.Build.0 = Debug|x64
-		{23638E0E-4A22-483A-BC25-CEF7B13A2899}.Release|x64.ActiveCfg = Release|x64
-		{23638E0E-4A22-483A-BC25-CEF7B13A2899}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
