@@ -30,9 +30,9 @@ public class CreateFileItem : NotifyPropertyChangedBase {
 		if (createIcon) {
 			Task.Run(() => {
 				Icon = GetSmallIcon(extension, true);
-				UpdateUI(nameof(Icon));
+				OnPropertyChanged(nameof(Icon));
 				Description = FileUtils.GetFileTypeDescription(extension);
-				UpdateUI(nameof(Description));
+				OnPropertyChanged(nameof(Description));
 			});
 		}
 	}

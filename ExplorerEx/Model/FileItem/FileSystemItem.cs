@@ -19,7 +19,7 @@ public abstract class FileSystemItem : FileListViewItem {
 		protected set {
 			if (dateModified != value) {
 				dateModified = value;
-				UpdateUI();
+				OnPropertyChanged();
 			}
 		}
 	}
@@ -34,7 +34,7 @@ public abstract class FileSystemItem : FileListViewItem {
 		protected set {
 			if (dateCreated != value) {
 				dateCreated = value;
-				UpdateUI();
+				OnPropertyChanged();
 			}
 		}
 	}
@@ -71,7 +71,7 @@ public abstract class FileSystemItem : FileListViewItem {
 		if (!IsFolder) {
 			LoadIcon(options);
 		}
-		UpdateUI(nameof(Icon));
+		OnPropertyChanged(nameof(Icon));
 		LoadAttributes(options);
 	}
 

@@ -602,4 +602,13 @@ For the application to run properly, it's recommanded that you first extract all
   <data name="#DoubleClickGoUpperLevelDescription" xml:space="preserve">
     <value>Double click in the blank space to go to upper level.</value>
   </data>
+  <data name="MediumIcons" xml:space="preserve">
+    <value>Medium icons</value>
+  </data>
+  <data name="...FreeOf..." xml:space="preserve">
+    <value>共{1}，剩余{0}</value>
+  </data>
+  <data name=":" xml:space="preserve">
+    <value>: </value>
+  </data>
 </root>

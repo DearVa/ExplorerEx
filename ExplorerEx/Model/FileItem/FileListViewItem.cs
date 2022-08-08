@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Windows;
@@ -16,10 +18,11 @@ namespace ExplorerEx.Model;
 /// <summary>
 /// 所有可以显示在<see cref="FileListView"/>中的项目的基类
 /// </summary>
-public abstract class FileListViewItem : NotifyPropertyChangedBase {
+public abstract class FileListViewItem : INotifyPropertyChanged {
 	protected FileListViewItem(string fullPath, string name) {
 		FullPath = fullPath;
 		Name = name;
+		This = this;
 	}
 
 	/// <summary>
@@ -31,7 +34,7 @@ public abstract class FileListViewItem : NotifyPropertyChangedBase {
 		protected set {
 			if (icon != value) {
 				icon = value;
-				UpdateUI();
+				OnPropertyChanged();
 			}
 		}
 	}
@@ -54,7 +57,7 @@ public abstract class FileListViewItem : NotifyPropertyChangedBase {
 		protected set {
 			if (type != value) {
 				type = value;
-				UpdateUI();
+				OnPropertyChanged();
 			}
 		}
 	}
@@ -67,7 +70,7 @@ public abstract class FileListViewItem : NotifyPropertyChangedBase {
 		protected set {
 			if (fileSize != value) {
 				fileSize = value;
-				UpdateUI();
+				OnPropertyChanged();
 			}
 		}
 	}
@@ -85,7 +88,7 @@ public abstract class FileListViewItem : NotifyPropertyChangedBase {
 		set {
 			if (isSelected != value) {
 				isSelected = value;
-				UpdateUI();
+				OnPropertyChanged();
 			}
 		}
 	}
@@ -120,7 +123,7 @@ public abstract class FileListViewItem : NotifyPropertyChangedBase {
 		if (!FileUtils.IsProhibitedFileName(newName)) {
 			if (newName != Name && InternalRename(newName)) {
 				Name = newName;
-				UpdateUI(nameof(Name));
+				OnPropertyChanged(nameof(Name));
 				return true;
 			}
 		}
@@ -185,6 +188,18 @@ public abstract class FileListViewItem : NotifyPropertyChangedBase {
 		};
 
 		public bool UseLargeIcon { get; set; }
+	}
+
+	/// <summary>
+	/// 用于更新绑定到自身的东西
+	/// </summary>
+	public FileListViewItem This { get; }
+
+	public event PropertyChangedEventHandler? PropertyChanged;
+
+	public void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
+		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(This)));
 	}
 }
 

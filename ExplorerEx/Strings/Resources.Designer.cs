@@ -61,6 +61,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 ： 的本地化字符串。
+        /// </summary>
+        internal static string _ {
+            get {
+                return ResourceManager.GetString(":", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 ， 的本地化字符串。
         /// </summary>
         internal static string __ {
@@ -70,10 +79,19 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 {0} free of {1} 的本地化字符串。
+        /// </summary>
+        internal static string ___FreeOf___ {
+            get {
+                return ResourceManager.GetString("...FreeOf...", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 使用说明：
         ///ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requireDebugger] Path1, Path2, ... 的本地化字符串。
         /// </summary>
-        internal static string _App_help {
+        internal static string _AppHelp {
             get {
                 return ResourceManager.GetString("#AppHelp", resourceCulture);
             }
@@ -404,15 +422,6 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 无法打开 的本地化字符串。
-        /// </summary>
-        internal static string CannotOpen {
-            get {
-                return ResourceManager.GetString("CannotOpen", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 无法访问文件夹 的本地化字符串。
         /// </summary>
         internal static string CannotAccessDirectory {
@@ -427,6 +436,15 @@ namespace ExplorerEx.Strings {
         internal static string CannotCreate {
             get {
                 return ResourceManager.GetString("CannotCreate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 无法打开 的本地化字符串。
+        /// </summary>
+        internal static string CannotOpen {
+            get {
+                return ResourceManager.GetString("CannotOpen", resourceCulture);
             }
         }
         
@@ -1124,6 +1142,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 中等图标 的本地化字符串。
+        /// </summary>
+        internal static string MediumIcons {
+            get {
+                return ResourceManager.GetString("MediumIcons", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 云母（仅Windows 11可用） 的本地化字符串。
         /// </summary>
         internal static string MicaWindows11Only {
@@ -1340,20 +1367,20 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 松手移动到回收站 的本地化字符串。
-        /// </summary>
-        internal static string ReleaseToMoveToRecycleBin {
-            get {
-                return ResourceManager.GetString("ReleaseToMoveToRecycleBin", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 松手添加到收藏夹 的本地化字符串。
         /// </summary>
         internal static string ReleaseToAddToBookmark {
             get {
                 return ResourceManager.GetString("ReleaseToAddToBookmark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 松手移动到回收站 的本地化字符串。
+        /// </summary>
+        internal static string ReleaseToMoveToRecycleBin {
+            get {
+                return ResourceManager.GetString("ReleaseToMoveToRecycleBin", resourceCulture);
             }
         }
         
@@ -1423,7 +1450,7 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似  个项目 的本地化字符串。
         /// </summary>
-        internal static string RunItemsCount {
+        internal static string Run_ItemsCount {
             get {
                 return ResourceManager.GetString("Run-ItemsCount", resourceCulture);
             }
@@ -1432,7 +1459,7 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 选择了  的本地化字符串。
         /// </summary>
-        internal static string RunSelectedItemsCount {
+        internal static string Run_SelectedItemsCount {
             get {
                 return ResourceManager.GetString("Run-SelectedItemsCount", resourceCulture);
             }

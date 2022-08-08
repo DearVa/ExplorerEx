@@ -649,4 +649,13 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="#DoubleClickGoUpperLevelDescription" xml:space="preserve">
     <value>在空白处双击来返回上一级。</value>
   </data>
+  <data name="MediumIcons" xml:space="preserve">
+    <value>中等图标</value>
+  </data>
+  <data name="...FreeOf..." xml:space="preserve">
+    <value>{0} free of {1}</value>
+  </data>
+  <data name=":" xml:space="preserve">
+    <value>：</value>
+  </data>
 </root>

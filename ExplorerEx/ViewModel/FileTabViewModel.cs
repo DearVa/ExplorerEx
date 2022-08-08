@@ -103,7 +103,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		set {
 			if (isLoading != value) {
 				isLoading = value;
-				UpdateUI();
+				OnPropertyChanged();
 			}
 		}
 	}
@@ -192,7 +192,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		private set {
 			if (canPaste != value) {
 				canPaste = value;
-				UpdateUI();
+				OnPropertyChanged();
 			}
 		}
 	}
@@ -303,6 +303,9 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 				if (newName != null) {
 					if (item.Create(FullPath, newName)) {
 						var newItem = AddSingleItem(newName);
+						if (newItem == null) {
+							return;
+						}
 						newItem.IsSelected = true;
 						FileListView.ScrollIntoView(newItem);
 					} else {
@@ -347,7 +350,10 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		return item;
 	}
 
-	public void StartRename(string fileName) {
+	public void StartRename(string? fileName) {
+		if (fileName == null) {
+			return;
+		}
 		var item = Items.FirstOrDefault(item => item.Name == fileName);
 		if (item == null) {
 			if ((item = AddSingleItem(fileName)) == null) {
@@ -607,8 +613,8 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 #endif
 
 		try {
-			UpdateUI(nameof(Folder));
-			UpdateUI(nameof(FullPath));
+			OnPropertyChanged(nameof(Folder));
+			OnPropertyChanged(nameof(FullPath));
 		} catch (Exception e) {
 			Logger.Exception(e, false);
 			hc.MessageBox.Error(string.Format("#ExplorerExCannotFind...".L(), path), "Error".L());
@@ -800,14 +806,14 @@ sw.Restart();
 	/// 和文件夹相关的UI，和是否选中文件无关
 	/// </summary>
 	private void UpdateFolderUI() {
-		UpdateUI(nameof(CanPaste));
-		UpdateUI(nameof(CanGoBack));
-		UpdateUI(nameof(CanGoForward));
-		UpdateUI(nameof(GoBackButtonToolTip));
-		UpdateUI(nameof(GoForwardButtonToolTip));
-		UpdateUI(nameof(CanGoToUpperLevel));
-		UpdateUI(nameof(GoToUpperLevelButtonToolTip));
-		UpdateUI(nameof(SearchPlaceholderText));
+		OnPropertyChanged(nameof(CanPaste));
+		OnPropertyChanged(nameof(CanGoBack));
+		OnPropertyChanged(nameof(CanGoForward));
+		OnPropertyChanged(nameof(GoBackButtonToolTip));
+		OnPropertyChanged(nameof(GoForwardButtonToolTip));
+		OnPropertyChanged(nameof(CanGoToUpperLevel));
+		OnPropertyChanged(nameof(GoToUpperLevelButtonToolTip));
+		OnPropertyChanged(nameof(SearchPlaceholderText));
 	}
 
 	/// <summary>
@@ -825,12 +831,12 @@ sw.Restart();
 				SelectedFileItemsSizeVisibility = Visibility.Visible;
 			}
 		}
-		UpdateUI(nameof(IsItemSelected));
-		UpdateUI(nameof(CanDeleteOrCut));
-		UpdateUI(nameof(SelectedFileItemsCountVisibility));
-		UpdateUI(nameof(SelectedFileItemsCount));
-		UpdateUI(nameof(SelectedFileItemsSizeVisibility));
-		UpdateUI(nameof(SelectedFileItemsSizeText));
+		OnPropertyChanged(nameof(IsItemSelected));
+		OnPropertyChanged(nameof(CanDeleteOrCut));
+		OnPropertyChanged(nameof(SelectedFileItemsCountVisibility));
+		OnPropertyChanged(nameof(SelectedFileItemsCount));
+		OnPropertyChanged(nameof(SelectedFileItemsSizeVisibility));
+		OnPropertyChanged(nameof(SelectedFileItemsSizeText));
 	}
 
 	public async void FileListViewItem_OnDoubleClicked(object args) {

@@ -143,7 +143,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 			// ReSharper disable once PossibleUnintendedReferenceComparison
 			if (children != value) {
 				children = value;
-				UpdateUI();
+				OnPropertyChanged();
 			}
 		}
 	}
@@ -160,7 +160,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 		set {
 			if (isExpanded != value) {
 				isExpanded = value;
-				UpdateUI();
+				OnPropertyChanged();
 				if (value) {
 					if (this == Home) {
 						UpdateDriveChildren();

@@ -49,11 +49,11 @@ public sealed class DiskDriveItem : FolderItem {
 		} else {
 			TotalSpace = -1;
 		}
-		UpdateUI(nameof(FreeSpace));
-		UpdateUI(nameof(TotalSpace));
-		UpdateUI(nameof(FreeSpaceRatio));
-		UpdateUI(nameof(ProgressBarBackground));
-		UpdateUI(nameof(SpaceOverviewString));
+		OnPropertyChanged(nameof(FreeSpace));
+		OnPropertyChanged(nameof(TotalSpace));
+		OnPropertyChanged(nameof(FreeSpaceRatio));
+		OnPropertyChanged(nameof(ProgressBarBackground));
+		OnPropertyChanged(nameof(SpaceOverviewString));
 	}
 
 	public override void LoadIcon(LoadDetailsOptions options) {

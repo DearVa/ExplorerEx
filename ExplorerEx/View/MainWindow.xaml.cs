@@ -593,7 +593,7 @@ public sealed partial class MainWindow {
 				var dbBookmark = await BookmarkDbContext.Instance.BookmarkDbSet.FirstOrDefaultAsync(b => b.FullPath == fullPath);
 				if (dbBookmark != null) {
 					dbBookmark.Name = window.BookmarkName;
-					dbBookmark.UpdateUI(nameof(dbBookmark.Name));
+					dbBookmark.OnPropertyChanged(nameof(dbBookmark.Name));
 					dbBookmark.Category = categoryItem;
 					await bookmarkDb.SaveChangesAsync();
 				} else {
@@ -603,7 +603,7 @@ public sealed partial class MainWindow {
 					item.LoadIcon(FileListViewItem.LoadDetailsOptions.Default);
 				}
 				foreach (var updateItem in All.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
-					updateItem.UpdateUI(nameof(updateItem.IsBookmarked));
+					updateItem.OnPropertyChanged(nameof(updateItem.IsBookmarked));
 				}
 			}
 			window.currentBookmarkIndex++;
@@ -625,7 +625,7 @@ public sealed partial class MainWindow {
 				bookmarkDb.BookmarkDbSet.Remove(item);
 				await bookmarkDb.SaveChangesAsync();
 				foreach (var updateItem in All.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
-					updateItem.UpdateUI(nameof(updateItem.IsBookmarked));
+					updateItem.OnPropertyChanged(nameof(updateItem.IsBookmarked));
 				}
 			}
 		}

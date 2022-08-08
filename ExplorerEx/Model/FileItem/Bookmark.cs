@@ -31,7 +31,7 @@ public class BookmarkCategory : NotifyPropertyChangedBase {
 		set {
 			if (isExpanded != value) {
 				isExpanded = value;
-				UpdateUI();
+				OnPropertyChanged();
 			}
 		}
 	}
@@ -51,8 +51,8 @@ public class BookmarkCategory : NotifyPropertyChangedBase {
 	public void AddBookmark(BookmarkItem item) {
 		Children ??= new ObservableCollection<BookmarkItem>();
 		Children.Add(item);
-		UpdateUI(nameof(Children));
-		UpdateUI(nameof(Icon));
+		OnPropertyChanged(nameof(Children));
+		OnPropertyChanged(nameof(Icon));
 	}
 
 	public override string ToString() {

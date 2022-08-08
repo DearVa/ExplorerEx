@@ -73,7 +73,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		}
 	}
 
-	private FileTabViewModel viewModel;
+	private FileTabViewModel viewModel = null!;
 
 	public static readonly DependencyProperty OwnerWindowProperty = DependencyProperty.Register(
 		nameof(OwnerWindow), typeof(MainWindow), typeof(FileListView), new PropertyMetadata(default(MainWindow)));
@@ -105,7 +105,7 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	public double ItemHeight => FileView?.ItemHeight ?? 30d;
 
-	public Size ActualItemSize => new(ItemWidth + 2d, ItemHeight + 6d);
+	public Size ActualItemSize => new(ItemWidth <= 0 ? ActualWidth : ItemWidth + 2d, ItemHeight + 6d);
 
 	public static readonly DependencyProperty FullPathProperty = DependencyProperty.Register(
 		nameof(FullPath), typeof(string), typeof(FileListView), new PropertyMetadata(null, OnFullPathChanged));
@@ -176,7 +176,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		DataContextChanged += OnDataContextChanged;
 		InitializeComponent();
 		SelectCommand = new SimpleCommand(Select);
-		StartRenameCommand = new SimpleCommand(e => ViewModel.StartRename((string)e));
+		StartRenameCommand = new SimpleCommand(e => ViewModel.StartRename((string?)e));
 		SwitchViewCommand = new SimpleCommand(OnSwitchView);
 		columnsConverter = (FileGridDataGridColumnsConverter)Resources["ColumnsConverter"];
 		listBoxTemplateConverter = (FileGridListBoxTemplateConverter)Resources["ListBoxTemplateConverter"];
@@ -791,7 +791,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		}
 	}
 
-	private void RectSelectScroll(object sender, EventArgs e) {
+	private void RectSelectScroll(object? sender, EventArgs e) {
 		scrollViewer.ScrollToHorizontalOffset(scrollViewer.HorizontalOffset + scrollSpeed.X);
 		scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset + scrollSpeed.Y);
 		UpdateRectSelection();
@@ -848,7 +848,7 @@ public partial class FileListView : INotifyPropertyChanged {
 			destination = mouseItem.DisplayText;
 			contains = draggingPaths.Any(path => path == mouseItem.FullPath);
 		} else {
-			if (FileView.PathType == PathType.Home) {
+			if (FileView!.PathType == PathType.Home) {
 				e.Effects = DragDropEffects.None;
 				if (lastDragOnItem != null) {
 					lastDragOnItem.IsSelected = false;
@@ -891,6 +891,9 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	protected override async void OnDrop(DragEventArgs e) {
 		isDragDropping = false;
+		if (DataObjectContent.Drag == null) {
+			return;
+		}
 		var path = e.OriginalSource is DependencyObject d ? ContainerFromElement(d) switch {
 			ListBoxItem i => ((FileListViewItem)i.Content).FullPath,
 			DataGridRow r => ((FileListViewItem)r.Item).FullPath,
@@ -909,6 +912,14 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	protected override void OnPreviewGiveFeedback(GiveFeedbackEventArgs e) {
 		DragFilesPreview.MoveWithCursor();
+	}
+
+	protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
+		base.OnRenderSizeChanged(sizeInfo);
+
+		if (sizeInfo.WidthChanged) {
+			OnPropertyChanged(nameof(ActualItemSize));
+		}
 	}
 
 	/// <summary>
