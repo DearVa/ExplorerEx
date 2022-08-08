@@ -30,7 +30,7 @@ public struct ShFileInfo {
 	/// File type
 	/// </summary>
 	[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
-	public string szTypeName;
+	public string? szTypeName;
 }
 
 [Flags]

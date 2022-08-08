@@ -152,7 +152,7 @@
             </Button>-->
         </StackPanel>
 
-        <Border Grid.Row="1" BorderThickness="0,1,0,0" Margin="10,0" Padding="0,3" BorderBrush="{DynamicResource BorderBrush}">
+        <Border Grid.Row="1" Margin="10,0" Padding="0,3" BorderBrush="{DynamicResource BorderBrush}">
             <Grid Height="40">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -240,15 +240,15 @@
                 <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
                     <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center">
                     <Run Text="{Binding Items.AsObservable.Count, Mode=OneWay}"/>
-                    <Run Text="{u:Lang Run_ItemsCount}"/>
+                    <Run Text="{u:Lang Run-ItemsCount}"/>
                     </TextBlock>
-                    <Rectangle Width="1" Height="18" Fill="{DynamicResource ThirdlyTextBrush}" Margin="10,2,10,2"/>
+                    <Rectangle Width="1" Height="18" Fill="{DynamicResource ThirdlyTextBrush}" Margin="10,2,10,1"/>
 
                     <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"
                                Visibility="{Binding SelectedFileItemsCountVisibility, Mode=OneWay}">
-                    <Run Text="{u:Lang Run_SelectedItemsCount}"/>
+                    <Run Text="{u:Lang Run-SelectedItemsCount}"/>
                     <Run Text="{Binding SelectedFileItemsCount, Mode=OneWay}"/>
-                    <Run Text="{u:Lang Run_ItemsCount}"/>
+                    <Run Text="{u:Lang Run-ItemsCount}"/>
                     </TextBlock>
 
                     <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center" Margin="10,0,0,0" 
@@ -258,18 +258,24 @@
 
                 <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" d:DataContext="{d:DesignInstance vm:FileTabViewModel}"
                             UseLayoutRounding="True" SnapsToDevicePixels="True">
-                    <Button Width="22" Height="22" Style="{StaticResource ButtonSmallTransparent}"
-                            Command="{Binding SwitchViewCommand}" CommandParameter="1">
+                    <ToggleButton Margin="0,0,1,0" Width="22" Height="22" Style="{StaticResource ToggleButtonSmallTransparent}"
+                                  Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.MediumIcons}"
+                                  IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.MediumIcons}}"
+                                  IsEnabled="{Binding IsChecked, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2BooleanReConverter}}">
                         <Image Source="{DynamicResource MediumIconsDrawingImage}"/>
-                    </Button>
-                    <Button Margin="0,0,1,0" Width="22" Height="22" Style="{StaticResource ButtonSmallTransparent}"
-                            Command="{Binding SwitchViewCommand}" CommandParameter="3">
+                    </ToggleButton>
+                    <ToggleButton Margin="0,0,1,0" Width="22" Height="22" Style="{StaticResource ToggleButtonSmallTransparent}"
+                                  Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.Details}"
+                                  IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Details}}"
+                                  IsEnabled="{Binding IsChecked, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2BooleanReConverter}}">
                         <Image Source="{DynamicResource DetailsDrawingImage}"/>
-                    </Button>
-                    <Button Width="22" Height="22" Style="{StaticResource ButtonSmallTransparent}"
-                            Command="{Binding SwitchViewCommand}" CommandParameter="4">
+                    </ToggleButton>
+                    <ToggleButton Width="22" Height="22" Style="{StaticResource ToggleButtonSmallTransparent}"
+                                  Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.Tiles}"
+                                  IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Tiles}}"
+                                  IsEnabled="{Binding IsChecked, RelativeSource={RelativeSource Self}, Converter={StaticResource Boolean2BooleanReConverter}}">
                         <Image Source="{DynamicResource TilesDrawingImage}"/>
-                    </Button>
+                    </ToggleButton>
                 </StackPanel>
             </hc:SimplePanel>
         </Grid>

@@ -1,1 +1,1 @@
-dotnet build ExplorerEx -c Release
+dotnet publish ExplorerEx -c Release -r win-x64

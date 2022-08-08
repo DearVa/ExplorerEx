@@ -329,8 +329,7 @@
             </MenuItem>
             <MenuItem Header="{u:Lang Edit}" CommandParameter="Edit"
                       Command="{Binding Path=ViewModel.FileItemCommand}"
-                      Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileItem.IsEditable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                      Icon="{Binding TextEditor, Source={x:Static ex:Settings.Instance}, Mode=OneWay, Converter={StaticResource FileName2IconConverter}}"/>
+                      Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileItem.IsEditable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"/>
             <MenuItem Header="{u:Lang Extract}" CommandParameter="Unzip"
                       Command="{Binding Path=ViewModel.FileItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileItem.IsZip), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"/>
@@ -399,7 +398,7 @@
 
     <ListView.ContextMenu>
         <ContextMenu d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
-            <MenuItem Click="NewFolder_OnClick" Icon="{DynamicResource NewFolderDrawingImage}" Header="{u:Lang New_folder}"
+            <MenuItem Click="NewFolder_OnClick" Icon="{DynamicResource NewFolderDrawingImage}" Header="{u:Lang NewFolder}"
                       Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"/>
             <MenuItem Icon="{DynamicResource NewDrawingImage}" Header="{u:Lang New}" Command="{Binding CreateCommand}"
                       Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"
@@ -504,7 +503,7 @@
                     </hc:ToggleBlock.CheckedContent>
                     <hc:ToggleBlock.UnCheckedContent>
                         <hc:SimplePanel Background="Transparent">
-                            <TextBlock Text="{u:Lang ThisIsAnEmptyFolder}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14"
+                            <TextBlock Text="{u:Lang ThisIsAnEmptyFolder}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}"
                                        Visibility="{Binding Path=ViewModel.(vm:FileTabViewModel.IsLoading), Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileListView}, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
                         </hc:SimplePanel>
                     </hc:ToggleBlock.UnCheckedContent>
@@ -522,6 +521,7 @@
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
             <Setter Property="Margin" Value="0,2"/>
             <Setter Property="Padding" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Template" Value="{Binding View, Converter={StaticResource ItemTemplateConverter}, RelativeSource={RelativeSource AncestorType=ListView}}"/>
         </Style>

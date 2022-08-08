@@ -7,9 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using ExplorerEx.Utils;
-using Microsoft.Extensions.Options;
+using ExplorerEx.Utils.Collections;
 
 namespace ExplorerEx.Model;
 
@@ -20,28 +19,35 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	/// <summary>
 	/// 此电脑
 	/// </summary>
-	public static FolderOnlyItem Home { get; } = new() {
-		Name = "ThisPC".L(),
-		children = new ObservableCollection<FolderOnlyItem>()
+	public static FolderOnlyItem Home { get; } = new((FolderOnlyItem?)null) {
+		Name = "ThisPC".L()
 	};
 
 	/// <summary>
 	/// 充当占位项目，以便展开
 	/// </summary>
-	public static readonly FolderOnlyItem DefaultItem = new() {
+	public static readonly FolderOnlyItem DefaultItem = new(Home) {
 		Name = "EmptyFolder".L()
 	};
 
-	private static readonly ObservableCollection<FolderOnlyItem> DefaultChildren = new() { DefaultItem };
+	private static readonly ReadOnlyCollection<FolderOnlyItem> DefaultChildren = new(new List<FolderOnlyItem> { DefaultItem });
 
 	public override string DisplayText => Name;
 
-	private CancellationTokenSource cts;
+	private CancellationTokenSource? cts;
 	private readonly bool hasItems;
-	private readonly string zipPath;
-	private readonly string relativePath;
+	private readonly string? zipPath;
+	private readonly string? relativePath;
 
-	private FolderOnlyItem() { }
+	private FolderOnlyItem(FolderOnlyItem? parent) : base(null!, null!) {
+		if (parent == null) {
+			InitializeChildren();
+			Parent = this;
+		} else {
+			IsEnabled = false;
+			Parent = parent;
+		}
+	}
 
 	/// <summary>
 	/// 用于初始化zip
@@ -49,7 +55,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	/// <param name="zipPath"></param>
 	/// <param name="relativePath"></param>
 	/// <param name="parent"></param>
-	public FolderOnlyItem(string zipPath, string relativePath, FolderOnlyItem parent) {
+	public FolderOnlyItem(string zipPath, string relativePath, FolderOnlyItem parent) : base(null!, null!) {
 		if (!File.Exists(zipPath) || zipPath[^4..] != ".zip") {
 			throw new ArgumentException("Not a zip file");
 		}
@@ -76,9 +82,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 		}
 	}
 
-	public FolderOnlyItem(DirectoryInfo directoryInfo, FolderOnlyItem parent) {
-		FullPath = directoryInfo.FullName;
-		Name = directoryInfo.Name;
+	public FolderOnlyItem(DirectoryInfo directoryInfo, FolderOnlyItem parent) : base(directoryInfo.FullName, directoryInfo.Name) {
 		Parent = parent;
 		IsFolder = true;
 		if (Directory.EnumerateDirectories(FullPath).Any()) {
@@ -86,20 +90,18 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 		}
 	}
 
-	public FolderOnlyItem(DriveInfo driveInfo) {
-		FullPath = driveInfo.Name;
+	public FolderOnlyItem(DriveInfo driveInfo): base(driveInfo.Name, DriveUtils.GetFriendlyName(driveInfo)) {
 		Parent = Home;
 		IsFolder = true;
 		if (driveInfo.IsReady) {
 			InitializeChildren();
 		}
-		Name = DriveUtils.GetFriendlyName(driveInfo);
 		Icon = IconHelper.GetPathThumbnail(driveInfo.Name);
 	}
 
 	private void InitializeChildren() {
 		children = DefaultChildren;
-		Application.Current.Dispatcher.Invoke(() => actualChildren = new ObservableCollection<FolderOnlyItem>());
+		actualChildren = new ConcurrentObservableCollection<FolderOnlyItem>();
 	}
 
 	public override void LoadAttributes(LoadDetailsOptions options) {
@@ -135,39 +137,44 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	/// <summary>
 	/// 枚举之前，先把这个设为<see cref="DefaultChildren"/>，枚举完成后如数量大于1，设为<see cref="actualChildren"/>
 	/// </summary>
-	public ObservableCollection<FolderOnlyItem> Children {
+	public IList<FolderOnlyItem>? Children {
 		get => children;
-		private set {
-			if (children != null) {
+		set {
+			// ReSharper disable once PossibleUnintendedReferenceComparison
+			if (children != value) {
 				children = value;
 				UpdateUI();
 			}
 		}
 	}
 
-	private ObservableCollection<FolderOnlyItem> children;
+	private IList<FolderOnlyItem>? children;
 
 	/// <summary>
 	/// 真正存储Children的列表
 	/// </summary>
-	private ObservableCollection<FolderOnlyItem> actualChildren;
+	private ConcurrentObservableCollection<FolderOnlyItem> actualChildren = null!;
 
 	public bool IsExpanded {
 		get => isExpanded;
 		set {
 			if (isExpanded != value) {
-				cts?.Cancel();
 				isExpanded = value;
 				UpdateUI();
-				if (value && FullPath != null) {
+				if (value) {
+					if (this == Home) {
+						UpdateDriveChildren();
+						return;
+					}
+
+					cts?.Cancel();
 					Children = DefaultChildren;
 					actualChildren.Clear();
 					cts = new CancellationTokenSource();
 					var token = cts.Token;
 					Task.Run(() => {
-						var list = new List<FolderOnlyItem>();
 						try {
-							if (zipPath != null) {
+							if (zipPath != null && relativePath != null) {
 								using var archive = ZipFile.Open(zipPath, ZipArchiveMode.Read, Encoding.GetEncoding("gb2312"));
 								foreach (var entry in archive.Entries.Where(e => e.FullName.StartsWith(relativePath) && e.FullName[relativePath.Length..].Contains('/'))) {
 									if (token.IsCancellationRequested) {
@@ -177,8 +184,8 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 									var indexOfSlash = entryName.IndexOf('/', relativePath.Length);
 									if (indexOfSlash != -1) {
 										var folderName = entryName[relativePath.Length..indexOfSlash];
-										if (list.All(i => Path.GetFileName(i.relativePath[..^1]) != folderName)) {
-											list.Add(new FolderOnlyItem(zipPath, relativePath + folderName + '\\', this));
+										if (actualChildren.All(i => Path.GetFileName(i.relativePath![..^1]) != folderName)) {
+											actualChildren.Add(new FolderOnlyItem(zipPath, relativePath + folderName + '\\', this));
 										}
 									}
 								}
@@ -188,7 +195,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 										return;
 									}
 									try {
-										list.Add(new FolderOnlyItem(new DirectoryInfo(directoryPath), this));
+										actualChildren.Add(new FolderOnlyItem(new DirectoryInfo(directoryPath), this));
 									} catch {
 										// 忽略错误，不添加
 									}
@@ -198,7 +205,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 										return;
 									}
 									try {
-										list.Add(new FolderOnlyItem(zipPath, string.Empty, this));
+										actualChildren.Add(new FolderOnlyItem(zipPath, string.Empty, this));
 									} catch {
 										// 忽略错误，不添加
 									}
@@ -207,14 +214,9 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 						} catch {
 							// 忽略错误，不添加
 						}
-						if (list.Count > 0) {
-							Application.Current.Dispatcher.Invoke(() => {
-								foreach (var item in list) {
-									actualChildren.Add(item);
-								}
-							});
+						if (actualChildren.Count > 0) {
 							Children = actualChildren;
-							foreach (var item in list) {
+							foreach (var item in actualChildren) {
 								if (token.IsCancellationRequested) {
 									return;
 								}
@@ -228,4 +230,23 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	}
 
 	private bool isExpanded;
+
+	public bool IsEnabled { get; init; } = true;
+
+	public void UpdateDriveChildren() {
+		cts?.Cancel();
+		cts = new CancellationTokenSource();
+		var token = cts.Token;
+		Task.Run(() => {
+			Children = DefaultChildren;
+			actualChildren.Clear();
+			foreach (var driveInfo in DriveInfo.GetDrives()) {
+				if (token.IsCancellationRequested) {
+					return;
+				}
+				actualChildren.Add(new FolderOnlyItem(driveInfo));
+			}
+			Children = actualChildren;
+		}, token);
+	}
 }

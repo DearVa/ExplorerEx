@@ -74,10 +74,12 @@ public abstract class FileSystemItem : FileListViewItem {
 		UpdateUI(nameof(Icon));
 		LoadAttributes(options);
 	}
+
+	protected FileSystemItem(string fullPath, string name) : base(fullPath, name) { }
 }
 
 public class FileItem : FileSystemItem {
-	public FileInfo FileInfo { get; }
+	public FileInfo? FileInfo { get; }
 
 	/// <summary>
 	/// 是否是可执行文件
@@ -98,12 +100,10 @@ public class FileItem : FileSystemItem {
 
 	public override string DisplayText => Name;
 
-	protected FileItem() { }
+	protected FileItem() : base(null!, null!) { }
 
-	public FileItem(FileInfo fileInfo) {
+	public FileItem(FileInfo fileInfo) : base(fileInfo.FullName, fileInfo.Name) {
 		FileInfo = fileInfo;
-		FullPath = fileInfo.FullName;
-		Name = fileInfo.Name;
 		IsFolder = false;
 		FileSize = -1;
 		Icon = UnknownFileDrawingImage;
@@ -137,7 +137,7 @@ public class FolderItem : FileSystemItem {
 	/// <summary>
 	/// 注册的路径解析器
 	/// </summary>
-	public static readonly HashSet<Func<string, (FolderItem, PathType)>> PathParsers = new();
+	public static readonly HashSet<Func<string, (FolderItem?, PathType)>> PathParsers = new();
 
 	/// <summary>
 	/// 将已经加载过的Folder判断完是否为空缓存下来
@@ -149,11 +149,10 @@ public class FolderItem : FileSystemItem {
 	/// </summary>
 	/// <param name="path"></param>
 	/// <returns></returns>
-	public static (FolderItem, PathType) ParsePath(string path) {
-		path = path?.Trim();
+	public static (FolderItem?, PathType) ParsePath(string path) {
 		// TODO: Shell位置解析
-		if (string.IsNullOrEmpty(path) || path == "ThisPC".L() || path.ToUpper() is "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}" or "::{5E5F29CE-E0A8-49D3-AF32-7A7BDC173478}") {  // 加载“此电脑”
-			return (HomeFolderItem.Instance, PathType.Home);
+		if (path == "ThisPC".L() || path.ToUpper() is "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}" or "::{5E5F29CE-E0A8-49D3-AF32-7A7BDC173478}") {  // 加载“此电脑”
+			return (HomeFolderItem.Singleton, PathType.Home);
 		}
 		path = Environment.ExpandEnvironmentVariables(path.Replace('/', '\\'));
 		if (path.Length >= 3) {
@@ -187,11 +186,9 @@ public class FolderItem : FileSystemItem {
 
 	private bool isEmptyFolder;
 
-	protected FolderItem() { }
+	protected FolderItem() : base(null!, null!) { }
 
-	public FolderItem(string fullPath) {
-		FullPath = fullPath;
-		Name = Path.GetFileName(fullPath);
+	public FolderItem(string fullPath): base(fullPath, Path.GetFileName(fullPath)) {
 		IsFolder = true;
 		FileSize = -1;
 		if (IsEmptyFolderDictionary.TryGetValue(fullPath, out var isEmpty)) {
@@ -229,7 +226,7 @@ public class FolderItem : FileSystemItem {
 	/// <param name="token"></param>
 	/// <returns></returns>
 	/// <exception cref="NotImplementedException"></exception>
-	public virtual List<FileListViewItem> EnumerateItems(string selectedPath, out FileListViewItem selectedItem, CancellationToken token) {
+	public virtual List<FileListViewItem>? EnumerateItems(string? selectedPath, out FileListViewItem? selectedItem, CancellationToken token) {
 		selectedItem = null;
 		var list = new List<FileListViewItem>();
 		foreach (var directoryPath in Directory.EnumerateDirectories(FullPath)) {

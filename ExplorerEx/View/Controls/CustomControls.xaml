@@ -40,19 +40,19 @@
                             </EventTrigger>
                         </Grid.Triggers>
 
-                        <hc:SimplePanel x:Name="SearchBoxGrid" Grid.Row="1" Height="0" ClipToBounds="True" Background="{DynamicResource DefaultBrush}"
+                        <hc:SimplePanel x:Name="SearchBoxGrid" Grid.Row="1" Height="0" ClipToBounds="True" Background="{DynamicResource RegionBrush}"
                                         Visibility="{Binding ShowSearchButton, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}">
                             <hc:TextBox x:Name="SearchTextBox" Margin="5,0,5,5" Height="30" VerticalAlignment="Bottom" ShowClearButton="True" 
                                         hc:InfoElement.Placeholder="{u:Lang Search}" Foreground="{DynamicResource PrimaryTextBrush}"/>
                         </hc:SimplePanel>
 
-                        <Border Grid.Row="0" Margin="0,10,0,0" CornerRadius="5,5,0,0" Background="{DynamicResource DefaultBrush}">
-                            <hc:SimplePanel >
+                        <Border Grid.Row="0" Margin="0,10,0,0" CornerRadius="5,5,0,0" Background="{DynamicResource RegionBrush}">
+                            <hc:SimplePanel>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" Text="{Binding Header, Mode=OneWay}" 
                                            FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}"/>
                                 <StackPanel HorizontalAlignment="Right" Margin="0,0,10,0" Orientation="Horizontal">
                                     <ContentPresenter Content="{Binding HeaderContent, Mode=OneWay}"/>
-                                    <ToggleButton x:Name="SearchToggleButton" hc:IconElement.Geometry="{StaticResource SearchGeometry}" 
+                                    <ToggleButton x:Name="SearchToggleButton" hc:IconElement.Icon="{StaticResource SearchGeometry}" 
                                                   Style="{StaticResource ToggleButtonTransparent}" Width="25" Height="25" Padding="5"
                                                   Visibility="{Binding ShowSearchButton, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                                                   Margin="10,0,0,0" ToolTip="{u:Lang Search}"/>
@@ -60,7 +60,7 @@
                             </hc:SimplePanel>
                         </Border>
 
-                        <hc:SimplePanel Grid.Row="2" Background="{DynamicResource SecondaryRegionBrush}">
+                        <hc:SimplePanel Grid.Row="2" Background="{DynamicResource RegionBrush}">
                             <ContentPresenter x:Name="DragArea" Content="{Binding Content, Mode=OneWay}" AllowDrop="true"/>
                             <ContentPresenter x:Name="DragTipPanel" Opacity="0" IsHitTestVisible="False" Content="{Binding DragTip}"/>
                         </hc:SimplePanel>
@@ -132,6 +132,8 @@
         </Setter>
     </Style>
 
+    <Style TargetType="ct:FluentExpander"></Style>
+
     <Style BasedOn="{StaticResource TreeViewItemBaseStyle}" TargetType="ct:ClickableTreeViewItem">
         <Setter Property="hc:BorderElement.CornerRadius" Value="4"/>
         <Setter Property="Template">
@@ -197,10 +199,10 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
-                    <Border x:Name="border" CornerRadius="4" BorderThickness="0,0,0,2" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True" Cursor="IBeam">
+                    <Border x:Name="border" CornerRadius="4" BorderBrush="{x:Null}" BorderThickness="0" Background="{TemplateBinding Background}" SnapsToDevicePixels="True" Cursor="IBeam">
                         <hc:SimplePanel>
-                            <ScrollViewer Padding="{TemplateBinding Padding}" Margin="-2,0,-1,0" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" Visibility="Collapsed" />
-                            <ScrollViewer x:Name="ScrollViewer" Cursor="Hand" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Left" Margin="0,0,50,0">
+                            <ScrollViewer hc:ScrollViewerAttach.Orientation="Horizontal" Padding="{TemplateBinding Padding}" Margin="-2,0,-1,0" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" Visibility="Collapsed" />
+                            <ScrollViewer x:Name="ScrollViewer" hc:ScrollViewerAttach.Orientation="Horizontal" Cursor="Hand" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Left" Margin="0,0,50,0">
                                 <ItemsControl Padding="3" ItemsSource="{Binding Path=Items, RelativeSource={RelativeSource AncestorType=ct:AddressBar}}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
@@ -210,12 +212,12 @@
                                     <ItemsControl.ItemTemplate>
                                         <ItemContainerTemplate>
                                             <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance m:FolderOnlyItem}">
-                                                <Button Padding="3" BorderThickness="0" Content="{Binding DisplayText, Mode=OneWay}"
+                                                <Button Padding="3" Content="{Binding DisplayText, Mode=OneWay}"
                                                         Command="{Binding ItemClickedCommand, RelativeSource={RelativeSource AncestorType=ct:AddressBar}}"
-                                                        CommandParameter="{Binding}"/>
-                                                <ToggleButton x:Name="ExpandButton" Padding="3" BorderThickness="0" hc:IconElement.Geometry="{StaticResource RightGeometry}"
-                                                              hc:IconElement.Width="5" hc:IconSwitchElement.GeometrySelected="{StaticResource DownGeometry}"
-                                                              IsChecked="{Binding IsExpanded, Mode=TwoWay}"/>
+                                                        CommandParameter="{Binding}" Style="{StaticResource ButtonTransparent}"/>
+                                                <ToggleButton x:Name="ExpandButton" Padding="3" BorderThickness="0" hc:IconElement.Icon="{StaticResource RightGeometry}"
+                                                              hc:IconElement.Width="5" hc:IconSwitchElement.IconSelected="{StaticResource DownGeometry}"
+                                                              IsChecked="{Binding IsExpanded, Mode=TwoWay}" Style="{StaticResource ToggleButtonTransparent}"/>
                                                 <Popup AllowsTransparency="True" hc:BlurPopup.Enabled="True" StaysOpen="False" PlacementTarget="{Binding ElementName=ExpandButton}"
                                                        IsOpen="{Binding IsExpanded, Mode=TwoWay}">
                                                     <hc:Interaction.Triggers>
@@ -234,6 +236,8 @@
                                                                 <Style BasedOn="{StaticResource MenuItemBaseStyle}" TargetType="MenuItem">
                                                                     <Setter Property="Icon" Value="{Binding Icon, Mode=OneWay}"/>
                                                                     <Setter Property="Header" Value="{Binding DisplayText, Mode=OneWay}"/>
+                                                                    <Setter Property="FontSize" Value="14"/>
+                                                                    <Setter Property="IsEnabled" Value="{Binding IsEnabled, Mode=OneWay}"/>
                                                                 </Style>
                                                             </Menu.ItemContainerStyle>
                                                         </Menu>
@@ -244,8 +248,8 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </ScrollViewer>
-                            <Border CornerRadius="4" BorderThickness="1,1,1,0" BorderBrush="{DynamicResource BorderBrush}" Background="{x:Null}" SnapsToDevicePixels="True" IsHitTestVisible="False"/>
-                            <Border x:Name="mask" Panel.ZIndex="2" CornerRadius="2" Background="{DynamicResource BorderBrush}" Opacity="0" IsHitTestVisible="False"/>
+                            <Border CornerRadius="4" BorderThickness="0,0,0,2" BorderBrush="{TemplateBinding BorderBrush}" Background="{x:Null}" SnapsToDevicePixels="True" IsHitTestVisible="False"/>
+                            <Border x:Name="mask" Panel.ZIndex="2" CornerRadius="2" Background="{TemplateBinding BorderBrush}" Opacity="0" IsHitTestVisible="False"/>
                         </hc:SimplePanel>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -337,9 +341,9 @@
                         </Grid.ColumnDefinitions>
                         <Grid Grid.ColumnSpan="3" x:Name="mainBorder">
                             <Border Margin="0" x:Name="mouseOverBorder" CornerRadius="5" Background="{DynamicResource SecondaryRegionBrush}" Opacity="0" />
-                            <Border x:Name="selectedGrid" Visibility="Collapsed" CornerRadius="5" Background="{DynamicResource DefaultBrush}" />
+                            <Border x:Name="selectedGrid" Visibility="Collapsed" CornerRadius="5" Background="{DynamicResource RegionBrush}" />
                         </Grid>
-                        <Path x:Name="PathMain" Margin="10,0,0,0" Grid.Column="0" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Data="{TemplateBinding hc:IconElement.Geometry}"/>
+                        <Path x:Name="PathMain" Margin="10,0,0,0" Grid.Column="0" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Data="{TemplateBinding hc:IconElement.Icon}"/>
                         <ContentPresenter Grid.Column="1" x:Name="contentPresenter" ContentSource="Header" Focusable="False" HorizontalAlignment="Stretch" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center"/>
                         <Button Grid.Column="2" Focusable="False" Command="hc:ControlCommands.Close" Background="Transparent" Style="{StaticResource ButtonCustom}" Width="20" Height="20" Margin="4" hc:BorderElement.CornerRadius="2" hc:BackgroundSwitchElement.MouseHoverBackground="{DynamicResource SecondaryBorderBrush}">
                             <Path Fill="{DynamicResource PrimaryTextBrush}" Width="8" Height="8" Style="{StaticResource ClosePathStyle}"/>
@@ -374,7 +378,7 @@
                             <Setter Property="Panel.ZIndex" Value="1"/>
                             <Setter TargetName="selectedGrid" Property="Visibility" Value="Visible"/>
                         </Trigger>
-                        <Trigger Property="hc:IconElement.Geometry" Value="{x:Null}">
+                        <Trigger Property="hc:IconElement.Icon" Value="{x:Null}">
                             <Setter Property="Visibility" Value="Collapsed" TargetName="PathMain"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
@@ -384,5 +388,36 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style TargetType="ct:MaximizeToggleButton">
+        <Setter Property="Background" Value="Transparent"/>
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <hc:SimplePanel Background="{TemplateBinding Background}">
+                        <ContentControl Margin="{TemplateBinding Padding}" SnapsToDevicePixels="True" Background="{TemplateBinding Background}">
+                            <Path x:Name="MainPath" Fill="{DynamicResource PrimaryTextBrush}" SnapsToDevicePixels="True" Stretch="Uniform" Width="10" Height="10" Data="{StaticResource WindowMaxGeometry}"/>
+                        </ContentControl>
+                    </hc:SimplePanel>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="ToggleButton.IsChecked" Value="True">
+                            <Setter TargetName="MainPath" Property="Data" Value="{StaticResource WindowRestoreGeometry}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Opacity" Value="0.8"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 </ResourceDictionary>

@@ -32,7 +32,7 @@ public static class BlurPopup {
 		if (sender is Popup popup) {
 			if (PresentationSource.FromVisual(popup.Child) is HwndSource hwnd) {
 				InteropMethods.EnableRoundCorner(hwnd.Handle);
-				InteropMethods.EnableAcrylic(hwnd.Handle);
+				InteropMethods.EnableAcrylic(hwnd.Handle, InteropMethods.IsDarkMode);
 				InteropMethods.EnableShadows(hwnd.Handle);
 			}
 		}

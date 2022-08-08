@@ -16,12 +16,17 @@ namespace ExplorerEx.Model;
 /// <summary>
 /// 所有可以显示在<see cref="FileListView"/>中的项目的基类
 /// </summary>
-public abstract class FileListViewItem : SimpleNotifyPropertyChanged {
+public abstract class FileListViewItem : NotifyPropertyChangedBase {
+	protected FileListViewItem(string fullPath, string name) {
+		FullPath = fullPath;
+		Name = name;
+	}
+
 	/// <summary>
 	/// 图标，自动更新UI
 	/// </summary>
 	[NotMapped]
-	public ImageSource Icon {
+	public ImageSource? Icon {
 		get => icon;
 		protected set {
 			if (icon != value) {
@@ -31,7 +36,7 @@ public abstract class FileListViewItem : SimpleNotifyPropertyChanged {
 		}
 	}
 
-	private ImageSource icon;
+	private ImageSource? icon;
 
 	[Key]
 	public string FullPath { get; protected set; }
@@ -44,7 +49,7 @@ public abstract class FileListViewItem : SimpleNotifyPropertyChanged {
 	/// 类型描述，自动更新UI
 	/// </summary>
 	[NotMapped]
-	public string Type {
+	public string? Type {
 		get => type;
 		protected set {
 			if (type != value) {
@@ -54,7 +59,7 @@ public abstract class FileListViewItem : SimpleNotifyPropertyChanged {
 		}
 	}
 
-	private string type;
+	private string? type;
 
 	[NotMapped]
 	public long FileSize {

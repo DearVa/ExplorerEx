@@ -99,8 +99,8 @@
                         </Grid.RowDefinitions>
                         <hc:TransferGroup x:Name="PART_ItemsOrigin" Style="{StaticResource TransferGroupBaseStyle}" Grid.RowSpan="4" ItemTemplate="{TemplateBinding ItemTemplate}" ItemContainerStyle="{TemplateBinding ItemContainerStyle}"/>
                         <StackPanel Margin="32,0" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Grid.RowSpan="4" Grid.Column="1">
-                            <Button hc:IconElement.Geometry="{StaticResource LeftGeometry}" Command="interactivity:ControlCommands.Cancel"/>
-                            <Button hc:IconElement.Geometry="{StaticResource RightGeometry}" Margin="0,10,0,0" Command="interactivity:ControlCommands.Selected"/>
+                            <Button hc:IconElement.Icon="{StaticResource LeftGeometry}" Command="interactivity:ControlCommands.Cancel"/>
+                            <Button hc:IconElement.Icon="{StaticResource RightGeometry}" Margin="0,10,0,0" Command="interactivity:ControlCommands.Selected"/>
                         </StackPanel>
                         <hc:TransferGroup x:Name="PART_ItemsSelected" Style="{StaticResource TransferGroupBaseStyle}" Grid.Row="0" Grid.RowSpan="4" Grid.Column="2" ItemTemplate="{TemplateBinding ItemTemplate}" ItemContainerStyle="{TemplateBinding ItemContainerStyle}"/>
                     </Grid>

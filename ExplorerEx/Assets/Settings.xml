@@ -1,0 +1,23 @@
+﻿<settings>
+  <category header="Appearance">
+    <expander header="Theme" icon="BrushDrawingImage">
+      <item header="WindowBackdrop" description="#WindowBackdropDescription" type="select">
+        <option header="SolidColor"/>
+        <option header="Acrylic"/>
+        <option header="MicaWindows11Only"/>
+      </item>
+      <item header="ColorMode" description="#ColorModeDescription" type="select">
+        <option header="FollowSystem"/>
+        <option header="ColorMode-Light"/>
+        <option header="ColorMode-Dark"/>
+      </item>
+    </expander>
+  </category>
+
+  <category header="Common">
+    <item header="DefaultTextEditor" description="#DefaultTextEditorDescription" type="string" default="notepad.exe">
+      <browseDialog type="file" filter=".exe"/>
+    </item>
+    <item header="DoubleClickGoUpperLevel" description="#DoubleClickGoUpperLevelDescription" type="boolean" default="true"/>
+  </category>
+</settings>

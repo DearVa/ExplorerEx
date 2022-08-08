@@ -227,7 +227,7 @@ internal static class IconHelper {
 				Trace.WriteLine($"加载缩略图出错：{path}");
 				return GetLargeIcon(path, false);
 			}
-			var size = new Win32Interop.Size {
+			var size = new Win32Interop.SizeW {
 				width = 128,
 				height = 128
 			};

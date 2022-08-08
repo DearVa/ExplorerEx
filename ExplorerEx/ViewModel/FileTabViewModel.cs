@@ -30,7 +30,7 @@ namespace ExplorerEx.ViewModel;
 /// <summary>
 /// 对应一个Tab
 /// </summary>
-public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
+public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	public FileTabControl OwnerTabControl { get; }
 
 	public MainWindow OwnerWindow => OwnerTabControl.MainWindow;
@@ -40,7 +40,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// <summary>
 	/// 当前路径文件夹
 	/// </summary>
-	public FolderItem Folder { get; private set; } = HomeFolderItem.Instance;
+	public FolderItem Folder { get; private set; } = HomeFolderItem.Singleton;
 
 	/// <summary>
 	/// 当前的路径，如果是首页，就是null
@@ -88,7 +88,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		private set => FileView.FileViewType = value;
 	}
 
-	public List<DetailList> DetailLists { get; private set; }
+	public List<DetailList>? DetailLists { get; private set; }
 
 	/// <summary>
 	/// 当前文件夹内的文件列表
@@ -116,13 +116,13 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	public SimpleCommand GoBackCommand { get; }
 
-	public string GoBackButtonToolTip => CanGoBack ? string.Format("GoBackTo...".L(), HistoryList[nextHistoryIndex - 2].DisplayText) : null;
+	public string? GoBackButtonToolTip => CanGoBack ? string.Format("GoBackTo...".L(), HistoryList[nextHistoryIndex - 2].DisplayText) : null;
 
 	public bool CanGoForward => nextHistoryIndex < historyCount;
 
 	public SimpleCommand GoForwardCommand { get; }
 
-	public string GoForwardButtonToolTip => CanGoForward ? string.Format("GoForwardTo...".L(), HistoryList[nextHistoryIndex].DisplayText) : null;
+	public string? GoForwardButtonToolTip => CanGoForward ? string.Format("GoForwardTo...".L(), HistoryList[nextHistoryIndex].DisplayText) : null;
 
 	/// <summary>
 	/// 历史记录
@@ -133,7 +133,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	public SimpleCommand GoToUpperLevelCommand { get; }
 
-	public string GoToUpperLevelButtonToolTip {
+	public string? GoToUpperLevelButtonToolTip {
 		get {
 			if (!CanGoToUpperLevel) {
 				return null;
@@ -142,7 +142,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 	}
 
-	private string ParentFolderName {
+	private string? ParentFolderName {
 		get {
 			switch (Folder) {
 			case HomeFolderItem:
@@ -228,7 +228,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// <summary>
 	/// 如果不为null，就说明用户输入了搜索，OneWayToSource
 	/// </summary>
-	public string SearchText {
+	public string? SearchText {
 		set {
 			if (string.IsNullOrWhiteSpace(value)) {
 				if (searchText != null) {
@@ -242,7 +242,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 	}
 
-	private string searchText;
+	private string? searchText;
 
 	private int nextHistoryIndex, historyCount;
 
@@ -250,7 +250,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	private readonly Dispatcher dispatcher;
 
-	private CancellationTokenSource cts;
+	private CancellationTokenSource? cts;
 
 	private readonly LoadDetailsOptions loadDetailsOptions = new();
 
@@ -320,7 +320,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// </summary>
 	/// <param name="name">文件或文件夹名，不包含路径</param>
 	/// <returns>成功返回添加的项，失败返回null</returns>
-	public FileListViewItem AddSingleItem(string name) {
+	public FileListViewItem? AddSingleItem(string name) {
 		if (Folder is HomeFolderItem) {
 			return null;
 		}
@@ -376,11 +376,15 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// <summary>
 	/// 切换视图时，有的要使用大图标，有的要使用小图标，所以要运行一个Task去更改，取消这个来中断Task
 	/// </summary>
-	private CancellationTokenSource switchIconCts;
+	private CancellationTokenSource? switchIconCts;
 
 	public async Task SwitchViewType(ViewSortGroup type) {
 		switch (type) {
 		case ViewSortGroup.LargeIcons:  // 大图标
+			FileViewType = FileViewType.Icons;
+			ItemSize = new Size(180d, 240d);
+			break;
+		case ViewSortGroup.MediumIcons:  // 中图标
 			FileViewType = FileViewType.Icons;
 			ItemSize = new Size(120d, 170d);
 			break;
@@ -472,7 +476,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// </summary>
 	/// <param name="fileView">为null表示新建，不为null就是修改，要确保是从Db里拿到的对象否则修改没有效果</param>
 	/// <returns></returns>
-	private async Task SaveViewToDbAsync(FileView fileView) {
+	private async Task SaveViewToDbAsync(FileView? fileView) {
 		var fullPath = FullPath ?? "$Home";
 		fileView ??= await FileViewDbContext.Instance.FolderViewDbSet.FirstOrDefaultAsync(v => v.FullPath == fullPath);
 		if (fileView == null) {
@@ -531,7 +535,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// <param name="recordHistory">是否记录历史，返回、前进就为false</param>
 	/// <param name="selectedPath">如果是返回，那就把这个设为返回前选中的那一项</param>
 	/// <returns></returns>
-	public async Task<bool> LoadDirectoryAsync(string path, bool recordHistory = true, string selectedPath = null) {
+	public async Task<bool> LoadDirectoryAsync(string? path, bool recordHistory = true, string? selectedPath = null) {
 		watcher.EnableRaisingEvents = false;
 		IsLoading = true;
 		switchIconCts?.Cancel();
@@ -542,34 +546,44 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			disposable.Dispose();
 		}
 
-		try {
-			(Folder, PathType) = FolderItem.ParsePath(path);
-			FileItemCommand.Folder = Folder;
-		} catch (Exception e) {
-			hc.MessageBox.Error(e.Message, "CannotOpenPath".L());
-		}
+		path = path?.Trim();
+		if (string.IsNullOrEmpty(path)) {
+			Folder = HomeFolderItem.Singleton;
+			PathType = PathType.Home;
+		} else {
+			FolderItem? folder;
+			try {
+				(folder, PathType) = FolderItem.ParsePath(path);
+			} catch (Exception e) {
+				hc.MessageBox.Error(e.Message, "CannotOpenPath".L());
+				return false;
+			}
 
-		if (Folder == null) {
-			var location = PathType == PathType.LocalFile ? path : FileUtils.FindFileLocation(path);
-			if (location != null) {
-				try {
-					Process.Start(new ProcessStartInfo(location) {
-						UseShellExecute = true
-					});
-				} catch (Exception ex) {
-					Logger.Exception(ex);
+			if (folder == null) {
+				var location = PathType == PathType.LocalFile ? path : FileUtils.FindFileLocation(path);
+				if (location != null) {
+					try {
+						Process.Start(new ProcessStartInfo(location) {
+							UseShellExecute = true
+						});
+					} catch (Exception ex) {
+						Logger.Exception(ex);
+					}
+				} else {
+					hc.MessageBox.Error("#InvalidPath", "CannotOpenPath".L());
 				}
-			} else {
-				hc.MessageBox.Error("#InvalidPath", "CannotOpenPath".L());
-			}
 
-			if (nextHistoryIndex > 0) {
-				await GoBackAsync();
-			} else {
-				await LoadDirectoryAsync(null, false, path);
+				if (nextHistoryIndex > 0) {
+					await GoBackAsync();
+				} else {
+					await LoadDirectoryAsync(null, false, path);
+				}
+				return false;
 			}
-			return false;
+			Folder = folder;
 		}
+
+		FileItemCommand.Folder = Folder;
 
 		try {
 			_ = Task.Run(() => Folder.LoadIcon(loadDetailsOptions));
@@ -619,7 +633,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 #endif
 
 		// 查找数据库看有没有存储当前目录
-		FileView savedView;
+		FileView? savedView;
 		try {
 			var fullPath = FullPath ?? "$Home";
 			savedView = await FileViewDbContext.Instance.FolderViewDbSet.FirstOrDefaultAsync(v => v.FullPath == fullPath, token);

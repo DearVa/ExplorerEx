@@ -15,7 +15,7 @@ namespace ExplorerEx.View.Controls;
 /// 拖放文件时，这个显示拖放的文件缩略图和操作
 /// </summary>
 public partial class DragFilesPreview {
-	public static DragFilesPreview Instance { get; } = new();
+	public static DragFilesPreview Singleton { get; } = new();
 
 	public static bool IsShown { get; private set; }
 
@@ -24,9 +24,9 @@ public partial class DragFilesPreview {
 	/// </summary>
 	public static bool IsInternalDrag { get; set; }
 
-	private static DragPreviewWindow dragPreviewWindow;
+	private static readonly DragPreviewWindow DragPreviewWindow;
 
-	public string Destination {
+	public string? Destination {
 		get => destination;
 		set {
 			if (destination != value) {
@@ -36,7 +36,7 @@ public partial class DragFilesPreview {
 		}
 	}
 
-	private string destination;
+	private string? destination;
 
 	public DragDropEffects Icon {
 		get => icon;
@@ -102,7 +102,7 @@ public partial class DragFilesPreview {
 
 	private DragDropEffects dragDropEffect;
 
-	public string OperationText {
+	public string? OperationText {
 		get => operationText;
 		set {
 			if (operationText != value) {
@@ -112,11 +112,14 @@ public partial class DragFilesPreview {
 		}
 	}
 
-	private string operationText;
+	private string? operationText;
 
-	public DragFilesPreview() {
+	private DragFilesPreview() {
 		InitializeComponent();
-		dragPreviewWindow = new DragPreviewWindow(this, new Point(50, 100), 0.8, false);
+	}
+
+	static DragFilesPreview() {
+		DragPreviewWindow = new DragPreviewWindow(Singleton, new Point(50, 100), 0.8, false);
 	}
 
 	public void SetFilePaths(IList<string> filePaths) {
@@ -192,20 +195,20 @@ public partial class DragFilesPreview {
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void ShowPreview() {
-		dragPreviewWindow.MoveWithCursor();
-		dragPreviewWindow.Show();
+		DragPreviewWindow.MoveWithCursor();
+		DragPreviewWindow.Show();
 		IsShown = true;
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void HidePreview() {
-		Instance.DragImage0.Visibility = Visibility.Collapsed;
-		dragPreviewWindow.Hide();
+		Singleton.DragImage0.Visibility = Visibility.Collapsed;
+		DragPreviewWindow.Hide();
 		IsShown = false;
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void MoveWithCursor() {
-		dragPreviewWindow.MoveWithCursor();
+		DragPreviewWindow.MoveWithCursor();
 	}
 }

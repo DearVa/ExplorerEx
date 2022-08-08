@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <Platforms>x64</Platforms>
     <DebugType>embedded</DebugType>
@@ -19,6 +19,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="build\**" />
+    <EmbeddedResource Remove="build\**" />
+    <None Remove="build\**" />
+    <Page Remove="build\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Assets\LogConfig.xml" />
     <None Remove="Assets\Picture\Computer.png" />
     <None Remove="Assets\Picture\Logo.ico" />
@@ -26,6 +33,7 @@
     <None Remove="Assets\Picture\Network.png" />
     <None Remove="Assets\Picture\RecycleBin.png" />
     <None Remove="Assets\Picture\RecycleBinFull.png" />
+    <None Remove="Assets\Settings.xml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -48,6 +56,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Assets\LogConfig.xml" />
+    <EmbeddedResource Include="Assets\Settings.xml" />
   </ItemGroup>
 
   <ItemGroup>

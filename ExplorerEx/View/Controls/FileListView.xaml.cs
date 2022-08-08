@@ -40,10 +40,10 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// <summary>
 	/// 正在拖放的路径列表
 	/// </summary>
-	private static string[] draggingPaths;
+	private static string[]? draggingPaths;
 
 	public new static readonly DependencyProperty ItemsSourceProperty = DependencyProperty.Register(
-		"ItemsSource", typeof(DispatchedObservableCollection<FileListViewItem>), typeof(FileListView), new PropertyMetadata(ItemsSource_OnChanged));
+		nameof(ItemsSource), typeof(DispatchedObservableCollection<FileListViewItem>), typeof(FileListView), new PropertyMetadata(ItemsSource_OnChanged));
 
 	private static void ItemsSource_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		var fileGrid = (FileListView)d;
@@ -68,7 +68,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		private set {
 			if (viewModel != value) {
 				viewModel = value;
-				UpdateUI();
+				OnPropertyChanged();
 			}
 		}
 	}
@@ -76,7 +76,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	private FileTabViewModel viewModel;
 
 	public static readonly DependencyProperty OwnerWindowProperty = DependencyProperty.Register(
-		"OwnerWindow", typeof(MainWindow), typeof(FileListView), new PropertyMetadata(default(MainWindow)));
+		nameof(OwnerWindow), typeof(MainWindow), typeof(FileListView), new PropertyMetadata(default(MainWindow)));
 
 	public MainWindow OwnerWindow {
 		get => (MainWindow)GetValue(OwnerWindowProperty);
@@ -94,9 +94,9 @@ public partial class FileListView : INotifyPropertyChanged {
 	}
 
 	public static readonly DependencyProperty FileViewProperty = DependencyProperty.Register(
-		"FileView", typeof(FileView), typeof(FileListView), new PropertyMetadata(default(FileView), OnViewChanged));
+		nameof(FileView), typeof(FileView), typeof(FileListView), new PropertyMetadata(default(FileView), OnViewChanged));
 
-	public FileView FileView {
+	public FileView? FileView {
 		get => (FileView)GetValue(FileViewProperty);
 		set => SetValue(FileViewProperty, value);
 	}
@@ -108,7 +108,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	public Size ActualItemSize => new(ItemWidth + 2d, ItemHeight + 6d);
 
 	public static readonly DependencyProperty FullPathProperty = DependencyProperty.Register(
-		"FullPath", typeof(string), typeof(FileListView), new PropertyMetadata(null, OnFullPathChanged));
+		nameof(FullPath), typeof(string), typeof(FileListView), new PropertyMetadata(null, OnFullPathChanged));
 
 	private static void OnFullPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		var fileDataGrid = (FileListView)d;
@@ -118,13 +118,13 @@ public partial class FileListView : INotifyPropertyChanged {
 		fileDataGrid.isPreparedForRenaming = false;
 	}
 
-	public string FullPath {
+	public string? FullPath {
 		get => (string)GetValue(FullPathProperty);
 		set => SetValue(FullPathProperty, value);
 	}
 
 	public static readonly DependencyProperty FolderProperty = DependencyProperty.Register(
-		"Folder", typeof(FileListViewItem), typeof(FileListView), new PropertyMetadata(default(FileListViewItem)));
+		nameof(Folder), typeof(FileListViewItem), typeof(FileListView), new PropertyMetadata(default(FileListViewItem)));
 
 	/// <summary>
 	/// 当前文件夹，用于空白右键ContextMenu的DataContext
@@ -141,12 +141,12 @@ public partial class FileListView : INotifyPropertyChanged {
 	public static ObservableCollection<FileAssocItem> FileAssocList { get; } = new();
 
 	public static readonly DependencyProperty MouseItemProperty = DependencyProperty.Register(
-		"MouseItem", typeof(FileListViewItem), typeof(FileListView), new PropertyMetadata(default(FileListViewItem)));
+		$"MouseItem", typeof(FileListViewItem), typeof(FileListView), new PropertyMetadata(default(FileListViewItem)));
 
 	/// <summary>
 	/// 鼠标所在的那一项，随着MouseMove事件更新
 	/// </summary>
-	public FileListViewItem MouseItem {
+	public FileListViewItem? MouseItem {
 		get => (FileListViewItem)GetValue(MouseItemProperty);
 		set => SetValue(MouseItemProperty, value);
 	}
@@ -167,10 +167,10 @@ public partial class FileListView : INotifyPropertyChanged {
 	private readonly FileGridListBoxTemplateConverter listBoxTemplateConverter;
 	private readonly ItemsPanelTemplate virtualizingWrapPanel, virtualizingStackPanel;
 
-	private ContextMenu openedContextMenu;
-	private ScrollViewer scrollViewer;
-	private SimplePanel contentPanel;
-	private Border selectionRect;
+	private ContextMenu? openedContextMenu;
+	private ScrollViewer scrollViewer = null!;
+	private SimplePanel contentPanel = null!;
+	private Border selectionRect = null!;
 
 	public FileListView() {
 		DataContextChanged += OnDataContextChanged;
@@ -190,7 +190,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		}
 	}
 
-	private async void OnSwitchView(object e) {
+	private async void OnSwitchView(object? e) {
 		if (e is string param && int.TryParse(param, out var type)) {
 			await ViewModel.SwitchViewType((ViewSortGroup)type);
 		}
@@ -236,7 +236,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		}
 	}
 
-	private void OnFileViewPropertyChanged(object sender, PropertyChangedEventArgs e) {
+	private void OnFileViewPropertyChanged(object? sender, PropertyChangedEventArgs e) {
 		var fileView = FileView;
 		if (fileView == null) {
 			return;
@@ -280,7 +280,7 @@ public partial class FileListView : INotifyPropertyChanged {
 			groups.Clear();
 			if (fileView.GroupBy.HasValue) {
 				Items.IsLiveGrouping = true;
-				IValueConverter converter = null;
+				IValueConverter? converter = null;
 				switch (fileView.GroupBy) {
 				case DetailListType.DateCreated:
 				case DetailListType.DateDeleted:
@@ -301,9 +301,9 @@ public partial class FileListView : INotifyPropertyChanged {
 			}
 			break;
 		case nameof(fileView.ItemSize):
-			UpdateUI(nameof(ItemWidth));
-			UpdateUI(nameof(ItemHeight));
-			UpdateUI(nameof(ActualItemSize));
+			OnPropertyChanged(nameof(ItemWidth));
+			OnPropertyChanged(nameof(ItemHeight));
+			OnPropertyChanged(nameof(ActualItemSize));
 			break;
 		}
 	}
@@ -319,7 +319,10 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// 选择某一项
 	/// </summary>
 	/// <param name="fileName"></param>
-	public void Select(object fileName) {
+	public void Select(object? fileName) {
+		if (fileName == null) {
+			return;
+		}
 		var item = ItemsSource.FirstOrDefault(item => item.Name == (string)fileName);
 		if (item != null) {
 			ScrollIntoView(item);
@@ -354,10 +357,10 @@ public partial class FileListView : INotifyPropertyChanged {
 	private bool isDragDropping;
 
 	private Point startSelectionPoint;
-	private DispatcherTimer timer;
+	private DispatcherTimer? timer;
 	private bool shouldRename;
 
-	private void OnItemsChanged(object sender, NotifyCollectionChangedEventArgs e) {
+	private void OnItemsChanged(object? sender, NotifyCollectionChangedEventArgs e) {
 		if (e.OldStartingIndex == lastMouseDownRowIndex) {
 			lastMouseDownRowIndex = -1;
 		}
@@ -376,7 +379,11 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// 按照文件名选中一批文件并滚动到
 	/// </summary>
 	/// <param name="fileNames">不是完整路径</param>
-	public void SelectItems(IEnumerable<string> fileNames) {
+	public void SelectItems(IEnumerable<string>? fileNames) {
+		if (fileNames == null) {
+			UnselectAll();
+			return;
+		}
 		foreach (var fileName in fileNames) {
 			var newItem = ViewModel.AddSingleItem(fileName);
 			if (newItem != null) {
@@ -391,7 +398,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// </summary>
 	private bool isDoubleClicked;
 
-	private FileListViewItem lastMouseUpItem;
+	private FileListViewItem? lastMouseUpItem;
 	private Point prevMouseUpPoint;
 	private DateTimeOffset lastMouseUpTime;
 
@@ -495,7 +502,7 @@ public partial class FileListView : INotifyPropertyChanged {
 				}
 			} else {
 				mouseDownRowIndex = -1;
-				if (Settings.Instance.DoubleClickGoBack && lastMouseUpItem == null && e.ChangedButton == MouseButton.Left) {
+				if (Settings.Current[Settings.CommonSettings.DoubleClickGoUpperLevel].GetBoolean() && lastMouseUpItem == null && e.ChangedButton == MouseButton.Left) {
 					if (Math.Abs(mouseDownPoint.X - prevMouseUpPoint.X) < SystemParameters.MinimumHorizontalDragDistance &&
 						Math.Abs(mouseDownPoint.Y - prevMouseUpPoint.Y) < SystemParameters.MinimumVerticalDragDistance &&
 						DateTimeOffset.Now <= lastMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime())) {
@@ -747,7 +754,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	protected override void OnIsMouseCapturedChanged(DependencyPropertyChangedEventArgs e) { }
 
 	private static bool isPreviewTimerInitialized;
-	private static PreviewPopup previewPopup;
+	private static PreviewPopup? previewPopup;
 
 	private void MouseHoverTimerWork() {
 		var item = MouseItem;
@@ -774,7 +781,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		}
 	}
 
-	public void ScrollIntoView(FileListViewItem item) {
+	public void ScrollIntoView(FileListViewItem? item) {
 		if (!isRectSelecting && !isDragDropping) {
 			if (item == null) {
 				scrollViewer.ScrollToTop();
@@ -807,7 +814,7 @@ public partial class FileListView : INotifyPropertyChanged {
 			return;
 		}
 		isDragDropping = false;
-		DragFilesPreview.Instance.Destination = null;
+		DragFilesPreview.Singleton.Destination = null;
 		if (lastDragOnItem != null) {
 			lastDragOnItem.IsSelected = false;
 			lastDragOnItem = null;
@@ -817,7 +824,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// <summary>
 	/// 上一个拖放到的item
 	/// </summary>
-	private FileListViewItem lastDragOnItem;
+	private FileListViewItem? lastDragOnItem;
 
 	protected override void OnDragOver(DragEventArgs e) {
 		e.Handled = true;
@@ -825,7 +832,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		if (FileTabItem.DraggingFileTab != null || draggingPaths == null) {
 			return;
 		}
-		FileListViewItem mouseItem;
+		FileListViewItem? mouseItem;
 		if (e.OriginalSource is DependencyObject o) {
 			mouseItem = ContainerFromElement(o) switch {
 				ListBoxItem i => (FileListViewItem)i.Content,
@@ -836,7 +843,7 @@ public partial class FileListView : INotifyPropertyChanged {
 			mouseItem = null;
 		}
 		bool contains;
-		string destination;  // 拖放的目的地
+		string? destination;  // 拖放的目的地
 		if (mouseItem != null) {
 			destination = mouseItem.DisplayText;
 			contains = draggingPaths.Any(path => path == mouseItem.FullPath);
@@ -847,7 +854,7 @@ public partial class FileListView : INotifyPropertyChanged {
 					lastDragOnItem.IsSelected = false;
 					lastDragOnItem = null;
 				}
-				DragFilesPreview.Instance.DragDropEffect = DragDropEffects.None;
+				DragFilesPreview.Singleton.DragDropEffect = DragDropEffects.None;
 				return;
 			}
 			destination = FullPath;
@@ -871,7 +878,7 @@ public partial class FileListView : INotifyPropertyChanged {
 			e.Effects = DragDropEffects.None;
 		}
 
-		var dragFilesPreview = DragFilesPreview.Instance;
+		var dragFilesPreview = DragFilesPreview.Singleton;
 		dragFilesPreview.Destination = destination;
 		if (mouseItem is FileItem { IsExecutable: true }) {
 			dragFilesPreview.OperationText = "DragOpenWith";
@@ -894,7 +901,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		}
 		try {
 			var affectedItems = await FileUtils.HandleDrop(DataObjectContent.Drag, path, GetEffectWithKeyboard(e.Effects));
-			SelectItems(affectedItems.Select(Path.GetFileName));
+			SelectItems(affectedItems?.Select(Path.GetFileName).Where(s => !string.IsNullOrWhiteSpace(s))!);
 		} catch (Exception ex) {
 			Logger.Exception(ex);
 		}
@@ -964,10 +971,10 @@ public partial class FileListView : INotifyPropertyChanged {
 	}
 	#endregion
 
-	public event PropertyChangedEventHandler PropertyChanged;
+	public event PropertyChangedEventHandler? PropertyChanged;
 
 	[NotifyPropertyChangedInvocator]
-	protected void UpdateUI([CallerMemberName] string propertyName = null) {
+	protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
 		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 	}
 }

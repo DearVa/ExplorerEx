@@ -9,7 +9,7 @@ namespace ExplorerEx.View.Controls;
 /// </summary>
 public class ClickableTreeViewItem : TreeViewItem {
 	public static readonly DependencyProperty IconProperty = DependencyProperty.Register(
-		"Icon", typeof(ImageSource), typeof(ClickableTreeViewItem), new PropertyMetadata(default(ImageSource)));
+		nameof(Icon), typeof(ImageSource), typeof(ClickableTreeViewItem), new PropertyMetadata(default(ImageSource)));
 
 	public ImageSource Icon {
 		get => (ImageSource)GetValue(IconProperty);

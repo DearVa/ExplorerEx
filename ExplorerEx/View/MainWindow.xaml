@@ -11,7 +11,7 @@
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
     mc:Ignorable="d" d:DataContext="{d:DesignInstance v:MainWindow}" d:DesignWidth="1920" d:DesignHeight="1080"
-    Title="ExplorerEx" Background="Transparent" WindowStartupLocation="Manual" PreviewMouseDown="MainWindow_OnPreviewMouseDown"
+    Title="ExplorerEx" Background="{DynamicResource WindowBackgroundBrush}" WindowStartupLocation="Manual" PreviewMouseDown="MainWindow_OnPreviewMouseDown"
     Foreground="{DynamicResource PrimaryTextBrush}" BorderThickness="0" AllowDrop="True">
 
     <Window.Resources>
@@ -148,10 +148,59 @@
     </Window.Resources>
 
     <WindowChrome.WindowChrome>
-        <WindowChrome GlassFrameThickness="-1" ResizeBorderThickness="8"/>
+        <WindowChrome GlassFrameThickness="-1" ResizeBorderThickness="8" UseAeroCaptionButtons="False" CaptionHeight="0"/>
     </WindowChrome.WindowChrome>
 
     <hc:SimplePanel x:Name="RootPanel">
+        <StackPanel ZIndex="99999" HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">
+            <StackPanel.Resources>
+                <Style x:Key="ButtonStyle" TargetType="Button">
+                    <Setter Property="Background" Value="Transparent"/>
+
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate>
+                                <hc:SimplePanel Background="{TemplateBinding Background}">
+                                    <ContentControl Margin="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                                        <Path Fill="{DynamicResource PrimaryTextBrush}" SnapsToDevicePixels="True" Stretch="Uniform" Width="10" Height="10" Data="{TemplateBinding hc:IconElement.Icon}"/>
+                                    </ContentControl>
+                                </hc:SimplePanel>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+
+                    <Style.Triggers>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Opacity" Value="0.8"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Resources>
+
+            <Button Width="46" Height="34" hc:IconElement.Icon="{StaticResource WindowMinGeometry}" Click="MinimizeWindowButton_OnClick">
+                <Button.Style>
+                    <Style BasedOn="{StaticResource ButtonStyle}" TargetType="Button">
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <ct:MaximizeToggleButton x:Name="MaximizeToggleButton" Width="46" Height="34" IsChecked="{Binding IsMaximized, Mode=TwoWay}"/>
+            <Button Width="46" Height="34" hc:IconElement.Icon="{StaticResource CloseGeometry}" Click="CloseWindowButton_OnClick">
+                <Button.Style>
+                    <Style BasedOn="{StaticResource ButtonStyle}" TargetType="Button">
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition x:Name="SidebarColumnDefinition" Width="300"/>
@@ -170,8 +219,8 @@
                         </TabItem.Header>
                         <ct:SideBarContent Header="{u:Lang Bookmarks}" Filter="{StaticResource BookmarkFilter}" FileDrop="BookmarksSideBarContent_OnFileDrop">
                             <ct:SideBarContent.Content>
-                                <TreeView x:Name="SideBarBookmarksTreeView" BorderThickness="0" Focusable="False"
-                                      ItemsSource="{Binding Source={x:Static m:BookmarkDbContext.BookmarkCategories}}">
+                                <TreeView x:Name="SideBarBookmarksTreeView" BorderThickness="0" Focusable="False" Background="Transparent"
+                                          ItemsSource="{Binding Source={x:Static m:BookmarkDbContext.BookmarkCategories}}">
                                     <TreeView.ItemContainerStyle>
                                         <Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemBaseStyle}">
                                             <Setter Property="Focusable" Value="False"/>
@@ -359,7 +408,7 @@
                                     <!--<Rectangle Width="1" Height="18" Fill="{DynamicResource ThirdlyTextBrush}" Margin="5,1,5,1"/>
                                 <Button Width="25" Height="25" ToolTip="{u:Lang OpenOnTheRight}"
                                         Style="{StaticResource ButtonTransparent}"
-                                        hc:IconElement.Geometry="{StaticResource RightArrowGeometry}"/>-->
+                                        hc:IconElement.Icon="{StaticResource RightArrowGeometry}"/>-->
                                 </StackPanel>
                             </ct:SideBarContent.HeaderContent>
                             <ct:SideBarContent.Content>
@@ -431,7 +480,7 @@
                             </ct:SideBarContent.Content>
                             <ct:SideBarContent.DragTip>
                                 <hc:SimplePanel Background="#aaff0000">
-                                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{u:Lang Release_to_move_to_RecycleBin}" 
+                                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{u:Lang ReleaseToMoveToRecycleBin}" 
                                            TextWrapping="Wrap" TextAlignment="Center" FontSize="24" Foreground="{DynamicResource ReverseTextBrush}"/>
                                 </hc:SimplePanel>
                             </ct:SideBarContent.DragTip>
@@ -497,11 +546,11 @@
                 <Image HorizontalAlignment="Left" VerticalAlignment="Top" Height="34" Margin="8,14,6,0" 
                    Stretch="Uniform" Source="../Assets/Picture/Logo.png" ToolTip="ExplorerEx"/>
 
-                <!--<Button HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="40" Width="40" Margin="5,0,3,4"
-                    ToolTip="{u:Lang Settings}" ToolTipService.InitialShowDelay="300" Padding="0"
-                    Style="{StaticResource ButtonTransparent}">
+                <Button HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="40" Width="40" Margin="5,0,3,4"
+                        ToolTip="{u:Lang Settings}" Padding="0"
+                        Style="{StaticResource ButtonTransparent}" Click="SettingsButton_OnClick">
                     <Image Width="24" Height="24" Source="{StaticResource SettingsDrawingImage}"/>
-                </Button>-->
+                </Button>
             </hc:SimplePanel>
 
             <GridSplitter Grid.Column="1" Margin="-2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"

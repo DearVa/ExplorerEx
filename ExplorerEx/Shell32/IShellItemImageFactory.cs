@@ -23,5 +23,5 @@ public enum ThumbnailOptions {  // IShellItemImageFactory Flags: https://msdn.mi
 [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 internal interface IShellItemImageFactory : IShellItem {
 	[PreserveSig]
-	int GetImage([In, MarshalAs(UnmanagedType.Struct)] Win32Interop.Size size, [In] ThumbnailOptions flags, [Out] out IntPtr phbm);
+	int GetImage([In, MarshalAs(UnmanagedType.Struct)] Win32Interop.SizeW size, [In] ThumbnailOptions flags, [Out] out IntPtr phbm);
 }

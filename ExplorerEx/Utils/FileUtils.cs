@@ -56,7 +56,7 @@ internal static class FileUtils {
 	/// </summary>
 	/// <param name="fileName"></param>
 	/// <returns></returns>
-	public static bool IsProhibitedFileName(string fileName) {
+	public static bool IsProhibitedFileName(string? fileName) {
 		if (fileName == null) {
 			return true;
 		}
@@ -108,7 +108,7 @@ internal static class FileUtils {
 	/// </summary>
 	/// <param name="fileName"></param>
 	/// <returns></returns>
-	public static string FindFileLocation(string fileName) {
+	public static string? FindFileLocation(string? fileName) {
 		if (fileName == null) {
 			return null;
 		}
@@ -139,7 +139,7 @@ internal static class FileUtils {
 	/// </summary>
 	/// <param name="extension"></param>
 	/// <returns></returns>
-	public static string GetFileTypeDescription(string extension) {
+	public static string? GetFileTypeDescription(string extension) {
 		if (string.IsNullOrEmpty(extension)) {
 			return null;
 		}
@@ -189,7 +189,7 @@ internal static class FileUtils {
 	/// </summary>
 	/// <param name="shortcutPath"></param>
 	/// <returns></returns>
-	public static string GetShortcutTargetPath(string shortcutPath) {
+	public static string? GetShortcutTargetPath(string shortcutPath) {
 		try {
 			return Shell32Interop.GetLnkTargetPath(shortcutPath);
 		} catch {
@@ -202,7 +202,7 @@ internal static class FileUtils {
 	/// </summary>
 	/// <param name="filePath"></param>
 	/// <returns></returns>
-	public static string GetFileLocation(string filePath) {
+	public static string? GetFileLocation(string filePath) {
 		if (filePath.Length <= 3) {
 			return null;
 		}
@@ -220,7 +220,7 @@ internal static class FileUtils {
 	/// <param name="destinationFiles"></param>
 	/// <exception cref="ArgumentException"></exception>
 	/// <exception cref="IOException"></exception>
-	public static Task FileOperation(FileOpType type, IList<string> sourceFiles, IList<string> destinationFiles = null) {
+	public static Task FileOperation(FileOpType type, IList<string> sourceFiles, IList<string>? destinationFiles = null) {
 		if (sourceFiles is not { Count: > 0 }) {
 			throw new ArgumentException("原文件个数不能为0");
 		}
@@ -264,7 +264,7 @@ internal static class FileUtils {
 	/// <exception cref="ArgumentNullException"></exception>
 	/// <exception cref="ArgumentException"></exception>
 	/// <exception cref="IOException"></exception>
-	public static Task FileOperation(FileOpType type, string sourceFile, string destinationFile = null) {
+	public static Task FileOperation(FileOpType type, string sourceFile, string? destinationFile = null) {
 		if (sourceFile == null) {
 			throw new ArgumentNullException(nameof(sourceFile));
 		}
@@ -312,12 +312,15 @@ internal static class FileUtils {
 	/// <param name="destPath"></param>
 	/// <param name="type"></param>
 	/// <exception cref="ArgumentNullException"></exception>
-	public static async Task<string[]> HandleDrop(DataObjectContent content, string destPath, DragDropEffects type) {
+	public static async Task<string[]?> HandleDrop(DataObjectContent content, string destPath, DragDropEffects type) {
 		if (content == null) {
 			throw new ArgumentNullException(nameof(content));
 		}
 		if (destPath == null) {
 			throw new ArgumentNullException(nameof(destPath));
+		}
+		if (content.Data == null) {
+			return null;
 		}
 		Debug.Assert(type is DragDropEffects.Copy or DragDropEffects.Move or DragDropEffects.Link);
 		if (destPath.Length > 4 && destPath[^4..] is ".exe" or ".lnk") {  // 拖文件运行
@@ -335,7 +338,7 @@ internal static class FileUtils {
 			}
 		} else {
 			if (!Directory.Exists(destPath)) {
-				destPath = Path.GetDirectoryName(destPath);
+				destPath = Path.GetDirectoryName(destPath)!;
 			}
 			if (Directory.Exists(destPath)) {
 				switch (content.Type) {
@@ -367,11 +370,7 @@ internal static class FileUtils {
 				case DataObjectType.Bitmap:
 					break;
 				case DataObjectType.Html:
-					new SaveDataObjectWindow(destPath, content.Data.ToString()).Show();
-					break;
 				case DataObjectType.Text:
-					new SaveDataObjectWindow(destPath, content.Data.ToString()).Show();
-					break;
 				case DataObjectType.UnicodeText:
 					new SaveDataObjectWindow(destPath, content.Data.ToString()).Show();
 					break;
@@ -381,7 +380,10 @@ internal static class FileUtils {
 		return null;
 	}
 
-	private static string ParseFileList(IEnumerable<string> files) {
+	private static string ParseFileList(IEnumerable<string>? files) {
+		if (files == null) {
+			return string.Empty;
+		}
 		var sb = new StringBuilder();
 		foreach (var file in files) {
 			sb.Append(Path.GetFullPath(file)).Append('\0');
@@ -414,7 +416,7 @@ internal static class FileUtils {
 	/// <param name="filePath"></param>
 	/// <param name="windowSize"></param>
 	/// <returns></returns>
-	public static bool IsTextFile(out Encoding encoding, string filePath, int windowSize = 10240) {
+	public static bool IsTextFile(out Encoding? encoding, string filePath, int windowSize = 10240) {
 		FileStream fileStream;
 		try {
 			fileStream = File.OpenRead(filePath);

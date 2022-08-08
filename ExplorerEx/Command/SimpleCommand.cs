@@ -5,13 +5,13 @@ using System.Windows.Input;
 namespace ExplorerEx.Command;
 
 public class SimpleCommand : ICommand {
-	public event Action<object> Action;
+	public event Action<object?>? Action;
 
 	public SimpleCommand(Action action) {
 		Action += _ => action();
 	}
 
-	public SimpleCommand(Action<object> action) {
+	public SimpleCommand(Action<object?> action) {
 		Action += action;
 	}
 
@@ -19,15 +19,15 @@ public class SimpleCommand : ICommand {
 		Action += _ => asyncAction();
 	}
 
-	public SimpleCommand(Func<object, Task> asyncAction) {
+	public SimpleCommand(Func<object?, Task> asyncAction) {
 		Action += o => asyncAction(o);
 	}
 
-	public bool CanExecute(object parameter) => true;
+	public bool CanExecute(object? parameter) => true;
 
-	public void Execute(object parameter) {
+	public void Execute(object? parameter) {
 		Action?.Invoke(parameter);
 	}
 
-	public event EventHandler CanExecuteChanged;
+	public event EventHandler? CanExecuteChanged;
 }

@@ -7,6 +7,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:m="clr-namespace:ExplorerEx.Model"
              xmlns:e="clr-namespace:ExplorerEx.Model.Enums"
+             xmlns:u="clr-namespace:ExplorerEx.Utils"
              mc:Ignorable="d">
     <Application.Resources>
         <ResourceDictionary>
@@ -23,6 +24,7 @@
                     <c:FileName2IconConverter x:Key="FileName2IconConverter"/>
                     <c:FullPath2FileNameConverter x:Key="FullPath2FileNameConverter"/>
                     <c:Bytes2StringConverter x:Key="Bytes2StringConverter"/>
+                    <u:LangConverter x:Key="LangConverter"/>
 
                     <Style x:Key="ButtonLikeMenuItem" TargetType="MenuItem">
                         <Setter Property="Width" Value="38"/>
@@ -43,38 +45,18 @@
                         </Setter>
                     </Style>
 
-                    <Style x:Key="ButtonTransparent" TargetType="Button">
-                        <Setter Property="Padding" Value="{StaticResource DefaultControlPadding}"/>
+                    <Style x:Key="ButtonTransparent" BasedOn="{StaticResource ButtonBaseStyle}" TargetType="Button">
                         <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="Button">
-                                    <hc:SimplePanel>
-                                        <Border Background="{TemplateBinding Background}" CornerRadius="4">
-                                            <ContentPresenter x:Name="ContentPresenterMain" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                        </Border>
-                                    </hc:SimplePanel>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-
+                        <Setter Property="BorderThickness" Value="0"/>
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Opacity" Value=".6" />
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4" />
                             </Trigger>
                         </Style.Triggers>
                     </Style>
 
                     <Style x:Key="SplitButtonTransparent" BasedOn="{StaticResource SplitButtonBaseStyle}" TargetType="hc:SplitButton">
                         <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
@@ -84,7 +66,6 @@
 
                     <Style x:Key="ToggleButtonTransparent" BasedOn="{StaticResource ToggleButtonBaseStyle}" TargetType="ToggleButton">
                         <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
@@ -92,12 +73,12 @@
                         </Style.Triggers>
                     </Style>
 
-                    <Style x:Key="ButtonSmallTransparent" TargetType="Button" BasedOn="{StaticResource ButtonTransparent}">
+                    <Style x:Key="ToggleButtonSmallTransparent" TargetType="ToggleButton" BasedOn="{StaticResource ToggleButtonTransparent}">
                         <Setter Property="BorderBrush" Value="Transparent"/>
                         <Setter Property="Padding" Value="2"/>
                         <Setter Property="Template">
                             <Setter.Value>
-                                <ControlTemplate TargetType="Button">
+                                <ControlTemplate TargetType="ToggleButton">
                                     <hc:SimplePanel>
                                         <Border BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" CornerRadius="2">
                                             <ContentPresenter x:Name="ContentPresenterMain" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
@@ -113,18 +94,20 @@
                                 <Setter Property="BorderBrush" Value="{DynamicResource SelectBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Opacity" Value=".6" />
+                                <Setter Property="Opacity" Value=".6"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4" />
+                                <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource SelectBrush}"/>
+                                <Setter Property="Opacity" Value=".8"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>
 
                     <Style x:Key="CreateMenuItemContainerStyle" TargetType="MenuItem" 
-                           BasedOn="{StaticResource MenuItemBaseStyle}" d:DataContext="{d:DesignInstance m:CreateFileItem}">
-                        <Setter Property="Icon" Value="{Binding Icon}"/>
-                        <Setter Property="Header" Value="{Binding Description}"/>
+                           BasedOn="{StaticResource MenuItemBaseStyle}">
+                        <Setter Property="Icon" Value="{Binding (m:CreateFileItem.Icon)}"/>
+                        <Setter Property="Header" Value="{Binding (m:CreateFileItem.Description)}"/>
                         <Setter Property="CommandParameter" Value="{Binding}"/>
                     </Style>
 

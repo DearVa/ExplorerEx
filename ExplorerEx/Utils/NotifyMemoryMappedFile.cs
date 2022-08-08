@@ -30,7 +30,7 @@ internal class NotifyMemoryMappedFile : IDisposable {
 			if (!Semaphore.TryOpenExisting(semName, out var semaphore)) {
 				Thread.Sleep(10);
 			}
-			this.semaphore = semaphore;
+			this.semaphore = semaphore!;
 			mmf = MemoryMappedFile.OpenExisting(name);
 		}
 	}
@@ -74,7 +74,7 @@ internal class NotifyMemoryMappedFile : IDisposable {
 	/// 读取数据，如果没有数据或者长度不匹配，返回null
 	/// </summary>
 	/// <returns></returns>
-	public byte[] Read() {
+	public byte[]? Read() {
 		mutex.WaitOne();
 		using var stream = mmf.CreateViewStream(0, capacity, MemoryMappedFileAccess.ReadWrite);
 		Span<byte> length = stackalloc byte[4];
@@ -94,8 +94,8 @@ internal class NotifyMemoryMappedFile : IDisposable {
 	}
 
 	public void Dispose() {
-		mmf?.Dispose();
-		mutex?.Dispose();
-		semaphore?.Dispose();
+		mmf.Dispose();
+		mutex.Dispose();
+		semaphore.Dispose();
 	}
 }

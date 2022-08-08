@@ -27,7 +27,7 @@ public abstract class PreviewPopup : Popup {
 		Placement = PlacementMode.Relative;
 	}
 
-	public static PreviewPopup ChoosePopup(string filePath) {
+	public static PreviewPopup? ChoosePopup(string filePath) {
 		if (filePath is { Length: > 5 }) {  // 驱动器占3个长度
 			switch (Path.GetExtension(filePath).ToLower()) {
 			case ".mp3" or ".wav" or ".flac":

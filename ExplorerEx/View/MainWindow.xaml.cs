@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -28,10 +26,11 @@ using TextBox = HandyControl.Controls.TextBox;
 using System.Windows.Media;
 using System.Diagnostics;
 using System.Windows.Data;
-using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using hc = HandyControl.Controls;
 using HandyControl.Data;
+using HandyControl.Tools.Interop;
+using System.Windows.Controls.Primitives;
 
 namespace ExplorerEx.View;
 
@@ -53,7 +52,7 @@ public sealed partial class MainWindow {
 	/// </summary>
 	public static event Action? FrequentTimerElapsed;
 
-	private static DispatcherTimer frequentTimer = new(TimeSpan.FromMilliseconds(100), DispatcherPriority.Input, (_, _) => FrequentTimerElapsed?.Invoke(), Application.Current.Dispatcher);
+	private static readonly DispatcherTimer FrequentTimer = new(TimeSpan.FromMilliseconds(100), DispatcherPriority.Input, (_, _) => FrequentTimerElapsed?.Invoke(), Application.Current.Dispatcher);
 
 	public SimpleCommand SideBarItemPreviewMouseUpCommand { get; }
 	public SimpleCommand SideBarItemClickCommand { get; }
@@ -170,7 +169,7 @@ public sealed partial class MainWindow {
 			BorderThickness = new Thickness(8);
 		}
 
-		frequentTimer.Start();
+		FrequentTimer.Start();
 		Hwnd = HwndSource.FromHwnd(new WindowInteropHelper(this).EnsureHandle())!;
 		if (All.Count == 1) {  // 只在一个窗口上检测剪贴板变化事件
 			RegisterClipboard();
@@ -178,30 +177,27 @@ public sealed partial class MainWindow {
 		}
 		Hwnd.AddHook(WndProc);
 
+		SetWindowLong(Hwnd.Handle, GWL_STYLE, GetWindowLong(Hwnd.Handle, GWL_STYLE) & ~WS_SYSMENU);
+
 		SplitGrid = new SplitGrid(this, null);
 		ContentGrid.Children.Add(SplitGrid);
 
-		EnableMica(App.IsDarkTheme);
-
-		if (FolderOnlyItem.Home.Children.Count == 0) {
-			foreach (var driveInfo in DriveInfo.GetDrives()) {
-				FolderOnlyItem.Home.Children.Add(new FolderOnlyItem(driveInfo));
-			}
-		}
+		Settings.ThemeChanged += ChangeTheme;
+		ChangeTheme();
 
 		if (startUpLoad) {
 			StartupLoad();
 		}
 	}
 
-	private void SideBarItem_OnPreviewMouseUp(object args) {
-		var e = (MouseButtonEventArgs)args;
+	private void SideBarItem_OnPreviewMouseUp(object? args) {
+		var e = (MouseButtonEventArgs)args!;
 		if (e.ChangedButton == MouseButton.Right && e.OriginalSource is FrameworkElement frameworkElement) {
 			if (frameworkElement.DataContext is FileListViewItem fileListViewItem) {
 				switch (fileListViewItem) {
 				case BookmarkItem bookmarkItem:
 					if (!File.Exists(bookmarkItem.FullPath) && !Directory.Exists(bookmarkItem.FullPath)) {
-						
+
 					} else {
 						var menu = (ContextMenu)bookmarkItemContextMenuConverter.Convert(bookmarkItem, null, null, null)!;
 						menu.DataContext = this;
@@ -223,14 +219,14 @@ public sealed partial class MainWindow {
 		}
 	}
 
-	private static async void SideBarItem_OnClick(object args) {
-		var e = (RoutedEventArgs)args;
+	private static async void SideBarItem_OnClick(object? args) {
+		var e = (RoutedEventArgs)args!;
 		if (e.OriginalSource is FrameworkElement element) {
 			switch (element.DataContext) {
 			case FileListViewItem fileItem:
 				fileItem.IsSelected = true;
 				if (fileItem.IsFolder) {
-					await FileTabControl.FocusedTabControl.SelectedTab.LoadDirectoryAsync(fileItem.FullPath);
+					await FileTabControl.FocusedTabControl!.SelectedTab.LoadDirectoryAsync(fileItem.FullPath);
 				} else {
 					try {
 						var psi = new ProcessStartInfo {
@@ -279,13 +275,47 @@ public sealed partial class MainWindow {
 		DataObjectContent.HandleClipboardChanged();
 	}
 
-	private void EnableMica(bool isDarkTheme) {
-		if (Environment.OSVersion.Version >= Version.Parse("10.0.22000.0")) {
-			var isDark = isDarkTheme ? 1 : 0;
-			DwmSetWindowAttribute(Hwnd.Handle, DwmWindowAttribute.UseImmersiveDarkMode, ref isDark, sizeof(uint));
-			var trueValue = 1;
-			DwmSetWindowAttribute(Hwnd.Handle, DwmWindowAttribute.MicaEffect, ref trueValue, sizeof(uint));
+	private WindowBackdrop windowBackdrop;
+
+	private void ChangeTheme() {
+		App.ChangeTheme(((SolidColorBrush)SystemParameters.WindowGlassBrush).Color);
+
+		var hwnd = Hwnd.Handle;
+		var isWin11 = Environment.OSVersion.Version >= Version.Parse("10.0.22000.0");
+		var windowBackdrop = Settings.Current.WindowBackdrop;
+		var isDarkMode = Settings.Current.IsDarkMode;
+
+		switch (this.windowBackdrop) {
+		case WindowBackdrop.Acrylic:
+			InteropMethods.DisableAcrylic(hwnd);
+			break;
+		case WindowBackdrop.Mica:
+			if (isWin11) {
+				var falseValue = 0;
+				DwmSetWindowAttribute(Hwnd.Handle, DwmWindowAttribute.MicaEffect, ref falseValue, sizeof(uint));
+			}
+			break;
 		}
+
+		switch (windowBackdrop) {
+		case WindowBackdrop.Acrylic:
+			if (isWin11) {
+				InteropMethods.EnableRoundCorner(hwnd);
+			}
+			InteropMethods.EnableAcrylic(hwnd, isDarkMode, 100U);
+			InteropMethods.EnableShadows(hwnd);
+			break;
+		case WindowBackdrop.Mica:
+			if (isWin11) {
+				var isDark = isDarkMode ? 1 : 0;
+				DwmSetWindowAttribute(Hwnd.Handle, DwmWindowAttribute.UseImmersiveDarkMode, ref isDark, sizeof(uint));
+				var trueValue = 1;
+				DwmSetWindowAttribute(Hwnd.Handle, DwmWindowAttribute.MicaEffect, ref trueValue, sizeof(uint));
+			}
+			break;
+		}
+
+		this.windowBackdrop = windowBackdrop;
 	}
 
 	private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
@@ -300,6 +330,68 @@ public sealed partial class MainWindow {
 					}
 				}
 				EverythingQueryReplied.Invoke(id, EverythingInterop.ParseEverythingIpcResult(cd.lpData, cd.cbData));
+			}
+			break;
+		case WinMessage.NcHitTest:
+			try {
+				// for fixing #886
+				// https://developercommunity.visualstudio.com/t/overflow-exception-in-windowchrome/167357
+				_ = lParam.ToInt32();
+
+				// Support Windows 11 SnapLayout
+				var x = lParam.ToInt32() & 0xffff;
+				var y = lParam.ToInt32() >> 16;
+				var rect = new Rect(MaximizeToggleButton.PointToScreen(new Point()), new Size(MaximizeToggleButton.Width, MaximizeToggleButton.Height));
+				if (rect.Contains(new Point(x, y))) {
+					handled = true;
+					MaximizeToggleButton.IsMouseOver = true;
+					return new IntPtr(9);  // HTMAXBUTTON
+				}
+				MaximizeToggleButton.IsMouseOver = false;
+			} catch (OverflowException) {
+				handled = true;
+			}
+			break;
+		case WinMessage.NcLButtonDown:
+			try {
+				// for fixing #886
+				// https://developercommunity.visualstudio.com/t/overflow-exception-in-windowchrome/167357
+				_ = lParam.ToInt32();
+
+				// Support Windows 11 SnapLayout
+				var x = lParam.ToInt32() & 0xffff;
+				var y = lParam.ToInt32() >> 16;
+				var rect = new Rect(MaximizeToggleButton.PointToScreen(new Point()), new Size(MaximizeToggleButton.Width, MaximizeToggleButton.Height));
+				if (rect.Contains(new Point(x, y))) {
+					handled = true;
+					MaximizeToggleButton.IsMouseLeftButtonDown = true;
+				}
+			} catch (OverflowException) {
+				handled = true;
+			}
+			break;
+		case WinMessage.NcMouseLeave:
+			MaximizeToggleButton.IsMouseOver = false;
+			break;
+		case WinMessage.NcLButtonUp:
+			if (MaximizeToggleButton.IsMouseLeftButtonDown) {
+				MaximizeToggleButton.IsMouseLeftButtonDown = false;
+				try {
+					// for fixing #886
+					// https://developercommunity.visualstudio.com/t/overflow-exception-in-windowchrome/167357
+					_ = lParam.ToInt32();
+
+					// Support Windows 11 SnapLayout
+					var x = lParam.ToInt32() & 0xffff;
+					var y = lParam.ToInt32() >> 16;
+					var rect = new Rect(MaximizeToggleButton.PointToScreen(new Point()), new Size(MaximizeToggleButton.Width, MaximizeToggleButton.Height));
+					if (rect.Contains(new Point(x, y))) {
+						handled = true;
+						WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+					}
+				} catch (OverflowException) {
+					handled = true;
+				}
 			}
 			break;
 		case WinMessage.DeviceChange:
@@ -329,16 +421,7 @@ public sealed partial class MainWindow {
 							}
 						}
 					}
-					var home = FolderOnlyItem.Home;
-					for (var i = 0; i < home.Children.Count; i++) {
-						if (home.Children[i].FullPath[0] == drive) {
-							home.Children.RemoveAt(i);
-							break;
-						}
-					}
-					if (param == 0x8000) {
-						home.Children.Add(new FolderOnlyItem(new DriveInfo(drive.ToString())));
-					}
+					FolderOnlyItem.Home.UpdateDriveChildren();
 					RecycleBinItem.RegisterWatcher();
 					break;
 				}
@@ -358,8 +441,8 @@ public sealed partial class MainWindow {
 			}
 			break;
 		case WinMessage.DwmColorizationColorChanged:
-			App.ChangeTheme(App.IsDarkTheme, ((SolidColorBrush)SystemParameters.WindowGlassBrush).Color);
-			EnableMica(App.IsDarkTheme);
+			App.ChangeTheme(((SolidColorBrush)SystemParameters.WindowGlassBrush).Color);
+			ChangeTheme();
 			break;
 		}
 		return IntPtr.Zero;
@@ -369,11 +452,11 @@ public sealed partial class MainWindow {
 	/// 打开给定的路径，如果没有窗口就打开一个新的，如果有窗口就会在FocusedTabControl打开新标签页，需要在UI线程调用
 	/// </summary>
 	/// <param name="path"></param>
-	public static async Task OpenPath(string path) {
+	public static async Task OpenPath(string? path) {
 		if (All.Count == 0) {  // 窗口都关闭了
 			new MainWindow(path).Show();
 		} else {
-			var tabControl = FileTabControl.FocusedTabControl;
+			var tabControl = FileTabControl.FocusedTabControl!;
 			tabControl.MainWindow.BringToFront();
 			await tabControl.OpenPathInNewTabAsync(path);
 		}
@@ -429,7 +512,7 @@ public sealed partial class MainWindow {
 
 	#region 收藏夹
 	public static readonly DependencyProperty IsAddToBookmarkShowProperty = DependencyProperty.Register(
-		"IsAddToBookmarkShow", typeof(bool), typeof(MainWindow), new PropertyMetadata(false, OnIsAddToBookmarkShowChanged));
+		nameof(IsAddToBookmarkShow), typeof(bool), typeof(MainWindow), new PropertyMetadata(false, OnIsAddToBookmarkShowChanged));
 
 	public bool IsAddToBookmarkShow {
 		get => (bool)GetValue(IsAddToBookmarkShowProperty);
@@ -437,7 +520,7 @@ public sealed partial class MainWindow {
 	}
 
 	public static readonly DependencyProperty BookmarkNameProperty = DependencyProperty.Register(
-		"BookmarkName", typeof(string), typeof(MainWindow), new PropertyMetadata(default(string)));
+		nameof(BookmarkName), typeof(string), typeof(MainWindow), new PropertyMetadata(default(string)));
 
 	public string BookmarkName {
 		get => (string)GetValue(BookmarkNameProperty);
@@ -448,9 +531,9 @@ public sealed partial class MainWindow {
 		((TextBox)sender).SelectAll();
 	}
 
-	private string[] bookmarkPaths;
+	private string[]? bookmarkPaths;
 	private int currentBookmarkIndex;
-	public string BookmarkCategory { get; set; }
+	public string? BookmarkCategory { get; set; }
 	private bool isDeleteBookmark;
 
 	/// <summary>
@@ -458,7 +541,7 @@ public sealed partial class MainWindow {
 	/// </summary>
 	/// <param name="filePaths"></param>
 	public void AddToBookmarks(params string[] filePaths) {
-		if (filePaths == null || filePaths.Length == 0) {
+		if (filePaths.Length == 0) {
 			return;
 		}
 		bookmarkPaths = filePaths;
@@ -478,6 +561,9 @@ public sealed partial class MainWindow {
 
 	private static async void OnIsAddToBookmarkShowChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		var window = (MainWindow)d;
+		if (window.bookmarkPaths == null || window.BookmarkCategory == null) {
+			return;
+		}
 		var bookmarkItem = window.bookmarkPaths[window.currentBookmarkIndex];
 		if ((bool)e.NewValue) {
 			var fullPath = Path.GetFullPath(bookmarkItem);
@@ -492,45 +578,43 @@ public sealed partial class MainWindow {
 				window.BookmarkCategoryComboBox.SelectedIndex = 0;
 			}
 		} else {
-			if (bookmarkItem != null) {
-				if (!window.isDeleteBookmark) {
-					var category = window.BookmarkCategory.Trim();
-					if (string.IsNullOrWhiteSpace(category)) {
-						category = "Default_bookmark".L();
-					}
-					var bookmarkDb = BookmarkDbContext.Instance;
-					var categoryItem = await bookmarkDb.BookmarkCategoryDbSet.FirstOrDefaultAsync(bc => bc.Name == category);
-					if (categoryItem == null) {
-						categoryItem = new BookmarkCategory(category);
-						await bookmarkDb.BookmarkCategoryDbSet.AddAsync(categoryItem);
-					}
-					var fullPath = Path.GetFullPath(bookmarkItem);
-					var dbBookmark = await BookmarkDbContext.Instance.BookmarkDbSet.FirstOrDefaultAsync(b => b.FullPath == fullPath);
-					if (dbBookmark != null) {
-						dbBookmark.Name = window.BookmarkName;
-						dbBookmark.UpdateUI(nameof(dbBookmark.Name));
-						dbBookmark.Category = categoryItem;
-						await bookmarkDb.SaveChangesAsync();
-					} else {
-						var item = new BookmarkItem(bookmarkItem, window.BookmarkName, categoryItem);
-						await bookmarkDb.BookmarkDbSet.AddAsync(item);
-						await bookmarkDb.SaveChangesAsync();
-						item.LoadIcon(FileListViewItem.LoadDetailsOptions.Default);
-					}
-					foreach (var updateItem in All.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
-						updateItem.UpdateUI(nameof(updateItem.IsBookmarked));
-					}
+			if (!window.isDeleteBookmark) {
+				var category = window.BookmarkCategory.Trim();
+				if (string.IsNullOrWhiteSpace(category)) {
+					category = "Default_bookmark".L();
 				}
-				window.currentBookmarkIndex++;
-				if (window.currentBookmarkIndex < window.bookmarkPaths.Length) {
-					window.IsAddToBookmarkShow = true;
+				var bookmarkDb = BookmarkDbContext.Instance;
+				var categoryItem = await bookmarkDb.BookmarkCategoryDbSet.FirstOrDefaultAsync(bc => bc.Name == category);
+				if (categoryItem == null) {
+					categoryItem = new BookmarkCategory(category);
+					await bookmarkDb.BookmarkCategoryDbSet.AddAsync(categoryItem);
 				}
+				var fullPath = Path.GetFullPath(bookmarkItem);
+				var dbBookmark = await BookmarkDbContext.Instance.BookmarkDbSet.FirstOrDefaultAsync(b => b.FullPath == fullPath);
+				if (dbBookmark != null) {
+					dbBookmark.Name = window.BookmarkName;
+					dbBookmark.UpdateUI(nameof(dbBookmark.Name));
+					dbBookmark.Category = categoryItem;
+					await bookmarkDb.SaveChangesAsync();
+				} else {
+					var item = new BookmarkItem(bookmarkItem, window.BookmarkName, categoryItem);
+					await bookmarkDb.BookmarkDbSet.AddAsync(item);
+					await bookmarkDb.SaveChangesAsync();
+					item.LoadIcon(FileListViewItem.LoadDetailsOptions.Default);
+				}
+				foreach (var updateItem in All.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
+					updateItem.UpdateUI(nameof(updateItem.IsBookmarked));
+				}
+			}
+			window.currentBookmarkIndex++;
+			if (window.currentBookmarkIndex < window.bookmarkPaths.Length) {
+				window.IsAddToBookmarkShow = true;
 			}
 		}
 	}
 
 	public static async Task RemoveFromBookmark(params string[] filePaths) {
-		if (filePaths == null || filePaths.Length == 0) {
+		if (filePaths.Length == 0) {
 			return;
 		}
 		var bookmarkDb = BookmarkDbContext.Instance;
@@ -714,6 +798,15 @@ public sealed partial class MainWindow {
 		Keyboard.ClearFocus();
 	}
 
+	private static readonly SettingsPanel SettingsPanel = new();
+
+	private void SettingsButton_OnClick(object sender, RoutedEventArgs e) {
+		new ContentDialog {
+			Title = "Settings".L(),
+			Content = SettingsPanel
+		}.Show(this);
+	}
+
 	#region Overrides
 
 	protected override void OnClosing(CancelEventArgs e) {
@@ -726,6 +819,8 @@ public sealed partial class MainWindow {
 	}
 
 	protected override void OnClosed(EventArgs e) {
+		Settings.ThemeChanged -= ChangeTheme;
+
 		All.Remove(this);
 		SplitGrid.Close();
 		if (isClipboardRegistered) {
@@ -737,7 +832,7 @@ public sealed partial class MainWindow {
 			}
 		}
 		if (All.Count == 0) {
-			frequentTimer.Stop();
+			FrequentTimer.Stop();
 			RecycleBinItem.UnregisterWatcher();
 		}
 		base.OnClosed(e);
@@ -745,13 +840,7 @@ public sealed partial class MainWindow {
 
 	protected override void OnStateChanged(EventArgs e) {
 		base.OnStateChanged(e);
-		var isMaximized = WindowState == WindowState.Maximized;
-		ConfigHelper.Save("WindowMaximized", isMaximized);
-		if (isMaximized) {
-			BorderThickness = new Thickness(8);
-		} else {
-			BorderThickness = new Thickness(2);
-		}
+		IsMaximized = WindowState == WindowState.Maximized;
 	}
 
 	protected override void OnLocationChanged(EventArgs e) {
@@ -794,7 +883,7 @@ public sealed partial class MainWindow {
 						mouseOverTab.FileListView.InverseSelection();
 						break;
 					case Key.W:
-						FileTabControl.MouseOverTabControl.CloseTab(mouseOverTab);
+						FileTabControl.MouseOverTabControl!.CloseTab(mouseOverTab);
 						break;
 					}
 				} else if ((Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt) {
@@ -847,7 +936,7 @@ public sealed partial class MainWindow {
 
 	protected override void OnDragOver(DragEventArgs e) {
 		base.OnDragOver(e);
-		DragFilesPreview.Instance.DragDropEffect = DragDropEffects.None;
+		DragFilesPreview.Singleton.DragDropEffect = DragDropEffects.None;
 		e.Effects = DragDropEffects.None;
 		e.Handled = true;
 	}
@@ -864,6 +953,39 @@ public sealed partial class MainWindow {
 			return;  // 只有当真正离开了窗口，才取消显示
 		}
 		DataObjectContent.HandleDragLeave();
+	}
+
+	#endregion
+
+	#region 控制按钮
+
+	private void MinimizeWindowButton_OnClick(object sender, RoutedEventArgs e) {
+		WindowState = WindowState.Minimized;
+	}
+
+	public static readonly DependencyProperty IsMaximizedProperty = DependencyProperty.Register(
+		nameof(IsMaximized), typeof(bool), typeof(MainWindow), new PropertyMetadata(default(bool), IsMaximized_OnChanged));
+
+	private static void IsMaximized_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		var window = (MainWindow)d;
+		var isMaximized = (bool)e.NewValue;
+		ConfigHelper.Save("WindowMaximized", isMaximized);
+		if (isMaximized) {
+			window.WindowState = WindowState.Maximized;
+			window.BorderThickness = new Thickness(8);
+		} else {
+			window.WindowState = WindowState.Normal;
+			window.BorderThickness = new Thickness(1);
+		}
+	}
+
+	public bool IsMaximized {
+		get => (bool)GetValue(IsMaximizedProperty);
+		set => SetValue(IsMaximizedProperty, value);
+	}
+
+	private void CloseWindowButton_OnClick(object sender, RoutedEventArgs e) {
+		Close();
 	}
 
 	#endregion

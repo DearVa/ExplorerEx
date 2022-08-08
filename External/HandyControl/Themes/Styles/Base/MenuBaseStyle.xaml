@@ -5,7 +5,7 @@
     <Style x:Key="MenuItemBaseStyle" TargetType="MenuItem">
         <Setter Property="Padding" Value="{StaticResource DefaultControlPadding}"/>
         <Setter Property="OverridesDefaultStyle" Value="True"/>
-        <Setter Property="Background" Value="#01FFFFFF"/>
+        <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="hc:ScrollViewer.PanningMode" Value="Both"/>
         <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>

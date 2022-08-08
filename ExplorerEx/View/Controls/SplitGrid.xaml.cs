@@ -26,7 +26,7 @@ public enum SplitOrientation {
 public partial class SplitGrid : IEnumerable<FileTabControl> {
 	public MainWindow MainWindow { get; }
 
-	private SplitGrid OwnerSplitGrid {
+	private SplitGrid? OwnerSplitGrid {
 		set {
 			if (ownerSplitGrid != value) {
 				ownerSplitGrid = value;
@@ -35,7 +35,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 		}
 	}
 
-	private SplitGrid ownerSplitGrid;
+	private SplitGrid? ownerSplitGrid;
 
 	public FileTabControl FileTabControl { get; private set; }
 
@@ -49,16 +49,16 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 	/// </summary>
 	private const double Threshold = 0.3d;
 
-	private static DoubleAnimation showAnimation, hideAnimation;
+	private static DoubleAnimation? showAnimation, hideAnimation;
 	private SplitOrientation orientation;
 	/// <summary>
 	/// 如果分屏，会把FileTabControl放在这里面
 	/// </summary>
-	private SplitGrid thisSplitGrid;
+	private SplitGrid? thisSplitGrid;
 	/// <summary>
 	/// 如果分屏，这个是分的另一个Grid
 	/// </summary>
-	private SplitGrid otherSplitGrid;
+	private SplitGrid? otherSplitGrid;
 
 	private bool isClosing;
 
@@ -84,7 +84,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 
 	private static readonly CubicEase CubicEase = new() { EasingMode = EasingMode.EaseInOut };
 
-	private SplitGrid(MainWindow mainWindow, SplitGrid ownerSplitGrid) {
+	private SplitGrid(MainWindow mainWindow, SplitGrid? ownerSplitGrid) {
 		showAnimation ??= new DoubleAnimation(0.5d, new Duration(TimeSpan.FromMilliseconds(100))) { EasingFunction = CubicEase };
 		hideAnimation ??= new DoubleAnimation(0d, new Duration(TimeSpan.FromMilliseconds(100))) { EasingFunction = CubicEase };
 
@@ -97,7 +97,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 #endif
 	}
 
-	public SplitGrid(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileTabViewModel tab = null) : this(mainWindow, ownerSplitGrid) {
+	public SplitGrid(MainWindow mainWindow, SplitGrid? ownerSplitGrid, FileTabViewModel? tab = null) : this(mainWindow, ownerSplitGrid) {
 		FileTabControl = new FileTabControl(mainWindow, this, tab);
 		Children.Insert(0, FileTabControl);
 		FileTabControl.UpdateTabContextMenu();
@@ -106,7 +106,7 @@ public partial class SplitGrid : IEnumerable<FileTabControl> {
 		}
 	}
 
-	public SplitGrid(MainWindow mainWindow, SplitGrid ownerSplitGrid, FileTabControl tab) : this(mainWindow, ownerSplitGrid) {
+	public SplitGrid(MainWindow mainWindow, SplitGrid? ownerSplitGrid, FileTabControl tab) : this(mainWindow, ownerSplitGrid) {
 		FileTabControl = tab;
 		FileTabControl.OwnerSplitGrid = this;
 		Children.Insert(0, tab);

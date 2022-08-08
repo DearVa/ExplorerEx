@@ -106,12 +106,12 @@ public partial class FileTabControl {
 	#endregion
 
 	/// <summary>
-	/// 获取当前被聚焦的TabControl
+	/// 获取当前被聚焦的TabControl，只要窗口存在就不为null
 	/// </summary>
 	public static FileTabControl? FocusedTabControl { get; private set; }
 
 	/// <summary>
-	/// 当前鼠标正在其上的FileTabControl
+	/// 当前鼠标正在其上的FileTabControl，如果没有就返回<see cref="FocusedTabControl"/>
 	/// </summary>
 	public static FileTabControl? MouseOverTabControl { get; private set; }
 
@@ -258,8 +258,8 @@ public partial class FileTabControl {
 		if (TabItems.Count == 0) {
 			TabControls.Remove(this);
 			OwnerSplitGrid.CancelSplit();
-			MouseOverTabControl = null;
 			UpdateFocusedTabControl();
+			MouseOverTabControl = FocusedTabControl;
 		}
 		newWindow.SplitGrid.FileTabControl.TabItems.Add(tab);
 		newWindow.Show();
@@ -376,13 +376,15 @@ public partial class FileTabControl {
 				tab.Dispose();
 				TabControls.Remove(this);
 				OwnerSplitGrid.CancelSplit();
-				MouseOverTabControl = null;
 				UpdateFocusedTabControl();
+				MouseOverTabControl = FocusedTabControl;
 			} else {  // 说明就剩这一个Tab了
 				switch (ConfigHelper.LoadInt("LastTabClosed")) {
 				case 1:
 					tab.Dispose();
-					MouseOverTabControl = null;
+					TabControls.Remove(this);
+					UpdateFocusedTabControl();
+					MouseOverTabControl = FocusedTabControl;
 					MainWindow.Close();
 					return true;
 				case 2:
@@ -404,13 +406,14 @@ public partial class FileTabControl {
 					}
 					if (result == MessageBoxResult.OK) {
 						tab.Dispose();
-						MouseOverTabControl = null;
+						TabControls.Remove(this);
+						UpdateFocusedTabControl();
+						MouseOverTabControl = FocusedTabControl;
 						MainWindow.Close();
 						return true;
-					} else {
-						await SelectedTab.LoadDirectoryAsync(null);
-						return false;
 					}
+					await SelectedTab.LoadDirectoryAsync(null);
+					return false;
 				}
 			}
 		} else {
@@ -444,7 +447,7 @@ public partial class FileTabControl {
 
 	private static void TabBorder_OnDragEnter(object s, DragEventArgs e) {
 		e.Handled = true;
-		var dragFilesPreview = DragFilesPreview.Instance;
+		var dragFilesPreview = DragFilesPreview.Singleton;
 		if (e.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList) {
 			var folderList = fileList.Where(Directory.Exists).ToImmutableList();
 			if (folderList.Count > 0) {
@@ -462,7 +465,7 @@ public partial class FileTabControl {
 		if (!CanDragDrop(args, tab)) {
 			return;
 		}
-		DragFilesPreview.Instance.Destination = tab.FullPath;
+		DragFilesPreview.Singleton.Destination = tab.FullPath;
 	}
 
 	private async void TabBorder_OnDrop(object s, DragEventArgs e) {

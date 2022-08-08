@@ -238,7 +238,7 @@ public class FileView : INotifyPropertyChanged {
 	private readonly HashSet<string> changedPropertiesName = new();
 
 	[Key]
-	public string FullPath {
+	public string? FullPath {
 		get => fullPath;
 		set {
 			if (fullPath != value) {
@@ -247,7 +247,7 @@ public class FileView : INotifyPropertyChanged {
 			}
 		}
 	}
-	private string fullPath;
+	private string? fullPath;
 
 	[NotMapped]
 	public PathType PathType {
@@ -287,7 +287,7 @@ public class FileView : INotifyPropertyChanged {
 			if (isAscending != value) {
 				isAscending = value;
 				StageChange();
-				UpdateUI(nameof(IsAscending));
+				UpdateUI();
 			}
 		}
 	}
@@ -329,7 +329,8 @@ public class FileView : INotifyPropertyChanged {
 	/// 用于绑定到下拉按钮
 	/// </summary>
 	public ViewSortGroup FileViewTypeIndex => FileViewType switch {
-		FileViewType.Icons when ItemWidth > 100d && ItemHeight > 130d => ViewSortGroup.LargeIcons,
+		FileViewType.Icons when ItemWidth > 160d && ItemHeight > 200d => ViewSortGroup.LargeIcons,
+		FileViewType.Icons when ItemWidth > 100d && ItemHeight > 130d => ViewSortGroup.MediumIcons,
 		FileViewType.Icons => ViewSortGroup.SmallIcons,
 		FileViewType.List => ViewSortGroup.List,
 		FileViewType.Details => ViewSortGroup.Details,
@@ -342,7 +343,7 @@ public class FileView : INotifyPropertyChanged {
 	public Size ItemSize {
 		get => new(ItemWidth, ItemHeight);
 		set {
-			if (ItemWidth != value.Width || ItemHeight != value.Height) {
+			if (!ItemWidth.Equals(value.Width) || !ItemHeight.Equals(value.Height)) {
 				ItemWidth = value.Width;
 				ItemHeight = value.Height;
 				StageChange();
@@ -356,7 +357,7 @@ public class FileView : INotifyPropertyChanged {
 	public double ItemHeight { get; set; }
 
 	[NotMapped]
-	public List<DetailList> DetailLists {
+	public List<DetailList>? DetailLists {
 		get => DecodeData();
 		set {
 			EncodeData(value);
@@ -364,9 +365,9 @@ public class FileView : INotifyPropertyChanged {
 		}
 	}
 
-	public byte[] DetailListsData { get; set; }
+	public byte[]? DetailListsData { get; set; }
 
-	private void EncodeData(IReadOnlyCollection<DetailList> detailLists) {
+	private void EncodeData(IReadOnlyCollection<DetailList>? detailLists) {
 		if (detailLists == null || detailLists.Count == 0) {
 			DetailListsData = null;
 		} else {
@@ -379,7 +380,7 @@ public class FileView : INotifyPropertyChanged {
 		}
 	}
 
-	private List<DetailList> DecodeData() {
+	private List<DetailList>? DecodeData() {
 		if (DetailListsData == null || DetailListsData.Length == 0) {
 			return null;
 		}
@@ -403,10 +404,10 @@ public class FileView : INotifyPropertyChanged {
 		}
 	}
 
-	public event PropertyChangedEventHandler PropertyChanged;
+	public event PropertyChangedEventHandler? PropertyChanged;
 
 	[NotifyPropertyChangedInvocator]
-	protected virtual void UpdateUI([CallerMemberName] string propertyName = null) {
+	protected virtual void UpdateUI([CallerMemberName] string propertyName = null!) {
 		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 	}
 
@@ -414,7 +415,7 @@ public class FileView : INotifyPropertyChanged {
 	/// 暂存更改
 	/// </summary>
 	/// <param name="propertyName"></param>
-	private void StageChange([CallerMemberName] string propertyName = null) {
+	private void StageChange([CallerMemberName] string propertyName = null!) {
 		lock (changedPropertiesName) {
 			changedPropertiesName.Add(propertyName);
 		}
@@ -472,7 +473,7 @@ public class FileViewDbContext : DbContext {
 #pragma warning disable CS0612
 	public static FileViewDbContext Instance { get; } = new();
 #pragma warning restore CS0612
-	public DbSet<FileView> FolderViewDbSet { get; set; }
+	public DbSet<FileView> FolderViewDbSet { get; set; } = null!;
 
 	private readonly string dbPath;
 
@@ -493,7 +494,7 @@ public class FileViewDbContext : DbContext {
 	public async Task LoadDataBase() {
 		try {
 			await Database.EnsureCreatedAsync();
-			await FolderViewDbSet.LoadAsync();
+			await FolderViewDbSet!.LoadAsync();
 		} catch (Exception e) {
 			MessageBox.Show("无法加载数据库，可能是权限不够或者数据库版本过旧，请删除Data文件夹后再试一次。\n错误为：" + e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
 			Logger.Exception(e, false);

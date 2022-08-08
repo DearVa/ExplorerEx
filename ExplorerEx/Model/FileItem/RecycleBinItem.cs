@@ -25,16 +25,16 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 
 	private readonly IntPtr pidl;
 
-	public RecycleBinItem(IntPtr pidl) {
+	public RecycleBinItem(IntPtr pidl) : base(null!, null!) {
 		this.pidl = pidl;
-		Name = GetDetailOf(0);
-		if (Name == null) {
-			throw new IOException();
-		}
+		Name = GetDetailOf(0) ?? throw new IOException();
 		FullPath = @"$Recycle.Bin\" + Name;
 		Command = new SimpleCommand(o => {
+			if (o?.ToString() == null) {
+				return;
+			}
 			try {
-				ExecuteCommand(o.ToString());
+				ExecuteCommand(o.ToString()!);
 			} catch (Exception e) {
 				Logger.Exception(e);
 			}
@@ -73,6 +73,7 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 	}
 
 	private void ExecuteCommand(string command) {
+		// ReSharper disable once InconsistentlySynchronizedField
 		Marshal.ThrowExceptionForHR(RecycleBinFolder.GetUIObjectOf(IntPtr.Zero, 1, new[] { pidl }, ref GUID_IContextMenu, 0, out var pCtxMenu));
 		var ctxMenu = (IContextMenu)Marshal.GetTypedObjectForIUnknown(pCtxMenu, typeof(IContextMenu));
 		var hMenuCtx = CreatePopupMenu();
@@ -123,7 +124,8 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 	/// </summary>
 	/// <param name="index"></param>
 	/// <returns></returns>
-	private string GetDetailOf(uint index) {
+	private string? GetDetailOf(uint index) {
+		// ReSharper disable once InconsistentlySynchronizedField
 		if (RecycleBinFolder.GetDetailsOf(pidl, index, out var shellDetails) < 0) {
 			return null;
 		}
@@ -133,7 +135,7 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 	public static ObservableCollection<RecycleBinItem> Items { get; } = new();
 
 	private static readonly object Locker = new();
-	private static Task updateTask;
+	private static Task? updateTask;
 
 	/// <summary>
 	/// 更新回收站文件列表
@@ -164,7 +166,7 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 		}
 	}
 
-	private static readonly FileSystemWatcher[] Watchers = new FileSystemWatcher[26];
+	private static readonly FileSystemWatcher?[] Watchers = new FileSystemWatcher[26];
 
 	/// <summary>
 	/// 注册回收站变化监视，同时更新回收站列表
@@ -172,7 +174,7 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 	public static void RegisterWatcher() {
 		for (var i = 0; i < 26; i++) {
 			if (Watchers[i] != null && !Directory.Exists((char)(i + 'A') + @":\$Recycle.Bin")) {
-				Watchers[i].Dispose();
+				Watchers[i]!.Dispose();
 				Watchers[i] = null;
 			}
 		}
@@ -183,15 +185,15 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 				continue;
 			}
 			if (Watchers[i] == null) {
-				Watchers[i] = new FileSystemWatcher(recycleBinPath) {
+				var watcher = Watchers[i] = new FileSystemWatcher(recycleBinPath) {
 					IncludeSubdirectories = true
 				};
-				Watchers[i].Changed += (_, _) => Update();
-				Watchers[i].Error += (_, _) => Update();
+				watcher.Changed += (_, _) => Update();
+				watcher.Error += (_, _) => Update();
 				try {
-					Watchers[i].EnableRaisingEvents = true;
+					watcher.EnableRaisingEvents = true;
 				} catch {
-					Watchers[i].Dispose();
+					watcher.Dispose();
 					Watchers[i] = null;
 				}
 			}
@@ -202,7 +204,7 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 	public static void UnregisterWatcher() {
 		for (var i = 0; i < 26; i++) {
 			if (Watchers[i] != null) {
-				Watchers[i].Dispose();
+				Watchers[i]!.Dispose();
 				Watchers[i] = null;
 			}
 		}

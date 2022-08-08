@@ -7,7 +7,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         mc:Ignorable="d" d:DataContext="{d:DesignInstance v:SaveDataObjectWindow}" 
-        Topmost="True" Title="{u:Lang Save_as_file}" Height="600" Width="500" WindowStartupLocation="Manual">
+        Topmost="True" Title="{u:Lang SaveAsFile}" Height="600" Width="500" WindowStartupLocation="Manual">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -21,7 +21,7 @@
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" 
                         Visibility="{Binding Image, Converter={StaticResource Object2VisibilityReConverter}}">
                 <TextBlock TextWrapping="Wrap">
-                    <Run Text="{u:Lang Loading_image_from}"/>
+                    <Run Text="{u:Lang LoadingImageFrom}"/>
                     <Run Text="{Binding Url, Mode=OneTime}"/>
                 </TextBlock>
                 <hc:CircleProgressBar ArcThickness="8" Width="80" Height="80" Margin="0,10,0,0"
@@ -31,12 +31,12 @@
             <Image Source="{Binding Image, Mode=OneWay}"/>
         </Grid>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,10,0,0">
-            <TextBlock Text="{u:Lang Save_as}" Margin="0,0,10,0"/>
+            <TextBlock Text="{u:Lang SaveAs}" Margin="0,0,10,0"/>
             <RadioButton Content="{u:Lang Image}" Margin="0,0,10,0" IsChecked="{Binding SaveAsImage, Mode=TwoWay}"/>
             <RadioButton Content="{u:Lang Link}" IsChecked="{Binding SaveAsLink, Mode=TwoWay}"/>
         </StackPanel>
         <StackPanel Grid.Row="2">
-            <TextBlock Margin="0,10" Text="{u:Lang Save_file_name}"/>
+            <TextBlock Margin="0,10" Text="{u:Lang SaveFileName}"/>
             <TextBox x:Name="SaveFileNameTextBox" Margin="0,0,0,10" Text="{Binding SaveFileName, Mode=TwoWay}"/>
         </StackPanel>
         <Button Grid.Row="3" Width="100" Content="{u:Lang Save}" IsEnabled="{Binding CanSave, Mode=OneWay}" 

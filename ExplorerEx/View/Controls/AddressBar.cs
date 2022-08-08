@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using ExplorerEx.Command;
 using ExplorerEx.Model;
 using ExplorerEx.Utils;
@@ -12,7 +11,7 @@ namespace ExplorerEx.View.Controls;
 
 internal class AddressBar : TextBox {
 	public static readonly DependencyProperty FullPathProperty = DependencyProperty.Register(
-		"FullPath", typeof(string), typeof(AddressBar), new PropertyMetadata(null, FullPath_OnChanged));
+		nameof(FullPath), typeof(string), typeof(AddressBar), new PropertyMetadata(null, FullPath_OnChanged));
 
 	/// <summary>
 	/// 地址路径
@@ -29,9 +28,9 @@ internal class AddressBar : TextBox {
 
 	public SimpleCommand ItemClickedCommand { get; }
 
-	public event Action<FolderOnlyItem> PopupItemClicked;
+	public event Action<FolderOnlyItem>? PopupItemClicked;
 
-	private ScrollViewer scrollViewer, contentHost;
+	private ScrollViewer scrollViewer = null!, contentHost = null!;
 
 	public AddressBar() {
 		ItemClickedCommand = new SimpleCommand(Item_OnClicked);
@@ -39,23 +38,22 @@ internal class AddressBar : TextBox {
 		Text = "ThisPC".L();
 	}
 
-	private void Item_OnClicked(object args) {
-		if (args is not FolderOnlyItem item) {
-			item = (FolderOnlyItem)((MenuItem)((RoutedEventArgs)args).OriginalSource).DataContext;
+	private void Item_OnClicked(object? args) {
+		switch (args) {
+		case FolderOnlyItem item:
+			PopupItemClicked?.Invoke(item);
+			break;
+		case RoutedEventArgs { OriginalSource: MenuItem { DataContext: FolderOnlyItem item } }:
 			item.Parent.IsExpanded = false;
+			PopupItemClicked?.Invoke(item);
+			break;
 		}
-		PopupItemClicked?.Invoke(item);
 	}
 
 	public override void OnApplyTemplate() {
 		base.OnApplyTemplate();
 		scrollViewer = (ScrollViewer)GetTemplateChild("ScrollViewer")!;
-		scrollViewer.PreviewMouseWheel += ScrollViewer_OnPreviewMouseWheel;
-		contentHost = (ScrollViewer)GetTemplateChild("PART_ContentHost");
-	}
-
-	private void ScrollViewer_OnPreviewMouseWheel(object sender, MouseWheelEventArgs e) {
-		scrollViewer.ScrollToHorizontalOffset(scrollViewer.HorizontalOffset - e.Delta / 6d);
+		contentHost = (ScrollViewer)GetTemplateChild("PART_ContentHost")!;
 	}
 
 	protected override void OnGotFocus(RoutedEventArgs e) {
@@ -69,13 +67,13 @@ internal class AddressBar : TextBox {
 		base.OnLostFocus(e);
 		contentHost.Visibility = Visibility.Collapsed;
 		scrollViewer.Visibility = Visibility.Visible;
-		Text = FullPath ?? "ThisPC".L();
+		Text = FullPath;
 	}
 
 	private static void FullPath_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		var addressBar = (AddressBar)d;
 		var items = addressBar.Items;
-		var newPath = (string)e.NewValue;
+		var newPath = (string?)e.NewValue;
 		if (newPath == null) {  // 新路径是主页，就清空，只留第一个
 			addressBar.Text = "ThisPC".L();
 			while (items.Count > 1) {
@@ -98,7 +96,7 @@ internal class AddressBar : TextBox {
 							items[n] = new FolderOnlyItem(new DriveInfo(fullPath[..1]));
 						} else if (zipPathIndex != -1) {
 							items[n] = new FolderOnlyItem(fullPath[..zipPathIndex], fullPath[(zipPathIndex + 1)..], items[n - 1]);
-						} else if (fullPath.EndsWith(@".zip")) {
+						} else if (fullPath.EndsWith(".zip")) {
 							items[n] = new FolderOnlyItem(fullPath, string.Empty, items[n - 1]);
 							zipPathIndex = i;
 						} else {
@@ -110,7 +108,7 @@ internal class AddressBar : TextBox {
 						items.Add(new FolderOnlyItem(new DriveInfo(fullPath[..1])));
 					} else if (zipPathIndex != -1) {
 						items.Add(new FolderOnlyItem(fullPath[..zipPathIndex], fullPath[(zipPathIndex + 1)..], items[n - 1]));
-					} else if (fullPath.EndsWith(@".zip")) {
+					} else if (fullPath.EndsWith(".zip")) {
 						items.Add(new FolderOnlyItem(fullPath, string.Empty, items[n - 1]));
 						zipPathIndex = i;
 					} else {
