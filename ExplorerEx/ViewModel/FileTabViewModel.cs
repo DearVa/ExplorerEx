@@ -577,11 +577,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 					hc.MessageBox.Error("#InvalidPath", "CannotOpenPath".L());
 				}
 
-				if (nextHistoryIndex > 0) {
-					await GoBackAsync();
-				} else {
-					await LoadDirectoryAsync(null, false, path);
-				}
+				await ErrorGoBack();
 				return false;
 			}
 			Folder = folder;
@@ -595,6 +591,8 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			// 加载图标出错，忽略
 		}
 
+		Items.Clear();
+
 		if (Folder.GetType() == typeof(FolderItem) || Folder is DiskDriveItem) {
 			try {
 				watcher.Path = Folder.FullPath;
@@ -603,8 +601,6 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 				hc.MessageBox.Error("Error watcher");
 			}
 		}
-
-		Items.Clear();
 
 #if DEBUG
 		var sw = Stopwatch.StartNew();
@@ -616,11 +612,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		} catch (Exception e) {
 			Logger.Exception(e, false);
 			hc.MessageBox.Error(string.Format("#ExplorerExCannotFind...".L(), path), "Error".L());
-			if (nextHistoryIndex > 0) {
-				await GoBackAsync();
-			} else {
-				await LoadDirectoryAsync(null, false, path);
-			}
+			await ErrorGoBack();
 			return false;
 		}
 
@@ -698,11 +690,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 				return false;
 			}
 			Logger.Exception(e);
-			if (nextHistoryIndex > 0) {
-				await GoBackAsync();
-			} else {
-				await LoadDirectoryAsync(null, false, path);
-			}
+			await ErrorGoBack();
 			return false;
 		}
 		//totalLoadedFiles += fileListViewItems.Count;
@@ -757,6 +745,13 @@ sw.Restart();
 #endif
 
 		return !token.IsCancellationRequested;
+	}
+
+	private Task ErrorGoBack() {
+		if (CanGoBack) {
+			return LoadDirectoryAsync(HistoryList[nextHistoryIndex - 1].FullPath, false, FullPath);
+		}
+		return LoadDirectoryAsync(null, false, FullPath);
 	}
 
 	/// <summary>
@@ -885,6 +880,47 @@ sw.Restart();
 			removedItem.IsSelected = false;
 		}
 		UpdateFileUI();
+	}
+
+	/// <summary>
+	/// 根据一个字符串来快速选中一项
+	/// </summary>
+	/// <param name="s"></param>
+	public void SelectByText(string s) {
+		s = s.ToLower();
+		var startIndex = SelectedItems.Count > 1 ? 0 : FileListView.SelectedIndex + 1;
+		for (var i = startIndex; i < Items.Count; i++) {
+			if (Items[i].DisplayText[..s.Length].ToLower() == s) {
+				FileListView.UnselectAll();
+				FileListView.ScrollIntoView(Items[i]);
+				Items[i].IsSelected = true;
+				return;
+			}
+		}
+		for (var i = 0; i < startIndex; i++) {
+			if (Items[i].DisplayText[..s.Length].ToLower() == s) {
+				FileListView.UnselectAll();
+				FileListView.ScrollIntoView(Items[i]);
+				Items[i].IsSelected = true;
+				return;
+			}
+		}
+		for (var i = startIndex; i < Items.Count; i++) {
+			if (Items[i].DisplayText.ToLower().Contains(s)) {
+				FileListView.UnselectAll();
+				FileListView.ScrollIntoView(Items[i]);
+				Items[i].IsSelected = true;
+				return;
+			}
+		}
+		for (var i = 0; i < startIndex; i++) {
+			if (Items[i].DisplayText.ToLower().Contains(s)) {
+				FileListView.UnselectAll();
+				FileListView.ScrollIntoView(Items[i]);
+				Items[i].IsSelected = true;
+				return;
+			}
+		}
 	}
 
 	private uint everythingQueryId;

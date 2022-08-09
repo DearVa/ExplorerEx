@@ -846,6 +846,17 @@ public sealed partial class MainWindow {
 		base.OnKeyDown(e);
 	}
 
+	protected override void OnPreviewTextInput(TextCompositionEventArgs e) {
+		Trace.WriteLine(Keyboard.FocusedElement);
+		if (RootPanel.Children.Count == 2 && e.OriginalSource is not TextBox and not AddressBar) {  // 没有打开任何对话框
+			var mouseOverTabControl = FileTabControl.MouseOverTabControl;
+			if (mouseOverTabControl != null) {
+				mouseOverTabControl.SelectedTab.FileListView.Focus();
+				mouseOverTabControl.SelectedTab.SelectByText(e.Text);
+			}
+		}
+	}
+
 	protected override void OnPreviewDragEnter(DragEventArgs e) {
 		DataObjectContent.HandleDragEnter(e);
 		base.OnPreviewDragEnter(e);

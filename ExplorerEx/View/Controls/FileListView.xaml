@@ -552,6 +552,7 @@
         <Style TargetType="ListViewItem" BasedOn="{StaticResource ListViewItemBaseStyle}">
             <Setter Property="ContextMenu" Value="{Binding Converter={StaticResource FileSystemItemContextMenuConverter}}"/>
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Margin" Value="0,2"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Background" Value="Transparent"/>

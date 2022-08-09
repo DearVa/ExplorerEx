@@ -11562,7 +11562,7 @@
 							<RowDefinition MinHeight="{StaticResource DefaultControlHeight}" />
 							<RowDefinition />
 						</Grid.RowDefinitions>
-						<Border x:Name="Bd" Margin="3,3,3,0" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+						<Border x:Name="Bd" Margin="3,0,3,0" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" BorderBrush="Transparent" BorderThickness="1" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
 							<DockPanel LastChildFill="True" Margin="{Binding Converter={StaticResource TreeViewItemMarginConverter}, RelativeSource={RelativeSource TemplatedParent}}">
 								<ToggleButton x:Name="Expander" ClickMode="Press" IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" Style="{StaticResource ExpandCollapseToggleStyle}" />
 								<ContentPresenter VerticalAlignment="Center" x:Name="PART_Header" ContentSource="Header" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
@@ -11577,6 +11577,7 @@
 								<Condition Property="Focusable" Value="true" />
 							</MultiTrigger.Conditions>
 							<Setter Property="Background" TargetName="Bd" Value="{DynamicResource LightSelectBrush}" />
+							<Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource SelectBrush}" />
 						</MultiTrigger>
 						<Trigger Property="IsExpanded" Value="false">
 							<Setter Property="Visibility" TargetName="ItemsHost" Value="Collapsed" />

@@ -139,7 +139,7 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	#endregion
 
 	public override string ToString() {
-		return FullPath;
+		return DisplayText;
 	}
 
 	/// <summary>

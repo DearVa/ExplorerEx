@@ -42,6 +42,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	private FolderOnlyItem(FolderOnlyItem? parent) : base(null!, null!) {
 		if (parent == null) {
 			InitializeChildren();
+			UpdateDriveChildren();
 			Parent = this;
 		} else {
 			IsEnabled = false;
@@ -231,7 +232,12 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 
 	private bool isExpanded;
 
-	public bool IsEnabled { get; init; } = true;
+	public bool IsEnabled { get; } = true;
+
+	public new bool IsSelected {
+		get => false;
+		set => OnPropertyChanged();
+	}
 
 	public void UpdateDriveChildren() {
 		cts?.Cancel();

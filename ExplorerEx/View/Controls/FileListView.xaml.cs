@@ -141,7 +141,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	public static ObservableCollection<FileAssocItem> FileAssocList { get; } = new();
 
 	public static readonly DependencyProperty MouseItemProperty = DependencyProperty.Register(
-		$"MouseItem", typeof(FileListViewItem), typeof(FileListView), new PropertyMetadata(default(FileListViewItem)));
+		nameof(MouseItem), typeof(FileListViewItem), typeof(FileListView), new PropertyMetadata(default(FileListViewItem)));
 
 	/// <summary>
 	/// 鼠标所在的那一项，随着MouseMove事件更新
@@ -168,7 +168,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	private readonly ItemsPanelTemplate virtualizingWrapPanel, virtualizingStackPanel;
 
 	private ContextMenu? openedContextMenu;
-	private ScrollViewer scrollViewer = null!;
+	private ScrollViewer? scrollViewer;
 	private SimplePanel contentPanel = null!;
 	private Border selectionRect = null!;
 
@@ -210,8 +210,8 @@ public partial class FileListView : INotifyPropertyChanged {
 		isDataContextChanging = true;
 		var oldViewModel = e.OldValue as FileTabViewModel;
 		if (oldViewModel != null) {
-			oldViewModel.ScrollViewX = scrollViewer.HorizontalOffset;
-			oldViewModel.ScrollViewY = scrollViewer.VerticalOffset;
+			oldViewModel.ScrollViewX = scrollViewer!.HorizontalOffset;
+			oldViewModel.ScrollViewY = scrollViewer!.VerticalOffset;
 		}
 		if (e.NewValue is FileTabViewModel newViewModel) {
 			ViewModel = newViewModel;
@@ -310,9 +310,9 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	public override void OnApplyTemplate() {
 		base.OnApplyTemplate();
-		scrollViewer = (ScrollViewer)GetTemplateChild("ViewScrollViewer");
-		contentPanel = (SimplePanel)GetTemplateChild("ContentPanel");
-		selectionRect = (Border)GetTemplateChild("SelectionRect");
+		scrollViewer = (ScrollViewer)GetTemplateChild("ViewScrollViewer")!;
+		contentPanel = (SimplePanel)GetTemplateChild("ContentPanel")!;
+		selectionRect = (Border)GetTemplateChild("SelectionRect")!;
 	}
 
 	/// <summary>
@@ -512,7 +512,7 @@ public partial class FileListView : INotifyPropertyChanged {
 			}
 			var x = Math.Min(Math.Max(mouseDownPoint.X, 0), contentPanel.ActualWidth);
 			var y = Math.Min(Math.Max(mouseDownPoint.Y, 0), contentPanel.ActualHeight);
-			startSelectionPoint = new Point(x + scrollViewer.HorizontalOffset, y + scrollViewer.VerticalOffset);
+			startSelectionPoint = new Point(x + scrollViewer!.HorizontalOffset, y + scrollViewer.VerticalOffset);
 		}
 		e.Handled = true;
 	}
@@ -599,7 +599,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	private void UpdateRectSelection() {
 		var point = Mouse.GetPosition(contentPanel);
 		var actualWidth = contentPanel.ActualWidth;
-		var x = Math.Min(Math.Max(point.X, 0), actualWidth) + scrollViewer.HorizontalOffset;
+		var x = Math.Min(Math.Max(point.X, 0), actualWidth) + scrollViewer!.HorizontalOffset;
 		var y = Math.Min(Math.Max(point.Y, 0), contentPanel.ActualHeight) + scrollViewer.VerticalOffset;
 		double l, t, w, h;
 		if (x < startSelectionPoint.X) {
@@ -692,21 +692,18 @@ public partial class FileListView : INotifyPropertyChanged {
 					case MouseButton.Right:
 						if (isClickOnItem && e.OriginalSource is DependencyObject o) {
 							var item = ItemsSource[mouseDownRowIndex];
-							openedContextMenu = ((FrameworkElement)ContainerFromElement(o))!.ContextMenu!;
+							openedContextMenu = ((FrameworkElement)ContainerFromElement(o)!).ContextMenu!;
 							openedContextMenu.SetValue(FileItemAttach.FileItemProperty, item);
 							openedContextMenu.DataContext = this;
 							var ext = Path.GetExtension(item.FullPath);
 							FileAssocList.Clear();
 							if (!string.IsNullOrWhiteSpace(ext) && ViewModel.SelectedItems.Count == 1) {
-								var list = FileAssocItem.GetAssocList(ext);
-								if (list != null) {
-									foreach (var fileAssocItem in list) {
-										FileAssocList.Add(fileAssocItem);
-									}
+								foreach (var fileAssocItem in FileAssocItem.GetAssocList(ext)) {
+									FileAssocList.Add(fileAssocItem);
 								}
 							}
 							openedContextMenu.IsOpen = true;
-						} else if (Folder != null) {
+						} else {
 							UnselectAll();
 							openedContextMenu = ContextMenu;
 							openedContextMenu!.IsOpen = true;
@@ -734,7 +731,7 @@ public partial class FileListView : INotifyPropertyChanged {
 			isDataContextChanging = false;
 			return;
 		}
-
+		
 		viewModel.ChangeSelection(e);
 	}
 
@@ -784,7 +781,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	public void ScrollIntoView(FileListViewItem? item) {
 		if (!isRectSelecting && !isDragDropping) {
 			if (item == null) {
-				scrollViewer.ScrollToTop();
+				scrollViewer!.ScrollToTop();
 			} else {
 				ScrollIntoView((object)item);
 			}
@@ -792,7 +789,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	}
 
 	private void RectSelectScroll(object? sender, EventArgs e) {
-		scrollViewer.ScrollToHorizontalOffset(scrollViewer.HorizontalOffset + scrollSpeed.X);
+		scrollViewer!.ScrollToHorizontalOffset(scrollViewer.HorizontalOffset + scrollSpeed.X);
 		scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset + scrollSpeed.Y);
 		UpdateRectSelection();
 	}
@@ -921,6 +918,8 @@ public partial class FileListView : INotifyPropertyChanged {
 			OnPropertyChanged(nameof(ActualItemSize));
 		}
 	}
+
+	protected override void OnTextInput(TextCompositionEventArgs e) { }
 
 	/// <summary>
 	/// 根据键盘按键决定要执行什么操作（Shift移动，Ctrl复制，Alt链接）

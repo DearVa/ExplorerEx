@@ -647,7 +647,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
     <value>中等图标</value>
   </data>
   <data name="...FreeOf..." xml:space="preserve">
-    <value>{0} free of {1}</value>
+    <value>共{1}，剩余{0}</value>
   </data>
   <data name=":" xml:space="preserve">
     <value>：</value>

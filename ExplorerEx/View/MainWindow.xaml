@@ -324,8 +324,7 @@
                                                     </hc:RoutedEventTrigger>
                                                 </hc:Interaction.Triggers>
 
-                                                <Button Cursor="Hand" VerticalAlignment="Center" HorizontalAlignment="Left" BorderThickness="0" 
-                                                    Background="Transparent" Padding="0">
+                                                <Button Cursor="Hand" VerticalAlignment="Center" HorizontalAlignment="Left" BorderThickness="0" Background="Transparent" Padding="0">
                                                     <hc:Interaction.Triggers>
                                                         <hc:RoutedEventTrigger RoutedEvent="Button.Click">
                                                             <hc:EventToCommand Command="{Binding SideBarItemClickCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>

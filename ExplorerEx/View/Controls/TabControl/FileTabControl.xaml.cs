@@ -54,16 +54,16 @@ public partial class FileTabControl {
 	///     标签宽度
 	/// </summary>
 	public static readonly DependencyProperty TabItemWidthProperty = DependencyProperty.Register(
-		"TabItemWidth", typeof(double), typeof(FileTabControl), new PropertyMetadata(200d));
+		nameof(TabItemWidth), typeof(double), typeof(FileTabControl), new PropertyMetadata(200d));
 
 	/// <summary>
 	///     标签高度
 	/// </summary>
 	public static readonly DependencyProperty TabItemHeightProperty = DependencyProperty.Register(
-		"TabItemHeight", typeof(double), typeof(FileTabControl), new PropertyMetadata(35d));
+		nameof(TabItemHeight), typeof(double), typeof(FileTabControl), new PropertyMetadata(35d));
 
 	public static readonly DependencyProperty TabBorderRootMarginProperty = DependencyProperty.Register(
-		"TabBorderRootMargin", typeof(Thickness), typeof(FileTabControl), new PropertyMetadata(default(Thickness)));
+		nameof(TabBorderRootMargin), typeof(Thickness), typeof(FileTabControl), new PropertyMetadata(default(Thickness)));
 
 	public Thickness TabBorderRootMargin {
 		get => (Thickness)GetValue(TabBorderRootMarginProperty);
@@ -126,7 +126,7 @@ public partial class FileTabControl {
 	public ObservableCollection<FileTabViewModel> TabItems { get; } = new();
 
 	public new static readonly DependencyProperty SelectedIndexProperty = DependencyProperty.Register(
-		"SelectedIndex", typeof(int), typeof(FileTabControl), new PropertyMetadata(default(int)));
+		nameof(SelectedIndex), typeof(int), typeof(FileTabControl), new PropertyMetadata(default(int)));
 
 	public new int SelectedIndex {
 		get => (int)GetValue(SelectedIndexProperty);
@@ -157,7 +157,7 @@ public partial class FileTabControl {
 	}
 
 	public static readonly DependencyProperty IsFileUtilsVisibleProperty = DependencyProperty.Register(
-		"IsFileUtilsVisible", typeof(bool), typeof(FileTabControl), new PropertyMetadata(default(bool)));
+		nameof(IsFileUtilsVisible), typeof(bool), typeof(FileTabControl), new PropertyMetadata(default(bool)));
 
 	public bool IsFileUtilsVisible {
 		get => (bool)GetValue(IsFileUtilsVisibleProperty);
@@ -169,7 +169,7 @@ public partial class FileTabControl {
 	public SplitGrid OwnerSplitGrid { get; set; }
 
 	public static readonly DependencyProperty CanMove2NewWindowProperty = DependencyProperty.Register(
-		"CanMove2NewWindow", typeof(bool), typeof(FileTabControl), new PropertyMetadata(default(bool)));
+		nameof(CanMove2NewWindow), typeof(bool), typeof(FileTabControl), new PropertyMetadata(default(bool)));
 
 	public bool CanMove2NewWindow {
 		get => (bool)GetValue(CanMove2NewWindowProperty);
@@ -177,7 +177,7 @@ public partial class FileTabControl {
 	}
 
 	public static readonly DependencyProperty CanSplitScreenProperty = DependencyProperty.Register(
-		"CanSplitScreen", typeof(bool), typeof(FileTabControl), new PropertyMetadata(default(bool)));
+		nameof(CanSplitScreen), typeof(bool), typeof(FileTabControl), new PropertyMetadata(default(bool)));
 
 	public bool CanSplitScreen {
 		get => (bool)GetValue(CanSplitScreenProperty);
@@ -300,15 +300,15 @@ public partial class FileTabControl {
 	/// </summary>
 	private static void UpdateFocusedTabControl() {
 		if (TabControls.Count == 0) {
-			FocusedTabControl = null;
+			MouseOverTabControl = FocusedTabControl = null;
 			return;
 		}
 		var focused = TabControls.FirstOrDefault(tc => tc.IsFocused);
 		if (focused != null) {
-			FocusedTabControl = focused;
+			MouseOverTabControl = FocusedTabControl = focused;
 		} else {
 			focused = TabControls.FirstOrDefault(tc => tc.MainWindow.IsFocused);
-			FocusedTabControl = focused ?? TabControls[0];
+			MouseOverTabControl = FocusedTabControl = focused ?? TabControls[0];
 		}
 	}
 	
@@ -568,7 +568,7 @@ public partial class FileTabControl {
 				SelectedIndex = insertIndex;
 				newTab.StartDrag(TabBorder, mouseDownPoint, insertIndex);
 			}
-			FileTabItem.DragFrame.Continue = false;
+			FileTabItem.DragFrame!.Continue = false;
 		}
 	}
 

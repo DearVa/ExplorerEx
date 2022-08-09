@@ -599,9 +599,6 @@ For the application to run properly, it's recommanded that you first extract all
   <data name="MediumIcons" xml:space="preserve">
     <value>Medium icons</value>
   </data>
-  <data name="...FreeOf..." xml:space="preserve">
-    <value>共{1}，剩余{0}</value>
-  </data>
   <data name=":" xml:space="preserve">
     <value>: </value>
   </data>
@@ -610,5 +607,8 @@ For the application to run properly, it's recommanded that you first extract all
   </data>
   <data name="...Items" xml:space="preserve">
     <value>{0} items</value>
+  </data>
+  <data name="...FreeOf..." xml:space="preserve">
+    <value>{0} free of {1}</value>
   </data>
 </root>
