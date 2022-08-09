@@ -67,12 +67,6 @@
   <data name="View" xml:space="preserve">
     <value>查看</value>
   </data>
-  <data name="Run-ItemsCount" xml:space="preserve">
-    <value> 个项目</value>
-  </data>
-  <data name="Run-SelectedItemsCount" xml:space="preserve">
-    <value>选择了 </value>
-  </data>
   <data name="ThisPC" xml:space="preserve">
     <value>此电脑</value>
   </data>
@@ -657,5 +651,11 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name=":" xml:space="preserve">
     <value>：</value>
+  </data>
+  <data name="Selected...Items" xml:space="preserve">
+    <value>选择了{0}个项目</value>
+  </data>
+  <data name="...Items" xml:space="preserve">
+    <value>共{0}个项目</value>
   </data>
 </root>

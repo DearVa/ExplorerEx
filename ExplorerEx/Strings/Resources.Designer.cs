@@ -88,6 +88,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 共{0}个项目 的本地化字符串。
+        /// </summary>
+        internal static string ___Items {
+            get {
+                return ResourceManager.GetString("...Items", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 使用说明：
         ///ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requireDebugger] Path1, Path2, ... 的本地化字符串。
         /// </summary>
@@ -1448,24 +1457,6 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似  个项目 的本地化字符串。
-        /// </summary>
-        internal static string Run_ItemsCount {
-            get {
-                return ResourceManager.GetString("Run-ItemsCount", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 选择了  的本地化字符串。
-        /// </summary>
-        internal static string Run_SelectedItemsCount {
-            get {
-                return ResourceManager.GetString("Run-SelectedItemsCount", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 直接运行 的本地化字符串。
         /// </summary>
         internal static string RunAnyway {
@@ -1525,6 +1516,15 @@ namespace ExplorerEx.Strings {
         internal static string Search {
             get {
                 return ResourceManager.GetString("Search", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 选择了{0}个项目 的本地化字符串。
+        /// </summary>
+        internal static string Selected___Items {
+            get {
+                return ResourceManager.GetString("Selected...Items", resourceCulture);
             }
         }
         

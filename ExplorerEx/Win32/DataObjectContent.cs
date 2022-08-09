@@ -18,7 +18,7 @@ public class DataObjectContent {
 	/// </summary>
 	public static event Action? ClipboardChanged;
 
-	public static DataObjectContent? Clipboard { get; private set; }
+	public static DataObjectContent Clipboard { get; private set; }
 
 	/// <summary>
 	/// 当外部拖放进来的时候，会解析并存放在这里
@@ -29,7 +29,7 @@ public class DataObjectContent {
 
 	public object? Data { get; }
 
-	private static readonly DataObjectContent Default = new(null, DataObjectType.Unknown);
+	private static readonly DataObjectContent Default;
 
 	private static readonly Dictionary<string, DataObjectType> TypePairs = new() {
 		{ DataFormats.FileDrop, DataObjectType.FileDrop },
@@ -38,6 +38,10 @@ public class DataObjectContent {
         { DataFormats.UnicodeText, DataObjectType.UnicodeText },
         { DataFormats.Html, DataObjectType.Html }
 	};
+
+	static DataObjectContent() {
+		Clipboard = Default = new DataObjectContent(null, DataObjectType.Unknown);
+	}
 
 	private DataObjectContent(object? data, DataObjectType type) {
 		Data = data;
@@ -50,9 +54,6 @@ public class DataObjectContent {
 	/// <param name="iDataObject"></param>
 	/// <returns></returns>
 	public static DataObjectContent Parse(IDataObject? iDataObject) {
-		if (iDataObject == null) {
-			return Default;
-		}
 		if (iDataObject is DataObject dataObject) {
 			foreach (var (key, type) in TypePairs) {
 				try {

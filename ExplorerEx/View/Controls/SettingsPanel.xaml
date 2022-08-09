@@ -79,10 +79,15 @@
 
                                                                     <Image Grid.Column="0" Source="{Binding Icon}" Width="30" Height="30"/>
 
-                                                                    <StackPanel Grid.Column="1" Orientation="Vertical">
-                                                                        <TextBlock Text="{Binding Header}" HorizontalAlignment="Left" FontSize="14"/>
-                                                                        <TextBlock Text="{Binding Description}" Visibility="{Binding Description, Converter={StaticResource Object2VisibilityConverter}}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
-                                                                    </StackPanel>
+                                                                    <Grid Grid.Column="1">
+                                                                        <Grid.RowDefinitions>
+                                                                            <RowDefinition/>
+                                                                            <RowDefinition Height="Auto"/>
+                                                                        </Grid.RowDefinitions>
+
+                                                                        <TextBlock Grid.Row="0" Text="{Binding Header, Converter={StaticResource LangConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
+                                                                        <TextBlock Grid.Row="1" Text="{Binding Description, Converter={StaticResource LangConverter}}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Visibility="{Binding Description, Converter={StaticResource Object2VisibilityConverter}}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                                                                    </Grid>
                                                                 </Grid>
                                                             </DockPanel>
                                                         </ToggleButton>
@@ -106,10 +111,15 @@
 
                                                                         <Image Grid.Column="0" Source="{Binding Icon}"/>
                                                                         <hc:SimplePanel Grid.Column="1">
-                                                                            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center">
-                                                                                <TextBlock FontSize="14" Text="{Binding Header, Converter={StaticResource LangConverter}}"/>
-                                                                                <TextBlock FontSize="12" Text="{Binding Description, Converter={StaticResource LangConverter}}"/>
-                                                                            </StackPanel>
+                                                                            <Grid HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                                                <Grid.RowDefinitions>
+                                                                                    <RowDefinition/>
+                                                                                    <RowDefinition Height="Auto"/>
+                                                                                </Grid.RowDefinitions>
+
+                                                                                <TextBlock Grid.Row="0" Text="{Binding Header, Converter={StaticResource LangConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
+                                                                                <TextBlock Grid.Row="1" Text="{Binding Description, Converter={StaticResource LangConverter}}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Visibility="{Binding Description, Converter={StaticResource Object2VisibilityConverter}}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                                                                            </Grid>
                                                                             <ComboBox HorizontalAlignment="Right" VerticalAlignment="Center" MinWidth="180" ItemsSource="{Binding Items}" 
                                                                                 SelectedIndex="{Binding Value, Mode=TwoWay}"/>
                                                                         </hc:SimplePanel>
@@ -160,10 +170,15 @@
 
                                             <Image Grid.Column="0" Source="{Binding Icon}"/>
                                             <hc:SimplePanel Grid.Column="1">
-                                                <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center">
-                                                    <TextBlock FontSize="14" Text="{Binding Header, Converter={StaticResource LangConverter}}"/>
-                                                    <TextBlock FontSize="12" Text="{Binding Description, Converter={StaticResource LangConverter}}"/>
-                                                </StackPanel>                                                
+                                                <Grid HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <TextBlock Grid.Row="0" Text="{Binding Header, Converter={StaticResource LangConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
+                                                    <TextBlock Grid.Row="1" Text="{Binding Description, Converter={StaticResource LangConverter}}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Visibility="{Binding Description, Converter={StaticResource Object2VisibilityConverter}}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                                                </Grid>
                                                 <ComboBox HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="14" MinWidth="180" ItemsSource="{Binding Items}" 
                                                           SelectedIndex="{Binding Value, Mode=TwoWay}"/>
                                             </hc:SimplePanel>
@@ -180,13 +195,18 @@
                                             </Grid.ColumnDefinitions>
 
                                             <Image Grid.Column="0" Source="{Binding Icon}"/>
-                                            <hc:SimplePanel Grid.Column="1">
-                                                <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center">
-                                                    <TextBlock FontSize="14" Text="{Binding Header, Converter={StaticResource LangConverter}}"/>
-                                                    <TextBlock FontSize="12" Text="{Binding Description, Converter={StaticResource LangConverter}}"/>
-                                                </StackPanel>
-                                                <TextBox HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="14" MinWidth="240" Text="{Binding Value, Mode=TwoWay}"/>
-                                            </hc:SimplePanel>
+                                            <DockPanel Grid.Column="1">
+                                                <Grid DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,20,0">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <TextBlock Grid.Row="0" Text="{Binding Header, Converter={StaticResource LangConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
+                                                    <TextBlock Grid.Row="1" Text="{Binding Description, Converter={StaticResource LangConverter}}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Visibility="{Binding Description, Converter={StaticResource Object2VisibilityConverter}}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                                                </Grid>
+                                                <TextBox DockPanel.Dock="Right" VerticalAlignment="Center" FontSize="14" MinWidth="240" MaxWidth="360" Text="{Binding Value, Mode=TwoWay}"/>
+                                            </DockPanel>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -201,10 +221,15 @@
 
                                             <Image Grid.Column="0" Source="{Binding Icon}"/>
                                             <hc:SimplePanel Grid.Column="1">
-                                                <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center">
-                                                    <TextBlock FontSize="14" Text="{Binding Header, Converter={StaticResource LangConverter}}"/>
-                                                    <TextBlock FontSize="12" Text="{Binding Description, Converter={StaticResource LangConverter}}"/>
-                                                </StackPanel>
+                                                <Grid HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <TextBlock Grid.Row="0" Text="{Binding Header, Converter={StaticResource LangConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
+                                                    <TextBlock Grid.Row="1" Text="{Binding Description, Converter={StaticResource LangConverter}}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Visibility="{Binding Description, Converter={StaticResource Object2VisibilityConverter}}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                                                </Grid>
                                                 <ToggleButton HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ToggleButtonSwitch}" 
                                                               Background="{DynamicResource RegionBrush}" IsChecked="{Binding Value, Mode=TwoWay}"/>
                                             </hc:SimplePanel>

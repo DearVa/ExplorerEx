@@ -226,12 +226,12 @@ public class FolderItem : FileSystemItem {
 	/// <param name="token"></param>
 	/// <returns></returns>
 	/// <exception cref="NotImplementedException"></exception>
-	public virtual List<FileListViewItem>? EnumerateItems(string? selectedPath, out FileListViewItem? selectedItem, CancellationToken token) {
+	public virtual List<FileListViewItem> EnumerateItems(string? selectedPath, out FileListViewItem? selectedItem, CancellationToken token) {
 		selectedItem = null;
 		var list = new List<FileListViewItem>();
 		foreach (var directoryPath in Directory.EnumerateDirectories(FullPath)) {
 			if (token.IsCancellationRequested) {
-				return null;
+				return list;
 			}
 			var item = new FolderItem(directoryPath);
 			list.Add(item);
@@ -242,7 +242,7 @@ public class FolderItem : FileSystemItem {
 		}
 		foreach (var filePath in Directory.EnumerateFiles(FullPath)) {
 			if (token.IsCancellationRequested) {
-				return null;
+				return list;
 			}
 			var item = new FileItem(new FileInfo(filePath));
 			list.Add(item);

@@ -1,15 +1,16 @@
 ﻿using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using ExplorerEx.Command;
 using ExplorerEx.Converter;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
+using ExplorerEx.Utils.Collections;
 using static ExplorerEx.Shell32.Shell32Interop;
 using static ExplorerEx.Win32.Win32Interop;
 
@@ -132,7 +133,7 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 		return shellDetails.str.ToString();
 	}
 	
-	public static ObservableCollection<RecycleBinItem> Items { get; } = new();
+	public static ConcurrentObservableCollection<RecycleBinItem> Items { get; } = new();
 
 	private static readonly object Locker = new();
 	private static Task? updateTask;
@@ -146,22 +147,34 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 				return;
 			}
 			updateTask = Task.Run(() => {
+#if DEBUG
 				Trace.WriteLine("Update RecycleBin");
-				var dispatcher = Application.Current.Dispatcher;
-				dispatcher.Invoke(Items.Clear);
+#endif
+				var newItems = new HashSet<IntPtr>();
 				var recycleBin = RecycleBinFolder;
 				recycleBin.EnumObjects(IntPtr.Zero, SHCONT.Folders | SHCONT.NonFolders | SHCONT.IncludeHidden, out var enumFiles);
 				var pidl = IntPtr.Zero;
 				var pFetched = IntPtr.Zero;
+				var itemsCount = Items.Count;
 				while (enumFiles.Next(1, ref pidl, ref pFetched) != 1) { // S_FALSE
 					if (pFetched.ToInt64() == 0) {
 						break;
 					}
+					newItems.Add(pidl);
+					// ReSharper disable once AccessToModifiedClosure
+					if (Items.Any(i => i.pidl == pidl)) {
+						continue;
+					}
 					var item = new RecycleBinItem(pidl);
+					Items.Add(item);
 					item.LoadIcon(LoadDetailsOptions.Default);
-					dispatcher.Invoke(() => Items.Add(item));
 				}
 				Marshal.ReleaseComObject(enumFiles);
+				for (var i = itemsCount - 1; i >= 0; i--) {
+					if (newItems.Contains(Items[i].pidl)) {
+						Items.RemoveAt(i);
+					}
+				}
 			});
 		}
 	}
@@ -171,7 +184,7 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 	/// <summary>
 	/// 注册回收站变化监视，同时更新回收站列表
 	/// </summary>
-	public static void RegisterWatcher() {
+	public static void RegisterAllWatchers() {
 		for (var i = 0; i < 26; i++) {
 			if (Watchers[i] != null && !Directory.Exists((char)(i + 'A') + @":\$Recycle.Bin")) {
 				Watchers[i]!.Dispose();
@@ -179,29 +192,36 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 			}
 		}
 		foreach (var drive in DriveInfo.GetDrives()) {
-			var i = drive.Name[0] - 'A';
-			var recycleBinPath = drive.Name + "$Recycle.Bin";
-			if (!Directory.Exists(recycleBinPath)) {
-				continue;
-			}
-			if (Watchers[i] == null) {
-				var watcher = Watchers[i] = new FileSystemWatcher(recycleBinPath) {
-					IncludeSubdirectories = true
-				};
-				watcher.Changed += (_, _) => Update();
-				watcher.Error += (_, _) => Update();
-				try {
-					watcher.EnableRaisingEvents = true;
-				} catch {
-					watcher.Dispose();
-					Watchers[i] = null;
-				}
-			}
+			RegisterWater(drive.Name[0]);
 		}
 		Update();
 	}
 
-	public static void UnregisterWatcher() {
+	public static void RegisterWater(char driveLetter) {
+		if (driveLetter is < 'A' or > 'Z') {
+			throw new ArgumentOutOfRangeException(nameof(driveLetter));
+		}
+		var i = driveLetter - 'A';
+		if (Watchers[i] == null) {
+			var recycleBinPath = driveLetter + @":\$Recycle.Bin";
+			if (!Directory.Exists(recycleBinPath)) {
+				return;
+			}
+			var watcher = Watchers[i] = new FileSystemWatcher(recycleBinPath) {
+				IncludeSubdirectories = true
+			};
+			watcher.Changed += (_, _) => Update();
+			watcher.Error += (_, _) => Update();
+			try {
+				watcher.EnableRaisingEvents = true;
+			} catch {
+				watcher.Dispose();
+				Watchers[i] = null;
+			}
+		}
+	}
+
+	public static void UnregisterAllWatchers() {
 		for (var i = 0; i < 26; i++) {
 			if (Watchers[i] != null) {
 				Watchers[i]!.Dispose();

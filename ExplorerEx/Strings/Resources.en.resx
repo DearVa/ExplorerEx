@@ -20,12 +20,6 @@
   <data name="View" xml:space="preserve">
     <value>View</value>
   </data>
-  <data name="Run-ItemsCount" xml:space="preserve">
-    <value> Items</value>
-  </data>
-  <data name="Run-SelectedItemsCount" xml:space="preserve">
-    <value>Selected </value>
-  </data>
   <data name="ThisPC" xml:space="preserve">
     <value>This PC</value>
   </data>
@@ -610,5 +604,11 @@ For the application to run properly, it's recommanded that you first extract all
   </data>
   <data name=":" xml:space="preserve">
     <value>: </value>
+  </data>
+  <data name="Selected...Items" xml:space="preserve">
+    <value>Selected {0} items</value>
+  </data>
+  <data name="...Items" xml:space="preserve">
+    <value>{0} items</value>
   </data>
 </root>

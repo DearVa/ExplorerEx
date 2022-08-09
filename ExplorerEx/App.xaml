@@ -118,6 +118,7 @@
                     <c:DictionaryConverter x:Key="ViewIndex2ImageSourceConverter">
                         <c:DictionaryConverter.Items>
                             <c:DependencyKeyValuePair Key="{x:Static e:ViewSortGroup.LargeIcons}" Value="{DynamicResource LargeIconsDrawingImage}"/>
+                            <c:DependencyKeyValuePair Key="{x:Static e:ViewSortGroup.MediumIcons}" Value="{DynamicResource MediumIconsDrawingImage}"/>
                             <c:DependencyKeyValuePair Key="{x:Static e:ViewSortGroup.SmallIcons}" Value="{DynamicResource SmallIconsDrawingImage}"/>
                             <c:DependencyKeyValuePair Key="{x:Static e:ViewSortGroup.List}" Value="{DynamicResource ListDrawingImage}"/>
                             <c:DependencyKeyValuePair Key="{x:Static e:ViewSortGroup.Details}" Value="{DynamicResource DetailsDrawingImage}"/>

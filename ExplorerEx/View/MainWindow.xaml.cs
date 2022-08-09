@@ -30,7 +30,6 @@ using System.Windows.Threading;
 using hc = HandyControl.Controls;
 using HandyControl.Data;
 using HandyControl.Tools.Interop;
-using System.Windows.Controls.Primitives;
 
 namespace ExplorerEx.View;
 
@@ -41,6 +40,8 @@ public sealed partial class MainWindow {
 	public static MainWindow? FocusedWindow => All.FirstOrDefault(mw => mw.IsFocused);
 
 	public event Action<uint, EverythingInterop.QueryReply>? EverythingQueryReplied;
+
+	public static IReadOnlyList<MainWindow> AllWindows => All;
 
 	/// <summary>
 	/// 所有打开的窗口
@@ -61,9 +62,6 @@ public sealed partial class MainWindow {
 	public SimpleCommand EditBookmarkCommand { get; }
 	public SplitGrid SplitGrid { get; }
 	public HwndSource Hwnd { get; }
-
-	private IntPtr nextClipboardViewer;
-	private bool isClipboardRegistered;
 
 	/// <summary>
 	/// 每注册一个EverythingQuery就+1
@@ -170,11 +168,11 @@ public sealed partial class MainWindow {
 		}
 
 		FrequentTimer.Start();
-		Hwnd = HwndSource.FromHwnd(new WindowInteropHelper(this).EnsureHandle())!;
-		if (All.Count == 1) {  // 只在一个窗口上检测剪贴板变化事件
-			RegisterClipboard();
-			RecycleBinItem.RegisterWatcher();
+		if (All.Count == 1) {  // 有窗口的时候才监视回收站
+			RecycleBinItem.RegisterAllWatchers();
 		}
+
+		Hwnd = HwndSource.FromHwnd(new WindowInteropHelper(this).EnsureHandle())!;
 		Hwnd.AddHook(WndProc);
 
 		SetWindowLong(Hwnd.Handle, GWL_STYLE, GetWindowLong(Hwnd.Handle, GWL_STYLE) & ~WS_SYSMENU);
@@ -265,19 +263,9 @@ public sealed partial class MainWindow {
 		}
 	}
 
-	/// <summary>
-	/// 注册事件监视剪贴板变化
-	/// </summary>
-	private void RegisterClipboard() {
-		nextClipboardViewer = SetClipboardViewer(Hwnd.Handle);
-		Marshal.ThrowExceptionForHR(Marshal.GetLastWin32Error());
-		isClipboardRegistered = true;
-		DataObjectContent.HandleClipboardChanged();
-	}
-
 	private WindowBackdrop windowBackdrop;
 
-	private void ChangeTheme() {
+	public void ChangeTheme() {
 		App.ChangeTheme(((SolidColorBrush)SystemParameters.WindowGlassBrush).Color);
 
 		var hwnd = Hwnd.Handle;
@@ -393,56 +381,6 @@ public sealed partial class MainWindow {
 					handled = true;
 				}
 			}
-			break;
-		case WinMessage.DeviceChange:
-			if (lParam == IntPtr.Zero) {
-				break;
-			}
-			var vol = Marshal.PtrToStructure<DevBroadcastVolume>(lParam);
-			if (vol.deviceType == 0x2) {  // DBT_DEVTYPVOLUME
-				var param = wParam.ToInt32();
-				switch (param) {
-				case 0x8000:  // DBT_DEVICEARRIVAL
-				case 0x8004:  // DBT_DEVICEREMOVECOMPLETE
-					var drive = DriveMaskToLetter(vol.unitMask);
-					foreach (var fileTabControl in SplitGrid) {
-						foreach (var tabItem in fileTabControl.TabItems) {
-							switch (tabItem.PathType) {
-							case PathType.Home:
-								tabItem.Refresh();
-								break;
-							case PathType.LocalFolder:
-							case PathType.Zip: {
-								if (tabItem.FullPath[0] == drive) {
-									_ = tabItem.LoadDirectoryAsync(null);  // 驱动器移除，返回主页
-								}
-								break;
-							}
-							}
-						}
-					}
-					FolderOnlyItem.Home.UpdateDriveChildren();
-					RecycleBinItem.RegisterWatcher();
-					break;
-				}
-			}
-			break;
-		case WinMessage.DrawClipboard:
-			if (nextClipboardViewer != IntPtr.Zero && nextClipboardViewer != hwnd) {
-				SendMessage(nextClipboardViewer, msg, wParam, lParam);
-			}
-			DataObjectContent.HandleClipboardChanged();
-			break;
-		case WinMessage.ChangeCbChain:
-			if (wParam == nextClipboardViewer) {
-				nextClipboardViewer = lParam == hwnd ? IntPtr.Zero : lParam;
-			} else if (nextClipboardViewer != IntPtr.Zero && nextClipboardViewer != hwnd) {
-				SendMessage(nextClipboardViewer, msg, wParam, lParam);
-			}
-			break;
-		case WinMessage.DwmColorizationColorChanged:
-			App.ChangeTheme(((SolidColorBrush)SystemParameters.WindowGlassBrush).Color);
-			ChangeTheme();
 			break;
 		}
 		return IntPtr.Zero;
@@ -823,17 +761,9 @@ public sealed partial class MainWindow {
 
 		All.Remove(this);
 		SplitGrid.Close();
-		if (isClipboardRegistered) {
-			if (nextClipboardViewer != IntPtr.Zero) {
-				ChangeClipboardChain(Hwnd.Handle, nextClipboardViewer);
-			}
-			if (All.Count > 0) { // 通知下一个Window进行Hook
-				All[0].RegisterClipboard();
-			}
-		}
 		if (All.Count == 0) {
 			FrequentTimer.Stop();
-			RecycleBinItem.UnregisterWatcher();
+			RecycleBinItem.UnregisterAllWatchers();
 		}
 		base.OnClosed(e);
 	}
@@ -860,7 +790,7 @@ public sealed partial class MainWindow {
 	}
 
 	protected override void OnKeyDown(KeyEventArgs e) {
-		if (RootPanel.Children.Count == 1) {  // 没有打开任何对话框
+		if (RootPanel.Children.Count == 2) {  // 没有打开任何对话框
 			var mouseOverTab = FileTabControl.MouseOverTabControl?.SelectedTab;
 			if (mouseOverTab != null) {
 				if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {

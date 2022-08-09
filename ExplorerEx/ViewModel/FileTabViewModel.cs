@@ -35,7 +35,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 
 	public MainWindow OwnerWindow => OwnerTabControl.MainWindow;
 
-	public FileListView FileListView { get; set; }
+	public FileListView FileListView { get; set; } = null!;
 
 	/// <summary>
 	/// 当前路径文件夹
@@ -203,9 +203,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 
 	public int SelectedFileItemsCount => SelectedItems.Count;
 
-	public Visibility SelectedFileItemsSizeVisibility { get; private set; }
-
-	public string SelectedFileItemsSizeText { get; private set; }
+	public string? SelectedFileItemsSizeText { get; private set; }
 
 	public long SelectedFilesSize {
 		get {
@@ -292,7 +290,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		DataObjectContent.ClipboardChanged += OnClipboardChanged;
 	}
 
-	private void OnCreate(object param) {
+	private void OnCreate(object? param) {
 		if (PathType == PathType.Home) {
 			return;
 		}
@@ -373,7 +371,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		}
 	}
 
-	private async void OnSwitchView(object e) {
+	private async void OnSwitchView(object? e) {
 		if (e is ViewSortGroup type) {
 			await SwitchViewType(type);
 		}
@@ -688,7 +686,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		//}
 
 		List<FileListViewItem> fileListViewItems;
-		FileListViewItem scrollIntoItem;
+		FileListViewItem? scrollIntoItem;
 
 		try {
 			(fileListViewItems, scrollIntoItem) = await Task.Run(() => {
@@ -821,29 +819,30 @@ sw.Restart();
 	/// </summary>
 	private void UpdateFileUI() {
 		if (PathType == PathType.Home) {
-			SelectedFileItemsSizeVisibility = Visibility.Collapsed;
+			SelectedFileItemsSizeText = null;
 		} else {
 			var size = SelectedFilesSize;
 			if (size == -1) {
-				SelectedFileItemsSizeVisibility = Visibility.Collapsed;
+				SelectedFileItemsSizeText = null;
 			} else {
 				SelectedFileItemsSizeText = FileUtils.FormatByteSize(size);
-				SelectedFileItemsSizeVisibility = Visibility.Visible;
 			}
 		}
 		OnPropertyChanged(nameof(IsItemSelected));
 		OnPropertyChanged(nameof(CanDeleteOrCut));
 		OnPropertyChanged(nameof(SelectedFileItemsCountVisibility));
 		OnPropertyChanged(nameof(SelectedFileItemsCount));
-		OnPropertyChanged(nameof(SelectedFileItemsSizeVisibility));
 		OnPropertyChanged(nameof(SelectedFileItemsSizeText));
 	}
 
-	public async void FileListViewItem_OnDoubleClicked(object args) {
+	public async void FileListViewItem_OnDoubleClicked(object? args) {
+		if (args is not ItemClickEventArgs e) {
+			return;
+		}
 		var isCtrlPressed = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
 		var isShiftPressed = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
 		var isAltPressed = Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt);
-		switch (((ItemClickEventArgs)args).Item) {
+		switch (e.Item) {
 		// 双击事件
 		case DiskDriveItem ddi:
 			if (isCtrlPressed) {
@@ -915,7 +914,7 @@ sw.Restart();
 		}
 	}
 
-	private CancellationTokenSource everythingReplyCts;
+	private CancellationTokenSource? everythingReplyCts;
 
 	private async Task OnEverythingQueryReplied(uint id, EverythingInterop.QueryReply reply) {
 		if (id != everythingQueryId) {
@@ -925,12 +924,11 @@ sw.Restart();
 		everythingReplyCts?.Cancel();
 		everythingReplyCts = new CancellationTokenSource();
 		var token = everythingReplyCts.Token;
-		List<FileSystemItem> fileListViewItems = null;
-		await Task.Run(() => {
-			fileListViewItems = new List<FileSystemItem>(reply.FullPaths.Length);
+		var fileListViewItems = await Task.Run(() => {
+			var fileListViewItems = new List<FileSystemItem>(reply.FullPaths.Length);
 			foreach (var fullPath in reply.FullPaths) {
 				if (token.IsCancellationRequested) {
-					return;
+					return null;
 				}
 				try {
 					if (Directory.Exists(fullPath)) {
@@ -943,17 +941,19 @@ sw.Restart();
 					break;
 				}
 			}
+			return fileListViewItems;
 		}, token);
+
 		if (token.IsCancellationRequested) {
 			return;
 		}
 
-		Items.Reset(fileListViewItems);
+		Items.Reset(fileListViewItems!);
 
 		UpdateFolderUI();
 		UpdateFileUI();
 
-		await LoadDetails(fileListViewItems, token, loadDetailsOptions);
+		await LoadDetails(fileListViewItems!, token, loadDetailsOptions);
 	}
 
 	private static void Watcher_OnError(object sender, ErrorEventArgs e) {
@@ -1035,7 +1035,7 @@ sw.Restart();
 
 	public void Dispose() {
 		Items.Clear();
-		watcher?.Dispose();
+		watcher.Dispose();
 		cts?.Dispose();
 		everythingReplyCts?.Dispose();
 		GC.SuppressFinalize(this);

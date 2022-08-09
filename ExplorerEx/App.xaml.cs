@@ -181,7 +181,7 @@ public partial class App {
 		if (isRunning) {
 			isRunning = false;
 			BookmarkDbContext.Instance.SaveChanges();
-			notifyIconWindow?.NotifyIconContextContent.Dispose();
+			notifyIconWindow?.NotifyIcon.Dispose();
 			mutex!.Dispose();
 		}
 		base.OnExit(e);

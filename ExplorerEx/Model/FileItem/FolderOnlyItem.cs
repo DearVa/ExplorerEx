@@ -100,7 +100,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	}
 
 	private void InitializeChildren() {
-		children = DefaultChildren;
+		Children = DefaultChildren;
 		actualChildren = new ConcurrentObservableCollection<FolderOnlyItem>();
 	}
 

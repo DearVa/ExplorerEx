@@ -9,6 +9,7 @@
                 xmlns:hc="https://handyorg.github.io/handycontrol"
                 xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
                 xmlns:e="clr-namespace:ExplorerEx.Model.Enums"
+                xmlns:c="clr-namespace:ExplorerEx.Converter"
                 mc:Ignorable="d" d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
 
     <Grid>
@@ -240,21 +241,21 @@
 
             <hc:SimplePanel Grid.Row="1" Margin="20,0,10,0">
                 <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
-                    <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center">
-                    <Run Text="{Binding Items.AsObservable.Count, Mode=OneWay}"/>
-                    <Run Text="{u:Lang Run-ItemsCount}"/>
-                    </TextBlock>
+                    <StackPanel.Resources>
+                        <c:ItemsCount2TextConverter x:Key="ItemsCount2TextConverter"/>
+                        <c:SelectedItemsCount2TextConverter x:Key="SelectedItemsCount2TextConverter"/>
+                    </StackPanel.Resources>
+
+                    <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"
+                               Text="{Binding Items.AsObservable.Count, Mode=OneWay, Converter={StaticResource ItemsCount2TextConverter}}"/>
                     <Rectangle Width="1" Height="18" Fill="{DynamicResource ThirdlyTextBrush}" Margin="10,2,10,1"/>
 
                     <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center"
-                               Visibility="{Binding SelectedFileItemsCountVisibility, Mode=OneWay}">
-                    <Run Text="{u:Lang Run-SelectedItemsCount}"/>
-                    <Run Text="{Binding SelectedFileItemsCount, Mode=OneWay}"/>
-                    <Run Text="{u:Lang Run-ItemsCount}"/>
-                    </TextBlock>
+                               Text="{Binding SelectedFileItemsCount, Mode=OneWay, Converter={StaticResource SelectedItemsCount2TextConverter}}"
+                               Visibility="{Binding Text, RelativeSource={RelativeSource Self}, Converter={StaticResource Object2VisibilityConverter}}"/>
 
                     <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" VerticalAlignment="Center" Margin="10,0,0,0" 
-                               Visibility="{Binding SelectedFileItemsSizeVisibility, Mode=OneWay}"
+                               Visibility="{Binding SelectedFileItemsSizeText, Mode=OneWay, Converter={StaticResource Object2VisibilityConverter}}"
                                Text="{Binding SelectedFileItemsSizeText, Mode=OneWay}"/>
                 </StackPanel>
 

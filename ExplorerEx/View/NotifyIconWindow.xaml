@@ -8,7 +8,7 @@
         xmlns:hc="https://handyorg.github.io/handycontrol"
         mc:Ignorable="d" d:DataContext="{d:DesignInstance v:NotifyIconWindow}"
         ShowInTaskbar="False">
-    <hc:NotifyIcon x:Name="NotifyIconContextContent" Visibility="Visible" Text="ExplorerEx" Icon="/ExplorerEx;component/Assets/Picture/Logo.ico">
+    <hc:NotifyIcon x:Name="NotifyIcon" Visibility="Visible" Text="ExplorerEx" Icon="/ExplorerEx;component/Assets/Picture/Logo.ico">
         <hc:NotifyIcon.ContextMenu>
             <ContextMenu>
                 <MenuItem Header="{u:Lang ShowWindow}" Click="ShowWindow"/>

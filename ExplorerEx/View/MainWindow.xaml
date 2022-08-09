@@ -314,7 +314,7 @@
                         <ct:SideBarContent Header="{u:Lang ThisPC}" ShowSearchButton="False">
                             <ct:SideBarContent.Content>
                                 <TreeView x:Name="SideBarThisPcTreeView" BorderThickness="0"
-                                      ItemsSource="{Binding Path=Children, Source={x:Static m:FolderOnlyItem.Home}}">
+                                          ItemsSource="{Binding Path=Children, Source={x:Static m:FolderOnlyItem.Home}}">
                                     <TreeView.ItemTemplate>
                                         <HierarchicalDataTemplate ItemsSource="{Binding Children, Mode=OneWay}">
                                             <hc:SimplePanel Background="Transparent">
@@ -413,7 +413,7 @@
                             </ct:SideBarContent.HeaderContent>
                             <ct:SideBarContent.Content>
                                 <ListBox BorderThickness="0" SelectionMode="Extended"
-                                     ItemsSource="{Binding Source={x:Static m:RecycleBinItem.Items}}">
+                                         ItemsSource="{Binding AsObservable, Source={x:Static m:RecycleBinItem.Items}}">
                                     <ListBox.ItemContainerStyle>
                                         <Style TargetType="ListBoxItem" BasedOn="{StaticResource ListBoxItemBaseStyle}">
                                             <Setter Property="Visibility" Value="{Binding Converter={StaticResource RecycleBinFilter}}"/>

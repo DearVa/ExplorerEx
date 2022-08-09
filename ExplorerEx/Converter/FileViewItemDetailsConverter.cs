@@ -5,7 +5,33 @@ using ExplorerEx.Model;
 using ExplorerEx.Utils;
 using HandyControl.Tools.Converter;
 
-namespace ExplorerEx.Converter; 
+namespace ExplorerEx.Converter;
+
+internal class SelectedItemsCount2TextConverter : IValueConverter {
+	public object? Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+		if (value is int i and > 0) {
+			return string.Format("Selected...Items".L(), i);
+		}
+		return null;
+	}
+
+	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+		throw new InvalidOperationException();
+	}
+}
+
+internal class ItemsCount2TextConverter : IValueConverter {
+	public object? Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+		if (value is int i and > 0) {
+			return string.Format("...Items".L(), i);
+		}
+		return null;
+	}
+
+	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+		throw new InvalidOperationException();
+	}
+}
 
 internal class FileListViewItemDetails0Converter : IValueConverter {
 	public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
@@ -23,7 +49,7 @@ internal class FileListViewItemDetails0Converter : IValueConverter {
 	}
 
 	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-		throw new NotImplementedException();
+		throw new InvalidOperationException();
 	}
 }
 
@@ -43,6 +69,6 @@ internal class FileListViewItemDetails1Converter : IValueConverter {
 	}
 
 	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-		throw new NotImplementedException();
+		throw new InvalidOperationException();
 	}
 }
