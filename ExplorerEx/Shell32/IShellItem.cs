@@ -1,5 +1,4 @@
-﻿using ExplorerEx.View;
-using System;
+﻿using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
@@ -10,7 +9,7 @@ namespace ExplorerEx.Shell32;
 [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 [Guid(Shell32Interop.IID_IShellItem)]
 internal interface IShellItem {
-	int BindToHandler(IBindCtx pbc, [MarshalAs(UnmanagedType.LPStruct)] Guid bhid, [MarshalAs(UnmanagedType.LPStruct)] Guid riid, out IntPtr ppv);
+	int BindToHandler(IBindCtx? pbc, [MarshalAs(UnmanagedType.LPStruct)] Guid bhid, [MarshalAs(UnmanagedType.LPStruct)] Guid riid, out IntPtr ppv);
 	int GetParent(out IShellItem ppsi);
 	int GetDisplayName(SIGDN sigdnName, out IntPtr ppszName);
 	int GetAttributes(uint sfgaoMask, out uint psfgaoAttribs);

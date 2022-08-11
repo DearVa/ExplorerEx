@@ -12,7 +12,7 @@ namespace ExplorerEx.Model;
 /// 主页，也就是“此电脑”
 /// </summary>
 internal sealed class HomeFolderItem : FolderItem, ISpecialFolder {
-	public static HomeFolderItem Instance { get; } = new();
+	public static HomeFolderItem Singleton { get; } = new();
 
 	public CSIDL Csidl => CSIDL.Drives;
 
@@ -28,6 +28,7 @@ internal sealed class HomeFolderItem : FolderItem, ISpecialFolder {
 	static HomeFolderItem() { }
 
 	private HomeFolderItem() {
+		FullPath = null!;
 		Name = "ThisPC".L();
 		Type = "Home".L();
 		Icon = IconHelper.ComputerBitmapImage;
@@ -45,7 +46,7 @@ internal sealed class HomeFolderItem : FolderItem, ISpecialFolder {
 		throw new InvalidOperationException();
 	}
 
-	public override List<FileListViewItem> EnumerateItems(string selectedPath, out FileListViewItem selectedItem, CancellationToken token) {
+	public override List<FileListViewItem>? EnumerateItems(string? selectedPath, out FileListViewItem? selectedItem, CancellationToken token) {
 		selectedItem = null;
 		var list = new List<FileListViewItem>();
 		foreach (var drive in DriveInfo.GetDrives()) {

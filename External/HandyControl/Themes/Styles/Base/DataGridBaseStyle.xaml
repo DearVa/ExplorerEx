@@ -154,7 +154,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <ContentPresenter RecognizesAccessKey="True" VerticalAlignment="Center" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                                <ToggleButton Grid.Column="1" VerticalAlignment="Center" Height="{x:Static system:Double.NaN}" Padding="4,0" Width="20" IsEnabled="False" Opacity="1" Foreground="{DynamicResource PrimaryBrush}" x:Name="ToggleButtonSortDirection" Style="{StaticResource ToggleButtonIconTransparent}" hc:IconSwitchElement.Geometry="{StaticResource DownGeometry}" hc:IconSwitchElement.GeometrySelected="{StaticResource UpGeometry}"/>
+                                <ToggleButton Grid.Column="1" VerticalAlignment="Center" Height="{x:Static system:Double.NaN}" Padding="4,0" Width="20" IsEnabled="False" Opacity="1" Foreground="{DynamicResource PrimaryBrush}" x:Name="ToggleButtonSortDirection" Style="{StaticResource ToggleButtonIconTransparent}" hc:IconSwitchElement.Icon="{StaticResource DownGeometry}" hc:IconSwitchElement.IconSelected="{StaticResource UpGeometry}"/>
                             </Grid>
                         </Border>
                         <Thumb x:Name="PART_LeftHeaderGripper" HorizontalAlignment="Left" Style="{StaticResource ColumnHeaderGripperStyle}"/>

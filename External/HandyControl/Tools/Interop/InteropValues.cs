@@ -74,6 +74,7 @@ namespace HandyControl.Tools.Interop
             WM_RBUTTONUP = 0x0205,
             WM_ENTERSIZEMOVE = 0x0231,
             WM_EXITSIZEMOVE = 0x0232,
+            WM_MOUSELEAVE = 0x02A3,
             WM_CLIPBOARDUPDATE = 0x031D,
             WM_USER = 0x0400,
             WS_VISIBLE = 0x10000000,

@@ -61,6 +61,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 ： 的本地化字符串。
+        /// </summary>
+        internal static string _ {
+            get {
+                return ResourceManager.GetString(":", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 ， 的本地化字符串。
         /// </summary>
         internal static string __ {
@@ -70,12 +79,30 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 共{1}，剩余{0} 的本地化字符串。
+        /// </summary>
+        internal static string ___FreeOf___ {
+            get {
+                return ResourceManager.GetString("...FreeOf...", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 共{0}个项目 的本地化字符串。
+        /// </summary>
+        internal static string ___Items {
+            get {
+                return ResourceManager.GetString("...Items", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 使用说明：
         ///ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requireDebugger] Path1, Path2, ... 的本地化字符串。
         /// </summary>
-        internal static string _App_help {
+        internal static string _AppHelp {
             get {
-                return ResourceManager.GetString("#App_help", resourceCulture);
+                return ResourceManager.GetString("#AppHelp", resourceCulture);
             }
         }
         
@@ -114,6 +141,24 @@ namespace ExplorerEx.Strings {
         internal static string _CannotFormatDrive {
             get {
                 return ResourceManager.GetString("#CannotFormatDrive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 当使用鼠标右键点击文本文件并选择“编辑”时，会使用这个程序来打开。 的本地化字符串。
+        /// </summary>
+        internal static string _DefaultTextEditorDescription {
+            get {
+                return ResourceManager.GetString("#DefaultTextEditorDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 在空白处双击来返回上一级。 的本地化字符串。
+        /// </summary>
+        internal static string _DoubleClickGoUpperLevelDescription {
+            get {
+                return ResourceManager.GetString("#DoubleClickGoUpperLevelDescription", resourceCulture);
             }
         }
         
@@ -278,6 +323,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 亚克力 的本地化字符串。
+        /// </summary>
+        internal static string Acrylic {
+            get {
+                return ResourceManager.GetString("Acrylic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 添加到收藏夹 的本地化字符串。
         /// </summary>
         internal static string AddToBookmarks {
@@ -296,11 +350,20 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 And {0} more. 的本地化字符串。
+        ///   查找类似 还有 {0} 个。 的本地化字符串。
         /// </summary>
         internal static string And___More {
             get {
                 return ResourceManager.GetString("And...More", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 外观 的本地化字符串。
+        /// </summary>
+        internal static string Appearance {
+            get {
+                return ResourceManager.GetString("Appearance", resourceCulture);
             }
         }
         
@@ -368,15 +431,6 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 无法打开 的本地化字符串。
-        /// </summary>
-        internal static string Cannot_open {
-            get {
-                return ResourceManager.GetString("Cannot_open", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 无法访问文件夹 的本地化字符串。
         /// </summary>
         internal static string CannotAccessDirectory {
@@ -391,6 +445,15 @@ namespace ExplorerEx.Strings {
         internal static string CannotCreate {
             get {
                 return ResourceManager.GetString("CannotCreate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 无法打开 的本地化字符串。
+        /// </summary>
+        internal static string CannotOpen {
+            get {
+                return ResourceManager.GetString("CannotOpen", resourceCulture);
             }
         }
         
@@ -467,6 +530,42 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 颜色模式 的本地化字符串。
+        /// </summary>
+        internal static string ColorMode {
+            get {
+                return ResourceManager.GetString("ColorMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 深色 的本地化字符串。
+        /// </summary>
+        internal static string ColorMode_Dark {
+            get {
+                return ResourceManager.GetString("ColorMode-Dark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 浅色 的本地化字符串。
+        /// </summary>
+        internal static string ColorMode_Light {
+            get {
+                return ResourceManager.GetString("ColorMode-Light", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 通用 的本地化字符串。
+        /// </summary>
+        internal static string Common {
+            get {
+                return ResourceManager.GetString("Common", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 内容 的本地化字符串。
         /// </summary>
         internal static string Content {
@@ -539,6 +638,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 默认文本编辑器 的本地化字符串。
+        /// </summary>
+        internal static string DefaultTextEditor {
+            get {
+                return ResourceManager.GetString("DefaultTextEditor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 删除 的本地化字符串。
         /// </summary>
         internal static string Delete {
@@ -595,9 +703,18 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 不要再显示该信息 的本地化字符串。
         /// </summary>
-        internal static string Dont_show_this_message_again {
+        internal static string DontShowAgain {
             get {
-                return ResourceManager.GetString("Dont_show_this_message_again", resourceCulture);
+                return ResourceManager.GetString("DontShowAgain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 双击返回上一级 的本地化字符串。
+        /// </summary>
+        internal static string DoubleClickGoUpperLevel {
+            get {
+                return ResourceManager.GetString("DoubleClickGoUpperLevel", resourceCulture);
             }
         }
         
@@ -730,9 +847,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 退出应用程序 的本地化字符串。
         /// </summary>
-        internal static string Exit_application {
+        internal static string ExitApplication {
             get {
-                return ResourceManager.GetString("Exit_application", resourceCulture);
+                return ResourceManager.GetString("ExitApplication", resourceCulture);
             }
         }
         
@@ -823,6 +940,15 @@ namespace ExplorerEx.Strings {
         internal static string Folder {
             get {
                 return ResourceManager.GetString("Folder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 跟随系统 的本地化字符串。
+        /// </summary>
+        internal static string FollowSystem {
+            get {
+                return ResourceManager.GetString("FollowSystem", resourceCulture);
             }
         }
         
@@ -1000,18 +1126,18 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 正在加载图片： 的本地化字符串。
         /// </summary>
-        internal static string Loading_image_from {
+        internal static string LoadingImageFrom {
             get {
-                return ResourceManager.GetString("Loading_image_from", resourceCulture);
+                return ResourceManager.GetString("LoadingImageFrom", resourceCulture);
             }
         }
         
         /// <summary>
         ///   查找类似 本地磁盘 的本地化字符串。
         /// </summary>
-        internal static string Local_disk {
+        internal static string LocalDisk {
             get {
-                return ResourceManager.GetString("Local_disk", resourceCulture);
+                return ResourceManager.GetString("LocalDisk", resourceCulture);
             }
         }
         
@@ -1021,6 +1147,24 @@ namespace ExplorerEx.Strings {
         internal static string Medium {
             get {
                 return ResourceManager.GetString("Medium", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 中等图标 的本地化字符串。
+        /// </summary>
+        internal static string MediumIcons {
+            get {
+                return ResourceManager.GetString("MediumIcons", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 云母（仅Windows 11可用） 的本地化字符串。
+        /// </summary>
+        internal static string MicaWindows11Only {
+            get {
+                return ResourceManager.GetString("MicaWindows11Only", resourceCulture);
             }
         }
         
@@ -1081,9 +1225,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 新建文件夹 的本地化字符串。
         /// </summary>
-        internal static string New_folder {
+        internal static string NewFolder {
             get {
-                return ResourceManager.GetString("New_folder", resourceCulture);
+                return ResourceManager.GetString("NewFolder", resourceCulture);
             }
         }
         
@@ -1171,9 +1315,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 其他类型磁盘 的本地化字符串。
         /// </summary>
-        internal static string Other_type_disk {
+        internal static string OtherTypeDisk {
             get {
-                return ResourceManager.GetString("Other_type_disk", resourceCulture);
+                return ResourceManager.GetString("OtherTypeDisk", resourceCulture);
             }
         }
         
@@ -1232,20 +1376,20 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 松手移动到回收站 的本地化字符串。
-        /// </summary>
-        internal static string Release_to_move_to_RecycleBin {
-            get {
-                return ResourceManager.GetString("Release_to_move_to_RecycleBin", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 松手添加到收藏夹 的本地化字符串。
         /// </summary>
         internal static string ReleaseToAddToBookmark {
             get {
                 return ResourceManager.GetString("ReleaseToAddToBookmark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 松手移动到回收站 的本地化字符串。
+        /// </summary>
+        internal static string ReleaseToMoveToRecycleBin {
+            get {
+                return ResourceManager.GetString("ReleaseToMoveToRecycleBin", resourceCulture);
             }
         }
         
@@ -1261,9 +1405,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 可移动磁盘 的本地化字符串。
         /// </summary>
-        internal static string Removable_disk {
+        internal static string RemovableDisk {
             get {
-                return ResourceManager.GetString("Removable_disk", resourceCulture);
+                return ResourceManager.GetString("RemovableDisk", resourceCulture);
             }
         }
         
@@ -1313,24 +1457,6 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似  个项目 的本地化字符串。
-        /// </summary>
-        internal static string Run_ItemsCount {
-            get {
-                return ResourceManager.GetString("Run_ItemsCount", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 选择了  的本地化字符串。
-        /// </summary>
-        internal static string Run_SelectedItemsCount {
-            get {
-                return ResourceManager.GetString("Run_SelectedItemsCount", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 直接运行 的本地化字符串。
         /// </summary>
         internal static string RunAnyway {
@@ -1360,27 +1486,27 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 保存为 的本地化字符串。
         /// </summary>
-        internal static string Save_as {
+        internal static string SaveAs {
             get {
-                return ResourceManager.GetString("Save_as", resourceCulture);
+                return ResourceManager.GetString("SaveAs", resourceCulture);
             }
         }
         
         /// <summary>
         ///   查找类似 保存为文件 的本地化字符串。
         /// </summary>
-        internal static string Save_as_file {
+        internal static string SaveAsFile {
             get {
-                return ResourceManager.GetString("Save_as_file", resourceCulture);
+                return ResourceManager.GetString("SaveAsFile", resourceCulture);
             }
         }
         
         /// <summary>
         ///   查找类似 保存文件名 的本地化字符串。
         /// </summary>
-        internal static string Save_file_name {
+        internal static string SaveFileName {
             get {
-                return ResourceManager.GetString("Save_file_name", resourceCulture);
+                return ResourceManager.GetString("SaveFileName", resourceCulture);
             }
         }
         
@@ -1390,6 +1516,15 @@ namespace ExplorerEx.Strings {
         internal static string Search {
             get {
                 return ResourceManager.GetString("Search", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 选择了{0}个项目 的本地化字符串。
+        /// </summary>
+        internal static string Selected___Items {
+            get {
+                return ResourceManager.GetString("Selected...Items", resourceCulture);
             }
         }
         
@@ -1457,6 +1592,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 纯色 的本地化字符串。
+        /// </summary>
+        internal static string SolidColor {
+            get {
+                return ResourceManager.GetString("SolidColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 排序 的本地化字符串。
         /// </summary>
         internal static string Sort {
@@ -1489,6 +1633,15 @@ namespace ExplorerEx.Strings {
         internal static string TheFollowingFilesFailedToDelete {
             get {
                 return ResourceManager.GetString("TheFollowingFilesFailedToDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 主题 的本地化字符串。
+        /// </summary>
+        internal static string Theme {
+            get {
+                return ResourceManager.GetString("Theme", resourceCulture);
             }
         }
         
@@ -1660,6 +1813,15 @@ namespace ExplorerEx.Strings {
         internal static string View {
             get {
                 return ResourceManager.GetString("View", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 窗口背景 的本地化字符串。
+        /// </summary>
+        internal static string WindowBackdrop {
+            get {
+                return ResourceManager.GetString("WindowBackdrop", resourceCulture);
             }
         }
         

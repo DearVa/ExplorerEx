@@ -4,7 +4,6 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media.Animation;
 using ExplorerEx.Converter;
-using ExplorerEx.Utils;
 using TextBox = System.Windows.Controls.TextBox;
 
 namespace ExplorerEx.View.Controls;
@@ -15,7 +14,7 @@ namespace ExplorerEx.View.Controls;
 [TemplatePart(Name = DragTipPanelKey, Type = typeof(ContentPresenter))]
 public class SideBarContent : Control {
 	public static readonly DependencyProperty HeaderProperty = DependencyProperty.Register(
-		"Header", typeof(string), typeof(SideBarContent), new PropertyMetadata(default(string)));
+		nameof(Header), typeof(string), typeof(SideBarContent), new PropertyMetadata(default(string)));
 
 	public string Header {
 		get => (string)GetValue(HeaderProperty);
@@ -23,7 +22,7 @@ public class SideBarContent : Control {
 	}
 
 	public static readonly DependencyProperty HeaderContentProperty = DependencyProperty.Register(
-		"HeaderContent", typeof(object), typeof(SideBarContent), new PropertyMetadata(default(object)));
+		nameof(HeaderContent), typeof(object), typeof(SideBarContent), new PropertyMetadata(default(object)));
 
 	public object HeaderContent {
 		get => GetValue(HeaderContentProperty);
@@ -31,7 +30,7 @@ public class SideBarContent : Control {
 	}
 
 	public static readonly DependencyProperty ContentProperty = DependencyProperty.Register(
-		"Content", typeof(ItemsControl), typeof(SideBarContent), new PropertyMetadata(default(ItemsControl)));
+		nameof(Content), typeof(ItemsControl), typeof(SideBarContent), new PropertyMetadata(default(ItemsControl)));
 
 	public ItemsControl Content {
 		get => (ItemsControl)GetValue(ContentProperty);
@@ -39,7 +38,7 @@ public class SideBarContent : Control {
 	}
 
 	public static readonly DependencyProperty ShowSearchButtonProperty = DependencyProperty.Register(
-		"ShowSearchButton", typeof(bool), typeof(SideBarContent), new PropertyMetadata(true));
+		nameof(ShowSearchButton), typeof(bool), typeof(SideBarContent), new PropertyMetadata(true));
 
 	/// <summary>
 	/// 是否显示搜索按钮
@@ -50,7 +49,7 @@ public class SideBarContent : Control {
 	}
 
 	public static readonly DependencyProperty DragTipProperty = DependencyProperty.Register(
-		"DragTip", typeof(object), typeof(SideBarContent), new PropertyMetadata(default(object)));
+		nameof(DragTip), typeof(object), typeof(SideBarContent), new PropertyMetadata(default(object)));
 
 	public object DragTip {
 		get => GetValue(DragTipProperty);
@@ -58,22 +57,22 @@ public class SideBarContent : Control {
 	}
 
 	public static readonly DependencyProperty FilterProperty = DependencyProperty.Register(
-		"Filter", typeof(StringFilter2VisibilityConverter), typeof(SideBarContent), new PropertyMetadata(default(StringFilter2VisibilityConverter)));
+		nameof(Filter), typeof(StringFilter2VisibilityConverter), typeof(SideBarContent), new PropertyMetadata(default(StringFilter2VisibilityConverter)));
 
 	public StringFilter2VisibilityConverter Filter {
 		get => (StringFilter2VisibilityConverter)GetValue(FilterProperty);
 		set => SetValue(FilterProperty, value);
 	}
 
-	public event Action<string[]> FileDrop;
+	public event Action<string[]>? FileDrop;
 
 	private const string SearchTextBoxKey = "SearchTextBox";
 	private const string SearchToggleButtonKey = "SearchToggleButton";
 	private const string DragAreaKey = "DragArea";
 	private const string DragTipPanelKey = "DragTipPanel";
 
-	private TextBox searchTextBox;
-	private ContentPresenter dragTipPanel;
+	private TextBox? searchTextBox;
+	private ContentPresenter? dragTipPanel;
 
 	public SideBarContent() {
 		DataContext = this;
@@ -95,13 +94,13 @@ public class SideBarContent : Control {
 	}
 
 	private void SearchToggleButton_OnChecked(object sender, RoutedEventArgs e) {
-		searchTextBox.Visibility = Visibility.Visible;
+		searchTextBox!.Visibility = Visibility.Visible;
 		searchTextBox.Focus();
 		searchTextBox.SelectAll();
 	}
 
 	private void SearchToggleButton_OnUnchecked(object sender, RoutedEventArgs e) {
-		searchTextBox.Visibility = Visibility.Collapsed;
+		searchTextBox!.Visibility = Visibility.Collapsed;
 	}
 
 	private void SearchTextBox_OnTextChanged(object sender, TextChangedEventArgs e) {
@@ -114,7 +113,7 @@ public class SideBarContent : Control {
 			e.Effects = DragDropEffects.None;
 			return;
 		}
-		dragTipPanel.BeginAnimation(OpacityProperty, new DoubleAnimation(0d, TimeSpan.FromSeconds(0.1d)));
+		dragTipPanel!.BeginAnimation(OpacityProperty, new DoubleAnimation(0d, TimeSpan.FromSeconds(0.1d)));
 		FileDrop?.Invoke(fileList);
 	}
 
@@ -123,11 +122,11 @@ public class SideBarContent : Control {
 			e.Effects = DragDropEffects.None;
 			return;
 		}
-		dragTipPanel.BeginAnimation(OpacityProperty, new DoubleAnimation(1d, TimeSpan.FromSeconds(0.1d)));
+		dragTipPanel!.BeginAnimation(OpacityProperty, new DoubleAnimation(1d, TimeSpan.FromSeconds(0.1d)));
 	}
 
 	private void DragArea_OnDragLeave(object sender, DragEventArgs e) {
-		dragTipPanel.BeginAnimation(OpacityProperty, new DoubleAnimation(0d, TimeSpan.FromSeconds(0.1d)));
+		dragTipPanel!.BeginAnimation(OpacityProperty, new DoubleAnimation(0d, TimeSpan.FromSeconds(0.1d)));
 	}
 
 	private static void DragArea_OnDragOver(object sender, DragEventArgs e) {
@@ -135,6 +134,6 @@ public class SideBarContent : Control {
 		if (e.Data.GetData(DataFormats.FileDrop) == null) {
 			e.Effects = DragDropEffects.None;
 		}
-		DragFilesPreview.Instance.DragDropEffect = DragDropEffects.None;
+		DragFilesPreview.Singleton.DragDropEffect = DragDropEffects.None;
 	}
 }

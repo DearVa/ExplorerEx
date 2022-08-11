@@ -20,16 +20,10 @@
   <data name="View" xml:space="preserve">
     <value>View</value>
   </data>
-  <data name="Run_ItemsCount" xml:space="preserve">
-    <value> Items</value>
-  </data>
-  <data name="Run_SelectedItemsCount" xml:space="preserve">
-    <value>Selected </value>
-  </data>
   <data name="ThisPC" xml:space="preserve">
     <value>This PC</value>
   </data>
-  <data name="New_folder" xml:space="preserve">
+  <data name="NewFolder" xml:space="preserve">
     <value>New Folder</value>
   </data>
   <data name="Shortcut" xml:space="preserve">
@@ -50,7 +44,7 @@
   <data name="Total: " xml:space="preserve">
     <value>Total: </value>
   </data>
-  <data name="Local_disk" xml:space="preserve">
+  <data name="LocalDisk" xml:space="preserve">
     <value>Local disk</value>
   </data>
   <data name="Properties" xml:space="preserve">
@@ -104,7 +98,7 @@
   <data name="#YouClosedTheLastTab" xml:space="preserve">
     <value>You closed the last tab, what do you want?</value>
   </data>
-  <data name="Exit_application" xml:space="preserve">
+  <data name="ExitApplication" xml:space="preserve">
     <value>Exit application</value>
   </data>
   <data name="BackToHome" xml:space="preserve">
@@ -119,10 +113,10 @@
   <data name="TheFollowingFilesFailedToDelete" xml:space="preserve">
     <value>The following file(s) failed to delete:</value>
   </data>
-  <data name="Save_as_file" xml:space="preserve">
+  <data name="SaveAsFile" xml:space="preserve">
     <value>Save as file</value>
   </data>
-  <data name="Save_file_name" xml:space="preserve">
+  <data name="SaveFileName" xml:space="preserve">
     <value>Save file name</value>
   </data>
   <data name="Save" xml:space="preserve">
@@ -137,13 +131,13 @@
   <data name="Image" xml:space="preserve">
     <value>Image</value>
   </data>
-  <data name="Save_as" xml:space="preserve">
+  <data name="SaveAs" xml:space="preserve">
     <value>Save as</value>
   </data>
-  <data name="Loading_image_from" xml:space="preserve">
+  <data name="LoadingImageFrom" xml:space="preserve">
     <value>Loading image from: </value>
   </data>
-  <data name="Dont_show_this_message_again" xml:space="preserve">
+  <data name="DontShowAgain" xml:space="preserve">
     <value>Don't show this message again</value>
   </data>
   <data name="CannotAccessDirectory" xml:space="preserve">
@@ -178,13 +172,13 @@ Are you sure you want to change?</value>
   <data name="#EverythingIsNotAvailable" xml:space="preserve">
     <value>Everything is not running or not installed, cannot search now.</value>
   </data>
-  <data name="Removable_disk" xml:space="preserve">
+  <data name="RemovableDisk" xml:space="preserve">
     <value>Removable disk</value>
   </data>
   <data name="CD_drive" xml:space="preserve">
     <value>CD drive</value>
   </data>
-  <data name="Other_type_disk" xml:space="preserve">
+  <data name="OtherTypeDisk" xml:space="preserve">
     <value>Other type disk</value>
   </data>
   <data name="LargeIcons" xml:space="preserve">
@@ -277,13 +271,13 @@ Are you sure you want to change?</value>
   <data name="Error" xml:space="preserve">
     <value>Error</value>
   </data>
-  <data name="Cannot_open" xml:space="preserve">
+  <data name="CannotOpen" xml:space="preserve">
     <value>Cannot open</value>
   </data>
   <data name="UnknownArgument" xml:space="preserve">
     <value>Unknown argument: </value>
   </data>
-  <data name="#App_help" xml:space="preserve">
+  <data name="#AppHelp" xml:space="preserve">
     <value>How to use: 
 ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requireDebugger] Path1, Path2, ...</value>
   </data>
@@ -320,7 +314,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="UnknownType" xml:space="preserve">
     <value>Unknown type</value>
   </data>
-  <data name="Release_to_move_to_RecycleBin" xml:space="preserve">
+  <data name="ReleaseToMoveToRecycleBin" xml:space="preserve">
     <value>Release to move to Recycle bin</value>
   </data>
   <data name="Ascending" xml:space="preserve">
@@ -438,7 +432,7 @@ For the application to run properly, it's recommanded that you first extract all
     <value>Extract</value>
   </data>
   <data name="And...More" xml:space="preserve">
-    <value>还有 {0} 个。</value>
+    <value>And {0} more.</value>
   </data>
   <data name="Close" xml:space="preserve">
     <value>Close</value>
@@ -556,5 +550,65 @@ For the application to run properly, it's recommanded that you first extract all
   </data>
   <data name="File" xml:space="preserve">
     <value>File</value>
+  </data>
+  <data name="Appearance" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="DoubleClickGoUpperLevel" xml:space="preserve">
+    <value>Double click go upper level</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="WindowBackdrop" xml:space="preserve">
+    <value>Window backdrop</value>
+  </data>
+  <data name="SolidColor" xml:space="preserve">
+    <value>Solid color</value>
+  </data>
+  <data name="Acrylic" xml:space="preserve">
+    <value>Acrylic</value>
+  </data>
+  <data name="MicaWindows11Only" xml:space="preserve">
+    <value>Mica (Windows 11 only)</value>
+  </data>
+  <data name="ColorMode" xml:space="preserve">
+    <value>Color mode</value>
+  </data>
+  <data name="FollowSystem" xml:space="preserve">
+    <value>Follow system</value>
+  </data>
+  <data name="ColorMode-Light" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="ColorMode-Dark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="Common" xml:space="preserve">
+    <value>Common</value>
+  </data>
+  <data name="DefaultTextEditor" xml:space="preserve">
+    <value>Default text editor</value>
+  </data>
+  <data name="#DefaultTextEditorDescription" xml:space="preserve">
+    <value>When you right-click a text file and select Edit, this program will be used to open it.</value>
+  </data>
+  <data name="#DoubleClickGoUpperLevelDescription" xml:space="preserve">
+    <value>Double click in the blank space to go to upper level.</value>
+  </data>
+  <data name="MediumIcons" xml:space="preserve">
+    <value>Medium icons</value>
+  </data>
+  <data name=":" xml:space="preserve">
+    <value>: </value>
+  </data>
+  <data name="Selected...Items" xml:space="preserve">
+    <value>Selected {0} items</value>
+  </data>
+  <data name="...Items" xml:space="preserve">
+    <value>{0} items</value>
+  </data>
+  <data name="...FreeOf..." xml:space="preserve">
+    <value>{0} free of {1}</value>
   </data>
 </root>

@@ -17,7 +17,7 @@ internal static class MessageBoxHelper {
 			return true;
 		}
 		var msi = new MessageBoxInfo {
-			CheckBoxText = "Dont_show_this_message_again".L(),
+			CheckBoxText = "DontShowAgain".L(),
 			Message = msg,
 			Caption = caption ?? "Tip".L(),
 			Image = MessageBoxImage.Question,

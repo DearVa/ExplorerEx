@@ -40,12 +40,12 @@
                                 <ContentPresenter TextElement.Foreground="{Binding Path=(hc:TitleElement.Foreground),RelativeSource={RelativeSource TemplatedParent}}" ContentSource="Header" ContentTemplate="{TemplateBinding HeaderTemplate}" ContentTemplateSelector="{TemplateBinding HeaderTemplateSelector}" ContentStringFormat="{TemplateBinding HeaderStringFormat}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </Border>
                             <ContentPresenter Margin="{TemplateBinding Padding}" Grid.Column="1" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                            <Button Focusable="False" Name="ButtonClose" Visibility="{TemplateBinding ShowCloseButton,Converter={StaticResource Boolean2VisibilityConverter}}" Command="interactivity:ControlCommands.Close" Margin="0,0,6,0" Width="16" Grid.Column="2" Style="{StaticResource ButtonIcon}" Padding="0,11" hc:IconElement.Geometry="{StaticResource DeleteGeometry}" Foreground="{TemplateBinding Foreground}"/>
+                            <Button Focusable="False" Name="ButtonClose" Visibility="{TemplateBinding ShowCloseButton,Converter={StaticResource Boolean2VisibilityConverter}}" Command="interactivity:ControlCommands.Close" Margin="0,0,6,0" Width="16" Grid.Column="2" Style="{StaticResource ButtonIcon}" Padding="0,11" hc:IconElement.Icon="{StaticResource DeleteGeometry}" Foreground="{TemplateBinding Foreground}"/>
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True" SourceName="ButtonClose">
-                            <Setter Property="hc:IconElement.Geometry" Value="{StaticResource DeleteFillCircleGeometry}" TargetName="ButtonClose"/>
+                            <Setter Property="hc:IconElement.Icon" Value="{StaticResource DeleteFillCircleGeometry}" TargetName="ButtonClose"/>
                             <Setter Property="Padding" Value="0,6" TargetName="ButtonClose"/>
                         </Trigger>
                     </ControlTemplate.Triggers>

@@ -2,7 +2,6 @@
           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-          xmlns:ex="clr-namespace:ExplorerEx"
           xmlns:hc="https://handyorg.github.io/handycontrol"
           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
           xmlns:u="clr-namespace:ExplorerEx.Utils"
@@ -20,6 +19,9 @@
           Padding="2" FocusVisualStyle="{x:Null}"
           UseLayoutRounding="True">
     <ListView.Resources>
+        <c:FileListViewItemDetails0Converter x:Key="FileListViewItemDetails0Converter"/>
+        <c:FileListViewItemDetails1Converter x:Key="FileListViewItemDetails1Converter"/>
+
         <!--只能将Width设为自动，然后在Cell里Binding到FileDataGrid-->
         <DataTemplate x:Key="IconTemplate">
             <!--https://www.cnblogs.com/wuty/p/15599045.html-->
@@ -42,7 +44,7 @@
                   Height="{Binding Path=ItemHeight, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" 
                   HorizontalAlignment="Left" d:DataContext="{d:DesignInstance m:FileListViewItem}">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="{Binding Path=Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
+                    <ColumnDefinition Width="{Binding Path=ActualHeight, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Image Grid.Column="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
@@ -50,6 +52,7 @@
                 <TextBlock Grid.Column="1" Text="{Binding DisplayText, Mode=OneWay}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
             </Grid>
         </DataTemplate>
+        <!--主页显示驱动器-->
         <DataTemplate x:Key="TileTemplate">
             <Grid d:DataContext="{d:DesignInstance m:FileListViewItem}"
                   Width="{Binding Path=ItemWidth, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
@@ -72,7 +75,6 @@
                 </Grid>
             </Grid>
         </DataTemplate>
-        <!--主页显示驱动器-->
         <DataTemplate x:Key="TileHomeTemplate">
             <Grid d:DataContext="{d:DesignInstance m:DiskDriveItem}"
                   Width="{Binding Path=ItemWidth, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
@@ -92,6 +94,34 @@
                         <TextBlock Text="{Binding SpaceOverviewString, Mode=OneWay}"
                                    Visibility="{Binding Drive.IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
                     </StackPanel>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="ContentTemplate">
+            <Grid d:DataContext="{d:DesignInstance m:FileListViewItem}" HorizontalAlignment="Stretch"
+                  Height="{Binding Path=ItemHeight, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="{Binding Path=ActualHeight, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Image Grid.Column="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
+                       VerticalAlignment="Center" Margin="10"/>
+                <Grid Grid.Column="1" Margin="0,5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="{Binding DisplayText, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="{Binding Type, Mode=OneWay}" TextTrimming="WordEllipsis"/>
+                </Grid>
+                <Grid Grid.Column="2" Margin="0,5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" VerticalAlignment="Center" Text="{Binding This, Converter={StaticResource FileListViewItemDetails0Converter}}" TextTrimming="WordEllipsis"/>
+                    <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="{Binding This, Converter={StaticResource FileListViewItemDetails1Converter}}" TextTrimming="WordEllipsis"/>
                 </Grid>
             </Grid>
         </DataTemplate>
@@ -173,7 +203,8 @@
         <!-- ReSharper disable once Xaml.RedundantResource -->
         <c:FileGridListBoxTemplateConverter x:Key="ListBoxTemplateConverter"
                                             IconTemplate="{StaticResource IconTemplate}" ListTemplate="{StaticResource ListTemplate}"
-                                            TileTemplate="{StaticResource TileTemplate}" TileHomeTemplate="{StaticResource TileHomeTemplate}"/>
+                                            TileTemplate="{StaticResource TileTemplate}" TileHomeTemplate="{StaticResource TileHomeTemplate}"
+                                            ContentTemplate="{StaticResource ContentTemplate}"/>
 
         <ControlTemplate x:Key="FileOperationsTemplate">
             <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance ct:FileListView}">
@@ -329,8 +360,7 @@
             </MenuItem>
             <MenuItem Header="{u:Lang Edit}" CommandParameter="Edit"
                       Command="{Binding Path=ViewModel.FileItemCommand}"
-                      Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileItem.IsEditable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                      Icon="{Binding TextEditor, Source={x:Static ex:Settings.Instance}, Mode=OneWay, Converter={StaticResource FileName2IconConverter}}"/>
+                      Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileItem.IsEditable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"/>
             <MenuItem Header="{u:Lang Extract}" CommandParameter="Unzip"
                       Command="{Binding Path=ViewModel.FileItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileItem.IsZip), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"/>
@@ -371,7 +401,7 @@
                                               FileContextMenu="{StaticResource FileItemContextMenu}"/>
 
         <ControlTemplate x:Key="ListViewItemTemplate" TargetType="ListViewItem">
-            <Border CornerRadius="4" x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+            <Border CornerRadius="4" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
                 <ContentPresenter/>
             </Border>
         </ControlTemplate>
@@ -399,7 +429,7 @@
 
     <ListView.ContextMenu>
         <ContextMenu d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
-            <MenuItem Click="NewFolder_OnClick" Icon="{DynamicResource NewFolderDrawingImage}" Header="{u:Lang New_folder}"
+            <MenuItem Click="NewFolder_OnClick" Icon="{DynamicResource NewFolderDrawingImage}" Header="{u:Lang NewFolder}"
                       Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"/>
             <MenuItem Icon="{DynamicResource NewDrawingImage}" Header="{u:Lang New}" Command="{Binding CreateCommand}"
                       Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"
@@ -410,6 +440,8 @@
                 <MenuItem.Items>
                     <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.LargeIcons}" Header="{u:Lang LargeIcons}" Icon="{DynamicResource LargeIconsDrawingImage}"
                               IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.LargeIcons}}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.MediumIcons}" Header="{u:Lang MediumIcons}" Icon="{DynamicResource MediumIconsDrawingImage}"
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.MediumIcons}}"/>
                     <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.SmallIcons}" Header="{u:Lang SmallIcons}" Icon="{DynamicResource SmallIconsDrawingImage}"
                               IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SmallIcons}}"/>
                     <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.List}" Header="{u:Lang List}" Icon="{DynamicResource ListDrawingImage}"
@@ -504,7 +536,7 @@
                     </hc:ToggleBlock.CheckedContent>
                     <hc:ToggleBlock.UnCheckedContent>
                         <hc:SimplePanel Background="Transparent">
-                            <TextBlock Text="{u:Lang ThisIsAnEmptyFolder}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14"
+                            <TextBlock Text="{u:Lang ThisIsAnEmptyFolder}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}"
                                        Visibility="{Binding Path=ViewModel.(vm:FileTabViewModel.IsLoading), Mode=OneWay, RelativeSource={RelativeSource AncestorType=ct:FileListView}, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
                         </hc:SimplePanel>
                     </hc:ToggleBlock.UnCheckedContent>
@@ -520,8 +552,10 @@
         <Style TargetType="ListViewItem" BasedOn="{StaticResource ListViewItemBaseStyle}">
             <Setter Property="ContextMenu" Value="{Binding Converter={StaticResource FileSystemItemContextMenuConverter}}"/>
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Margin" Value="0,2"/>
             <Setter Property="Padding" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Template" Value="{Binding View, Converter={StaticResource ItemTemplateConverter}, RelativeSource={RelativeSource AncestorType=ListView}}"/>
         </Style>

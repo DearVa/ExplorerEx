@@ -30,6 +30,8 @@
     <SolidColorBrush x:Key="DefaultBrush" o:Freeze="True" Color="{DynamicResource DefaultColor}"/>
     <SolidColorBrush x:Key="DarkDefaultBrush" o:Freeze="True" Color="{DynamicResource DarkDefaultColor}"/>
 
+    <SolidColorBrush x:Key="WindowBackgroundBrush" o:Freeze="True" Color="{DynamicResource WindowBackgroundColor}"/>
+
     <SolidColorBrush x:Key="LightDangerBrush" o:Freeze="True" Color="{DynamicResource LightDangerColor}"/>
     <LinearGradientBrush x:Key="DangerBrush" o:Freeze="True" EndPoint="1,0" StartPoint="0,0">
         <GradientStop Color="{DynamicResource DangerColor}" Offset="0"/>

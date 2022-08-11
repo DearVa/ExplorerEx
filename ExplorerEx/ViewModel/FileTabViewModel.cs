@@ -30,17 +30,17 @@ namespace ExplorerEx.ViewModel;
 /// <summary>
 /// 对应一个Tab
 /// </summary>
-public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
+public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	public FileTabControl OwnerTabControl { get; }
 
 	public MainWindow OwnerWindow => OwnerTabControl.MainWindow;
 
-	public FileListView FileListView { get; set; }
+	public FileListView FileListView { get; set; } = null!;
 
 	/// <summary>
 	/// 当前路径文件夹
 	/// </summary>
-	public FolderItem Folder { get; private set; } = HomeFolderItem.Instance;
+	public FolderItem Folder { get; private set; } = HomeFolderItem.Singleton;
 
 	/// <summary>
 	/// 当前的路径，如果是首页，就是null
@@ -88,7 +88,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		private set => FileView.FileViewType = value;
 	}
 
-	public List<DetailList> DetailLists { get; private set; }
+	public List<DetailList>? DetailLists { get; private set; }
 
 	/// <summary>
 	/// 当前文件夹内的文件列表
@@ -103,7 +103,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		set {
 			if (isLoading != value) {
 				isLoading = value;
-				UpdateUI();
+				OnPropertyChanged();
 			}
 		}
 	}
@@ -116,13 +116,13 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	public SimpleCommand GoBackCommand { get; }
 
-	public string GoBackButtonToolTip => CanGoBack ? string.Format("GoBackTo...".L(), HistoryList[nextHistoryIndex - 2].DisplayText) : null;
+	public string? GoBackButtonToolTip => CanGoBack ? string.Format("GoBackTo...".L(), HistoryList[nextHistoryIndex - 2].DisplayText) : null;
 
 	public bool CanGoForward => nextHistoryIndex < historyCount;
 
 	public SimpleCommand GoForwardCommand { get; }
 
-	public string GoForwardButtonToolTip => CanGoForward ? string.Format("GoForwardTo...".L(), HistoryList[nextHistoryIndex].DisplayText) : null;
+	public string? GoForwardButtonToolTip => CanGoForward ? string.Format("GoForwardTo...".L(), HistoryList[nextHistoryIndex].DisplayText) : null;
 
 	/// <summary>
 	/// 历史记录
@@ -133,7 +133,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	public SimpleCommand GoToUpperLevelCommand { get; }
 
-	public string GoToUpperLevelButtonToolTip {
+	public string? GoToUpperLevelButtonToolTip {
 		get {
 			if (!CanGoToUpperLevel) {
 				return null;
@@ -142,7 +142,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 	}
 
-	private string ParentFolderName {
+	private string? ParentFolderName {
 		get {
 			switch (Folder) {
 			case HomeFolderItem:
@@ -192,7 +192,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		private set {
 			if (canPaste != value) {
 				canPaste = value;
-				UpdateUI();
+				OnPropertyChanged();
 			}
 		}
 	}
@@ -203,9 +203,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	public int SelectedFileItemsCount => SelectedItems.Count;
 
-	public Visibility SelectedFileItemsSizeVisibility { get; private set; }
-
-	public string SelectedFileItemsSizeText { get; private set; }
+	public string? SelectedFileItemsSizeText { get; private set; }
 
 	public long SelectedFilesSize {
 		get {
@@ -228,7 +226,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// <summary>
 	/// 如果不为null，就说明用户输入了搜索，OneWayToSource
 	/// </summary>
-	public string SearchText {
+	public string? SearchText {
 		set {
 			if (string.IsNullOrWhiteSpace(value)) {
 				if (searchText != null) {
@@ -242,7 +240,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 	}
 
-	private string searchText;
+	private string? searchText;
 
 	private int nextHistoryIndex, historyCount;
 
@@ -250,7 +248,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 
 	private readonly Dispatcher dispatcher;
 
-	private CancellationTokenSource cts;
+	private CancellationTokenSource? cts;
 
 	private readonly LoadDetailsOptions loadDetailsOptions = new();
 
@@ -292,7 +290,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		DataObjectContent.ClipboardChanged += OnClipboardChanged;
 	}
 
-	private void OnCreate(object param) {
+	private void OnCreate(object? param) {
 		if (PathType == PathType.Home) {
 			return;
 		}
@@ -303,6 +301,9 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 				if (newName != null) {
 					if (item.Create(FullPath, newName)) {
 						var newItem = AddSingleItem(newName);
+						if (newItem == null) {
+							return;
+						}
 						newItem.IsSelected = true;
 						FileListView.ScrollIntoView(newItem);
 					} else {
@@ -320,7 +321,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// </summary>
 	/// <param name="name">文件或文件夹名，不包含路径</param>
 	/// <returns>成功返回添加的项，失败返回null</returns>
-	public FileListViewItem AddSingleItem(string name) {
+	public FileListViewItem? AddSingleItem(string name) {
 		if (Folder is HomeFolderItem) {
 			return null;
 		}
@@ -347,7 +348,10 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		return item;
 	}
 
-	public void StartRename(string fileName) {
+	public void StartRename(string? fileName) {
+		if (fileName == null) {
+			return;
+		}
 		var item = Items.FirstOrDefault(item => item.Name == fileName);
 		if (item == null) {
 			if ((item = AddSingleItem(fileName)) == null) {
@@ -367,7 +371,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		}
 	}
 
-	private async void OnSwitchView(object e) {
+	private async void OnSwitchView(object? e) {
 		if (e is ViewSortGroup type) {
 			await SwitchViewType(type);
 		}
@@ -376,11 +380,15 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// <summary>
 	/// 切换视图时，有的要使用大图标，有的要使用小图标，所以要运行一个Task去更改，取消这个来中断Task
 	/// </summary>
-	private CancellationTokenSource switchIconCts;
+	private CancellationTokenSource? switchIconCts;
 
 	public async Task SwitchViewType(ViewSortGroup type) {
 		switch (type) {
 		case ViewSortGroup.LargeIcons:  // 大图标
+			FileViewType = FileViewType.Icons;
+			ItemSize = new Size(180d, 240d);
+			break;
+		case ViewSortGroup.MediumIcons:  // 中图标
 			FileViewType = FileViewType.Icons;
 			ItemSize = new Size(120d, 170d);
 			break;
@@ -472,7 +480,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// </summary>
 	/// <param name="fileView">为null表示新建，不为null就是修改，要确保是从Db里拿到的对象否则修改没有效果</param>
 	/// <returns></returns>
-	private async Task SaveViewToDbAsync(FileView fileView) {
+	private async Task SaveViewToDbAsync(FileView? fileView) {
 		var fullPath = FullPath ?? "$Home";
 		fileView ??= await FileViewDbContext.Instance.FolderViewDbSet.FirstOrDefaultAsync(v => v.FullPath == fullPath);
 		if (fileView == null) {
@@ -531,7 +539,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 	/// <param name="recordHistory">是否记录历史，返回、前进就为false</param>
 	/// <param name="selectedPath">如果是返回，那就把这个设为返回前选中的那一项</param>
 	/// <returns></returns>
-	public async Task<bool> LoadDirectoryAsync(string path, bool recordHistory = true, string selectedPath = null) {
+	public async Task<bool> LoadDirectoryAsync(string? path, bool recordHistory = true, string? selectedPath = null) {
 		watcher.EnableRaisingEvents = false;
 		IsLoading = true;
 		switchIconCts?.Cancel();
@@ -542,40 +550,48 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			disposable.Dispose();
 		}
 
-		try {
-			(Folder, PathType) = FolderItem.ParsePath(path);
-			FileItemCommand.Folder = Folder;
-		} catch (Exception e) {
-			hc.MessageBox.Error(e.Message, "CannotOpenPath".L());
-		}
+		path = path?.Trim();
+		if (string.IsNullOrEmpty(path)) {
+			Folder = HomeFolderItem.Singleton;
+			PathType = PathType.Home;
+		} else {
+			FolderItem? folder;
+			try {
+				(folder, PathType) = FolderItem.ParsePath(path);
+			} catch (Exception e) {
+				hc.MessageBox.Error(e.Message, "CannotOpenPath".L());
+				return false;
+			}
 
-		if (Folder == null) {
-			var location = PathType == PathType.LocalFile ? path : FileUtils.FindFileLocation(path);
-			if (location != null) {
-				try {
-					Process.Start(new ProcessStartInfo(location) {
-						UseShellExecute = true
-					});
-				} catch (Exception ex) {
-					Logger.Exception(ex);
+			if (folder == null) {
+				var location = PathType == PathType.LocalFile ? path : FileUtils.FindFileLocation(path);
+				if (location != null) {
+					try {
+						Process.Start(new ProcessStartInfo(location) {
+							UseShellExecute = true
+						});
+					} catch (Exception ex) {
+						Logger.Exception(ex);
+					}
+				} else {
+					hc.MessageBox.Error("#InvalidPath", "CannotOpenPath".L());
 				}
-			} else {
-				hc.MessageBox.Error("#InvalidPath", "CannotOpenPath".L());
-			}
 
-			if (nextHistoryIndex > 0) {
-				await GoBackAsync();
-			} else {
-				await LoadDirectoryAsync(null, false, path);
+				await ErrorGoBack();
+				return false;
 			}
-			return false;
+			Folder = folder;
 		}
+
+		FileItemCommand.Folder = Folder;
 
 		try {
 			_ = Task.Run(() => Folder.LoadIcon(loadDetailsOptions));
 		} catch {
 			// 加载图标出错，忽略
 		}
+
+		Items.Clear();
 
 		if (Folder.GetType() == typeof(FolderItem) || Folder is DiskDriveItem) {
 			try {
@@ -586,23 +602,17 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 			}
 		}
 
-		Items.Clear();
-
 #if DEBUG
 		var sw = Stopwatch.StartNew();
 #endif
 
 		try {
-			UpdateUI(nameof(Folder));
-			UpdateUI(nameof(FullPath));
+			OnPropertyChanged(nameof(Folder));
+			OnPropertyChanged(nameof(FullPath));
 		} catch (Exception e) {
 			Logger.Exception(e, false);
 			hc.MessageBox.Error(string.Format("#ExplorerExCannotFind...".L(), path), "Error".L());
-			if (nextHistoryIndex > 0) {
-				await GoBackAsync();
-			} else {
-				await LoadDirectoryAsync(null, false, path);
-			}
+			await ErrorGoBack();
 			return false;
 		}
 
@@ -619,7 +629,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 #endif
 
 		// 查找数据库看有没有存储当前目录
-		FileView savedView;
+		FileView? savedView;
 		try {
 			var fullPath = FullPath ?? "$Home";
 			savedView = await FileViewDbContext.Instance.FolderViewDbSet.FirstOrDefaultAsync(v => v.FullPath == fullPath, token);
@@ -668,7 +678,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 		//}
 
 		List<FileListViewItem> fileListViewItems;
-		FileListViewItem scrollIntoItem;
+		FileListViewItem? scrollIntoItem;
 
 		try {
 			(fileListViewItems, scrollIntoItem) = await Task.Run(() => {
@@ -680,11 +690,7 @@ public class FileTabViewModel : SimpleNotifyPropertyChanged, IDisposable {
 				return false;
 			}
 			Logger.Exception(e);
-			if (nextHistoryIndex > 0) {
-				await GoBackAsync();
-			} else {
-				await LoadDirectoryAsync(null, false, path);
-			}
+			await ErrorGoBack();
 			return false;
 		}
 		//totalLoadedFiles += fileListViewItems.Count;
@@ -741,6 +747,13 @@ sw.Restart();
 		return !token.IsCancellationRequested;
 	}
 
+	private Task ErrorGoBack() {
+		if (CanGoBack) {
+			return LoadDirectoryAsync(HistoryList[nextHistoryIndex - 1].FullPath, false, FullPath);
+		}
+		return LoadDirectoryAsync(null, false, FullPath);
+	}
+
 	/// <summary>
 	/// 回到上一页
 	/// </summary>
@@ -786,14 +799,14 @@ sw.Restart();
 	/// 和文件夹相关的UI，和是否选中文件无关
 	/// </summary>
 	private void UpdateFolderUI() {
-		UpdateUI(nameof(CanPaste));
-		UpdateUI(nameof(CanGoBack));
-		UpdateUI(nameof(CanGoForward));
-		UpdateUI(nameof(GoBackButtonToolTip));
-		UpdateUI(nameof(GoForwardButtonToolTip));
-		UpdateUI(nameof(CanGoToUpperLevel));
-		UpdateUI(nameof(GoToUpperLevelButtonToolTip));
-		UpdateUI(nameof(SearchPlaceholderText));
+		OnPropertyChanged(nameof(CanPaste));
+		OnPropertyChanged(nameof(CanGoBack));
+		OnPropertyChanged(nameof(CanGoForward));
+		OnPropertyChanged(nameof(GoBackButtonToolTip));
+		OnPropertyChanged(nameof(GoForwardButtonToolTip));
+		OnPropertyChanged(nameof(CanGoToUpperLevel));
+		OnPropertyChanged(nameof(GoToUpperLevelButtonToolTip));
+		OnPropertyChanged(nameof(SearchPlaceholderText));
 	}
 
 	/// <summary>
@@ -801,29 +814,30 @@ sw.Restart();
 	/// </summary>
 	private void UpdateFileUI() {
 		if (PathType == PathType.Home) {
-			SelectedFileItemsSizeVisibility = Visibility.Collapsed;
+			SelectedFileItemsSizeText = null;
 		} else {
 			var size = SelectedFilesSize;
 			if (size == -1) {
-				SelectedFileItemsSizeVisibility = Visibility.Collapsed;
+				SelectedFileItemsSizeText = null;
 			} else {
 				SelectedFileItemsSizeText = FileUtils.FormatByteSize(size);
-				SelectedFileItemsSizeVisibility = Visibility.Visible;
 			}
 		}
-		UpdateUI(nameof(IsItemSelected));
-		UpdateUI(nameof(CanDeleteOrCut));
-		UpdateUI(nameof(SelectedFileItemsCountVisibility));
-		UpdateUI(nameof(SelectedFileItemsCount));
-		UpdateUI(nameof(SelectedFileItemsSizeVisibility));
-		UpdateUI(nameof(SelectedFileItemsSizeText));
+		OnPropertyChanged(nameof(IsItemSelected));
+		OnPropertyChanged(nameof(CanDeleteOrCut));
+		OnPropertyChanged(nameof(SelectedFileItemsCountVisibility));
+		OnPropertyChanged(nameof(SelectedFileItemsCount));
+		OnPropertyChanged(nameof(SelectedFileItemsSizeText));
 	}
 
-	public async void FileListViewItem_OnDoubleClicked(object args) {
+	public async void FileListViewItem_OnDoubleClicked(object? args) {
+		if (args is not ItemClickEventArgs e) {
+			return;
+		}
 		var isCtrlPressed = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
 		var isShiftPressed = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
 		var isAltPressed = Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt);
-		switch (((ItemClickEventArgs)args).Item) {
+		switch (e.Item) {
 		// 双击事件
 		case DiskDriveItem ddi:
 			if (isCtrlPressed) {
@@ -868,6 +882,47 @@ sw.Restart();
 		UpdateFileUI();
 	}
 
+	/// <summary>
+	/// 根据一个字符串来快速选中一项
+	/// </summary>
+	/// <param name="s"></param>
+	public void SelectByText(string s) {
+		s = s.ToLower();
+		var startIndex = SelectedItems.Count > 1 ? 0 : FileListView.SelectedIndex + 1;
+		for (var i = startIndex; i < Items.Count; i++) {
+			if (Items[i].DisplayText[..s.Length].ToLower() == s) {
+				FileListView.UnselectAll();
+				FileListView.ScrollIntoView(Items[i]);
+				Items[i].IsSelected = true;
+				return;
+			}
+		}
+		for (var i = 0; i < startIndex; i++) {
+			if (Items[i].DisplayText[..s.Length].ToLower() == s) {
+				FileListView.UnselectAll();
+				FileListView.ScrollIntoView(Items[i]);
+				Items[i].IsSelected = true;
+				return;
+			}
+		}
+		for (var i = startIndex; i < Items.Count; i++) {
+			if (Items[i].DisplayText.ToLower().Contains(s)) {
+				FileListView.UnselectAll();
+				FileListView.ScrollIntoView(Items[i]);
+				Items[i].IsSelected = true;
+				return;
+			}
+		}
+		for (var i = 0; i < startIndex; i++) {
+			if (Items[i].DisplayText.ToLower().Contains(s)) {
+				FileListView.UnselectAll();
+				FileListView.ScrollIntoView(Items[i]);
+				Items[i].IsSelected = true;
+				return;
+			}
+		}
+	}
+
 	private uint everythingQueryId;
 
 	/// <summary>
@@ -895,7 +950,7 @@ sw.Restart();
 		}
 	}
 
-	private CancellationTokenSource everythingReplyCts;
+	private CancellationTokenSource? everythingReplyCts;
 
 	private async Task OnEverythingQueryReplied(uint id, EverythingInterop.QueryReply reply) {
 		if (id != everythingQueryId) {
@@ -905,12 +960,11 @@ sw.Restart();
 		everythingReplyCts?.Cancel();
 		everythingReplyCts = new CancellationTokenSource();
 		var token = everythingReplyCts.Token;
-		List<FileSystemItem> fileListViewItems = null;
-		await Task.Run(() => {
-			fileListViewItems = new List<FileSystemItem>(reply.FullPaths.Length);
+		var fileListViewItems = await Task.Run(() => {
+			var fileListViewItems = new List<FileSystemItem>(reply.FullPaths.Length);
 			foreach (var fullPath in reply.FullPaths) {
 				if (token.IsCancellationRequested) {
-					return;
+					return null;
 				}
 				try {
 					if (Directory.Exists(fullPath)) {
@@ -923,17 +977,19 @@ sw.Restart();
 					break;
 				}
 			}
+			return fileListViewItems;
 		}, token);
+
 		if (token.IsCancellationRequested) {
 			return;
 		}
 
-		Items.Reset(fileListViewItems);
+		Items.Reset(fileListViewItems!);
 
 		UpdateFolderUI();
 		UpdateFileUI();
 
-		await LoadDetails(fileListViewItems, token, loadDetailsOptions);
+		await LoadDetails(fileListViewItems!, token, loadDetailsOptions);
 	}
 
 	private static void Watcher_OnError(object sender, ErrorEventArgs e) {
@@ -1015,7 +1071,7 @@ sw.Restart();
 
 	public void Dispose() {
 		Items.Clear();
-		watcher?.Dispose();
+		watcher.Dispose();
 		cts?.Dispose();
 		everythingReplyCts?.Dispose();
 		GC.SuppressFinalize(this);

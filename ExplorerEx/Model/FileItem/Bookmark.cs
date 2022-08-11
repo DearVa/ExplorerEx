@@ -9,7 +9,6 @@ using System.Windows.Media;
 using ExplorerEx.Converter;
 using ExplorerEx.Utils;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using static ExplorerEx.Model.FileListViewItem;
 using static ExplorerEx.Utils.IconHelper;
 
@@ -19,9 +18,9 @@ namespace ExplorerEx.Model;
 /// 书签分类
 /// </summary>
 [Serializable]
-public class BookmarkCategory : SimpleNotifyPropertyChanged {
-	[Key]
-	public string Name { get; set; }
+public class BookmarkCategory : NotifyPropertyChangedBase {
+	[Key] 
+	public string Name { get; set; } = null!;
 
 	/// <summary>
 	/// 在Binding里使用
@@ -32,7 +31,7 @@ public class BookmarkCategory : SimpleNotifyPropertyChanged {
 		set {
 			if (isExpanded != value) {
 				isExpanded = value;
-				UpdateUI();
+				OnPropertyChanged();
 			}
 		}
 	}
@@ -41,7 +40,7 @@ public class BookmarkCategory : SimpleNotifyPropertyChanged {
 
 	public ImageSource Icon => Children is { Count: > 0 } ? FolderDrawingImage : EmptyFolderDrawingImage;
 
-	public virtual ObservableCollection<BookmarkItem> Children { get; set; }
+	public virtual ObservableCollection<BookmarkItem>? Children { get; set; }
 
 	public BookmarkCategory() { }
 
@@ -52,8 +51,8 @@ public class BookmarkCategory : SimpleNotifyPropertyChanged {
 	public void AddBookmark(BookmarkItem item) {
 		Children ??= new ObservableCollection<BookmarkItem>();
 		Children.Add(item);
-		UpdateUI(nameof(Children));
-		UpdateUI(nameof(Icon));
+		OnPropertyChanged(nameof(Children));
+		OnPropertyChanged(nameof(Icon));
 	}
 
 	public override string ToString() {
@@ -68,13 +67,13 @@ public class BookmarkCategory : SimpleNotifyPropertyChanged {
 public class BookmarkItem : FileListViewItem, IFilterable {
 	public override string DisplayText => Name;
 
-	public string CategoryForeignKey { get; set; }
+	public string CategoryForeignKey { get; set; } = null!;
 
-	public BookmarkCategory Category { get; set; }
+	public BookmarkCategory Category { get; set; } = null!;
 
-	public BookmarkItem() { }
+	public BookmarkItem() : base(null!, null!) { }
 
-	public BookmarkItem(string fullPath, string name, BookmarkCategory category) {
+	public BookmarkItem(string fullPath, string name, BookmarkCategory category) : base(null!, null!) {
 		FullPath = Path.GetFullPath(fullPath);
 		Name = name;
 		Category = category;
@@ -115,9 +114,9 @@ public class BookmarkItem : FileListViewItem, IFilterable {
 
 public class BookmarkDbContext : DbContext {
 	public static BookmarkDbContext Instance { get; } = new();
-	public static ObservableCollection<BookmarkCategory> BookmarkCategories { get; set; }
-	public DbSet<BookmarkCategory> BookmarkCategoryDbSet { get; set; }
-	public DbSet<BookmarkItem> BookmarkDbSet { get; set; }
+	public static ObservableCollection<BookmarkCategory> BookmarkCategories { get; set; } = null!;
+	public DbSet<BookmarkCategory> BookmarkCategoryDbSet { get; set; } = null!;
+	public DbSet<BookmarkItem> BookmarkDbSet { get; set; } = null!;
 
 	private readonly string dbPath;
 

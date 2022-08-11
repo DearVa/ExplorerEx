@@ -32,7 +32,7 @@ public static class Win32Interop {
 	public static extern IntPtr LoadCursor(IntPtr hInstance, long lpCursorName);
 
 	[DllImport(User32)]
-	public static extern bool GetCursorPos(out Point point);
+	public static extern bool GetCursorPos(out PointW point);
 
 	[DllImport(User32, CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
 	public static extern bool GetIconInfo(IntPtr hIcon, IntPtr pIconInfo);
@@ -59,7 +59,7 @@ public static class Win32Interop {
 	public static extern bool DestroyMenu(IntPtr hMenu);
 
 	[DllImport(User32)]
-	public static extern IntPtr WindowFromPoint(Point pos);
+	public static extern IntPtr WindowFromPoint(PointW pos);
 
 	/// <summary>
 	/// 获取光标处窗口的HWND
@@ -155,7 +155,7 @@ public static class Win32Interop {
 	public static extern bool CloseHandle(IntPtr handle);
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct Rect {
+	public struct RectW {
 		public int x;
 		public int y;
 		public int width;
@@ -163,13 +163,13 @@ public static class Win32Interop {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct Point {
+	public struct PointW {
 		public int x;
 		public int y;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	internal struct Size {
+	internal struct SizeW {
 		public int width;
 		public int height;
 	}
@@ -193,6 +193,10 @@ public static class Win32Interop {
 
 	public enum WinMessage {
 		CopyData = 0x004A,
+		NcHitTest = 0x0084,
+		NcLButtonDown = 0x00A1,
+		NcLButtonUp = 0x00A2,
+		NcMouseLeave = 0x02A2,
 		DeviceChange = 0x0219,
 		DrawClipboard = 0x0308,
 		ChangeCbChain = 0x030D,
@@ -229,6 +233,16 @@ public static class Win32Interop {
 	}
 
 	#region 亚克力/云母效果
+
+	public const int GWL_STYLE = -16;
+	public const int WS_SYSMENU = 0x80000;
+
+	[DllImport(User32)]
+	public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+	[DllImport(User32)]
+	public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
 	public enum AccentState {
 		Disabled = 0,
 		EnableGradient = 1,

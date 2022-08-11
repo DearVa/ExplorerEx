@@ -12,7 +12,7 @@ namespace ExplorerEx.Utils;
 public static class ConfigHelper {
 	private static readonly RegistryKey RegRoot = Registry.CurrentUser.OpenSubKey(@"Software\Dear.Va\ExplorerEx", true) ?? Registry.CurrentUser.CreateSubKey(@"Software\Dear.Va\ExplorerEx", true);
 
-	private static Task bufferSaveTask;
+	private static Task? bufferSaveTask;
 	private static readonly Dictionary<string, object> Buffer = new();
 	private static bool canSave;
 
@@ -55,7 +55,7 @@ public static class ConfigHelper {
 		}
 	}
 
-	public static object Load(string key) {
+	public static object? Load(string key) {
 		try {
 			var value = RegRoot.GetValue(key);
 			return value;

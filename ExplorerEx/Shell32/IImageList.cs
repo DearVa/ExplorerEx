@@ -43,7 +43,7 @@ internal interface IImageList {
 	int Clone(ref Guid riid, ref IntPtr ppv);
 
 	[PreserveSig]
-	int GetImageRect(int i, ref Rect prc);
+	int GetImageRect(int i, ref RectW prc);
 
 	[PreserveSig]
 	int GetIconSize(ref int cx, ref int cy);
@@ -85,7 +85,7 @@ internal interface IImageList {
 	int DragShowNolock(int fShow);
 
 	[PreserveSig]
-	int GetDragImage(ref Point ppt, ref Point pptHotspot, ref Guid riid, ref IntPtr ppv);
+	int GetDragImage(ref PointW ppt, ref PointW pptHotspot, ref Guid riid, ref IntPtr ppv);
 
 	[PreserveSig]
 	int GetItemFlags(int i, ref int dwFlags);
@@ -108,7 +108,7 @@ internal struct ImageInfo {
 	public IntPtr hbmMask;
 	public int Unused1;
 	public int Unused2;
-	public Rect rcImage;
+	public RectW rcImage;
 }
 
 [StructLayout(LayoutKind.Sequential)]

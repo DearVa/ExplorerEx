@@ -5,17 +5,17 @@ namespace HandyControl.Controls
 {
     public class IconSwitchElement : IconElement
     {
-        public static readonly DependencyProperty GeometrySelectedProperty = DependencyProperty.RegisterAttached(
-            "GeometrySelected", typeof(Geometry), typeof(IconSwitchElement), new PropertyMetadata(default(Geometry)));
+        public static readonly DependencyProperty IconSelectedProperty = DependencyProperty.RegisterAttached(
+            "IconSelected", typeof(Geometry), typeof(IconSwitchElement), new PropertyMetadata(default(Geometry)));
 
-        public static void SetGeometrySelected(DependencyObject element, Geometry value)
+        public static void SetIconSelected(DependencyObject element, Geometry value)
         {
-            element.SetValue(GeometrySelectedProperty, value);
+            element.SetValue(IconSelectedProperty, value);
         }
 
-        public static Geometry GetGeometrySelected(DependencyObject element)
+        public static Geometry GetIconSelected(DependencyObject element)
         {
-            return (Geometry) element.GetValue(GeometrySelectedProperty);
+            return (Geometry) element.GetValue(IconSelectedProperty);
         }
     }
 }

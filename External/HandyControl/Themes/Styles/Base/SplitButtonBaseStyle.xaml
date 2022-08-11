@@ -27,10 +27,10 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}">
-                                    <Path x:Name="PathMain" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Data="{TemplateBinding hc:IconElement.Geometry}"/>
+                                    <Path x:Name="PathMain" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Data="{TemplateBinding hc:IconElement.Icon}"/>
                                     <ContentPresenter x:Name="ContentPresenterMain" RecognizesAccessKey="True" VerticalAlignment="Center" Margin="6,0,0,0" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                                 </StackPanel>
-                                <ToggleButton x:Name="PART_Arrow" Foreground="{TemplateBinding Foreground}" IsChecked="{Binding IsDropDownOpen, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" Width="20" Margin="-6,0,0,0" Height="Auto" Padding="6,10,6,10" HorizontalContentAlignment="Left" Grid.Column="1" hc:IconSwitchElement.GeometrySelected="{StaticResource DownGeometry}" hc:IconElement.Geometry="{StaticResource DownGeometry}">
+                                <ToggleButton x:Name="PART_Arrow" Foreground="{TemplateBinding Foreground}" IsChecked="{Binding IsDropDownOpen, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" Width="20" Margin="-6,0,0,0" Height="Auto" Padding="6,10,6,10" HorizontalContentAlignment="Left" Grid.Column="1" hc:IconSwitchElement.IconSelected="{StaticResource DownGeometry}" hc:IconElement.Icon="{StaticResource DownGeometry}">
                                     <ToggleButton.Style>
                                         <Style BasedOn="{StaticResource ToggleButtonIconTransparent}" TargetType="ToggleButton">
                                             <Style.Triggers>
@@ -70,7 +70,7 @@
                         <Trigger Property="Content" Value="{x:Null}">
                             <Setter Property="Visibility" Value="Collapsed" TargetName="ContentPresenterMain"/>
                         </Trigger>
-                        <Trigger Property="hc:IconElement.Geometry" Value="{x:Null}">
+                        <Trigger Property="hc:IconElement.Icon" Value="{x:Null}">
                             <Setter Property="Visibility" Value="Collapsed" TargetName="PathMain"/>
                             <Setter Property="Margin" Value="0" TargetName="ContentPresenterMain"/>
                         </Trigger>

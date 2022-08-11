@@ -22,7 +22,7 @@
                 <RowDefinition/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <RepeatButton Style="{StaticResource ScrollViewerUpDownRepeatButtonStyle}" hc:IconElement.Geometry="{StaticResource UpGeometry}" CommandTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}" Command="{x:Static ScrollBar.LineUpCommand}">
+            <RepeatButton Style="{StaticResource ScrollViewerUpDownRepeatButtonStyle}" hc:IconElement.Icon="{StaticResource UpGeometry}" CommandTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}" Command="{x:Static ScrollBar.LineUpCommand}">
                 <RepeatButton.Visibility>
                     <MultiBinding FallbackValue="Visibility.Collapsed" Converter="{StaticResource MenuScrollingVisibilityConverter}" ConverterParameter="0">
                         <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="ComputedVerticalScrollBarVisibility" />
@@ -33,7 +33,7 @@
                 </RepeatButton.Visibility>
             </RepeatButton>
             <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanContentScroll="{TemplateBinding CanContentScroll}" CanHorizontallyScroll="False" CanVerticallyScroll="False" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Grid.Column="0" Margin="{TemplateBinding Padding}" Grid.Row="1"/>
-            <RepeatButton Style="{StaticResource ScrollViewerUpDownRepeatButtonStyle}" hc:IconElement.Geometry="{StaticResource DownGeometry}" CommandTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}" Grid.Row="2" Command="{x:Static ScrollBar.LineDownCommand}">
+            <RepeatButton Style="{StaticResource ScrollViewerUpDownRepeatButtonStyle}" hc:IconElement.Icon="{StaticResource DownGeometry}" CommandTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}" Grid.Row="2" Command="{x:Static ScrollBar.LineDownCommand}">
                 <RepeatButton.Visibility>
                     <MultiBinding FallbackValue="Visibility.Collapsed" Converter="{StaticResource MenuScrollingVisibilityConverter}" ConverterParameter="100">
                         <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="ComputedVerticalScrollBarVisibility" />

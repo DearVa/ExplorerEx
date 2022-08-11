@@ -83,7 +83,7 @@
                 <ControlTemplate TargetType="RepeatButton">
                     <Border CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
                         <ContentControl HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
-                            <Path Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" Data="{TemplateBinding hc:IconElement.Geometry}"/>
+                            <Path Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" Data="{TemplateBinding hc:IconElement.Icon}"/>
                         </ContentControl>
                     </Border>
                 </ControlTemplate>
@@ -119,7 +119,7 @@
                 <ControlTemplate TargetType="RepeatButton">
                     <Border Style="{StaticResource BorderCircular}" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
                         <ContentControl HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
-                            <Path Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" Data="{TemplateBinding hc:IconElement.Geometry}"/>
+                            <Path Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" Data="{TemplateBinding hc:IconElement.Icon}"/>
                         </ContentControl>
                     </Border>
                 </ControlTemplate>

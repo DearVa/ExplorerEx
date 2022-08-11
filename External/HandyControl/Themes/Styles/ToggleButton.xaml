@@ -83,12 +83,12 @@
                 <ControlTemplate TargetType="ToggleButton">
                     <Border Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
                         <ContentControl Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
-                            <Path x:Name="PathIcon" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Data="{TemplateBinding hc:IconSwitchElement.Geometry}"/>
+                            <Path x:Name="PathIcon" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Data="{TemplateBinding hc:IconSwitchElement.Icon}"/>
                         </ContentControl>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="PathIcon" Property="Data" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(hc:IconSwitchElement.GeometrySelected)}"/>
+                            <Setter TargetName="PathIcon" Property="Data" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(hc:IconSwitchElement.IconSelected)}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

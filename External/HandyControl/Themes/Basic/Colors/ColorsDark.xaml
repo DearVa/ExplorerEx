@@ -27,27 +27,29 @@
     <Color x:Key="DarkSuccessColor">#2db84d</Color>
 
     <Color x:Key="PrimaryTextColor">#e6e6e6</Color>
-    <Color x:Key="SecondaryTextColor">#757575</Color>
-    <Color x:Key="ThirdlyTextColor">#3f3f46</Color>
+    <Color x:Key="SecondaryTextColor">#b3b3b3</Color>
+    <Color x:Key="ThirdlyTextColor">#757575</Color>
     <Color x:Key="ReverseTextColor">#212121</Color>
     <Color x:Key="TextIconColor">#e6e6e6</Color>
 
     <Color x:Key="BorderColor">#553f3f46</Color>
     <Color x:Key="SecondaryBorderColor">#55555555</Color>
-    <Color x:Key="BackgroundColor">#66111111</Color>
-    <Color x:Key="RegionColor">#2c2c2c</Color>
-    <Color x:Key="SecondaryRegionColor">#662d2d30</Color>
-    <Color x:Key="ThirdlyRegionColor">#bb424242</Color>
+    <Color x:Key="BackgroundColor">#66121212</Color>
+    <Color x:Key="RegionColor">#88323232</Color>
+    <Color x:Key="SecondaryRegionColor">#aa0b0b0c</Color>
+    <Color x:Key="ThirdlyRegionColor">#cc0e0e10</Color>
     <Color x:Key="TitleColor">#326cf3</Color>
     <Color x:Key="SecondaryTitleColor">#326cf3</Color>
 
-    <Color x:Key="DefaultColor">#686868</Color>
-    <Color x:Key="DarkDefaultColor">#686868</Color>
+    <Color x:Key="DefaultColor">#990e0e10</Color>
+    <Color x:Key="DarkDefaultColor">#aa0e0e10</Color>
+
+    <Color x:Key="WindowBackgroundColor">#0e0e10</Color>
 
     <Color x:Key="AccentColor">#ff5722</Color>
     <Color x:Key="DarkAccentColor">#d43f3a</Color>
 
-    <Color x:Key="DarkMaskColor">#40000000</Color>
+    <Color x:Key="DarkMaskColor">#20000000</Color>
     <Color x:Key="DarkOpacityColor">#40000000</Color>
     <system:UInt32 x:Key="BlurGradientValue">0x99000000</system:UInt32>
 

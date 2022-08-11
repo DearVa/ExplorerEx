@@ -12,7 +12,7 @@ using static HandyControl.Tools.Interop.InteropValues;
 
 namespace HandyControl.Tools.Interop; 
 
-internal static class InteropMethods {
+public static class InteropMethods {
 	#region common
 
 	internal const int EFail = unchecked((int)0x80004005);
@@ -540,7 +540,7 @@ internal static class InteropMethods {
 	/// <summary>
 	/// 通过注册表获取系统是否为深色模式
 	/// </summary>
-	public static bool IsDarkTheme {
+	public static bool IsDarkMode {
 		get {
 			try {
 				using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
@@ -555,11 +555,32 @@ internal static class InteropMethods {
 	/// 开启窗口的亚克力透明效果
 	/// </summary>
 	/// <param name="hwnd"></param>
-	public static void EnableAcrylic(IntPtr hwnd) {
+	/// <param name="isDarkMode"></param>
+	/// <param name="opacity">透明度，介于0-100之间</param>
+	public static void EnableAcrylic(IntPtr hwnd, bool isDarkMode = false, uint opacity = 20) {
 		var accent = new AccentPolicy {
 			AccentState = AccentState.EnableAcrylicBlurBehind,
 			// 80: 透明度 第一个0xFFFFFF：背景色
-			GradientColor = (20 << 24) | (IsDarkTheme ? 0x000000u : 0xFFFFFFu)
+			GradientColor = (opacity << 24) | (isDarkMode ? 0x000000u : 0xFFFFFFu)
+		};
+
+		var sizeOfAccent = Marshal.SizeOf<AccentPolicy>();
+		var pAccent = Marshal.AllocHGlobal(sizeOfAccent);
+		Marshal.StructureToPtr(accent, pAccent, true);
+
+		var data = new WindowCompositionAttributeData {
+			Attribute = WindowCompositionAttribute.AccentPolicy,
+			SizeOfData = sizeOfAccent,
+			Data = pAccent
+		};
+		SetWindowCompositionAttribute(hwnd, ref data);
+
+		Marshal.FreeHGlobal(pAccent);
+	}
+
+	public static void DisableAcrylic(IntPtr hwnd) {
+		var accent = new AccentPolicy {
+			AccentState = AccentState.Disabled
 		};
 
 		var sizeOfAccent = Marshal.SizeOf<AccentPolicy>();

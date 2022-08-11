@@ -20,24 +20,24 @@ public class FileTabItem : TabItem {
 	/// <summary>
 	/// 当前正在Drag的tab
 	/// </summary>
-	public static FileTabItem DraggingFileTab { get; private set; }
+	public static FileTabItem? DraggingFileTab { get; private set; }
 	/// <summary>
 	/// 拖动标签的目标
 	/// </summary>
-	public static FileTabControl DragTabDestination { get; set; }
+	public static FileTabControl? DragTabDestination { get; set; }
 	/// <summary>
 	/// Continue设为结束DragDrop
 	/// </summary>
-	public static DispatcherFrame DragFrame { get; private set; }
+	public static DispatcherFrame? DragFrame { get; private set; }
 	/// <summary>
 	/// Drag结束时触发，之后会清除所有事件
 	/// </summary>
-	public static event Action DragEnd;
+	public static event Action? DragEnd;
 
-	private static DragPreviewWindow dragTabPreviewWindow;
+	private static DragPreviewWindow? dragTabPreviewWindow;
 
 	public static readonly DependencyProperty CanMoveToNewWindowProperty = DependencyProperty.Register(
-		"CanMoveToNewWindow", typeof(bool), typeof(FileTabItem), new PropertyMetadata(default(bool)));
+		nameof(CanMoveToNewWindow), typeof(bool), typeof(FileTabItem), new PropertyMetadata(default(bool)));
 
 	public bool CanMoveToNewWindow {
 		get => (bool)GetValue(CanMoveToNewWindowProperty);
@@ -45,7 +45,7 @@ public class FileTabItem : TabItem {
 	}
 
 	public static readonly DependencyProperty CanSplitScreenProperty = DependencyProperty.Register(
-		"CanSplitScreen", typeof(bool), typeof(FileTabItem), new PropertyMetadata(default(bool)));
+		nameof(CanSplitScreen), typeof(bool), typeof(FileTabItem), new PropertyMetadata(default(bool)));
 
 	public bool CanSplitScreen {
 		get => (bool)GetValue(CanSplitScreenProperty);
@@ -126,7 +126,7 @@ public class FileTabItem : TabItem {
 	/// </summary>
 	private Point mouseDownTabPoint;
 
-	private FileTabPanel fileTabPanel;
+	private FileTabPanel? fileTabPanel;
 
 	private Grid templateRoot;
 
@@ -172,7 +172,7 @@ public class FileTabItem : TabItem {
 	/// <summary>
 	///     标签容器
 	/// </summary>
-	internal FileTabPanel FileTabPanel {
+	internal FileTabPanel? FileTabPanel {
 		get {
 			if (fileTabPanel == null && TabControlParent != null) {
 				fileTabPanel = TabControlParent.HeaderPanel;
@@ -198,7 +198,7 @@ public class FileTabItem : TabItem {
 		}
 	}
 
-	private FileTabControl TabControlParent => ItemsControl.ItemsControlFromItemContainer(this) as FileTabControl;
+	private FileTabControl? TabControlParent => ItemsControl.ItemsControlFromItemContainer(this) as FileTabControl;
 
 	/// <summary>
 	///     更新选项卡横向偏移

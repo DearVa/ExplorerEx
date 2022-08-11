@@ -149,9 +149,9 @@ public struct CtxMenuInvokeCommandInfo {
 	public IntPtr hwnd;
     public IntPtr lpVerb;
     [MarshalAs(UnmanagedType.LPWStr)]
-    public string lpParameters;
+    public string? lpParameters;
     [MarshalAs(UnmanagedType.LPWStr)]
-    public string lpDirectory;
+    public string? lpDirectory;
 	public int nShow;
 	public int dwHotKey;
 	public IntPtr hIcon;

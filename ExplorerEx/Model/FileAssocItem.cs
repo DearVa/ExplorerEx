@@ -16,7 +16,7 @@ namespace ExplorerEx.Model;
 /// 文件关联项，即“打开方式”
 /// </summary>
 public class FileAssocItem : IRunnableApp {
-	public ImageSource Icon { get; }
+	public ImageSource? Icon { get; }
 
 	public string Description { get; }
 
@@ -37,15 +37,9 @@ public class FileAssocItem : IRunnableApp {
 			var index = iconPath.IndexOf('?');
 			var appxName = iconPath[2..index];
 			var appxPath = AppxPackage.GetFullPathByPackageName(appxName);
-			if (appxPath == null) {
-				return;
-			}
 			index = iconPath.IndexOf("/Files", index, StringComparison.Ordinal);
 			var relativeImagePath = iconPath[(index + 7)..^1];
 			var imagePath = AppxPackage.FindMinimumQualifiedImagePath(appxPath, relativeImagePath, 30);
-			if (imagePath == null) {
-				return;
-			}
 			var bitmap = new BitmapImage();
 			bitmap.BeginInit();
 			using var fs = File.OpenRead(imagePath);
@@ -85,17 +79,12 @@ public class FileAssocItem : IRunnableApp {
 			var count = 0;
 			while (count++ < SingleFileAssocMaxItemCount && handlers.Next(1, out var assocHandler, out var fetched) >= 0 && fetched > 0) {
 				try {
-					// ReSharper disable once AccessToModifiedClosure
 					list.Add(new FileAssocItem(assocHandler));
 				} catch (Exception e) {
 					Logger.Exception(e, false);
 				}
 			}
 			Marshal.ReleaseComObject(handlers);
-
-			if (list.Count == 0) {
-				list = null;
-			}
 
 			Monitor.Enter(FileAssocLists);
 			FileAssocLists.Add(extension, list);

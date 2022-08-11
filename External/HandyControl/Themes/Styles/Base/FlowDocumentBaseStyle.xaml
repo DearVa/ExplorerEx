@@ -28,9 +28,9 @@
                                     <ColumnDefinition/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <RepeatButton Height="20" Width="20" Padding="5,8" hc:BorderElement.CornerRadius="10" hc:IconElement.Geometry="{StaticResource SubGeometry}" Grid.Column="0" Command="NavigationCommands.DecreaseZoom" IsEnabled="{TemplateBinding CanDecreaseZoom}" ToolTip="{x:Static langs:Lang.ZoomOut}"/>
+                                <RepeatButton Height="20" Width="20" Padding="5,8" hc:BorderElement.CornerRadius="10" hc:IconElement.Icon="{StaticResource SubGeometry}" Grid.Column="0" Command="NavigationCommands.DecreaseZoom" IsEnabled="{TemplateBinding CanDecreaseZoom}" ToolTip="{x:Static langs:Lang.ZoomOut}"/>
                                 <Slider hc:TipElement.Visibility="Visible" hc:TipElement.Placement="Top" Grid.Column="1" HorizontalAlignment="Stretch" LargeChange="{TemplateBinding ZoomIncrement}" Maximum="{TemplateBinding MaxZoom}" Minimum="{TemplateBinding MinZoom}" SmallChange="{TemplateBinding ZoomIncrement}" TickFrequency="{TemplateBinding ZoomIncrement}" Value="{Binding Zoom, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" VerticalAlignment="Center" Width="180"/>
-                                <RepeatButton Height="20" Width="20" Padding="4" hc:BorderElement.CornerRadius="10" hc:IconElement.Geometry="{StaticResource AddGeometry}" Grid.Column="2" Command="NavigationCommands.IncreaseZoom" IsEnabled="{TemplateBinding CanIncreaseZoom}" ToolTip="{x:Static langs:Lang.ZoomIn}"/>
+                                <RepeatButton Height="20" Width="20" Padding="4" hc:BorderElement.CornerRadius="10" hc:IconElement.Icon="{StaticResource AddGeometry}" Grid.Column="2" Command="NavigationCommands.IncreaseZoom" IsEnabled="{TemplateBinding CanIncreaseZoom}" ToolTip="{x:Static langs:Lang.ZoomIn}"/>
                             </Grid>
                         </Grid>
                         <Border Panel.ZIndex="0" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Margin="{TemplateBinding Padding}" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}">
@@ -63,7 +63,7 @@
                             </Grid.ColumnDefinitions>
                             <Border x:Name="PART_FindToolBarHost" Grid.Column="0" HorizontalAlignment="Left" Visibility="Collapsed" VerticalAlignment="Center"/>
                             <StackPanel Grid.Column="1" HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Center">
-                                <RepeatButton Height="20" Width="20" Padding="4" hc:BorderElement.CornerRadius="10" hc:IconElement.Geometry="{StaticResource LeftGeometry}" Command="NavigationCommands.PreviousPage" IsEnabled="{TemplateBinding CanGoToPreviousPage}" ToolTip="{x:Static langs:Lang.PreviousPage}"/>
+                                <RepeatButton Height="20" Width="20" Padding="4" hc:BorderElement.CornerRadius="10" hc:IconElement.Icon="{StaticResource LeftGeometry}" Command="NavigationCommands.PreviousPage" IsEnabled="{TemplateBinding CanGoToPreviousPage}" ToolTip="{x:Static langs:Lang.PreviousPage}"/>
                                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <Run Text=" "/>
                                     <InlineUIContainer>
@@ -77,7 +77,7 @@
                                     </InlineUIContainer>
                                     <Run Text=" "/>
                                 </TextBlock>
-                                <RepeatButton Height="20" Width="20" Padding="4" hc:BorderElement.CornerRadius="10" hc:IconElement.Geometry="{StaticResource RightGeometry}" Command="NavigationCommands.NextPage" IsEnabled="{TemplateBinding CanGoToNextPage}" ToolTip="{x:Static langs:Lang.NextPage}"/>
+                                <RepeatButton Height="20" Width="20" Padding="4" hc:BorderElement.CornerRadius="10" hc:IconElement.Icon="{StaticResource RightGeometry}" Command="NavigationCommands.NextPage" IsEnabled="{TemplateBinding CanGoToNextPage}" ToolTip="{x:Static langs:Lang.NextPage}"/>
                             </StackPanel>
                             <Grid Grid.Column="2" VerticalAlignment="Center" Margin="32,0,0,0">
                                 <Grid.ColumnDefinitions>
@@ -85,9 +85,9 @@
                                     <ColumnDefinition/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <RepeatButton Height="20" Width="20" Padding="5,8" hc:BorderElement.CornerRadius="10" hc:IconElement.Geometry="{StaticResource SubGeometry}" Grid.Column="0" Command="NavigationCommands.DecreaseZoom" IsEnabled="{TemplateBinding CanDecreaseZoom}" ToolTip="{x:Static langs:Lang.ZoomOut}"/>
+                                <RepeatButton Height="20" Width="20" Padding="5,8" hc:BorderElement.CornerRadius="10" hc:IconElement.Icon="{StaticResource SubGeometry}" Grid.Column="0" Command="NavigationCommands.DecreaseZoom" IsEnabled="{TemplateBinding CanDecreaseZoom}" ToolTip="{x:Static langs:Lang.ZoomOut}"/>
                                 <Slider hc:TipElement.Visibility="Visible" hc:TipElement.Placement="Top" Grid.Column="1" HorizontalAlignment="Stretch" LargeChange="{TemplateBinding ZoomIncrement}" Maximum="{TemplateBinding MaxZoom}" Minimum="{TemplateBinding MinZoom}" SmallChange="{TemplateBinding ZoomIncrement}" TickFrequency="{TemplateBinding ZoomIncrement}" Value="{Binding Zoom, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" VerticalAlignment="Center"/>
-                                <RepeatButton Height="20" Width="20" Padding="4" hc:BorderElement.CornerRadius="10" hc:IconElement.Geometry="{StaticResource AddGeometry}" Grid.Column="2" Command="NavigationCommands.IncreaseZoom" IsEnabled="{TemplateBinding CanIncreaseZoom}" ToolTip="{x:Static langs:Lang.ZoomIn}"/>
+                                <RepeatButton Height="20" Width="20" Padding="4" hc:BorderElement.CornerRadius="10" hc:IconElement.Icon="{StaticResource AddGeometry}" Grid.Column="2" Command="NavigationCommands.IncreaseZoom" IsEnabled="{TemplateBinding CanIncreaseZoom}" ToolTip="{x:Static langs:Lang.ZoomIn}"/>
                             </Grid>
                         </Grid>
                         <Border Panel.ZIndex="0" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Margin="{TemplateBinding Padding}" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}">
@@ -121,11 +121,11 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal">
-                                <ToggleButton Width="24" Height="24" Padding="5" x:Name="FindButton" hc:IconElement.Geometry="{StaticResource SearchGeometry}" Command="ApplicationCommands.Find" Margin="0,0,10,0" ToolTip="{x:Static langs:Lang.Find}"/>
+                                <ToggleButton Width="24" Height="24" Padding="5" x:Name="FindButton" hc:IconElement.Icon="{StaticResource SearchGeometry}" Command="ApplicationCommands.Find" Margin="0,0,10,0" ToolTip="{x:Static langs:Lang.Find}"/>
                                 <Border x:Name="PART_FindToolBarHost" HorizontalAlignment="Left" Visibility="Collapsed" VerticalAlignment="Center"/>
                             </StackPanel>
                             <StackPanel x:Name="PageCountAndButtons" Grid.Column="1" HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Center">
-                                <RepeatButton Height="20" Width="20" Padding="4" hc:BorderElement.CornerRadius="10" hc:IconElement.Geometry="{StaticResource LeftGeometry}" Command="NavigationCommands.PreviousPage" IsEnabled="{TemplateBinding CanGoToPreviousPage}" ToolTip="{x:Static langs:Lang.PreviousPage}"/>
+                                <RepeatButton Height="20" Width="20" Padding="4" hc:BorderElement.CornerRadius="10" hc:IconElement.Icon="{StaticResource LeftGeometry}" Command="NavigationCommands.PreviousPage" IsEnabled="{TemplateBinding CanGoToPreviousPage}" ToolTip="{x:Static langs:Lang.PreviousPage}"/>
                                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <Run Text=" "/>
                                     <InlineUIContainer>
@@ -139,7 +139,7 @@
                                     </InlineUIContainer>
                                     <Run Text=" "/>
                                 </TextBlock>
-                                <RepeatButton Height="20" Width="20" Padding="4" hc:BorderElement.CornerRadius="10" hc:IconElement.Geometry="{StaticResource RightGeometry}" Command="NavigationCommands.NextPage" IsEnabled="{TemplateBinding CanGoToNextPage}" ToolTip="{x:Static langs:Lang.NextPage}"/>
+                                <RepeatButton Height="20" Width="20" Padding="4" hc:BorderElement.CornerRadius="10" hc:IconElement.Icon="{StaticResource RightGeometry}" Command="NavigationCommands.NextPage" IsEnabled="{TemplateBinding CanGoToNextPage}" ToolTip="{x:Static langs:Lang.NextPage}"/>
                             </StackPanel>
                             <Grid Grid.Column="2" Margin="32,0,0,0" VerticalAlignment="Center">
                                 <Grid.ColumnDefinitions>
@@ -149,13 +149,13 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <hc:ButtonGroup Width="90">
-                                    <RadioButton x:Name="PageViewButton" Padding="0" hc:IconElement.Geometry="{StaticResource PageModeGeometry}" CommandParameter="Page" Command="FlowDocumentReader.SwitchViewingModeCommand" GroupName="ViewingMode" IsEnabled="{TemplateBinding IsPageViewEnabled}" ToolTip="{x:Static langs:Lang.PageMode}"/>
-                                    <RadioButton x:Name="TwoPageViewButton" hc:IconElement.Geometry="{StaticResource TwoPageModeGeometry}" Padding="0" CommandParameter="TwoPage" Command="FlowDocumentReader.SwitchViewingModeCommand" GroupName="ViewingMode" IsEnabled="{TemplateBinding IsTwoPageViewEnabled}" ToolTip="{x:Static langs:Lang.TwoPageMode}"/>
-                                    <RadioButton x:Name="ScrollViewButton" hc:IconElement.Geometry="{StaticResource ScrollModeGeometry}" Padding="0" CommandParameter="Scroll" Command="FlowDocumentReader.SwitchViewingModeCommand" GroupName="ViewingMode" IsEnabled="{TemplateBinding IsScrollViewEnabled}" ToolTip="{x:Static langs:Lang.ScrollMode}"/>
+                                    <RadioButton x:Name="PageViewButton" Padding="0" hc:IconElement.Icon="{StaticResource PageModeGeometry}" CommandParameter="Page" Command="FlowDocumentReader.SwitchViewingModeCommand" GroupName="ViewingMode" IsEnabled="{TemplateBinding IsPageViewEnabled}" ToolTip="{x:Static langs:Lang.PageMode}"/>
+                                    <RadioButton x:Name="TwoPageViewButton" hc:IconElement.Icon="{StaticResource TwoPageModeGeometry}" Padding="0" CommandParameter="TwoPage" Command="FlowDocumentReader.SwitchViewingModeCommand" GroupName="ViewingMode" IsEnabled="{TemplateBinding IsTwoPageViewEnabled}" ToolTip="{x:Static langs:Lang.TwoPageMode}"/>
+                                    <RadioButton x:Name="ScrollViewButton" hc:IconElement.Icon="{StaticResource ScrollModeGeometry}" Padding="0" CommandParameter="Scroll" Command="FlowDocumentReader.SwitchViewingModeCommand" GroupName="ViewingMode" IsEnabled="{TemplateBinding IsScrollViewEnabled}" ToolTip="{x:Static langs:Lang.ScrollMode}"/>
                                 </hc:ButtonGroup>
-                                <RepeatButton Margin="32,0,0,0" Height="20" Width="20" Padding="5,8" hc:BorderElement.CornerRadius="10" hc:IconElement.Geometry="{StaticResource SubGeometry}" Grid.Column="1" Command="NavigationCommands.DecreaseZoom" IsEnabled="{TemplateBinding CanDecreaseZoom}" ToolTip="{x:Static langs:Lang.ZoomOut}"/>
+                                <RepeatButton Margin="32,0,0,0" Height="20" Width="20" Padding="5,8" hc:BorderElement.CornerRadius="10" hc:IconElement.Icon="{StaticResource SubGeometry}" Grid.Column="1" Command="NavigationCommands.DecreaseZoom" IsEnabled="{TemplateBinding CanDecreaseZoom}" ToolTip="{x:Static langs:Lang.ZoomOut}"/>
                                 <Slider hc:TipElement.Visibility="Visible" hc:TipElement.Placement="Top" Grid.Column="2" HorizontalAlignment="Stretch" LargeChange="{TemplateBinding ZoomIncrement}" Maximum="{TemplateBinding MaxZoom}" Minimum="{TemplateBinding MinZoom}" SmallChange="{TemplateBinding ZoomIncrement}" TickFrequency="{TemplateBinding ZoomIncrement}" Value="{Binding Zoom, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" VerticalAlignment="Center"/>
-                                <RepeatButton Height="20" Width="20" Padding="4" hc:BorderElement.CornerRadius="10" hc:IconElement.Geometry="{StaticResource AddGeometry}" Grid.Column="3" Command="NavigationCommands.IncreaseZoom" IsEnabled="{TemplateBinding CanIncreaseZoom}" ToolTip="{x:Static langs:Lang.ZoomIn}"/>
+                                <RepeatButton Height="20" Width="20" Padding="4" hc:BorderElement.CornerRadius="10" hc:IconElement.Icon="{StaticResource AddGeometry}" Grid.Column="3" Command="NavigationCommands.IncreaseZoom" IsEnabled="{TemplateBinding CanIncreaseZoom}" ToolTip="{x:Static langs:Lang.ZoomIn}"/>
                             </Grid>
                         </Grid>
                         <Border Panel.ZIndex="0" x:Name="PART_ContentHost" KeyboardNavigation.IsTabStop="False" KeyboardNavigation.TabIndex="1" KeyboardNavigation.TabNavigation="Local" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Margin="{TemplateBinding Padding}" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}"/>

@@ -15,7 +15,7 @@ namespace ExplorerEx.View.Controls;
 /// </summary>
 public partial class ContentDialog {
 	public static readonly DependencyProperty TitleProperty = DependencyProperty.Register(
-		"Title", typeof(string), typeof(ContentDialog), new PropertyMetadata(default(string)));
+		nameof(Title), typeof(string), typeof(ContentDialog), new PropertyMetadata(default(string)));
 
 	public string? Title {
 		get => (string)GetValue(TitleProperty);
@@ -23,7 +23,7 @@ public partial class ContentDialog {
 	}
 
 	public static readonly DependencyProperty ContentProperty = DependencyProperty.Register(
-		"Content", typeof(object), typeof(ContentDialog), new PropertyMetadata(default(object)));
+		nameof(Content), typeof(object), typeof(ContentDialog), new PropertyMetadata(default(object)));
 
 	public object Content {
 		get => GetValue(ContentProperty);
@@ -31,7 +31,7 @@ public partial class ContentDialog {
 	}
 
 	public static readonly DependencyProperty PrimaryButtonTextProperty = DependencyProperty.Register(
-		"PrimaryButtonText", typeof(string), typeof(ContentDialog), new PropertyMetadata(default(string), PrimaryButtonText_OnChanged));
+		nameof(PrimaryButtonText), typeof(string), typeof(ContentDialog), new PropertyMetadata(default(string), PrimaryButtonText_OnChanged));
 
 	private static void PrimaryButtonText_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		var cd = (ContentDialog)d;
@@ -46,7 +46,7 @@ public partial class ContentDialog {
 	}
 
 	public static readonly DependencyProperty PrimaryButtonCommandProperty = DependencyProperty.Register(
-		"PrimaryButtonCommand", typeof(ICommand), typeof(ContentDialog), new PropertyMetadata(default(ICommand)));
+		nameof(PrimaryButtonCommand), typeof(ICommand), typeof(ContentDialog), new PropertyMetadata(default(ICommand)));
 
 	public ICommand? PrimaryButtonCommand {
 		get => (ICommand)GetValue(PrimaryButtonCommandProperty);
@@ -54,7 +54,7 @@ public partial class ContentDialog {
 	}
 
 	public static readonly DependencyProperty IsPrimaryButtonEnabledProperty = DependencyProperty.Register(
-		"IsPrimaryButtonEnabled", typeof(bool), typeof(ContentDialog), new PropertyMetadata(true));
+		nameof(IsPrimaryButtonEnabled), typeof(bool), typeof(ContentDialog), new PropertyMetadata(true));
 
 	public bool IsPrimaryButtonEnabled {
 		get => (bool)GetValue(IsPrimaryButtonEnabledProperty);
@@ -62,7 +62,7 @@ public partial class ContentDialog {
 	}
 
 	public static readonly DependencyProperty SecondaryButtonTextProperty = DependencyProperty.Register(
-		"SecondaryButtonText", typeof(string), typeof(ContentDialog), new PropertyMetadata(default(string), SecondaryButtonText_OnChanged));
+		nameof(SecondaryButtonText), typeof(string), typeof(ContentDialog), new PropertyMetadata(default(string), SecondaryButtonText_OnChanged));
 
 	private static void SecondaryButtonText_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		var cd = (ContentDialog)d;
@@ -75,7 +75,7 @@ public partial class ContentDialog {
 	}
 
 	public static readonly DependencyProperty SecondaryButtonCommandProperty = DependencyProperty.Register(
-		"SecondaryButtonCommand", typeof(ICommand), typeof(ContentDialog), new PropertyMetadata(default(ICommand)));
+		nameof(SecondaryButtonCommand), typeof(ICommand), typeof(ContentDialog), new PropertyMetadata(default(ICommand)));
 
 	public ICommand? SecondaryButtonCommand {
 		get => (ICommand)GetValue(SecondaryButtonCommandProperty);
@@ -83,7 +83,7 @@ public partial class ContentDialog {
 	}
 
 	public static readonly DependencyProperty CancelButtonTextProperty = DependencyProperty.Register(
-		"CancelButtonText", typeof(string), typeof(ContentDialog), new PropertyMetadata(default(string), CancelButtonText_OnChanged));
+		nameof(CancelButtonText), typeof(string), typeof(ContentDialog), new PropertyMetadata(default(string), CancelButtonText_OnChanged));
 
 	private static void CancelButtonText_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		var cd = (ContentDialog)d;
@@ -96,7 +96,7 @@ public partial class ContentDialog {
 	}
 
 	public static readonly DependencyProperty CancelButtonCommandProperty = DependencyProperty.Register(
-		"CancelButtonCommand", typeof(ICommand), typeof(ContentDialog), new PropertyMetadata(default(ICommand)));
+		nameof(CancelButtonCommand), typeof(ICommand), typeof(ContentDialog), new PropertyMetadata(default(ICommand)));
 
 	public ICommand? CancelButtonCommand {
 		get => (ICommand)GetValue(CancelButtonCommandProperty);
@@ -117,32 +117,34 @@ public partial class ContentDialog {
 		var cubicEase = new CubicEase {
 			EasingMode = EasingMode.EaseOut
 		};
-		opacityInAnimation = new DoubleAnimation(1d, TimeSpan.FromMilliseconds(300d)) {
+		opacityInAnimation = new DoubleAnimation(1d, TimeSpan.FromMilliseconds(200d)) {
 			EasingFunction = cubicEase
 		};
-		opacityOutAnimation = new DoubleAnimation(0d, TimeSpan.FromMilliseconds(300d)) {
+		opacityOutAnimation = new DoubleAnimation(0d, TimeSpan.FromMilliseconds(200d)) {
 			EasingFunction = cubicEase
 		};
-		scaleInAnimation = new DoubleAnimation(0.8d, 1d, TimeSpan.FromMilliseconds(300d)) {
+		scaleInAnimation = new DoubleAnimation(0.8d, 1d, TimeSpan.FromMilliseconds(200d)) {
 			EasingFunction = new BackEase {
 				EasingMode = EasingMode.EaseOut,
-				Amplitude = 1.2d
+				Amplitude = 1.1d
 			}
 		};
 		scaleInAnimation.Completed += (_, _) => {
 			ContentPresenter.Focus();
 			Shown?.Invoke();
 		};
-		scaleXOutAnimation = new DoubleAnimation(1d, 1.2d, TimeSpan.FromMilliseconds(300d)) {
+		scaleXOutAnimation = new DoubleAnimation(1d, 1.2d, TimeSpan.FromMilliseconds(200d)) {
 			EasingFunction = cubicEase
 		};
-		scaleYOutAnimation = new DoubleAnimation(1d, 1.2d, TimeSpan.FromMilliseconds(300d)) {
+		scaleYOutAnimation = new DoubleAnimation(1d, 1.2d, TimeSpan.FromMilliseconds(200d)) {
 			EasingFunction = cubicEase
 		};
 		scaleYOutAnimation.Completed += (_, _) => {
 			dispatcherFrame.Continue = false;
-			owner!.RootPanel.Children.Remove(this);
-			owner = null;
+			if (owner != null) {
+				owner.RootPanel.Children.Remove(this);
+				owner = null;
+			}
 		};
 
 		if (PrimaryButtonText == null && SecondaryButtonText == null && CancelButtonText == null) {
@@ -201,24 +203,10 @@ public partial class ContentDialog {
 
 	protected override void OnKeyDown(KeyEventArgs e) {
 		base.OnKeyDown(e);
-		switch (e.Key) {
-		case Key.Enter:
-			if (PrimaryButtonText != null) {
-				result = ContentDialogResult.Primary;
-				Close();
-			}
-			break;
-		case Key.Escape:
-			if (CancelButtonText != null) {
-				result = ContentDialogResult.Cancel;
-				Close();
-			}
-			break;
-		case Key.C when e.KeyboardDevice.Modifiers == ModifierKeys.Control:
+		if (e.Key == Key.C && e.KeyboardDevice.Modifiers == ModifierKeys.Control) {
 			if (Content is string s) {
 				Clipboard.SetText(s);
 			}
-			break;
 		}
 	}
 

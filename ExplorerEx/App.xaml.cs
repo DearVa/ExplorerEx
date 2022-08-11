@@ -1,51 +1,33 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Threading;
 using ExplorerEx.Model;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 using ExplorerEx.View;
-using ExplorerEx.Win32;
-using HandyControl.Data;
 using Microsoft.Win32;
 using static ExplorerEx.Win32.Win32Interop;
 
 namespace ExplorerEx;
 
 public partial class App {
-	public static App Instance { get; private set; }
-	public static Arguments Args { get; private set; }
+	public static App Instance { get; private set; } = null!;
+	public static Arguments Args { get; private set; } = null!;
 	public static int ProcessorCount { get; private set; }
 
 	private App() {
 		Instance = this;
 	}
-
-	/// <summary>
-	/// 通过注册表获取系统是否为深色模式
-	/// </summary>
-	public static bool IsDarkTheme {
-		get {
-			try {
-				using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-				return key?.GetValue("AppsUseLightTheme") is 0;
-			} catch {
-				return false;
-			}
-		}
-	}
-
+	
 	private static bool isRunning;
-	private static Mutex mutex;
-	private static NotifyIconWindow notifyIconWindow;
-	private static NotifyMemoryMappedFile notifyMmf;
+	private static Mutex? mutex;
+	private static NotifyIconWindow? notifyIconWindow;
+	private static NotifyMemoryMappedFile? notifyMmf;
 	// private static DispatcherTimer dispatcherTimer;
 
 	protected override async void OnStartup(StartupEventArgs e) {
@@ -61,7 +43,7 @@ public partial class App {
 			return;
 		}
 		if (Args.ShowHelp) {
-			Console.WriteLine("#App_help".L());
+			Console.WriteLine("#AppHelp".L());
 			Current.Shutdown();
 			return;
 		}
@@ -87,11 +69,12 @@ public partial class App {
 		Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 		Shell32Interop.Initialize();
 		IconHelper.InitializeDefaultIcons(Resources);
+		Settings.Current.LoadSettings();
+		ChangeTheme(((SolidColorBrush)SystemParameters.WindowGlassBrush).Color, false);
 
 		await BookmarkDbContext.Instance.LoadDataBase();
 		await FileViewDbContext.Instance.LoadDataBase();
 		
-		ChangeTheme(IsDarkTheme, ((SolidColorBrush)SystemParameters.WindowGlassBrush).Color, false);
 		if (!Args.RunInBackground) {
 			new MainWindow(null).Show();
 		}
@@ -109,7 +92,7 @@ public partial class App {
 #endif
 	}
 
-	public static void ChangeTheme(bool isDarkTheme, Color primaryColor, bool useAnimation = true) {
+	public static void ChangeTheme(Color primaryColor, bool useAnimation = true) {
 		var brushes = new ResourceDictionary {
 			Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Basic/Brushes.xaml", UriKind.Absolute)
 		};
@@ -117,7 +100,7 @@ public partial class App {
 		var lightPrimaryColor = new HSVColor(primaryHsvColor.hue, primaryHsvColor.saturation * 0.8, primaryHsvColor.value).ToRGB();
 		var darkPrimaryColor = new HSVColor(primaryHsvColor.hue, primaryHsvColor.saturation * 1.25, primaryHsvColor.value).ToRGB();
 		var newColors = new ResourceDictionary {
-			Source = new Uri(isDarkTheme ? "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/ColorsDark.xaml" : "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Colors.xaml", UriKind.Absolute),
+			Source = new Uri(Settings.Current.IsDarkMode ? "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/ColorsDark.xaml" : "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Colors.xaml", UriKind.Absolute),
 			["LightPrimaryColor"] = lightPrimaryColor,
 			["PrimaryColor"] = primaryColor,
 			["DarkPrimaryColor"] = darkPrimaryColor,
@@ -125,8 +108,11 @@ public partial class App {
 			["SelectColor"] = Color.FromArgb(0x99, primaryColor.R, primaryColor.G, primaryColor.B),
 			["DarkSelectColor"] = Color.FromArgb(0xCC, darkPrimaryColor.R, darkPrimaryColor.G, darkPrimaryColor.B),
 			["TitleColor"] = primaryColor,
-			["SecondaryTitleColor"] = lightPrimaryColor,
+			["SecondaryTitleColor"] = lightPrimaryColor
 		};
+		if (Settings.Current.WindowBackdrop != WindowBackdrop.SolidColor) {
+			newColors["WindowBackgroundColor"] = Color.FromArgb(0, 127, 127, 127);
+		}
 		var resources = Current.Resources;
 		foreach (string brushName in brushes.Keys) {
 			if (resources[brushName] is SolidColorBrush sc) {
@@ -178,7 +164,7 @@ public partial class App {
 	/// </summary>
 	private void IPCWork() {
 		while (isRunning) {
-			notifyMmf.WaitForModified();
+			notifyMmf!.WaitForModified();
 			var data = notifyMmf.Read();
 			if (data != null) {
 				var msg = Encoding.UTF8.GetString(data).Split('|');
@@ -195,8 +181,8 @@ public partial class App {
 		if (isRunning) {
 			isRunning = false;
 			BookmarkDbContext.Instance.SaveChanges();
-			notifyIconWindow?.NotifyIconContextContent.Dispose();
-			mutex.Dispose();
+			notifyIconWindow?.NotifyIcon.Dispose();
+			mutex!.Dispose();
 		}
 		base.OnExit(e);
 	}

@@ -30,19 +30,21 @@
     <Color x:Key="SecondaryTextColor">#757575</Color>
     <Color x:Key="ThirdlyTextColor">#bdbdbd</Color>
     <Color x:Key="ReverseTextColor">#e6e6e6</Color>
-    <Color x:Key="TextIconColor">White</Color>
+    <Color x:Key="TextIconColor">#212121</Color>
 
     <Color x:Key="BorderColor">#55e0e0e0</Color>
     <Color x:Key="SecondaryBorderColor">#55757575</Color>
     <Color x:Key="BackgroundColor">#66ffffff</Color>
-    <Color x:Key="RegionColor">#ffffff</Color>
-    <Color x:Key="SecondaryRegionColor">#66dddddd</Color>
+    <Color x:Key="RegionColor">#ccffffff</Color>
+    <Color x:Key="SecondaryRegionColor">#aadddddd</Color>
     <Color x:Key="ThirdlyRegionColor">#88ffffff</Color>
     <Color x:Key="TitleColor">#326cf3</Color>
     <Color x:Key="SecondaryTitleColor">#326cf3</Color>
 
-    <Color x:Key="DefaultColor">White</Color>
-    <Color x:Key="DarkDefaultColor">#f5f5f5</Color>
+    <Color x:Key="DefaultColor">#99ffffff</Color>
+    <Color x:Key="DarkDefaultColor">#aaf5f5f5</Color>
+
+    <Color x:Key="WindowBackgroundColor">#d2d2d2</Color>
 
     <Color x:Key="AccentColor">#f8491e</Color>
     <Color x:Key="DarkAccentColor">#f8491e</Color>

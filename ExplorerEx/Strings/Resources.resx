@@ -67,16 +67,10 @@
   <data name="View" xml:space="preserve">
     <value>查看</value>
   </data>
-  <data name="Run_ItemsCount" xml:space="preserve">
-    <value> 个项目</value>
-  </data>
-  <data name="Run_SelectedItemsCount" xml:space="preserve">
-    <value>选择了 </value>
-  </data>
   <data name="ThisPC" xml:space="preserve">
     <value>此电脑</value>
   </data>
-  <data name="New_folder" xml:space="preserve">
+  <data name="NewFolder" xml:space="preserve">
     <value>新建文件夹</value>
   </data>
   <data name="Shortcut" xml:space="preserve">
@@ -97,7 +91,7 @@
   <data name="Total: " xml:space="preserve">
     <value>共有：</value>
   </data>
-  <data name="Local_disk" xml:space="preserve">
+  <data name="LocalDisk" xml:space="preserve">
     <value>本地磁盘</value>
   </data>
   <data name="Properties" xml:space="preserve">
@@ -151,7 +145,7 @@
   <data name="#YouClosedTheLastTab" xml:space="preserve">
     <value>您关闭了最后一个标签页，请问您希望？</value>
   </data>
-  <data name="Exit_application" xml:space="preserve">
+  <data name="ExitApplication" xml:space="preserve">
     <value>退出应用程序</value>
   </data>
   <data name="BackToHome" xml:space="preserve">
@@ -166,10 +160,10 @@
   <data name="TheFollowingFilesFailedToDelete" xml:space="preserve">
     <value>以下文件删除失败：</value>
   </data>
-  <data name="Save_as_file" xml:space="preserve">
+  <data name="SaveAsFile" xml:space="preserve">
     <value>保存为文件</value>
   </data>
-  <data name="Save_file_name" xml:space="preserve">
+  <data name="SaveFileName" xml:space="preserve">
     <value>保存文件名</value>
   </data>
   <data name="Save" xml:space="preserve">
@@ -184,13 +178,13 @@
   <data name="Image" xml:space="preserve">
     <value>图像</value>
   </data>
-  <data name="Save_as" xml:space="preserve">
+  <data name="SaveAs" xml:space="preserve">
     <value>保存为</value>
   </data>
-  <data name="Loading_image_from" xml:space="preserve">
+  <data name="LoadingImageFrom" xml:space="preserve">
     <value>正在加载图片：</value>
   </data>
-  <data name="Dont_show_this_message_again" xml:space="preserve">
+  <data name="DontShowAgain" xml:space="preserve">
     <value>不要再显示该信息</value>
   </data>
   <data name="CannotAccessDirectory" xml:space="preserve">
@@ -225,13 +219,13 @@
   <data name="#EverythingIsNotAvailable" xml:space="preserve">
     <value>Everything未运行或未安装，暂时无法使用搜索。</value>
   </data>
-  <data name="Removable_disk" xml:space="preserve">
+  <data name="RemovableDisk" xml:space="preserve">
     <value>可移动磁盘</value>
   </data>
   <data name="CD_drive" xml:space="preserve">
     <value>光盘驱动器</value>
   </data>
-  <data name="Other_type_disk" xml:space="preserve">
+  <data name="OtherTypeDisk" xml:space="preserve">
     <value>其他类型磁盘</value>
   </data>
   <data name="LargeIcons" xml:space="preserve">
@@ -324,10 +318,10 @@
   <data name="Error" xml:space="preserve">
     <value>错误</value>
   </data>
-  <data name="Cannot_open" xml:space="preserve">
+  <data name="CannotOpen" xml:space="preserve">
     <value>无法打开</value>
   </data>
-  <data name="#App_help" xml:space="preserve">
+  <data name="#AppHelp" xml:space="preserve">
     <value>使用说明：
 ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requireDebugger] Path1, Path2, ...</value>
     <comment>Usage：
@@ -369,7 +363,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="UnknownType" xml:space="preserve">
     <value>未知类型</value>
   </data>
-  <data name="Release_to_move_to_RecycleBin" xml:space="preserve">
+  <data name="ReleaseToMoveToRecycleBin" xml:space="preserve">
     <value>松手移动到回收站</value>
   </data>
   <data name="Ascending" xml:space="preserve">
@@ -488,7 +482,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
     <value>解压下列文件时发生错误：</value>
   </data>
   <data name="And...More" xml:space="preserve">
-    <value>And {0} more.</value>
+    <value>还有 {0} 个。</value>
   </data>
   <data name="Close" xml:space="preserve">
     <value>关闭</value>
@@ -603,5 +597,65 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name="File" xml:space="preserve">
     <value>文件</value>
+  </data>
+  <data name="Appearance" xml:space="preserve">
+    <value>外观</value>
+  </data>
+  <data name="DoubleClickGoUpperLevel" xml:space="preserve">
+    <value>双击返回上一级</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>主题</value>
+  </data>
+  <data name="WindowBackdrop" xml:space="preserve">
+    <value>窗口背景</value>
+  </data>
+  <data name="SolidColor" xml:space="preserve">
+    <value>纯色</value>
+  </data>
+  <data name="Acrylic" xml:space="preserve">
+    <value>亚克力</value>
+  </data>
+  <data name="MicaWindows11Only" xml:space="preserve">
+    <value>云母（仅Windows 11可用）</value>
+  </data>
+  <data name="ColorMode" xml:space="preserve">
+    <value>颜色模式</value>
+  </data>
+  <data name="FollowSystem" xml:space="preserve">
+    <value>跟随系统</value>
+  </data>
+  <data name="ColorMode-Light" xml:space="preserve">
+    <value>浅色</value>
+  </data>
+  <data name="ColorMode-Dark" xml:space="preserve">
+    <value>深色</value>
+  </data>
+  <data name="Common" xml:space="preserve">
+    <value>通用</value>
+  </data>
+  <data name="DefaultTextEditor" xml:space="preserve">
+    <value>默认文本编辑器</value>
+  </data>
+  <data name="#DefaultTextEditorDescription" xml:space="preserve">
+    <value>当使用鼠标右键点击文本文件并选择“编辑”时，会使用这个程序来打开。</value>
+  </data>
+  <data name="#DoubleClickGoUpperLevelDescription" xml:space="preserve">
+    <value>在空白处双击来返回上一级。</value>
+  </data>
+  <data name="MediumIcons" xml:space="preserve">
+    <value>中等图标</value>
+  </data>
+  <data name="...FreeOf..." xml:space="preserve">
+    <value>共{1}，剩余{0}</value>
+  </data>
+  <data name=":" xml:space="preserve">
+    <value>：</value>
+  </data>
+  <data name="Selected...Items" xml:space="preserve">
+    <value>选择了{0}个项目</value>
+  </data>
+  <data name="...Items" xml:space="preserve">
+    <value>共{0}个项目</value>
   </data>
 </root>

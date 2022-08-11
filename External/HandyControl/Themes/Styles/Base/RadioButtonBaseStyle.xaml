@@ -110,7 +110,7 @@
                         <Border Background="{TemplateBinding Background}" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}"/>
                         <Border BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}">
-                                <Path x:Name="PathMain" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Data="{TemplateBinding hc:IconElement.Geometry}"/>
+                                <Path x:Name="PathMain" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Data="{TemplateBinding hc:IconElement.Icon}"/>
                                 <ContentPresenter x:Name="ContentPresenterMain" RecognizesAccessKey="True" VerticalAlignment="Center" Margin="6,0,0,0" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                             </StackPanel>
                         </Border>
@@ -123,7 +123,7 @@
                         <Trigger Property="Content" Value="{x:Null}">
                             <Setter Property="Visibility" Value="Collapsed" TargetName="ContentPresenterMain"/>
                         </Trigger>
-                        <Trigger Property="hc:IconElement.Geometry" Value="{x:Null}">
+                        <Trigger Property="hc:IconElement.Icon" Value="{x:Null}">
                             <Setter Property="Visibility" Value="Collapsed" TargetName="PathMain"/>
                             <Setter Property="Margin" Value="0" TargetName="ContentPresenterMain"/>
                         </Trigger>
@@ -164,7 +164,7 @@
                     <Border CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
                         <Border Name="BorderHighlight" BorderThickness="3,0,0,0" BorderBrush="Transparent">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}">
-                                <Path x:Name="PathMain" Height="{Binding Path=(hc:IconElement.Height),RelativeSource={RelativeSource TemplatedParent}}" Width="{Binding Path=(hc:IconElement.Width),RelativeSource={RelativeSource TemplatedParent}}" Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Data="{TemplateBinding hc:IconElement.Geometry}"/>
+                                <Path x:Name="PathMain" Height="{Binding Path=(hc:IconElement.Height),RelativeSource={RelativeSource TemplatedParent}}" Width="{Binding Path=(hc:IconElement.Width),RelativeSource={RelativeSource TemplatedParent}}" Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Data="{TemplateBinding hc:IconElement.Icon}"/>
                                 <ContentPresenter x:Name="ContentPresenterMain" RecognizesAccessKey="True" VerticalAlignment="Center" Margin="6,0,0,0" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                             </StackPanel>
                         </Border>
@@ -173,7 +173,7 @@
                         <Trigger Property="Content" Value="{x:Null}">
                             <Setter Property="Visibility" Value="Collapsed" TargetName="ContentPresenterMain"/>
                         </Trigger>
-                        <Trigger Property="hc:IconElement.Geometry" Value="{x:Null}">
+                        <Trigger Property="hc:IconElement.Icon" Value="{x:Null}">
                             <Setter Property="Visibility" Value="Collapsed" TargetName="PathMain"/>
                             <Setter Property="Margin" Value="0" TargetName="ContentPresenterMain"/>
                         </Trigger>
@@ -215,7 +215,7 @@
                 <ControlTemplate TargetType="RadioButton">
                     <Border x:Name="BorderRoot" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}">
-                            <Path x:Name="PathMain" Height="{Binding Path=(hc:IconElement.Height),RelativeSource={RelativeSource TemplatedParent}}" Width="{Binding Path=(hc:IconElement.Width),RelativeSource={RelativeSource TemplatedParent}}" Fill="{Binding Path=(TextElement.Foreground),ElementName=contentPresenter}" SnapsToDevicePixels="True" Stretch="Uniform" Data="{TemplateBinding hc:IconElement.Geometry}"/>
+                            <Path x:Name="PathMain" Height="{Binding Path=(hc:IconElement.Height),RelativeSource={RelativeSource TemplatedParent}}" Width="{Binding Path=(hc:IconElement.Width),RelativeSource={RelativeSource TemplatedParent}}" Fill="{Binding Path=(TextElement.Foreground),ElementName=contentPresenter}" SnapsToDevicePixels="True" Stretch="Uniform" Data="{TemplateBinding hc:IconElement.Icon}"/>
                             <ContentPresenter x:Name="contentPresenter" RecognizesAccessKey="True" VerticalAlignment="Center" Margin="6,0,0,0" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                         </StackPanel>
                     </Border>
@@ -231,7 +231,7 @@
                         <Trigger Property="Content" Value="{x:Null}">
                             <Setter Property="Visibility" Value="Collapsed" TargetName="contentPresenter"/>
                         </Trigger>
-                        <Trigger Property="hc:IconElement.Geometry" Value="{x:Null}">
+                        <Trigger Property="hc:IconElement.Icon" Value="{x:Null}">
                             <Setter Property="Visibility" Value="Collapsed" TargetName="PathMain"/>
                             <Setter Property="Margin" Value="0" TargetName="contentPresenter"/>
                         </Trigger>

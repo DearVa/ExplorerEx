@@ -20,21 +20,21 @@ using hc = HandyControl.Controls;
 namespace ExplorerEx.Command;
 
 public class FileItemCommand : ICommand {
-	public Func<IEnumerable<FileListViewItem>> SelectedItemsProvider { get; init; }
+	public Func<IEnumerable<FileListViewItem>?> SelectedItemsProvider { get; init; } = null!;
 
-	public Func<FileTabControl> TabControlProvider { get; init; }
+	public Func<FileTabControl?> TabControlProvider { get; init; } = null!;
 
 	/// <summary>
 	/// 当前操作的目录
 	/// </summary>
 	public FolderItem Folder { get; set; }
 
-	public bool CanExecute(object parameter) => true;
+	public bool CanExecute(object? parameter) => true;
 
-	private ImmutableList<FileListViewItem> Items => SelectedItemsProvider?.Invoke().ToImmutableList() ?? ImmutableList<FileListViewItem>.Empty;
-	private ImmutableList<FileListViewItem> Folders => SelectedItemsProvider?.Invoke().Where(i => i.IsFolder).ToImmutableList() ?? ImmutableList<FileListViewItem>.Empty;
+	private ImmutableList<FileListViewItem> Items => SelectedItemsProvider.Invoke()?.ToImmutableList() ?? ImmutableList<FileListViewItem>.Empty;
+	private ImmutableList<FileListViewItem> Folders => SelectedItemsProvider.Invoke()?.Where(i => i.IsFolder).ToImmutableList() ?? ImmutableList<FileListViewItem>.Empty;
 
-	public async void Execute(object param) {
+	public async void Execute(object? param) {
 		switch (param) {
 		case string str:
 			switch (str) {
@@ -113,7 +113,7 @@ public class FileItemCommand : ICommand {
 						var destPaths = filePaths.Select(path => Path.Combine(Folder.FullPath, Path.GetFileName(path))).ToList();
 						try {
 							await FileUtils.FileOperation(isCut ? FileOpType.Move : FileOpType.Copy, filePaths, destPaths);
-							FileTabControl.MouseOverTabControl.SelectedTab.FileListView.SelectItems(destPaths);
+							FileTabControl.MouseOverTabControl?.SelectedTab.FileListView.SelectItems(destPaths);
 						} catch (Exception e) {
 							Logger.Exception(e);
 						}
@@ -127,10 +127,10 @@ public class FileItemCommand : ICommand {
 				case < 0:
 					return;
 				case 1:
-					FileTabControl.MouseOverTabControl.SelectedTab.StartRename(items[0]);
+					FileTabControl.MouseOverTabControl?.SelectedTab.StartRename(items[0]);
 					break;
 				default: // TODO: 批量重命名
-					FileTabControl.MouseOverTabControl.SelectedTab.StartRename(items[0]);
+					FileTabControl.MouseOverTabControl?.SelectedTab.StartRename(items[0]);
 					break;
 				}
 				break;
@@ -191,7 +191,7 @@ public class FileItemCommand : ICommand {
 			}
 			case "Edit":
 				foreach (var item in Items.Where(i => i is FileItem { IsEditable: true })) {
-					OpenFileWith(item, Settings.Instance.TextEditor);
+					OpenFileWith(item, Settings.Current["Common.DefaultTextEditor"].GetString());
 				}
 				break;
 			case "Unzip":
@@ -200,7 +200,9 @@ public class FileItemCommand : ICommand {
 				}
 				break;
 			case "Terminal":
-				Terminal.RunTerminal(Folder.FullPath);
+				if (Folder != null) {
+					Terminal.RunTerminal(Folder.FullPath);
+				}
 				break;
 			case "ShowMore": {
 				if (!ConfigHelper.LoadBoolean("ShowMore")) {
@@ -231,7 +233,7 @@ public class FileItemCommand : ICommand {
 	public static void OpenFile(FileListViewItem item, bool runAs) {
 		switch (item) {
 		case FolderItem folder:
-			_ = FileTabControl.MouseOverTabControl.SelectedTab.LoadDirectoryAsync(folder.FullPath);
+			_ = FileTabControl.MouseOverTabControl?.SelectedTab.LoadDirectoryAsync(folder.FullPath);
 			break;
 		case ZipFileItem zipFile:
 			var zipArchive = zipFile.ZipArchive;
@@ -308,5 +310,5 @@ public class FileItemCommand : ICommand {
 		}
 	}
 
-	public event EventHandler CanExecuteChanged;
+	public event EventHandler? CanExecuteChanged;
 }

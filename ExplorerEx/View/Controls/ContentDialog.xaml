@@ -5,11 +5,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
         mc:Ignorable="d" KeyboardNavigation.TabNavigation="Cycle"
-        Background="#44000000" SnapsToDevicePixels="True" UseLayoutRounding="True" Opacity="0"
+        Background="#aa000000" SnapsToDevicePixels="True" UseLayoutRounding="True" Opacity="0"
         d:DataContext="{d:DesignInstance ct:ContentDialog}">
     <Border BorderBrush="{DynamicResource PrimaryTextBrush}" CornerRadius="8"
             HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="350" MinHeight="160"
-            Effect="{StaticResource EffectShadow4}">
+            Effect="{StaticResource EffectShadow4}" Background="{DynamicResource ReverseTextBrush}">
         <Border.RenderTransformOrigin>0.5,0.5</Border.RenderTransformOrigin>
         <Border.RenderTransform>
             <ScaleTransform x:Name="ScaleTf"/>
@@ -31,13 +31,14 @@
                         <Button x:Name="PrimaryButton" TabIndex="0" Content="{Binding PrimaryButtonText, Mode=OneWay}" MinWidth="100" MaxWidth="200"
                                 Visibility="{Binding PrimaryButtonText, Converter={StaticResource Object2VisibilityConverter}, Mode=OneWay}"
                                 IsEnabled="{Binding IsPrimaryButtonEnabled, Mode=OneWay}" Command="{Binding PrimaryButtonCommand, Mode=OneWay}"
-                                DockPanel.Dock="Left" Style="{StaticResource ButtonPrimary}" Click="ContentDialogPrimaryButton_OnClick"/>
+                                DockPanel.Dock="Left" Style="{StaticResource ButtonPrimary}" Click="ContentDialogPrimaryButton_OnClick" IsDefault="True"/>
                         <Button x:Name="SecondaryButton" TabIndex="1" Content="{Binding SecondaryButtonText, Mode=OneWay}" MinWidth="100" MaxWidth="200"
                                 Visibility="{Binding SecondaryButtonText, Converter={StaticResource Object2VisibilityConverter}, Mode=OneWay}"
                                 Command="{Binding SecondaryButtonCommand, Mode=OneWay}" Click="ContentDialogSecondaryButton_OnClick"/>
                         <Button TabIndex="2" Content="{Binding CancelButtonText, Mode=OneWay}" MinWidth="100" MaxWidth="200"
                                 Visibility="{Binding CancelButtonText, Converter={StaticResource Object2VisibilityConverter}, Mode=OneWay}"
-                                DockPanel.Dock="Right" HorizontalAlignment="Right" Command="{Binding CancelButtonCommand, Mode=OneWay}" Click="ContentDialogCancelButton_OnClick"/>
+                                DockPanel.Dock="Right" HorizontalAlignment="Right" Command="{Binding CancelButtonCommand, Mode=OneWay}"
+                                Click="ContentDialogCancelButton_OnClick" IsCancel="True"/>
                     </DockPanel>
                 </Border>
             </Grid>

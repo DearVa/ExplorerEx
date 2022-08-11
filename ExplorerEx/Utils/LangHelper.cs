@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.Windows.Data;
 using System.Windows.Markup;
 using ExplorerEx.Strings;
 
@@ -12,9 +14,9 @@ internal static class LangHselper {
 	/// <returns></returns>
 	public static string L(this string key) {
 		try {
-			return Resources.ResourceManager.GetString(key) ?? "锟斤拷" + key;
+			return Resources.ResourceManager.GetString(key) ?? key;
 		} catch {
-			return "烫烫烫" + key;
+			return key;
 		}
 	}
 }
@@ -29,5 +31,18 @@ internal class LangExtension : MarkupExtension {
 
 	public override object ProvideValue(IServiceProvider serviceProvider) {
 		return Key.L();
+	}
+}
+
+public class LangConverter : IValueConverter {
+	public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+		if (value is string s) {
+			return s.L();
+		}
+		return value;
+	}
+
+	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+		throw new InvalidOperationException();
 	}
 }

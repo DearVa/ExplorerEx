@@ -32,7 +32,7 @@ public static class BlurContextMenu {
 		if (sender is ContextMenu contextMenu) {
 			if (PresentationSource.FromVisual(contextMenu) is HwndSource hwnd) {
 				InteropMethods.EnableRoundCorner(hwnd.Handle);
-				InteropMethods.EnableAcrylic(hwnd.Handle);
+				InteropMethods.EnableAcrylic(hwnd.Handle, InteropMethods.IsDarkMode);
 				InteropMethods.EnableShadows(hwnd.Handle);
 			}
 		}

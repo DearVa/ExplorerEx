@@ -11,14 +11,14 @@ namespace ExplorerEx.Model;
 /// <summary>
 /// 新建 一个文件
 /// </summary>
-public class CreateFileItem : SimpleNotifyPropertyChanged {
+public class CreateFileItem : NotifyPropertyChangedBase {
 	public static CreateFileItem NoExtension { get; } = new(string.Empty, false) {
 		Description = "File".L()
 	};
 
-	public ImageSource Icon { get; protected set; }
+	public ImageSource? Icon { get; protected set; }
 
-	public string Description { get; protected set; }
+	public string? Description { get; protected set; }
 
 	/// <summary>
 	/// 拓展名，如.txt
@@ -30,9 +30,9 @@ public class CreateFileItem : SimpleNotifyPropertyChanged {
 		if (createIcon) {
 			Task.Run(() => {
 				Icon = GetSmallIcon(extension, true);
-				UpdateUI(nameof(Icon));
+				OnPropertyChanged(nameof(Icon));
 				Description = FileUtils.GetFileTypeDescription(extension);
-				UpdateUI(nameof(Description));
+				OnPropertyChanged(nameof(Description));
 			});
 		}
 	}
@@ -96,13 +96,13 @@ public class CreateFileItem : SimpleNotifyPropertyChanged {
 internal class CreateFolderItem : CreateFileItem {
 	public static CreateFolderItem Singleton { get; } = new();
 
-	private CreateFolderItem() : base(null, false) {
+	private CreateFolderItem() : base(string.Empty, false) {
 		Icon = EmptyFolderDrawingImage;
 		Description = "Folder".L();
 	}
 
 	public override string GetCreateName(string path) {
-		return FileUtils.GetNewFileName(path, "New_folder".L());
+		return FileUtils.GetNewFileName(path, "NewFolder".L());
 	}
 
 	public override bool Create(string path, string folderName) {

@@ -39,7 +39,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel WindowChrome.IsHitTestVisibleInChrome="True" UseLayoutRounding="True" VerticalAlignment="Top" Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
-                                    <Button Background="{TemplateBinding CloseButtonBackground}" Foreground="{TemplateBinding CloseButtonForeground}" IsTabStop="False" Name="PART_ButtonClose" Height="29" Style="{StaticResource ButtonIcon}" Width="46" hc:IconElement.Geometry="{StaticResource CloseGeometry}" BorderThickness="1,0,0,0" hc:IconElement.Width="10" hc:IconElement.Height="10"/>
+                                    <Button Background="{TemplateBinding CloseButtonBackground}" Foreground="{TemplateBinding CloseButtonForeground}" IsTabStop="False" Name="PART_ButtonClose" Height="29" Style="{StaticResource ButtonIcon}" Width="46" hc:IconElement.Icon="{StaticResource CloseGeometry}" BorderThickness="1,0,0,0" hc:IconElement.Width="10" hc:IconElement.Height="10"/>
                                 </StackPanel>
                                 <Grid Grid.Column="0">
                                     <Grid.ColumnDefinitions>

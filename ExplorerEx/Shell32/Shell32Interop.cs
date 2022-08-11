@@ -170,7 +170,7 @@ internal static class Shell32Interop {
 	public static extern int SHAssocEnumHandlers(string pszExtra, AssocFilter afFilter, out IEnumAssocHandlers ppEnumHandler);
 
 	[DllImport(Shell32, CharSet = CharSet.Unicode)]
-	public static extern int SHCreateItemFromParsingName(string pszPath, IBindCtx pbc, [MarshalAs(UnmanagedType.LPStruct)] Guid riid, out IShellItem ppv);
+	public static extern int SHCreateItemFromParsingName(string pszPath, IBindCtx? pbc, [MarshalAs(UnmanagedType.LPStruct)] Guid riid, out IShellItem ppv);
 
 	[DllImport(Shell32, CharSet = CharSet.Unicode)]
 	public static extern int SHCreateShellItemArrayFromIDLists(uint cidl, IntPtr[] rgpidl, out IShellItemArray ppsiItemArray);

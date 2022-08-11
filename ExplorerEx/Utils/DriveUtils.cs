@@ -10,10 +10,10 @@ public static class DriveUtils {
 	/// <returns></returns>
 	public static string GetTypeDescription(DriveInfo driveInfo) {
 		return driveInfo.DriveType switch {
-			DriveType.Removable => "Removable_disk".L(),
+			DriveType.Removable => "RemovableDisk".L(),
 			DriveType.CDRom => "CD_drive".L(),
-			DriveType.Fixed => "Local_disk".L(),
-			_ => "Other_type_disk".L()
+			DriveType.Fixed => "LocalDisk".L(),
+			_ => "OtherTypeDisk".L()
 		};
 	}
 
