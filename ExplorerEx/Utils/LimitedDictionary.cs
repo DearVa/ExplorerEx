@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace ExplorerEx.Utils;
 
 /// <summary>
 /// 有容量上限的字典，当容量达到上限值，就会自动删除最早添加的项目。线程安全
 /// </summary>
-internal class LimitedDictionary<TKey, TValue> {
+internal class LimitedDictionary<TKey, TValue> where TKey : notnull {
 	private readonly Dictionary<TKey, TValue> dictionary;
 	private readonly Queue<TKey> queue;
 	private readonly int capacity;
@@ -36,7 +35,7 @@ internal class LimitedDictionary<TKey, TValue> {
 		}
 	}
 
-	public bool TryGetValue(TKey key, out TValue value) {
+	public bool TryGetValue(TKey key, out TValue? value) {
 		lock (dictionary) {
 			return dictionary.TryGetValue(key, out value);
 		}

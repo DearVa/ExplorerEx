@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using ExplorerEx.Command;
@@ -291,38 +292,83 @@ internal static class Shell32Interop {
 		return sb.ToString();
 	}
 
-	public static IMalloc Malloc { get; private set; }
+	public static IMalloc Malloc { get; }
 
-	public static IShellFolder DesktopFolder { get; private set; }
+	public static IShellFolder DesktopFolder { get; }
 
-	public static IShellFolder2 RecycleBinFolder { get; private set; }
+	public static IShellFolder2 RecycleBinFolder { get; }
 
-	public static IImageList JumboImageList { get; private set; }
+	// ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
+	private static readonly Thread loadIconThread;
 
-	private static bool isInitialized;
+	private static readonly ManualResetEvent loadIconEvent = new(false);
 
-	public static void Initialize() {
-		lock (ShellLock) {
-			if (isInitialized) {
-				return;
+	private static readonly Queue<LoadIconParameters> loadIconParametersQueue = new();
+
+	static Shell32Interop() {
+		Marshal.ThrowExceptionForHR(SHGetMalloc(out var pMalloc));
+		Malloc = GetTypedObjectForIUnknown<IMalloc>(pMalloc);
+
+		Marshal.ThrowExceptionForHR(SHGetDesktopFolder(out var desktopFolder));
+		DesktopFolder = desktopFolder;
+
+		Marshal.ThrowExceptionForHR(SHGetSpecialFolderLocation(IntPtr.Zero, CSIDL.BitBucket, out var pidlRecycleBin));
+		Marshal.ThrowExceptionForHR(DesktopFolder.BindToObject(pidlRecycleBin, IntPtr.Zero, GUID_IShellFolder2, out var pRecycleBin));
+		RecycleBinFolder = GetTypedObjectForIUnknown<IShellFolder2>(pRecycleBin);
+		Malloc.Free(pidlRecycleBin);
+
+		loadIconThread = new Thread(LoadIconThreadWork) {
+			IsBackground = true
+		};
+		loadIconThread.SetApartmentState(ApartmentState.STA);
+		loadIconThread.Start();
+	}
+
+	private record LoadIconParameters(int index, ILD flags, IntPtr pIcon) {
+		public readonly int index = index;
+		public readonly ILD flags = flags;
+		public IntPtr pIcon = pIcon;
+		public readonly ManualResetEvent continueEvent = new(false);
+		public int hResult;
+	}
+
+	private static void LoadIconThreadWork() {
+		Marshal.ThrowExceptionForHR(SHGetImageList(SHIL.Jumbo, ref GUID_IImageList, out var jumboImageList));
+
+		while (true) {
+			loadIconEvent.WaitOne();
+			loadIconEvent.Reset();
+
+			while (true) {
+				LoadIconParameters parameters;
+				lock (loadIconParametersQueue) {
+					if (loadIconParametersQueue.Count == 0) {
+						break;
+					}
+					parameters = loadIconParametersQueue.Dequeue();
+				}
+				parameters.hResult = jumboImageList.GetIcon(parameters.index, parameters.flags, ref parameters.pIcon);
+				parameters.continueEvent.Set();
 			}
-
-			Marshal.ThrowExceptionForHR(SHGetMalloc(out var pMalloc));
-			Malloc = GetTypedObjectForIUnknown<IMalloc>(pMalloc);
-
-			Marshal.ThrowExceptionForHR(SHGetDesktopFolder(out var desktopFolder));
-			DesktopFolder = desktopFolder;
-
-			Marshal.ThrowExceptionForHR(SHGetSpecialFolderLocation(IntPtr.Zero, CSIDL.BitBucket, out var pidlRecycleBin));
-			Marshal.ThrowExceptionForHR(DesktopFolder.BindToObject(pidlRecycleBin, IntPtr.Zero, GUID_IShellFolder2, out var pRecycleBin));
-			RecycleBinFolder = GetTypedObjectForIUnknown<IShellFolder2>(pRecycleBin);
-			Malloc.Free(pidlRecycleBin);
-
-			Marshal.ThrowExceptionForHR(SHGetImageList(SHIL.Jumbo, ref GUID_IImageList, out var imageList));
-			JumboImageList = imageList;
-
-			isInitialized = true;
 		}
+	}
+
+	/// <summary>
+	/// 在STA线程上执行，获取大图标
+	/// </summary>
+	/// <param name="i"></param>
+	/// <param name="flags"></param>
+	/// <param name="pIcon"></param>
+	/// <returns></returns>
+	public static int GetLargeIcon(int i, ILD flags, ref IntPtr pIcon) {
+		var parameters = new LoadIconParameters(i, flags, pIcon);
+		lock (loadIconParametersQueue) {
+			loadIconParametersQueue.Enqueue(parameters);
+		}
+		loadIconEvent.Set();
+		parameters.continueEvent.WaitOne();
+		pIcon = parameters.pIcon;
+		return parameters.hResult;
 	}
 
 	/// <summary>

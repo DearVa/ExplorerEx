@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Windows.Media;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 using static ExplorerEx.Utils.IconHelper;
@@ -24,7 +26,7 @@ public abstract class FileSystemItem : FileListViewItem {
 		}
 	}
 
-	private DateTime dateModified;
+	private DateTime dateModified = DateTime.MaxValue;
 
 	/// <summary>
 	/// 自动更新UI
@@ -39,16 +41,13 @@ public abstract class FileSystemItem : FileListViewItem {
 		}
 	}
 
-	private DateTime dateCreated;
+	private DateTime dateCreated = DateTime.MaxValue;
 
 	public override string GetRenameName() {
 		return Name;
 	}
 
 	protected override bool InternalRename(string newName) {
-		if (newName == null) {
-			return false;
-		}
 		var basePath = Path.GetDirectoryName(FullPath);
 		if (Path.GetExtension(FullPath) != Path.GetExtension(newName)) {
 			if (!MessageBoxHelper.AskWithDefault("RenameExtension", "#AreYouSureToChangeExtension".L())) {
@@ -75,7 +74,9 @@ public abstract class FileSystemItem : FileListViewItem {
 		LoadAttributes(options);
 	}
 
-	protected FileSystemItem(string fullPath, string name) : base(fullPath, name) { }
+	protected FileSystemItem(string fullPath, string name, bool isFolder) : base(fullPath, name, isFolder) { }
+
+	protected FileSystemItem(string fullPath, string name, ImageSource defaultIcon) : base(fullPath, name, defaultIcon) { }
 }
 
 public class FileItem : FileSystemItem {
@@ -100,13 +101,12 @@ public class FileItem : FileSystemItem {
 
 	public override string DisplayText => Name;
 
-	protected FileItem() : base(null!, null!) { }
+	protected FileItem() : base(null!, null!, false) { }
 
-	public FileItem(FileInfo fileInfo) : base(fileInfo.FullName, fileInfo.Name) {
+	public FileItem(FileInfo fileInfo) : base(fileInfo.FullName, fileInfo.Name, false) {
 		FileInfo = fileInfo;
 		IsFolder = false;
 		FileSize = -1;
-		Icon = UnknownFileDrawingImage;
 	}
 
 	public override void LoadAttributes(LoadDetailsOptions options) {
@@ -186,25 +186,26 @@ public class FolderItem : FileSystemItem {
 
 	private bool isEmptyFolder;
 
-	protected FolderItem() : base(null!, null!) { }
+	protected FolderItem() : base(null!, null!, true) { }
 
-	public FolderItem(string fullPath): base(fullPath, Path.GetFileName(fullPath)) {
+	public FolderItem(string fullPath): base(fullPath, Path.GetFileName(fullPath), InitializeIsEmptyFolder(fullPath)) {
 		IsFolder = true;
 		FileSize = -1;
+	}
+
+	protected static ImageSource InitializeIsEmptyFolder(string fullPath) {
 		if (IsEmptyFolderDictionary.TryGetValue(fullPath, out var isEmpty)) {
-			isEmptyFolder = isEmpty;
-			Icon = isEmpty ? EmptyFolderDrawingImage : FolderDrawingImage;
-		} else {
-			Icon = FolderDrawingImage;
+			return isEmpty ? EmptyFolderDrawingImage : FolderDrawingImage;
 		}
+		return FolderDrawingImage;
 	}
 
 	public override string DisplayText => Name;
 
 	public override void LoadAttributes(LoadDetailsOptions options) {
 		isEmptyFolder = FolderUtils.IsEmptyFolder(FullPath);
-		Type = isEmptyFolder ? "EmptyFolder".L() : "Folder".L();
 		IsEmptyFolderDictionary.Add(FullPath, isEmptyFolder);
+		Type = isEmptyFolder ? "EmptyFolder".L() : "Folder".L();
 		var directoryInfo = new DirectoryInfo(FullPath);
 		DateModified = directoryInfo.LastWriteTime;
 		DateCreated = directoryInfo.CreationTime;

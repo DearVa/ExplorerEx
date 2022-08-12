@@ -21,15 +21,11 @@ public sealed class ConcurrentObservableCollection<T> : IList<T>, IReadOnlyList<
 	private DispatchedObservableCollection<T>? observableCollection;
 
 	public ConcurrentObservableCollection()
-		: this(GetCurrentDispatcher()) {
+		: this(Application.Current.Dispatcher) {
 	}
 
 	public ConcurrentObservableCollection(Dispatcher dispatcher) {
 		this.dispatcher = dispatcher;
-	}
-
-	private static Dispatcher GetCurrentDispatcher() {
-		return Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
 	}
 
 	/// <summary>
@@ -40,13 +36,9 @@ public sealed class ConcurrentObservableCollection<T> : IList<T>, IReadOnlyList<
 
 	public DispatchedObservableCollection<T> AsObservable {
 		get {
-			if (observableCollection == null) {
-				lock (lockObj) {
-					observableCollection ??= new DispatchedObservableCollection<T>(this, dispatcher);
-				}
+			lock (lockObj) {
+				return observableCollection ??= new DispatchedObservableCollection<T>(this, dispatcher);
 			}
-
-			return observableCollection;
 		}
 	}
 
@@ -109,6 +101,31 @@ public sealed class ConcurrentObservableCollection<T> : IList<T>, IReadOnlyList<
 		}
 	}
 
+	public bool Replace(T oldItem, T newItem) {
+		lock (lockObj) {
+			var index = items.IndexOf(oldItem);
+			if (index == -1) {
+				return false;
+			}
+			items = items.SetItem(index, newItem);
+			observableCollection?.EnqueueReplace(index, newItem);
+			return true;
+		}
+	}
+
+	public bool ReplaceWhere(Predicate<T> predicate, T newItem) {
+		lock (lockObj) {
+			for (var i = 0; i < items.Count; i++) {
+				if (predicate.Invoke(items[i])) {
+					items = items.SetItem(i, newItem);
+					observableCollection?.EnqueueReplace(i, newItem);
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+
 	public void InsertRange(int index, IEnumerable<T> items) {
 		lock (lockObj) {
 			var count = this.items.Count;
@@ -164,6 +181,17 @@ public sealed class ConcurrentObservableCollection<T> : IList<T>, IReadOnlyList<
 		lock (lockObj) {
 			items = items.RemoveAt(index);
 			observableCollection?.EnqueueRemoveAt(index);
+		}
+	}
+
+	public void RemoveWhere(Predicate<T> predicate) {
+		lock (lockObj) {
+			for (var i = 0; i < items.Count; i++) {
+				if (predicate.Invoke(items[i])) {
+					items = items.RemoveAt(i);
+					observableCollection?.EnqueueRemoveAt(i);
+				}
+			}
 		}
 	}
 

@@ -28,7 +28,7 @@ internal interface IImageList {
 	int Remove(int i);
 
 	[PreserveSig]
-	int GetIcon(int i, ILD flags, ref IntPtr picon);
+	int GetIcon(int i, ILD flags, ref IntPtr pIcon);
 
 	[PreserveSig]
 	int GetImageInfo(int i, ref ImageInfo pImageInfo);

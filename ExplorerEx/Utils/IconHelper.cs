@@ -165,7 +165,7 @@ internal static class IconHelper {
 		var iconIndex = shFileInfo.iIcon;
 		var hIcon = IntPtr.Zero;
 		// 只能使用STA调用，否则会失败
-		var hr = Application.Current.Dispatcher.Invoke(() => JumboImageList.GetIcon(iconIndex, ILD.Transparent, ref hIcon));
+		var hr = Shell32Interop.GetLargeIcon(iconIndex, ILD.Transparent, ref hIcon);
 		if (hr != 0 || hIcon == IntPtr.Zero) {
 			return UnknownFileDrawingImage;
 		}

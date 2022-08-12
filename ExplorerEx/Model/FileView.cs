@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -466,6 +467,35 @@ public class FileView : INotifyPropertyChanged {
 		StageChange(nameof(FileViewType));
 		StageChange(nameof(ItemSize));
 		StageChange(nameof(DetailListsData));
+	}
+
+	public class SortByComparer : IComparer {
+		public bool IsAscending { get; }
+
+		public DetailListType SortBy { get; }
+
+		public SortByComparer(DetailListType sortBy, bool isAscending) {
+			SortBy = sortBy;
+			IsAscending = isAscending;
+		}
+
+		private int InternalCompare(object? x, object? y) {
+			if (x is FileListViewItem i1 && y is FileListViewItem i2) {
+				if (i1.IsFolder != i2.IsFolder) {
+					return i1.IsFolder ? -1 : 1;
+				}
+				return SortBy switch {
+					DetailListType.Type => string.Compare(i1.Type, i2.Type, StringComparison.Ordinal),
+					DetailListType.FileSize => i1.FileSize.CompareTo(i2.FileSize),
+					_ => string.Compare(i1.Name, i2.Name, StringComparison.Ordinal),
+				};
+			}
+			throw new NotImplementedException();
+		}
+
+		public int Compare(object? x, object? y) {
+			return IsAscending ? InternalCompare(x, y) : -InternalCompare(x, y);
+		}
 	}
 }
 

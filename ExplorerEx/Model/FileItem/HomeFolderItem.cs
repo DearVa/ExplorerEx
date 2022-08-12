@@ -46,12 +46,12 @@ internal sealed class HomeFolderItem : FolderItem, ISpecialFolder {
 		throw new InvalidOperationException();
 	}
 
-	public override List<FileListViewItem>? EnumerateItems(string? selectedPath, out FileListViewItem? selectedItem, CancellationToken token) {
+	public override List<FileListViewItem> EnumerateItems(string? selectedPath, out FileListViewItem? selectedItem, CancellationToken token) {
 		selectedItem = null;
 		var list = new List<FileListViewItem>();
 		foreach (var drive in DriveInfo.GetDrives()) {
 			if (token.IsCancellationRequested) {
-				return null;
+				return list;
 			}
 			var item = new DiskDriveItem(drive);
 			list.Add(item);

@@ -847,12 +847,12 @@ public sealed partial class MainWindow {
 	}
 
 	protected override void OnPreviewTextInput(TextCompositionEventArgs e) {
-		Trace.WriteLine(Keyboard.FocusedElement);
-		if (RootPanel.Children.Count == 2 && e.OriginalSource is not TextBox and not AddressBar) {  // 没有打开任何对话框
+		if (RootPanel.Children.Count == 2 && !string.IsNullOrWhiteSpace(e.Text) && e.OriginalSource is not TextBox and not AddressBar) {  // 没有打开任何对话框
 			var mouseOverTabControl = FileTabControl.MouseOverTabControl;
 			if (mouseOverTabControl != null) {
-				mouseOverTabControl.SelectedTab.FileListView.Focus();
-				mouseOverTabControl.SelectedTab.SelectByText(e.Text);
+				var fileListView = mouseOverTabControl.SelectedTab.FileListView;
+				fileListView.Focus();
+				fileListView.SelectByText(e.Text);
 			}
 		}
 	}

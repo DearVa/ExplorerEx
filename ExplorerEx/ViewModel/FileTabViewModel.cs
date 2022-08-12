@@ -376,7 +376,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			await SwitchViewType(type);
 		}
 	}
-	
+
 	/// <summary>
 	/// 切换视图时，有的要使用大图标，有的要使用小图标，所以要运行一个Task去更改，取消这个来中断Task
 	/// </summary>
@@ -672,11 +672,6 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			return false;
 		}
 
-		//if (totalLoadedFiles > GcThreshold) {
-		//	GC.Collect(2, GCCollectionMode.Optimized);
-		//	totalLoadedFiles = 0;
-		//}
-
 		List<FileListViewItem> fileListViewItems;
 		FileListViewItem? scrollIntoItem;
 
@@ -693,7 +688,6 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			await ErrorGoBack();
 			return false;
 		}
-		//totalLoadedFiles += fileListViewItems.Count;
 
 		if (token.IsCancellationRequested) {
 			IsLoading = false;
@@ -732,12 +726,12 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 
 #if DEBUG
 		Trace.WriteLine($"Update UI costs: {sw.ElapsedMilliseconds}ms");
-sw.Restart();
-
+		sw.Restart();
 #endif
 
+		loadDetailsOptions.SetPreLoadIconByItemCount(fileListViewItems.Count);
 		loadDetailsOptions.UseLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content;
-		await LoadDetails(fileListViewItems, token, loadDetailsOptions);
+		await LoadDetails(fileListViewItems, loadDetailsOptions, token);
 
 #if DEBUG
 		Trace.WriteLine($"Async load costs: {sw.ElapsedMilliseconds}ms");
@@ -882,47 +876,6 @@ sw.Restart();
 		UpdateFileUI();
 	}
 
-	/// <summary>
-	/// 根据一个字符串来快速选中一项
-	/// </summary>
-	/// <param name="s"></param>
-	public void SelectByText(string s) {
-		s = s.ToLower();
-		var startIndex = SelectedItems.Count > 1 ? 0 : FileListView.SelectedIndex + 1;
-		for (var i = startIndex; i < Items.Count; i++) {
-			if (Items[i].DisplayText[..s.Length].ToLower() == s) {
-				FileListView.UnselectAll();
-				FileListView.ScrollIntoView(Items[i]);
-				Items[i].IsSelected = true;
-				return;
-			}
-		}
-		for (var i = 0; i < startIndex; i++) {
-			if (Items[i].DisplayText[..s.Length].ToLower() == s) {
-				FileListView.UnselectAll();
-				FileListView.ScrollIntoView(Items[i]);
-				Items[i].IsSelected = true;
-				return;
-			}
-		}
-		for (var i = startIndex; i < Items.Count; i++) {
-			if (Items[i].DisplayText.ToLower().Contains(s)) {
-				FileListView.UnselectAll();
-				FileListView.ScrollIntoView(Items[i]);
-				Items[i].IsSelected = true;
-				return;
-			}
-		}
-		for (var i = 0; i < startIndex; i++) {
-			if (Items[i].DisplayText.ToLower().Contains(s)) {
-				FileListView.UnselectAll();
-				FileListView.ScrollIntoView(Items[i]);
-				Items[i].IsSelected = true;
-				return;
-			}
-		}
-	}
-
 	private uint everythingQueryId;
 
 	/// <summary>
@@ -989,7 +942,7 @@ sw.Restart();
 		UpdateFolderUI();
 		UpdateFileUI();
 
-		await LoadDetails(fileListViewItems!, token, loadDetailsOptions);
+		await LoadDetails(fileListViewItems, loadDetailsOptions, token);
 	}
 
 	private static void Watcher_OnError(object sender, ErrorEventArgs e) {
@@ -998,37 +951,34 @@ sw.Restart();
 
 	private void Watcher_OnRenamed(object sender, RenamedEventArgs e) {
 		Task.Run(() => {
-			for (var i = 0; i < Items.Count; i++) {
-				if (((FileSystemItem)Items[i]).FullPath == e.OldFullPath) {
-					if (Directory.Exists(e.FullPath)) {
-						var item = new FolderItem(e.FullPath);
-						Items[i] = item;
-						Task.Run(() => {
-							item.LoadAttributes(loadDetailsOptions);
-							item.LoadIcon(loadDetailsOptions);
-						});
-					} else if (File.Exists(e.FullPath)) {
-						var item = new FileItem(new FileInfo(e.FullPath));
-						Items[i] = item;
-						Task.Run(() => {
-							item.LoadAttributes(loadDetailsOptions);
-							item.LoadIcon(loadDetailsOptions);
-						});
-					}
-					return;
-				}
+			FileSystemItem? newItem = null;
+			if (Directory.Exists(e.FullPath)) {
+				newItem = new FolderItem(e.FullPath);
+				Task.Run(() => {
+					newItem.LoadAttributes(loadDetailsOptions);
+					newItem.LoadIcon(loadDetailsOptions);
+				});
+			} else if (File.Exists(e.FullPath)) {
+				newItem = new FileItem(new FileInfo(e.FullPath));
+				Task.Run(() => {
+					newItem.LoadAttributes(loadDetailsOptions);
+					newItem.LoadIcon(loadDetailsOptions);
+				});
+			}
+			if (newItem != null) {
+				Items.ReplaceWhere(i => i.Name == e.OldName, newItem);
+			} else {
+				Items.RemoveWhere(i => i.Name == e.OldName);
 			}
 		});
 	}
 
 	private void Watcher_OnDeleted(object sender, FileSystemEventArgs e) {
 		Task.Run(() => {
-			for (var i = 0; i < Items.Count; i++) {
-				if (Items[i].FullPath == e.FullPath) {
-					SelectedItems.Remove(Items[i]);
-					Items.RemoveAt(i);
-					return;
-				}
+			var oldItem = Items.FirstOrDefault(i => i.Name == e.Name);
+			if (oldItem != null) {
+				SelectedItems.Remove(oldItem);
+				Items.Remove(oldItem);
 			}
 		});
 	}
@@ -1057,7 +1007,7 @@ sw.Restart();
 	private void Watcher_OnChanged(object sender, FileSystemEventArgs e) {
 		Task.Run(() => {
 			foreach (var item in Items.OfType<FileSystemItem>()) {
-				if (item.FullPath == e.FullPath) {
+				if (item.Name == e.Name) {
 					item.Refresh(loadDetailsOptions);
 					return;
 				}

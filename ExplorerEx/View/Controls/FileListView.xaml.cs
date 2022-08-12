@@ -53,8 +53,10 @@ public partial class FileListView : INotifyPropertyChanged {
 		if (e.NewValue is DispatchedObservableCollection<FileListViewItem> newList) {
 			newList.CollectionChanged += fileGrid.OnItemsChanged;
 			((ItemsControl)fileGrid).ItemsSource = newList;
+			fileGrid.listCollectionView = (ListCollectionView)CollectionViewSource.GetDefaultView(newList);
 		} else {
 			((ItemsControl)fileGrid).ItemsSource = null;
+			fileGrid.listCollectionView = null;
 		}
 	}
 
@@ -100,6 +102,8 @@ public partial class FileListView : INotifyPropertyChanged {
 		get => (FileView)GetValue(FileViewProperty);
 		set => SetValue(FileViewProperty, value);
 	}
+
+	private ListCollectionView? listCollectionView;
 
 	public double ItemWidth => FileView?.ItemWidth ?? 0d;
 
@@ -267,19 +271,14 @@ public partial class FileListView : INotifyPropertyChanged {
 			break;
 		case nameof(fileView.SortBy):
 		case nameof(fileView.IsAscending):
-			var sorts = Items.SortDescriptions;
-			sorts.Clear();
-			//if (fileView.GroupBy.HasValue) {
-			//	sorts.Add(new SortDescription("Order", ListSortDirection.Ascending));
-			//}
-			sorts.Add(new SortDescription("IsFolder", ListSortDirection.Descending));
-			sorts.Add(new SortDescription(fileView.SortBy.ToString(), fileView.IsAscending ? ListSortDirection.Ascending : ListSortDirection.Descending));
+			listCollectionView!.IsLiveSorting = true;
+			listCollectionView.CustomSort = new FileView.SortByComparer(fileView.SortBy, fileView.IsAscending);
 			break;
 		case nameof(fileView.GroupBy):
-			var groups = Items.GroupDescriptions!;
+			var groups = listCollectionView!.GroupDescriptions!;
 			groups.Clear();
 			if (fileView.GroupBy.HasValue) {
-				Items.IsLiveGrouping = true;
+				listCollectionView.IsLiveGrouping = true;
 				IValueConverter? converter = null;
 				switch (fileView.GroupBy) {
 				case DetailListType.DateCreated:
@@ -297,7 +296,7 @@ public partial class FileListView : INotifyPropertyChanged {
 				}
 				groups.Add(new PropertyGroupDescription(fileView.GroupBy.ToString(), converter));
 			} else {
-				Items.IsLiveGrouping = false;
+				listCollectionView.IsLiveGrouping = false;
 			}
 			break;
 		case nameof(fileView.ItemSize):
@@ -439,7 +438,7 @@ public partial class FileListView : INotifyPropertyChanged {
 			mouseDownPoint = e.GetPosition(contentPanel);
 			var item = MouseItem;
 			if (item != null) {
-				mouseDownRowIndex = ItemsSource.IndexOf(item);
+				mouseDownRowIndex = Items.IndexOf(item);
 				if (e.ChangedButton == MouseButton.Left) {
 					if (item == lastMouseUpItem &&
 						Math.Abs(mouseDownPoint.X - prevMouseUpPoint.X) < SystemParameters.MinimumHorizontalDragDistance &&
@@ -473,7 +472,7 @@ public partial class FileListView : INotifyPropertyChanged {
 									}
 									UnselectAll();
 									for (var i = startIndex; i <= endIndex; i++) {
-										ItemsSource[i].IsSelected = true;
+										((FileListViewItem)Items[i]).IsSelected = true;
 									}
 								}
 							}
@@ -661,7 +660,7 @@ public partial class FileListView : INotifyPropertyChanged {
 				if (isPreparedForRenaming) {
 					isPreparedForRenaming = false;
 					if (mouseDownRowIndex >= 0 && mouseDownRowIndex < ItemsSource.Count && DateTimeOffset.Now > lastMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime() * 1.5)) {
-						var item = ItemsSource[mouseDownRowIndex];
+						var item = (FileListViewItem)Items[mouseDownRowIndex];
 						if (!shouldRename) {
 							shouldRename = true;
 							Task.Run(() => {
@@ -680,7 +679,7 @@ public partial class FileListView : INotifyPropertyChanged {
 					switch (e.ChangedButton) {
 					case MouseButton.Left:
 						if (isClickOnItem) {
-							var item = ItemsSource[mouseDownRowIndex];
+							var item = (FileListViewItem)Items[mouseDownRowIndex];
 							if (!isCtrlOrShiftPressed && SelectedItems.Count > 1) {
 								UnselectAll();
 							}
@@ -691,7 +690,7 @@ public partial class FileListView : INotifyPropertyChanged {
 						break;
 					case MouseButton.Right:
 						if (isClickOnItem && e.OriginalSource is DependencyObject o) {
-							var item = ItemsSource[mouseDownRowIndex];
+							var item = (FileListViewItem)Items[mouseDownRowIndex];
 							openedContextMenu = ((FrameworkElement)ContainerFromElement(o)!).ContextMenu!;
 							openedContextMenu.SetValue(FileItemAttach.FileItemProperty, item);
 							openedContextMenu.DataContext = this;
@@ -712,7 +711,7 @@ public partial class FileListView : INotifyPropertyChanged {
 					}
 				}
 				if (isClickOnItem) {
-					lastMouseUpItem = ItemsSource[mouseDownRowIndex];
+					lastMouseUpItem = (FileListViewItem)Items[mouseDownRowIndex];
 				} else {
 					lastMouseUpItem = null;
 				}
@@ -784,6 +783,51 @@ public partial class FileListView : INotifyPropertyChanged {
 				scrollViewer!.ScrollToTop();
 			} else {
 				ScrollIntoView((object)item);
+			}
+		}
+	}
+
+	/// <summary>
+	/// 根据一个字符串来快速选中一项
+	/// </summary>
+	/// <param name="s"></param>
+	public void SelectByText(string s) {
+		s = s.ToLower();
+		var startIndex = SelectedItems.Count > 1 ? 0 : SelectedIndex + 1;
+		for (var i = startIndex; i < Items.Count; i++) {
+			var item = (FileListViewItem)Items[i];
+			if (item.DisplayText[..s.Length].ToLower() == s) {
+				UnselectAll();
+				ScrollIntoView(item);
+				item.IsSelected = true;
+				return;
+			}
+		}
+		for (var i = 0; i < startIndex; i++) {
+			var item = (FileListViewItem)Items[i];
+			if (item.DisplayText[..s.Length].ToLower() == s) {
+				UnselectAll();
+				ScrollIntoView(item);
+				item.IsSelected = true;
+				return;
+			}
+		}
+		for (var i = startIndex; i < Items.Count; i++) {
+			var item = (FileListViewItem)Items[i];
+			if (item.DisplayText.ToLower().Contains(s)) {
+				UnselectAll();
+				ScrollIntoView(item);
+				item.IsSelected = true;
+				return;
+			}
+		}
+		for (var i = 0; i < startIndex; i++) {
+			var item = (FileListViewItem)Items[i];
+			if (item.DisplayText.ToLower().Contains(s)) {
+				UnselectAll();
+				ScrollIntoView(item);
+				item.IsSelected = true;
+				return;
 			}
 		}
 	}
@@ -955,7 +999,7 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	#region MenuItem点击事件，用Binding的话太浪费资源了
 	private void Refresh_OnClick(object sender, RoutedEventArgs e) {
-		viewModel?.Refresh();
+		viewModel.Refresh();
 	}
 
 	private void NewFolder_OnClick(object sender, RoutedEventArgs e) {
@@ -963,9 +1007,6 @@ public partial class FileListView : INotifyPropertyChanged {
 	}
 
 	private void FormatDiskDrive_OnClick(object sender, RoutedEventArgs e) {
-		if (viewModel == null) {
-			return;
-		}
 		foreach (var item in ViewModel.SelectedItems.Where(i => i is DiskDriveItem).Cast<DiskDriveItem>().ToImmutableList()) {
 			Shell32Interop.ShowFormatDriveDialog(item.Drive);
 		}

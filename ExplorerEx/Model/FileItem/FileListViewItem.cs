@@ -13,15 +13,23 @@ using System.Windows.Media;
 using ExplorerEx.Utils;
 using ExplorerEx.View.Controls;
 
-namespace ExplorerEx.Model; 
+namespace ExplorerEx.Model;
 
 /// <summary>
 /// 所有可以显示在<see cref="FileListView"/>中的项目的基类
 /// </summary>
 public abstract class FileListViewItem : INotifyPropertyChanged {
-	protected FileListViewItem(string fullPath, string name) {
+	protected FileListViewItem(string fullPath, string name, bool isFolder) {
 		FullPath = fullPath;
 		Name = name;
+		defaultIcon = isFolder ? IconHelper.FolderDrawingImage : IconHelper.UnknownFileDrawingImage;
+		This = this;
+	}
+
+	protected FileListViewItem(string fullPath, string name, ImageSource defaultIcon) {
+		FullPath = fullPath;
+		Name = name;
+		this.defaultIcon = defaultIcon;
 		This = this;
 	}
 
@@ -30,7 +38,13 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	/// </summary>
 	[NotMapped]
 	public ImageSource? Icon {
-		get => icon;
+		get {
+			if (icon != null) {
+				return icon;
+			}
+			Task.Run(() => LoadIcon(LoadDetailsOptions.Default));
+			return defaultIcon;
+		}
 		protected set {
 			if (icon != value) {
 				icon = value;
@@ -41,8 +55,10 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 
 	private ImageSource? icon;
 
+	protected readonly ImageSource defaultIcon;
+
 	[Key]
-	public string FullPath { get; protected set; }
+	public string FullPath { get; protected init; }
 
 	public abstract string DisplayText { get; }
 
@@ -139,7 +155,19 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	#endregion
 
 	public override string ToString() {
-		return DisplayText;
+		return FullPath;
+	}
+
+	public override int GetHashCode() {
+		return FullPath.GetHashCode();
+	}
+
+	public override bool Equals(object? other) {
+		return other is FileListViewItem i && i.FullPath == FullPath;
+	}
+
+	public bool Equals(FileListViewItem other) {
+		return other.FullPath == FullPath;
 	}
 
 	/// <summary>
@@ -149,32 +177,46 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	/// <param name="token"></param>
 	/// <param name="options"></param>
 	/// <returns></returns>
-	public static async Task LoadDetails(IReadOnlyCollection<FileListViewItem> list, CancellationToken token, LoadDetailsOptions options) {
-		try {
-			if (list.Count > 0) {
-				await Task.WhenAll(Partitioner.Create(list).GetPartitions(4).Select(partition => Task.Run(() => {
+	public static async Task LoadDetails(IReadOnlyCollection<FileListViewItem>? list, LoadDetailsOptions options, CancellationToken token) {
+		if (list is { Count: > 0 }) {
+			try {
+				var tasks = Partitioner.Create(list).GetPartitions(Math.Max(App.ProcessorCount, 2)).Select(partition => Task.Run(() => {
 					if (token.IsCancellationRequested) {
 						return Task.FromCanceled(token);
 					}
 					using (partition) {
 						while (partition.MoveNext()) {
-							var item = partition.Current!;
-							item.LoadAttributes(options);
-							item.LoadIcon(options);
-
 							if (token.IsCancellationRequested) {
 								return Task.FromCanceled(token);
 							}
+
+							partition.Current.LoadAttributes(options);
 						}
 					}
 
 					return Task.CompletedTask;
-				}, token)));
+				}, token));
+
+				if (options.PreLoadIcon) {
+					tasks = tasks.Append(Task.Run(() => {
+						foreach (var item in list) {
+							if (token.IsCancellationRequested) {
+								return Task.FromCanceled(token);
+							}
+
+							item.LoadIcon(options);
+						}
+
+						return Task.CompletedTask;
+					}, token));
+				}
+
+				await Task.WhenAll(tasks);
+			} catch (TaskCanceledException) {
+				// Ignore
+			} catch (Exception e) {
+				Logger.Exception(e);
 			}
-		} catch (TaskCanceledException) {
-			// Ignore
-		} catch (Exception e) {
-			Logger.Exception(e);
 		}
 	}
 
@@ -184,10 +226,17 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	/// </summary>
 	public class LoadDetailsOptions {
 		public static LoadDetailsOptions Default { get; } = new() {
+			PreLoadIcon = true,
 			UseLargeIcon = false
 		};
 
+		public bool PreLoadIcon { get; set; }
+
 		public bool UseLargeIcon { get; set; }
+
+		public void SetPreLoadIconByItemCount(int count) {
+			PreLoadIcon = count / App.ProcessorCount < 20;
+		}
 	}
 
 	/// <summary>

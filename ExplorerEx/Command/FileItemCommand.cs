@@ -102,7 +102,7 @@ public class FileItemCommand : ICommand {
 				break;
 			}
 			case "Paste": {
-				if (Folder != null && Clipboard.GetDataObject() is DataObject data) {
+				if (Clipboard.GetDataObject() is DataObject data) {
 					if (data.GetData(DataFormats.FileDrop) is string[] filePaths) {
 						bool isCut;
 						if (data.GetData("IsCut") is bool i) {
@@ -136,9 +136,6 @@ public class FileItemCommand : ICommand {
 				break;
 			}
 			case "Delete":  // 删除一个或多个文件，按住shift就是强制删除
-				if (Folder == null) {
-					return;
-				}
 				if ((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift) {  // 没有按Shift
 					if (!MessageBoxHelper.AskWithDefault("Recycle", "#AreYouSureToRecycleTheseFiles".L())) {
 						return;
@@ -200,9 +197,7 @@ public class FileItemCommand : ICommand {
 				}
 				break;
 			case "Terminal":
-				if (Folder != null) {
-					Terminal.RunTerminal(Folder.FullPath);
-				}
+				Terminal.RunTerminal(Folder.FullPath);
 				break;
 			case "ShowMore": {
 				if (!ConfigHelper.LoadBoolean("ShowMore")) {

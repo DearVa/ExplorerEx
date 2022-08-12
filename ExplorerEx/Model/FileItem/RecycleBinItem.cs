@@ -26,7 +26,7 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 
 	private readonly IntPtr pidl;
 
-	public RecycleBinItem(IntPtr pidl) : base(null!, null!) {
+	public RecycleBinItem(IntPtr pidl) : base(null!, null!, false) {
 		this.pidl = pidl;
 		Name = GetDetailOf(0) ?? throw new IOException();
 		FullPath = @"$Recycle.Bin\" + Name;

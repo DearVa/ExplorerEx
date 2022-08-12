@@ -42,7 +42,7 @@ public class BookmarkCategory : NotifyPropertyChangedBase {
 
 	public virtual ObservableCollection<BookmarkItem>? Children { get; set; }
 
-	public BookmarkCategory() { }
+	private BookmarkCategory() { }
 
 	public BookmarkCategory(string name) {
 		Name = name;
@@ -71,9 +71,9 @@ public class BookmarkItem : FileListViewItem, IFilterable {
 
 	public BookmarkCategory Category { get; set; } = null!;
 
-	public BookmarkItem() : base(null!, null!) { }
+	private BookmarkItem() : base(null!, null!, false) { }
 
-	public BookmarkItem(string fullPath, string name, BookmarkCategory category) : base(null!, null!) {
+	public BookmarkItem(string fullPath, string name, BookmarkCategory category) : base(null!, null!, false) {
 		FullPath = Path.GetFullPath(fullPath);
 		Name = name;
 		Category = category;

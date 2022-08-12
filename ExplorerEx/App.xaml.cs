@@ -16,13 +16,10 @@ using static ExplorerEx.Win32.Win32Interop;
 namespace ExplorerEx;
 
 public partial class App {
-	public static App Instance { get; private set; } = null!;
 	public static Arguments Args { get; private set; } = null!;
 	public static int ProcessorCount { get; private set; }
 
-	private App() {
-		Instance = this;
-	}
+	private App() { }
 	
 	private static bool isRunning;
 	private static Mutex? mutex;
@@ -66,8 +63,9 @@ public partial class App {
 			IsBackground = true
 		}.Start();
 
+		ProcessorCount = Environment.ProcessorCount;
+
 		Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-		Shell32Interop.Initialize();
 		IconHelper.InitializeDefaultIcons(Resources);
 		Settings.Current.LoadSettings();
 		ChangeTheme(((SolidColorBrush)SystemParameters.WindowGlassBrush).Color, false);

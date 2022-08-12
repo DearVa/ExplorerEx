@@ -37,9 +37,12 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	private CancellationTokenSource? cts;
 	private readonly bool hasItems;
 	private readonly string? zipPath;
+	/// <summary>
+	/// 用于存储zip里的相对路径，注意是/而不是\
+	/// </summary>
 	private readonly string? relativePath;
 
-	private FolderOnlyItem(FolderOnlyItem? parent) : base(null!, null!) {
+	private FolderOnlyItem(FolderOnlyItem? parent) : base(null!, null!, true) {
 		if (parent == null) {
 			InitializeChildren();
 			UpdateDriveChildren();
@@ -56,7 +59,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	/// <param name="zipPath"></param>
 	/// <param name="relativePath"></param>
 	/// <param name="parent"></param>
-	public FolderOnlyItem(string zipPath, string relativePath, FolderOnlyItem parent) : base(null!, null!) {
+	public FolderOnlyItem(string zipPath, string relativePath, FolderOnlyItem parent) : base(null!, null!, true) {
 		if (!File.Exists(zipPath) || zipPath[^4..] != ".zip") {
 			throw new ArgumentException("Not a zip file");
 		}
@@ -66,7 +69,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 			FullPath = zipPath + '\\';
 			Name = Path.GetFileName(zipPath);
 		} else {
-			FullPath = zipPath + '\\' + relativePath;
+			FullPath = zipPath + '\\' + relativePath.Replace('/', '\\');
 			Name = Path.GetFileName(relativePath[..^1]);
 		}
 		Parent = parent;
@@ -83,7 +86,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 		}
 	}
 
-	public FolderOnlyItem(DirectoryInfo directoryInfo, FolderOnlyItem parent) : base(directoryInfo.FullName, directoryInfo.Name) {
+	public FolderOnlyItem(DirectoryInfo directoryInfo, FolderOnlyItem parent) : base(directoryInfo.FullName, directoryInfo.Name, true) {
 		Parent = parent;
 		IsFolder = true;
 		if (Directory.EnumerateDirectories(FullPath).Any()) {
@@ -91,7 +94,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 		}
 	}
 
-	public FolderOnlyItem(DriveInfo driveInfo): base(driveInfo.Name, DriveUtils.GetFriendlyName(driveInfo)) {
+	public FolderOnlyItem(DriveInfo driveInfo): base(driveInfo.Name, DriveUtils.GetFriendlyName(driveInfo), true) {
 		Parent = Home;
 		IsFolder = true;
 		if (driveInfo.IsReady) {
@@ -154,7 +157,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	/// <summary>
 	/// 真正存储Children的列表
 	/// </summary>
-	private ConcurrentObservableCollection<FolderOnlyItem> actualChildren = null!;
+	private ConcurrentObservableCollection<FolderOnlyItem>? actualChildren;
 
 	public bool IsExpanded {
 		get => isExpanded;
@@ -170,7 +173,11 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 
 					cts?.Cancel();
 					Children = DefaultChildren;
-					actualChildren.Clear();
+					if (actualChildren == null) {
+						actualChildren = new ConcurrentObservableCollection<FolderOnlyItem>();
+					} else {
+						actualChildren.Clear();
+					}
 					cts = new CancellationTokenSource();
 					var token = cts.Token;
 					Task.Run(() => {
@@ -186,7 +193,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 									if (indexOfSlash != -1) {
 										var folderName = entryName[relativePath.Length..indexOfSlash];
 										if (actualChildren.All(i => Path.GetFileName(i.relativePath![..^1]) != folderName)) {
-											actualChildren.Add(new FolderOnlyItem(zipPath, relativePath + folderName + '\\', this));
+											actualChildren.Add(new FolderOnlyItem(zipPath, relativePath + folderName + '/', this));
 										}
 									}
 								}
@@ -236,6 +243,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 
 	public new bool IsSelected {
 		get => false;
+		// ReSharper disable once ValueParameterNotUsed
 		set => OnPropertyChanged();
 	}
 
@@ -245,7 +253,11 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 		var token = cts.Token;
 		Task.Run(() => {
 			Children = DefaultChildren;
-			actualChildren.Clear();
+			if (actualChildren == null) {
+				actualChildren = new ConcurrentObservableCollection<FolderOnlyItem>();
+			} else {
+				actualChildren.Clear();
+			}
 			foreach (var driveInfo in DriveInfo.GetDrives()) {
 				if (token.IsCancellationRequested) {
 					return;
