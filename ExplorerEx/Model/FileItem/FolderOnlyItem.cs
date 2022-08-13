@@ -100,7 +100,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 		if (driveInfo.IsReady) {
 			InitializeChildren();
 		}
-		Icon = IconHelper.GetPathThumbnail(driveInfo.Name);
+		Icon = IconHelper.GetDriveThumbnail(driveInfo.Name);
 	}
 
 	private void InitializeChildren() {

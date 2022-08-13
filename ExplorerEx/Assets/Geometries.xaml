@@ -8,15 +8,12 @@
 
     <DrawingImage x:Key="CopyDrawingImage">
         <DrawingImage.Drawing>
-            <DrawingGroup ClipGeometry="M0,0 V175 H175 V0 H0 Z">
-                <DrawingGroup Transform="1,0,0,1,-12.5,-12.5">
-                    <GeometryDrawing Brush="{DynamicResource PrimaryBrush}" Geometry="F1 M175,175z M0,0z M41.05,75L52.7,75A3.55,3.55,0,0,1,56.25,78.55L56.25,84A3.55,3.55,0,0,1,52.7,87.5L41.05,87.5A3.55,3.55,0,0,1,37.5,84L37.5,78.6A3.55,3.55,0,0,1,41.05,75z M41.05,106.25L52.7,106.25A3.55,3.55,0,0,1,56.25,109.8L56.25,115.2A3.55,3.55,0,0,1,52.7,118.75L41.05,118.75A3.55,3.55,0,0,1,37.5,115.2L37.5,109.8A3.55,3.55,0,0,1,41.05,106.25z M41.05,43.75L52.7,43.75A3.55,3.55,0,0,1,56.25,47.3L56.25,52.7A3.55,3.55,0,0,1,52.7,56.25L41.05,56.25A3.55,3.55,0,0,1,37.5,52.7L37.5,47.3A3.55,3.55,0,0,1,41.05,43.75z" />
+            <DrawingGroup ClipGeometry="M0,0 V20 H16 V0 H0 Z">
+                <DrawingGroup Transform="1,0,0,1,-4,-2">
+                    <GeometryDrawing Brush="{DynamicResource SecondaryTextBrush}" Geometry="F1 M16,20z M0,0z M5.5,4.63L5.5,17.25A3.25,3.25,0,0,0,8.75,20.5L17.37,20.5A2.25,2.25,0,0,1,15.24,22L8.75,22A4.75,4.75,0,0,1,4,17.25L4,6.75A2.25,2.25,0,0,1,5.5,4.63z M17.75,2A2.25,2.25,0,0,1,20,4.25L20,17.25A2.25,2.25,0,0,1,17.75,19.5L8.75,19.5A2.25,2.25,0,0,1,6.5,17.25L6.5,4.25A2.25,2.25,0,0,1,8.75,2z M17.75,3.5L8.75,3.5A0.76,0.76,0,0,0,8,4.25L8,17.25A0.76,0.76,0,0,0,8.75,18L17.75,18A0.76,0.76,0,0,0,18.5,17.25L18.5,4.25A0.76,0.76,0,0,0,17.75,3.5z" />
                 </DrawingGroup>
-                <DrawingGroup Transform="1,0,0,1,-12.5,-12.5">
-                    <GeometryDrawing Brush="{DynamicResource SecondaryTextBrush}" Geometry="F1 M175,175z M0,0z M28.55,25L92.3,25A3.54,3.54,0,0,1,95.18,26.48L102,36A3.55,3.55,0,0,0,104.89,37.48L111.54,37.48A3.55,3.55,0,0,0,114.42,31.86L101.59,14A3.55,3.55,0,0,0,98.71,12.52L16.05,12.52A3.55,3.55,0,0,0,12.5,16.07L12.5,146.47A3.55,3.55,0,0,0,16.05,150L52.51,150A3.54,3.54,0,0,0,56.05,146.45L56.05,141.05A3.54,3.54,0,0,0,52.51,137.5L28.51,137.5A3.55,3.55,0,0,1,25,134L25,28.55A3.55,3.55,0,0,1,28.55,25z M155.8,50L72.3,50A3.55,3.55,0,0,0,68.75,53.55L68.75,184A3.55,3.55,0,0,0,72.3,187.55L184,187.55A3.55,3.55,0,0,0,187.5,184L187.5,81.16A3.55,3.55,0,0,0,186.44,78.62L158.28,51A3.53,3.53,0,0,0,155.8,50z M171.45,175L84.8,175A3.55,3.55,0,0,1,81.25,171.45L81.25,66.05A3.55,3.55,0,0,1,84.8,62.5L135.91,62.5A3.55,3.55,0,0,1,139.45,66.05L139.45,94.11A3.55,3.55,0,0,0,143,97.66L171.45,97.66A3.54,3.54,0,0,1,175,101.2L175,171.45A3.55,3.55,0,0,1,171.45,175z M175,85.16L155.5,85.16A3.55,3.55,0,0,1,152,81.61L152,62.5 152.18,62.5 175,84.92z" />
-                </DrawingGroup>
-                <DrawingGroup Transform="1,0,0,1,-12.5,-12.5">
-                    <GeometryDrawing Brush="{DynamicResource PrimaryBrush}" Geometry="F1 M175,175z M0,0z M97.3,80.64L127.7,80.64A3.55,3.55,0,0,1,131.25,84.19L131.25,89.6A3.54,3.54,0,0,1,127.7,93.14L97.3,93.14A3.54,3.54,0,0,1,93.75,89.6L93.75,84.19A3.55,3.55,0,0,1,97.3,80.64z M97.49,112.5L159.54,112.5A3.55,3.55,0,0,1,163.09,116.05L163.09,121.45A3.55,3.55,0,0,1,159.54,125L97.54,125A3.54,3.54,0,0,1,94,121.45L94,116.05A3.54,3.54,0,0,1,97.49,112.5z M97.49,143.36L159.54,143.36A3.55,3.55,0,0,1,163.09,146.91L163.09,152.31A3.55,3.55,0,0,1,159.54,155.86L97.54,155.86A3.54,3.54,0,0,1,94,152.31L94,146.91A3.54,3.54,0,0,1,97.49,143.36z" />
+                <DrawingGroup Transform="1,0,0,1,-4,-2">
+                    <GeometryDrawing Brush="{DynamicResource PrimaryBrush}" Geometry="F1 M16,20z M0,0z M9.66,6.41L13.17,6.41A0.41,0.41,0,0,1,13.58,6.82L13.58,7.44A0.41,0.41,0,0,1,13.17,7.85L9.66,7.85A0.4,0.4,0,0,1,9.25,7.45L9.25,7.45 9.25,6.82A0.41,0.41,0,0,1,9.66,6.41z M9.66,10.09L16.82,10.09A0.41,0.41,0,0,1,17.23,10.5L17.23,10.5 17.23,11.12A0.41,0.41,0,0,1,16.82,11.53L9.69,11.53A0.41,0.41,0,0,1,9.28,11.12L9.28,11.12 9.28,10.5A0.4,0.4,0,0,1,9.68,10.09z M9.66,13.65L16.82,13.65A0.41,0.41,0,0,1,17.23,14.06L17.23,14.06 17.23,14.68A0.41,0.41,0,0,1,16.82,15.09L9.69,15.09A0.41,0.41,0,0,1,9.28,14.68L9.28,14.68 9.28,14.06A0.4,0.4,0,0,1,9.68,13.65z" />
                 </DrawingGroup>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -37,41 +34,15 @@
 
     <DrawingImage x:Key="DeleteDrawingImage">
         <DrawingImage.Drawing>
-            <DrawingGroup ClipGeometry="M0,0 V178.54 H179.31 V0 H0 Z">
-                <DrawingGroup Transform="1,0,0,1,-10.54,-9.88">
-                    <GeometryDrawing Brush="{DynamicResource SecondaryTextBrush}" Geometry="F1 M179.31,178.54z M0,0z M142.27,186.43L57.27,186.43C49.63,186.43,43.4,179.86,43.27,171.74L29.8,39.69 169.73,39.69 156.25,171.74C156.11,179.86,149.9,186.43,142.27,186.43z M39.86,48.79L52.36,171.27 52.36,171.5C52.36,174.73,54.57,177.34,57.27,177.34L142.27,177.34C144.96,177.34,147.17,174.73,147.17,171.5L147.17,171.04 159.67,48.79z">
-                        <GeometryDrawing.Pen>
-                            <Pen Brush="{DynamicResource SecondaryTextBrush}" Thickness="4" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
-                        </GeometryDrawing.Pen>
-                    </GeometryDrawing>
+            <DrawingGroup ClipGeometry="M0,0 V39.96 H38 V0 H0 Z">
+                <DrawingGroup Transform="1,0,0,1,-5,-4" />
+                <DrawingGroup Transform="1,0,0,1,-5,-4" />
+                <DrawingGroup Transform="1,0,0,1,-5,-4" />
+                <DrawingGroup Transform="1,0,0,1,-5,-4">
+                    <GeometryDrawing Brush="{DynamicResource SecondaryTextBrush}" Geometry="F1 M38,39.96z M0,0z M9.17,13.5L11.17,37.32A7.24,7.24,0,0,0,18.39,44L29.61,44A7.24,7.24,0,0,0,36.83,37.36L38.83,13.54z M21.5,34.71A1.25,1.25,0,0,1,19,34.71L19,20.21A1.25,1.25,0,0,1,21.5,20.21z M29,34.71A1.25,1.25,0,0,1,26.5,34.71L26.5,20.21A1.25,1.25,0,0,1,29,20.21z" />
                 </DrawingGroup>
-                <DrawingGroup Transform="1,0,0,1,-10.54,-9.88">
-                    <GeometryDrawing Brush="{DynamicResource SecondaryTextBrush}" Geometry="F1 M179.31,178.54z M0,0z M140,47.48L59.51,47.48A9.75,9.75,0,0,1,49.77,37.73L56,22.66C58.88,16.14,59.83,11.88,64.54,11.88L135,11.88C139.71,11.88,140.66,16.72,143.54,22.66L149.77,37.73A9.76,9.76,0,0,1,140,47.48z M64.53,22A0.67,0.67,0,0,0,63.96,22.72L58.87,37.75A0.65,0.65,0,0,0,59.51,38.4L140,38.4A0.65,0.65,0,0,0,140.64,37.75L135.55,22.69A0.67,0.67,0,0,0,135,22z">
-                        <GeometryDrawing.Pen>
-                            <Pen Brush="{DynamicResource SecondaryTextBrush}" Thickness="4" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
-                        </GeometryDrawing.Pen>
-                    </GeometryDrawing>
-                </DrawingGroup>
-                <DrawingGroup Transform="1,0,0,1,-10.54,-9.88">
-                    <GeometryDrawing Brush="{DynamicResource SecondaryTextBrush}" Geometry="F1 M179.31,178.54z M0,0z M183.3,48.79L17.09,48.79A4.55,4.55,0,0,1,17.09,39.69L183.3,39.69A4.55,4.55,0,0,1,183.3,48.79z">
-                        <GeometryDrawing.Pen>
-                            <Pen Brush="{DynamicResource SecondaryTextBrush}" Thickness="4" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
-                        </GeometryDrawing.Pen>
-                    </GeometryDrawing>
-                </DrawingGroup>
-                <DrawingGroup Transform="1,0,0,1,-10.54,-9.88">
-                    <GeometryDrawing Brush="{DynamicResource PrimaryBrush}" Geometry="F1 M179.31,178.54z M0,0z M82.23,163.05A4.55,4.55,0,0,1,77.68,158.5L77.68,67.62A4.55,4.55,0,1,1,86.78,67.62L86.78,158.52A4.54,4.54,0,0,1,82.23,163.05z">
-                        <GeometryDrawing.Pen>
-                            <Pen Brush="{DynamicResource PrimaryBrush}" Thickness="4" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
-                        </GeometryDrawing.Pen>
-                    </GeometryDrawing>
-                </DrawingGroup>
-                <DrawingGroup Transform="1,0,0,1,-10.54,-9.88">
-                    <GeometryDrawing Brush="{DynamicResource PrimaryBrush}" Geometry="F1 M179.31,178.54z M0,0z M117.29,163.05A4.56,4.56,0,0,1,112.73,158.5L112.73,67.62A4.56,4.56,0,0,1,121.84,67.62L121.84,158.52A4.54,4.54,0,0,1,117.29,163.05z">
-                        <GeometryDrawing.Pen>
-                            <Pen Brush="{DynamicResource PrimaryBrush}" Thickness="4" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
-                        </GeometryDrawing.Pen>
-                    </GeometryDrawing>
+                <DrawingGroup Transform="1,0,0,1,-5,-4">
+                    <GeometryDrawing Brush="{DynamicResource PrimaryBrush}" Geometry="F1 M38,39.96z M0,0z M41.75,13.5A1.25,1.25,0,0,0,41.75,11L30.5,11 30.5,10.5A6.5,6.5,0,0,0,17.5,10.5L17.5,11 6.25,11A1.25,1.25,0,0,0,6.25,13.5z M28,11L20,11 20,10.5A4,4,0,0,1,28,10.5z" />
                 </DrawingGroup>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -216,24 +187,27 @@
 
     <DrawingImage x:Key="PasteDrawingImage">
         <DrawingImage.Drawing>
-            <DrawingGroup ClipGeometry="M0,0 V175 H175 V0 H0 Z">
-                <DrawingGroup Transform="1,0,0,1,-12.5,-12.5">
-                    <GeometryDrawing Brush="{DynamicResource SecondaryTextBrush}" Geometry="F1 M175,175z M0,0z M93.77,37.54L93.77,37.54 37.52,37.54 37.52,50 106.25,50 106.25,37.54z" />
+            <DrawingGroup ClipGeometry="M0,0 V175.48 H175 V0 H0 Z">
+                <DrawingGroup.Transform>
+                    <TranslateTransform X="0" Y="7.0031383074820042E-05" />
+                </DrawingGroup.Transform>
+                <DrawingGroup Transform="1,0,0,1,0,-0.02">
+                    <GeometryDrawing Brush="{DynamicResource SecondaryTextBrush}" Geometry="F1 M175,175.48z M0,0z M81.27,25L25,25 25,37.5 93.75,37.5 93.75,25z" />
                 </DrawingGroup>
-                <DrawingGroup Transform="1,0,0,1,-12.5,-12.5">
-                    <GeometryDrawing Brush="#FFE6C27C" Geometry="F1 M175,175z M0,0z M114.39,37.5C123.67,37.5,131.25,44.75,131.25,53.65L131.25,53.65 131.25,87.5 106.25,87.5 106.25,168.75 29.37,168.75C20.08,168.75,12.5,161.5,12.5,152.6L12.5,53.65C12.5,44.75,20.08,37.5,29.37,37.5z" />
+                <DrawingGroup Transform="1,0,0,1,0,-0.02">
+                    <GeometryDrawing Brush="#FFE6C27C" Geometry="F1 M175,175.48z M0,0z M101.89,25C111.17,25,118.75,32.25,118.75,41.15L118.75,41.15 118.75,69.42 87.5,69.42 87.5,156.25 16.87,156.25C7.58,156.25,0,149,0,140.1L0,41.15C0,32.25,7.58,25,16.87,25z" />
                 </DrawingGroup>
-                <DrawingGroup Transform="1,0,0,1,-12.5,-12.5">
-                    <GeometryDrawing Brush="#FFE6C27C" Geometry="F1 M175,175z M0,0z M106.27,50L106.27,37.54" />
+                <DrawingGroup Transform="1,0,0,1,0,-0.02">
+                    <GeometryDrawing Brush="#FFE6C27C" Geometry="F1 M175,175.48z M0,0z M93.77,37.5L93.77,25" />
                 </DrawingGroup>
-                <DrawingGroup Transform="1,0,0,1,-12.5,-12.5">
-                    <GeometryDrawing Brush="{DynamicResource SecondaryTextBrush}" Geometry="F1 M175,175z M0,0z M90.9,12.52L52.9,12.52A2.88,2.88,0,0,0,50,15.39L50,34.62A2.88,2.88,0,0,1,47.12,37.5L40.41,37.5A2.89,2.89,0,0,0,37.52,40.39L37.52,65.05A2.88,2.88,0,0,0,40.4,67.93L103.4,67.93A2.88,2.88,0,0,0,106.28,65.04L106.28,49.96 106.28,40.43A2.89,2.89,0,0,0,103.39,37.54L96.66,37.54A2.89,2.89,0,0,1,93.77,34.65L93.77,15.41A2.89,2.89,0,0,0,90.9,12.52z M62.52,34.62L62.52,27.89A2.89,2.89,0,0,1,65.41,25L78.41,25A2.88,2.88,0,0,1,81.29,27.88L81.29,34.61A2.89,2.89,0,0,1,78.4,37.5L65.4,37.5A2.9,2.9,0,0,1,62.52,34.62z" />
+                <DrawingGroup Transform="1,0,0,1,0,-0.02">
+                    <GeometryDrawing Brush="{DynamicResource SecondaryTextBrush}" Geometry="F1 M175,175.48z M0,0z M78.4,0L40.4,0A2.88,2.88,0,0,0,37.5,2.86L37.5,2.86 37.5,22.12A2.88,2.88,0,0,1,34.62,25L27.91,25A2.89,2.89,0,0,0,25,27.89L25,52.55A2.88,2.88,0,0,0,27.88,55.43L90.88,55.43A2.88,2.88,0,0,0,93.76,52.55L93.76,52.55 93.76,27.93A2.89,2.89,0,0,0,90.89,25L84.16,25A2.89,2.89,0,0,1,81.27,22.11L81.27,2.91A2.89,2.89,0,0,0,78.4,0z M50,22.12L50,15.39A2.89,2.89,0,0,1,52.89,12.5L65.89,12.5A2.88,2.88,0,0,1,68.77,15.38L68.77,22.11A2.89,2.89,0,0,1,65.9,25L52.9,25A2.89,2.89,0,0,1,50,22.12z" />
                 </DrawingGroup>
-                <DrawingGroup Transform="1,0,0,1,-12.5,-12.5">
-                    <GeometryDrawing Brush="{DynamicResource SecondaryTextBrush}" Geometry="F1 M175,175z M0,0z M93.77,78.39L93.77,184.11A3.39,3.39,0,0,0,97.16,187.5L156.46,187.5A3.36,3.36,0,0,0,159.04,186.31L186.69,154A3.42,3.42,0,0,0,187.5,151.79L187.5,78.39A3.39,3.39,0,0,0,184.11,75L97.11,75A3.39,3.39,0,0,0,93.77,78.39z M109.66,87.5L171.66,87.5A3.39,3.39,0,0,1,175,90.89L175,134.11A3.39,3.39,0,0,1,171.61,137.5L144.43,137.5A3.39,3.39,0,0,0,141.04,140.89L141.04,171.61A3.4,3.4,0,0,1,137.64,175L109.64,175A3.39,3.39,0,0,1,106.25,171.61L106.25,90.89A3.39,3.39,0,0,1,109.66,87.5z M153.54,164.32L153.54,153.39A3.39,3.39,0,0,1,156.93,150L166.27,150A3.4,3.4,0,0,1,168.85,155.6L159.51,166.52A3.39,3.39,0,0,1,153.54,164.32z" />
+                <DrawingGroup Transform="1,0,0,1,0,-0.02">
+                    <GeometryDrawing Brush="{DynamicResource SecondaryTextBrush}" Geometry="F1 M175,175.48z M0,0z M160.47,62.5L95.8,62.5A14.54,14.54,0,0,0,81.27,77L81.27,161A14.53,14.53,0,0,0,95.8,175.5L160.47,175.5A14.53,14.53,0,0,0,175,161L175,77A14.54,14.54,0,0,0,160.47,62.5z M165.31,161A4.84,4.84,0,0,1,160.47,165.84L95.8,165.84A4.84,4.84,0,0,1,91,161L91,77A4.83,4.83,0,0,1,95.84,72.16L160.51,72.16A4.83,4.83,0,0,1,165.31,77z" />
                 </DrawingGroup>
-                <DrawingGroup Transform="1,0,0,1,-12.5,-12.5">
-                    <GeometryDrawing Brush="{DynamicResource PrimaryBrush}" Geometry="F1 M175,175z M0,0z M122,100L158.94,100A3.39,3.39,0,0,1,162.33,103.39L162.33,109.11A3.39,3.39,0,0,1,158.94,112.5L122,112.5A3.4,3.4,0,0,1,118.6,109.11L118.6,103.39A3.4,3.4,0,0,1,122,100z M122,118.75L158.94,118.75A3.39,3.39,0,0,1,162.33,122.14L162.33,127.86A3.39,3.39,0,0,1,158.94,131.25L122,131.25A3.4,3.4,0,0,1,118.6,127.86L118.6,122.14A3.4,3.4,0,0,1,122,118.75z" />
+                <DrawingGroup Transform="1,0,0,1,0,-0.02">
+                    <GeometryDrawing Brush="{DynamicResource PrimaryBrush}" Geometry="F1 M175,175.48z M0,0z M101.67,91L124.32,91A2.65,2.65,0,0,1,127,93.63L127,97.63A2.64,2.64,0,0,1,124.36,100.27L101.67,100.27A2.64,2.64,0,0,1,99,97.67L99,97.67 99,93.67A2.65,2.65,0,0,1,101.67,91z M101.81,114.74L148,114.74A2.65,2.65,0,0,1,150.65,117.38L150.65,117.38 150.65,121.38A2.65,2.65,0,0,1,148,124L101.85,124A2.64,2.64,0,0,1,99.21,121.36L99.21,121.36 99.21,117.36A2.64,2.64,0,0,1,101.81,114.72z M101.81,137.74L148,137.74A2.65,2.65,0,0,1,150.65,140.38L150.65,140.38 150.65,144.38A2.65,2.65,0,0,1,148,147L101.85,147A2.64,2.64,0,0,1,99.21,144.36L99.21,144.36 99.21,140.36A2.64,2.64,0,0,1,101.81,137.71z" />
                 </DrawingGroup>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -259,15 +233,12 @@
 
     <DrawingImage x:Key="ShareDrawingImage">
         <DrawingImage.Drawing>
-            <DrawingGroup ClipGeometry="M0,0 V185 H185 V0 H0 Z">
-                <DrawingGroup Transform="1,0,0,1,-7.5,-7.5">
-                    <GeometryDrawing Brush="{DynamicResource SecondaryTextBrush}" Geometry="F1 M185,185z M0,0z M145,192.5L35,192.5A27.21,27.21,0,0,1,7.5,165L7.5,55A27.21,27.21,0,0,1,35,27.5L100,27.5A7.25,7.25,0,0,1,107.5,35A7.25,7.25,0,0,1,100,42.5L35,42.5A12.83,12.83,0,0,0,22.5,55L22.5,165A12.83,12.83,0,0,0,35,177.5L145,177.5A12.83,12.83,0,0,0,157.5,165L157.5,100A7.5,7.5,0,0,1,172.5,100L172.5,165A27.21,27.21,0,0,1,145,192.5z" />
+            <DrawingGroup ClipGeometry="M0,0 V22 H23 V0 H0 Z">
+                <DrawingGroup Transform="1,0,0,1,-3,-3">
+                    <GeometryDrawing Brush="{DynamicResource PrimaryBrush}" Geometry="F1 M23,22z M0,0z M18.27,3.21L25.77,10.46A0.74,0.74,0,0,1,25.94,10.71A0.73,0.73,0,0,1,25.94,11.29A0.74,0.74,0,0,1,25.77,11.54L18.27,18.79A0.78,0.78,0,0,1,18,19A0.87,0.87,0,0,1,17.72,19.05A0.72,0.72,0,0,1,17.43,18.99A0.69,0.69,0,0,1,17.1,18.71A0.67,0.67,0,0,1,16.97,18.3L16.97,14.51C10.27,14.78,7.45,18.51,7.33,18.69A0.79,0.79,0,0,1,7,19A0.72,0.72,0,0,1,6.54,19A0.79,0.79,0,0,1,6.16,18.73A0.77,0.77,0,0,1,6,18.25C6,10.25,12.59,7.77,17,7.52L17,3.75A0.67,0.67,0,0,1,17.13,3.34A0.69,0.69,0,0,1,17.46,3.06A0.73,0.73,0,0,1,18.27,3.21z" />
                 </DrawingGroup>
-                <DrawingGroup Transform="1,0,0,1,-7.5,-7.5">
-                    <GeometryDrawing Brush="{DynamicResource PrimaryBrush}" Geometry="F1 M185,185z M0,0z M180,27L76,131A4.95,4.95,0,0,1,69,124L173,20 125,20A4.72,4.72,0,0,1,120,15A4.72,4.72,0,0,1,125,10L175,10A15.38,15.38,0,0,1,190,25L190,75A5,5,0,0,1,180,75z" />
-                </DrawingGroup>
-                <DrawingGroup Transform="1,0,0,1,-7.5,-7.5">
-                    <GeometryDrawing Brush="{DynamicResource PrimaryBrush}" Geometry="F1 M185,185z M0,0z M72.5,135A7.48,7.48,0,0,1,67.23,122.25L167,22.5 125,22.5A7.25,7.25,0,0,1,117.5,15A7.25,7.25,0,0,1,125,7.5L175,7.5A18,18,0,0,1,192.5,25L192.5,75A7.5,7.5,0,0,1,177.5,75L177.5,33 77.77,132.77A7.41,7.41,0,0,1,72.5,135z" />
+                <DrawingGroup Transform="1,0,0,1,-3,-3">
+                    <GeometryDrawing Brush="{DynamicResource SecondaryTextBrush}" Geometry="F1 M23,22z M0,0z M7.75,4A4.75,4.75,0,0,0,3,8.75L3,20.25A4.75,4.75,0,0,0,7.75,25L19.25,25A4.75,4.75,0,0,0,24,20.25L24,19.75A0.75,0.75,0,0,0,22.5,19.75L22.5,20.25A3.25,3.25,0,0,1,19.25,23.5L7.75,23.5A3.25,3.25,0,0,1,4.5,20.25L4.5,8.75A3.26,3.26,0,0,1,7.75,5.5L12.25,5.5A0.75,0.75,0,0,0,12.25,4z" />
                 </DrawingGroup>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -484,37 +455,17 @@
 
     <DrawingImage x:Key="PropertiesDrawingImage">
         <DrawingImage.Drawing>
-            <DrawingGroup ClipGeometry="M0,0 V186.87 H160 V0 H0 Z">
-                <DrawingGroup Transform="1,0,0,1,-0.47,-0.5">
-                    <GeometryDrawing Geometry="F1 M160,186.87z M0,0z M131.7,6.5L29.26,6.5C16.74,6.5,6.47,18.61,6.47,33.4L6.47,154.47C6.47,169.27,16.71,181.37,29.23,181.37L131.7,181.37C144.23,181.37,154.47,169.27,154.47,154.47L154.47,33.4C154.47,18.61,144.23,6.5,131.7,6.5z">
-                        <GeometryDrawing.Pen>
-                            <Pen Brush="{DynamicResource SecondaryTextBrush}" Thickness="12" StartLineCap="Flat" EndLineCap="Flat" LineJoin="Miter" />
-                        </GeometryDrawing.Pen>
-                    </GeometryDrawing>
-                </DrawingGroup>
+            <DrawingGroup ClipGeometry="M0,0 V24 H24 V0 H0 Z">
                 <GeometryDrawing Brush="{DynamicResource PrimaryBrush}">
                     <GeometryDrawing.Geometry>
-                        <EllipseGeometry RadiusX="6.95" RadiusY="6.95" Center="40.89,137" />
+                        <EllipseGeometry RadiusX="1" RadiusY="1" Center="12,6" />
                     </GeometryDrawing.Geometry>
                 </GeometryDrawing>
-                <GeometryDrawing Brush="{DynamicResource PrimaryBrush}">
-                    <GeometryDrawing.Geometry>
-                        <EllipseGeometry RadiusX="6.95" RadiusY="6.95" Center="40.89,95.35" />
-                    </GeometryDrawing.Geometry>
-                </GeometryDrawing>
-                <GeometryDrawing Brush="{DynamicResource PrimaryBrush}">
-                    <GeometryDrawing.Geometry>
-                        <EllipseGeometry RadiusX="6.95" RadiusY="6.95" Center="40.89,53.7" />
-                    </GeometryDrawing.Geometry>
-                </GeometryDrawing>
-                <DrawingGroup Transform="1,0,0,1,-0.47,-0.5">
-                    <GeometryDrawing Brush="{DynamicResource PrimaryBrush}" Geometry="F1 M160,186.87z M0,0z M119.36,144.44L63.83,144.44A6.94,6.94,0,0,1,63.83,130.56L119.36,130.56A6.94,6.94,0,1,1,119.85,144.44z" />
+                <DrawingGroup Transform="1,0,0,1,-2,-2">
+                    <GeometryDrawing Brush="{DynamicResource PrimaryBrush}" Geometry="F1 M24,24z M0,0z M13.25,11.75L13.25,19.25A0.75,0.75,0,0,0,14.75,19.25L14.75,11.75A0.75,0.75,0,0,0,13.25,11.75z" />
                 </DrawingGroup>
-                <DrawingGroup Transform="1,0,0,1,-0.47,-0.5">
-                    <GeometryDrawing Brush="{DynamicResource PrimaryBrush}" Geometry="F1 M160,186.87z M0,0z M119.36,102.79L63.83,102.79A6.95,6.95,0,0,1,63.83,88.9L119.36,88.9A6.95,6.95,0,1,1,119.85,102.79z" />
-                </DrawingGroup>
-                <DrawingGroup Transform="1,0,0,1,-0.47,-0.5">
-                    <GeometryDrawing Brush="{DynamicResource PrimaryBrush}" Geometry="F1 M160,186.87z M0,0z M119.36,61.14L63.83,61.14A6.95,6.95,0,1,1,63.83,47.25L119.36,47.25A6.95,6.95,0,1,1,119.36,61.14z" />
+                <DrawingGroup Transform="1,0,0,1,-2,-2">
+                    <GeometryDrawing Brush="{DynamicResource SecondaryTextBrush}" Geometry="F1 M24,24z M0,0z M14,2A12,12,0,1,0,26,14A12,12,0,0,0,14,2z M14,24.5A10.5,10.5,0,1,1,24.5,14A10.5,10.5,0,0,1,14,24.5z" />
                 </DrawingGroup>
             </DrawingGroup>
         </DrawingImage.Drawing>

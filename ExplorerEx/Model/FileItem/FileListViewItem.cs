@@ -235,7 +235,7 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 		public bool UseLargeIcon { get; set; }
 
 		public void SetPreLoadIconByItemCount(int count) {
-			PreLoadIcon = count / App.ProcessorCount < 20;
+			PreLoadIcon = count < 20 * App.ProcessorCount;
 		}
 	}
 

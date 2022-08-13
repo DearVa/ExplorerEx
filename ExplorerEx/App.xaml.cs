@@ -64,9 +64,8 @@ public partial class App {
 		}.Start();
 
 		ProcessorCount = Environment.ProcessorCount;
-
+		Shell32Interop.Initizlize();
 		Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-		IconHelper.InitializeDefaultIcons(Resources);
 		Settings.Current.LoadSettings();
 		ChangeTheme(((SolidColorBrush)SystemParameters.WindowGlassBrush).Color, false);
 

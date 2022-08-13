@@ -220,6 +220,9 @@
                 <MenuItem Margin="3,0,0,0" ToolTip="{u:Lang Delete}" CommandParameter="Delete"
                           Command="{Binding ViewModel.FileItemCommand}"
                           Icon="{DynamicResource DeleteDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                <MenuItem Margin="3,0,0,0" ToolTip="{u:Lang Delete}" CommandParameter="Properties"
+                          Command="{Binding ViewModel.FileItemCommand}"
+                          Icon="{DynamicResource PropertiesDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
             </StackPanel>
         </ControlTemplate>
 
@@ -262,11 +265,6 @@
             <Separator Style="{StaticResource SeparatorBaseStyle}"/>
             <MenuItem Click="FormatDiskDrive_OnClick" Icon="{StaticResource FormatDriveDrawingImage}"
                       Header="{u:Lang FormatDrive}" Foreground="{DynamicResource DangerBrush}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
-
-            <MenuItem CommandParameter="Properties"
-                      Command="{Binding ViewModel.FileItemCommand}"
-                      Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
         </ContextMenu>
 
         <ContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance ct:FileListView}">
@@ -297,14 +295,9 @@
                       Icon="{DynamicResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
             <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
-            <MenuItem CommandParameter="Properties"
-                      Command="{Binding ViewModel.FileItemCommand}"
-                      Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
-
             <MenuItem CommandParameter="ShowMore"
                       Command="{Binding ViewModel.FileItemCommand}"
-                      Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang ShowMoreOptions}"/>
+                      Icon="{DynamicResource MoreDrawingImage}" Header="{u:Lang ShowMoreOptions}"/>
         </ContextMenu>
 
         <c:FileAssocTemplateSelector x:Key="FileAssocTemplateSelector" DefaultStyle="{StaticResource MenuItemBaseStyle}">
@@ -385,14 +378,9 @@
                       Icon="{DynamicResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
             <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
-            <MenuItem CommandParameter="Properties"
-                      Command="{Binding ViewModel.FileItemCommand}"
-                      Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
-
             <MenuItem CommandParameter="ShowMore"
                       Command="{Binding ViewModel.FileItemCommand}"
-                      Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang ShowMoreOptions}"/>
+                      Icon="{DynamicResource MoreDrawingImage}" Header="{u:Lang ShowMoreOptions}"/>
         </ContextMenu>
 
         <c:FileSystemItemContextMenuConverter x:Key="FileSystemItemContextMenuConverter"
@@ -429,13 +417,36 @@
 
     <ListView.ContextMenu>
         <ContextMenu d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
+            <MenuItem Height="40">
+                <MenuItem.Template>
+                    <ControlTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <MenuItem Margin="0,0,3,0" Click="Refresh_OnClick" Icon="{DynamicResource RefreshDrawingImage}" 
+                                      Header="{u:Lang Refresh}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                            <MenuItem Margin="0,0,3,0" ToolTip="{u:Lang Paste}" CommandParameter="Paste"
+                                      Command="{Binding FileItemCommand}" 
+                                      Visibility="{Binding CanPaste, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                      Icon="{DynamicResource PasteDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                            <MenuItem ToolTip="{u:Lang Properties}" CommandParameter="Properties"
+                                      Command="{Binding FileItemCommand}"
+                                      Icon="{DynamicResource PropertiesDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                        </StackPanel>
+                    </ControlTemplate>
+                </MenuItem.Template>
+            </MenuItem>
+            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
             <MenuItem Click="NewFolder_OnClick" Icon="{DynamicResource NewFolderDrawingImage}" Header="{u:Lang NewFolder}"
                       Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"/>
-            <MenuItem Icon="{DynamicResource NewDrawingImage}" Header="{u:Lang New}" Command="{Binding CreateCommand}"
+            <MenuItem Icon="{DynamicResource NewDrawingImage}" Header="{u:Lang New}"
                       Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"
-                      ItemsSource="{Binding Source={x:Static m:CreateFileItem.Items}}"
-                      ItemContainerStyle="{StaticResource CreateMenuItemContainerStyle}"/>
-            <Separator Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"/>
+                      ItemsSource="{Binding Source={x:Static m:CreateFileItem.Items}}">
+                <MenuItem.ItemContainerStyle>
+                    <Style BasedOn="{StaticResource CreateMenuItemContainerStyle}" TargetType="MenuItem">
+                        <Setter Property="Command" Value="{Binding DataContext.CreateCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                    </Style>
+                </MenuItem.ItemContainerStyle>
+            </MenuItem>
+            <Separator Style="{StaticResource SeparatorBaseStyle}" Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"/>
             <MenuItem Icon="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource ViewIndex2ImageSourceConverter}}" Header="{u:Lang View}">
                 <MenuItem.Items>
                     <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.LargeIcons}" Header="{u:Lang LargeIcons}" Icon="{DynamicResource LargeIconsDrawingImage}"
@@ -489,20 +500,17 @@
                               IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByFileSize}}"/>
                 </MenuItem.Items>
             </MenuItem>
-            <MenuItem Click="Refresh_OnClick" Icon="{DynamicResource RefreshDrawingImage}" Header="{u:Lang Refresh}"/>
             <Separator Style="{StaticResource SeparatorBaseStyle}"/>
 
             <MenuItem CommandParameter="Terminal" Command="{Binding FileItemCommand}"
                       Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"
                       Icon="{Binding Source={x:Static u:Terminal.TerminalIcon}}" Header="{u:Lang OpenInTerminal}"/>
-            <MenuItem CommandParameter="Properties"
-                      Command="{Binding FileItemCommand}"
-                      Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"
+                       Style="{StaticResource SeparatorBaseStyle}"/>
 
             <MenuItem CommandParameter="ShowMore"
                       Command="{Binding FileItemCommand}"
-                      Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang ShowMoreOptions}"/>
+                      Icon="{DynamicResource MoreDrawingImage}" Header="{u:Lang ShowMoreOptions}"/>
         </ContextMenu>
     </ListView.ContextMenu>
 

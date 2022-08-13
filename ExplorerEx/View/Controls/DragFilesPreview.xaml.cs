@@ -159,7 +159,7 @@ public partial class DragFilesPreview {
 
 	private static ImageSource GetPathThumbnail(string path) {
 		if (path.Length == 3) {
-			return IconHelper.GetPathThumbnail(path);
+			return IconHelper.GetDriveThumbnail(path);
 		}
 		if (Directory.Exists(path)) {
 			return IconHelper.EmptyFolderDrawingImage;

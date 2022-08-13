@@ -11,7 +11,6 @@ using System.Windows.Controls;
 using ExplorerEx.Command;
 using ExplorerEx.Model;
 using ExplorerEx.Utils;
-using ExplorerEx.Win32;
 using static ExplorerEx.Win32.Win32Interop;
 
 namespace ExplorerEx.Shell32;
@@ -132,9 +131,9 @@ internal static class Shell32Interop {
 	/// Apparently (and hopefully) ordinal 727 isn't going to change.
 	///
 	[DllImport(Shell32, EntryPoint = "#727")]
-	public static extern int SHGetImageList(SHIL iImageList, [In] ref Guid riid, out IImageList ppv);
+	public static extern int SHGetImageList(SHIL iImageList, [In] ref Guid riid, out IntPtr ppv);
 
-	[DllImport(Shell32, CharSet = CharSet.Ansi)]
+	[DllImport(Shell32, CharSet = CharSet.Unicode)]
 	public static extern int SHGetFileInfo(string pszPath, FileAttribute dwFileAttributes, ref ShFileInfo psfi, int cbFileInfo, SHGFI uFlags);
 
 	[DllImport(Shell32)]
@@ -165,7 +164,7 @@ internal static class Shell32Interop {
 	public static extern int SHGetKnownFolderPath([MarshalAs(UnmanagedType.LPStruct)] Guid rfid, uint dwFlags, IntPtr hToken, out IntPtr pszPath);
 
 	[DllImport("ole32.dll")]
-	public static extern int CoCreateInstance(ref Guid clsid, [MarshalAs(UnmanagedType.IUnknown)] object inner, uint context, ref Guid uuid, out IntPtr rReturnedComObject);
+	public static extern int CoCreateInstance(ref Guid clsid, [MarshalAs(UnmanagedType.IUnknown)] object? inner, uint context, ref Guid uuid, out IntPtr rReturnedComObject);
 
 	[DllImport(Shell32, CharSet = CharSet.Unicode)]
 	public static extern int SHAssocEnumHandlers(string pszExtra, AssocFilter afFilter, out IEnumAssocHandlers ppEnumHandler);
@@ -242,7 +241,7 @@ internal static class Shell32Interop {
 	/// <param name="lnkPath"></param>
 	/// <param name="description"></param>
 	/// <param name="iconPath"></param>
-	public static void CreateLnk(string targetPath, string lnkPath, string description = null, string iconPath = null) {
+	public static void CreateLnk(string targetPath, string lnkPath, string? description = null, string? iconPath = null) {
 		Marshal.ThrowExceptionForHR(CoCreateInstance(ref CLSID_ShellLink, null, 1, ref GUID_IShellLink, out var pShellLink));
 		var shellLink = GetTypedObjectForIUnknown<IShellLinkW>(pShellLink);
 		shellLink.SetPath(targetPath);
@@ -324,6 +323,8 @@ internal static class Shell32Interop {
 		loadIconThread.Start();
 	}
 
+	public static void Initizlize() { }
+
 	private record LoadIconParameters(int index, ILD flags, IntPtr pIcon) {
 		public readonly int index = index;
 		public readonly ILD flags = flags;
@@ -333,7 +334,8 @@ internal static class Shell32Interop {
 	}
 
 	private static void LoadIconThreadWork() {
-		Marshal.ThrowExceptionForHR(SHGetImageList(SHIL.Jumbo, ref GUID_IImageList, out var jumboImageList));
+		Marshal.ThrowExceptionForHR(SHGetImageList(SHIL.Jumbo, ref GUID_IImageList, out var pJumboImageList));
+		var jumboImageList = (IImageList)Marshal.GetTypedObjectForIUnknown(pJumboImageList, typeof(IImageList));
 
 		while (true) {
 			loadIconEvent.WaitOne();

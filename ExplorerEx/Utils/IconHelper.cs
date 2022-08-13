@@ -8,23 +8,24 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ExplorerEx.Shell32;
-using ExplorerEx.Win32;
 using static ExplorerEx.Shell32.Shell32Interop;
 using static ExplorerEx.Win32.Win32Interop;
 
 namespace ExplorerEx.Utils;
 
 internal static class IconHelper {
-	public static DrawingImage FolderDrawingImage { get; private set; }
-	public static DrawingImage EmptyFolderDrawingImage { get; private set; }
-	public static DrawingImage UnknownFileDrawingImage { get; private set; }
-	public static DrawingImage MissingFileDrawingImage { get; private set; }
+	public static DrawingImage FolderDrawingImage { get; }
+	public static DrawingImage EmptyFolderDrawingImage { get; }
+	public static DrawingImage UnknownFileDrawingImage { get; }
+	public static DrawingImage MissingFileDrawingImage { get; }
 	public static BitmapImage ComputerBitmapImage { get; } = new(new Uri("pack://application:,,,/ExplorerEx;component/Assets/Picture/Computer.png"));
 
 	/// <summary>
 	/// 可以获取缩略图的文件格式
 	/// </summary>
 	private static readonly HashSet<string> ExtensionsWithThumbnail = new() {
+		".exe",
+		".lnk",
 		".jpg",
 		".jpeg",
 		".png",
@@ -61,7 +62,8 @@ internal static class IconHelper {
 	private static readonly Dictionary<string, ImageSource> CachedLargeIcons = new();
 	private static readonly Dictionary<string, ImageSource> CachedDriveIcons = new();
 
-	public static void InitializeDefaultIcons(ResourceDictionary resources) {
+	static IconHelper() {
+		var resources = Application.Current.Resources;
 		FolderDrawingImage = (DrawingImage)resources["FolderDrawingImage"];
 		EmptyFolderDrawingImage = (DrawingImage)resources["EmptyFolderDrawingImage"];
 		UnknownFileDrawingImage = (DrawingImage)resources["UnknownFileDrawingImage"];
@@ -117,7 +119,9 @@ internal static class IconHelper {
 		var shFileInfo = new ShFileInfo();
 		var res = SHGetFileInfo(path, dwFa, ref shFileInfo, Marshal.SizeOf(shFileInfo), flags);
 		if (res == 0 || shFileInfo.hIcon == IntPtr.Zero) {
+#if DEBUG
 			Trace.WriteLine($"无法获取 {path} 的图标，Res: {res}");
+#endif
 			return UnknownFileDrawingImage;
 		}
 
@@ -157,31 +161,35 @@ internal static class IconHelper {
 		}
 
 		var shFileInfo = new ShFileInfo();
-		var res = SHGetFileInfo(path, dwFa, ref shFileInfo, Marshal.SizeOf(shFileInfo), flags);
-		if (res == 0) {
+		
+		var hr = SHGetFileInfo(path, dwFa, ref shFileInfo, Marshal.SizeOf(shFileInfo), flags);
+		Trace.WriteLine(path + ' ' + hr);
+		if (hr == 0) {
 			return UnknownFileDrawingImage;
 		}
 
 		var iconIndex = shFileInfo.iIcon;
 		var hIcon = IntPtr.Zero;
 		// 只能使用STA调用，否则会失败
-		var hr = Shell32Interop.GetLargeIcon(iconIndex, ILD.Transparent, ref hIcon);
+		Trace.WriteLine(path + " GetLargeIcon " + iconIndex);
+		hr = Shell32Interop.GetLargeIcon(iconIndex, ILD.Transparent, ref hIcon);
 		if (hr != 0 || hIcon == IntPtr.Zero) {
+#if DEBUG
+			Trace.WriteLine(Marshal.GetExceptionForHR(hr)!.Message);
+#endif
 			return UnknownFileDrawingImage;
 		}
 
 		var bs = (ImageSource)HIcon2BitmapSource(hIcon);
 		DestroyIcon(hIcon);
 
-		if (extension != null) {
-			lock (CachedLargeIcons) {
-				CachedLargeIcons[extension] = bs;
-			}
+		lock (CachedLargeIcons) {
+			CachedLargeIcons[extension] = bs;
 		}
 		return bs;
 	}
 
-	private static ImageSource GetDriveThumbnail(string name) {
+	public static ImageSource GetDriveThumbnail(string name) {
 		if (!Directory.Exists(name)) {
 			return UnknownFileDrawingImage;
 		}
@@ -191,9 +199,6 @@ internal static class IconHelper {
 			}
 		}
 		var icon = GetLargeIcon(name, true);
-		if (icon == null) {
-			return UnknownFileDrawingImage;
-		}
 		lock (CachedDriveIcons) {
 			CachedDriveIcons[name] = icon;
 		}
@@ -208,9 +213,6 @@ internal static class IconHelper {
 	/// <exception cref="FileNotFoundException"></exception>
 	/// <exception cref="Exception"></exception>
 	public static ImageSource GetPathThumbnail(string path) {
-		if (path.Length == 3) {
-			return GetDriveThumbnail(path);
-		}
 		// Trace.WriteLine($"加载缩略图：{path}");
 		var extension = Path.GetExtension(path);
 		if (string.IsNullOrEmpty(extension)) {
@@ -224,10 +226,12 @@ internal static class IconHelper {
 			var retCode = SHCreateItemFromParsingName(path, null, GUID_IShellItem2, out var nativeShellItem);
 			if (retCode != 0) {
 				// 发生错误，fallback to加载大图标
-				Trace.WriteLine($"加载缩略图出错：{path}");
+#if DEBUG
+				Trace.WriteLine($"加载缩略图出错：{path} fallback to GetLargeIcon");
+#endif
 				return GetLargeIcon(path, false);
 			}
-			var size = new Win32Interop.SizeW {
+			var size = new SizeW {
 				width = 128,
 				height = 128
 			};
@@ -235,7 +239,9 @@ internal static class IconHelper {
 			Marshal.ReleaseComObject(nativeShellItem);
 			if (hr != 0 || hBitmap == IntPtr.Zero) {
 				// 发生错误，fallback to加载大图标
-				Trace.WriteLine($"加载缩略图出错：{path}");
+#if DEBUG
+				Trace.WriteLine($"加载缩略图出错：{path} fallback to GetLargeIcon");
+#endif
 				return GetLargeIcon(path, false);
 			}
 			var bs = (ImageSource)HBitmap2BitmapSource(hBitmap);

@@ -13,7 +13,8 @@ namespace ExplorerEx.Model;
 /// </summary>
 public class CreateFileItem : NotifyPropertyChangedBase {
 	public static CreateFileItem NoExtension { get; } = new(string.Empty, false) {
-		Description = "File".L()
+		Description = "File".L(),
+		Icon = UnknownFileDrawingImage
 	};
 
 	public ImageSource? Icon { get; protected set; }
