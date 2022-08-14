@@ -33,7 +33,7 @@ public sealed class DiskDriveItem : FolderItem {
 
 	private static readonly Gradient GradientColor = new(Colors.ForestGreen, Colors.Orange, Colors.Red);
 
-	public DiskDriveItem(DriveInfo drive) : base(drive.Name) {
+	public DiskDriveItem(DriveInfo drive) : base(new DirectoryInfo(drive.Name)) {
 		Drive = drive;
 		FullPath = drive.Name;
 		IsFolder = true;
@@ -66,7 +66,7 @@ public sealed class DiskDriveItem : FolderItem {
 
 	public override string GetRenameName() {
 		if (Drive.IsReady) {
-			return string.IsNullOrWhiteSpace(Drive.VolumeLabel) ? Type : Drive.VolumeLabel;
+			return string.IsNullOrWhiteSpace(Drive.VolumeLabel) ? Type ?? string.Empty : Drive.VolumeLabel;
 		}
 		MessageBox.Error("DriveIsNotReady".L());
 		return null;

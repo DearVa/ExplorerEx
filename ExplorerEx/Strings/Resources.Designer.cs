@@ -341,6 +341,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 高级 的本地化字符串。
+        /// </summary>
+        internal static string Advanced {
+            get {
+                return ResourceManager.GetString("Advanced", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 很早之前 的本地化字符串。
         /// </summary>
         internal static string ALongTimeAgo {
@@ -1556,11 +1565,29 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 显示隐藏的文件和文件夹 的本地化字符串。
+        /// </summary>
+        internal static string ShowHiddenFilesAndFolders {
+            get {
+                return ResourceManager.GetString("ShowHiddenFilesAndFolders", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 显示更多选项 的本地化字符串。
         /// </summary>
         internal static string ShowMoreOptions {
             get {
                 return ResourceManager.GetString("ShowMoreOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 显示受保护的系统文件和文件夹 的本地化字符串。
+        /// </summary>
+        internal static string ShowProtectedSystemFilesAndFolders {
+            get {
+                return ResourceManager.GetString("ShowProtectedSystemFilesAndFolders", resourceCulture);
             }
         }
         

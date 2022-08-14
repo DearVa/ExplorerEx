@@ -335,7 +335,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		if (File.Exists(fullPath)) {
 			item = new FileItem(new FileInfo(fullPath));
 		} else if (Directory.Exists(fullPath)) {
-			item = new FolderItem(fullPath);
+			item = new FolderItem(new DirectoryInfo(fullPath));
 		} else {
 			return null;
 		}
@@ -365,6 +365,9 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		FileListView.ScrollIntoView(item);
 		item.IsSelected = true;
 		var originalName = item.GetRenameName();
+		if (originalName == null) {
+			return;
+		}
 		var newName = OwnerWindow.StartRename("Rename".L(), originalName, item.IsFolder);
 		if (newName != null && newName != originalName) {
 			item.Rename(newName);
@@ -921,7 +924,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 				}
 				try {
 					if (Directory.Exists(fullPath)) {
-						fileListViewItems.Add(new FolderItem(fullPath));
+						fileListViewItems.Add(new FolderItem(new DirectoryInfo(fullPath)));
 					} else if (File.Exists(fullPath)) {
 						fileListViewItems.Add(new FileItem(new FileInfo(fullPath)));
 					}
@@ -953,7 +956,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		Task.Run(() => {
 			FileSystemItem? newItem = null;
 			if (Directory.Exists(e.FullPath)) {
-				newItem = new FolderItem(e.FullPath);
+				newItem = new FolderItem(new DirectoryInfo(e.FullPath));
 				Task.Run(() => {
 					newItem.LoadAttributes(loadDetailsOptions);
 					newItem.LoadIcon(loadDetailsOptions);
@@ -990,7 +993,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			}
 			FileSystemItem item;
 			if (Directory.Exists(e.FullPath)) {
-				item = new FolderItem(e.FullPath);
+				item = new FolderItem(new DirectoryInfo(e.FullPath));
 			} else if (File.Exists(e.FullPath)) {
 				item = new FileItem(new FileInfo(e.FullPath));
 			} else {

@@ -611,4 +611,13 @@ For the application to run properly, it's recommanded that you first extract all
   <data name="...FreeOf..." xml:space="preserve">
     <value>{0} free of {1}</value>
   </data>
+  <data name="ShowHiddenFilesAndFolders" xml:space="preserve">
+    <value>Show hidden files and folders</value>
+  </data>
+  <data name="ShowProtectedSystemFilesAndFolders" xml:space="preserve">
+    <value>Show protected system files and folders</value>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>Advanced</value>
+  </data>
 </root>

@@ -13,6 +13,8 @@ using File = System.IO.File;
 namespace ExplorerEx.Model;
 
 public abstract class FileSystemItem : FileListViewItem {
+	protected FileSystemInfo? FileSystemInfo { get; }
+
 	/// <summary>
 	/// 自动更新UI
 	/// </summary>
@@ -77,11 +79,17 @@ public abstract class FileSystemItem : FileListViewItem {
 	protected FileSystemItem(string fullPath, string name, bool isFolder) : base(fullPath, name, isFolder) { }
 
 	protected FileSystemItem(string fullPath, string name, ImageSource defaultIcon) : base(fullPath, name, defaultIcon) { }
+
+	protected FileSystemItem(FileSystemInfo fileSystemInfo, bool isFolder) : base(fileSystemInfo.FullName, fileSystemInfo.Name, isFolder) {
+		FileSystemInfo = fileSystemInfo;
+	}
+
+	protected FileSystemItem(FileSystemInfo fileSystemInfo, ImageSource defaultIcon) : base(fileSystemInfo.FullName, fileSystemInfo.Name, defaultIcon) {
+		FileSystemInfo = fileSystemInfo;
+	}
 }
 
 public class FileItem : FileSystemItem {
-	public FileInfo? FileInfo { get; }
-
 	/// <summary>
 	/// 是否是可执行文件
 	/// </summary>
@@ -103,25 +111,26 @@ public class FileItem : FileSystemItem {
 
 	protected FileItem() : base(null!, null!, false) { }
 
-	public FileItem(FileInfo fileInfo) : base(fileInfo.FullName, fileInfo.Name, false) {
-		FileInfo = fileInfo;
-		IsFolder = false;
+	public FileItem(FileInfo fileInfo) : base(fileInfo, false) {
 		FileSize = -1;
 	}
 
 	public override void LoadAttributes(LoadDetailsOptions options) {
-		if (FileInfo == null) {
+		if (FileSystemInfo == null) {
 			return;
 		}
-		var type = FileUtils.GetFileTypeDescription(Path.GetExtension(Name));
+		var type = FileUtils.GetFileTypeDescription(FileSystemInfo.Extension);
 		if (string.IsNullOrEmpty(type)) {
 			Type = "UnknownType".L();
 		} else {
 			Type = type;
 		}
-		FileSize = FileInfo.Length;
-		DateModified = FileInfo.LastWriteTime;
-		DateCreated = FileInfo.CreationTime;
+		FileSize = ((FileInfo)FileSystemInfo).Length;
+		DateModified = FileSystemInfo.LastWriteTime;
+		DateCreated = FileSystemInfo.CreationTime;
+		if (FileSystemInfo.Attributes.HasFlag(FileAttributes.Hidden)) {
+			Opacity = 0.5d;
+		}
 	}
 
 	public override void LoadIcon(LoadDetailsOptions options) {
@@ -167,7 +176,7 @@ public class FolderItem : FileSystemItem {
 				var zipIndex = path.IndexOf(@".zip\", StringComparison.CurrentCulture);
 				if (zipIndex == -1) { // 没找到.zip\，不是zip文件
 					if (Directory.Exists(path)) {
-						return (new FolderItem(path.TrimEnd('\\')), PathType.LocalFolder);
+						return (new FolderItem(new DirectoryInfo(path)), PathType.LocalFolder);
 					}
 					if (File.Exists(path)) {
 						return (null, PathType.LocalFile);
@@ -188,7 +197,7 @@ public class FolderItem : FileSystemItem {
 
 	protected FolderItem() : base(null!, null!, true) { }
 
-	public FolderItem(string fullPath): base(fullPath, Path.GetFileName(fullPath), InitializeIsEmptyFolder(fullPath)) {
+	public FolderItem(DirectoryInfo directoryInfo): base(directoryInfo, InitializeIsEmptyFolder(directoryInfo.FullName)) {
 		IsFolder = true;
 		FileSize = -1;
 	}
@@ -209,6 +218,9 @@ public class FolderItem : FileSystemItem {
 		var directoryInfo = new DirectoryInfo(FullPath);
 		DateModified = directoryInfo.LastWriteTime;
 		DateCreated = directoryInfo.CreationTime;
+		if (FileSystemInfo != null && FileSystemInfo.Attributes.HasFlag(FileAttributes.Hidden)) {
+			Opacity = 0.5d;
+		}
 	}
 
 	public override void LoadIcon(LoadDetailsOptions options) {
@@ -228,13 +240,23 @@ public class FolderItem : FileSystemItem {
 	/// <returns></returns>
 	/// <exception cref="NotImplementedException"></exception>
 	public virtual List<FileListViewItem> EnumerateItems(string? selectedPath, out FileListViewItem? selectedItem, CancellationToken token) {
+		var showHidden = Settings.Current[Settings.CommonSettings.ShowHiddenFilesAndFolders].GetBoolean();
+		var showSystem = Settings.Current[Settings.CommonSettings.ShowProtectedSystemFilesAndFolders].GetBoolean();
+
 		selectedItem = null;
 		var list = new List<FileListViewItem>();
 		foreach (var directoryPath in Directory.EnumerateDirectories(FullPath)) {
 			if (token.IsCancellationRequested) {
 				return list;
 			}
-			var item = new FolderItem(directoryPath);
+			var di = new DirectoryInfo(directoryPath);
+			if (di.Attributes.HasFlag(FileAttributes.System) && !showSystem) {
+				continue;
+			}
+			if (di.Attributes.HasFlag(FileAttributes.Hidden) && !showHidden) {
+				continue;
+			}
+			var item = new FolderItem(di);
 			list.Add(item);
 			if (directoryPath == selectedPath) {
 				item.IsSelected = true;
@@ -245,7 +267,14 @@ public class FolderItem : FileSystemItem {
 			if (token.IsCancellationRequested) {
 				return list;
 			}
-			var item = new FileItem(new FileInfo(filePath));
+			var fi = new FileInfo(filePath);
+			if (fi.Attributes.HasFlag(FileAttributes.System) && !showSystem) {
+				continue;
+			}
+			if (fi.Attributes.HasFlag(FileAttributes.Hidden) && !showHidden) {
+				continue;
+			}
+			var item = new FileItem(fi);
 			list.Add(item);
 			if (filePath == selectedPath) {
 				item.IsSelected = true;

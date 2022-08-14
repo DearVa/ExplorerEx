@@ -57,6 +57,20 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 
 	protected readonly ImageSource defaultIcon;
 
+
+	[NotMapped]
+	public double Opacity {
+		get => opacity;
+		set {
+			if (opacity != value) {
+				opacity = value;
+				OnPropertyChanged();
+			}
+		}
+	}
+
+	private double opacity = 1d;
+
 	[Key]
 	public string FullPath { get; protected init; }
 
@@ -123,10 +137,10 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 
 	#region 文件重命名
 	/// <summary>
-	/// 获取刚开始重命名时的文件名
+	/// 获取刚开始重命名时的文件名，如果失败，返回null
 	/// </summary>
 	/// <returns></returns>
-	public abstract string GetRenameName();
+	public abstract string? GetRenameName();
 
 	/// <summary>
 	/// 重命名

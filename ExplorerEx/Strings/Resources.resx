@@ -658,4 +658,13 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="...Items" xml:space="preserve">
     <value>共{0}个项目</value>
   </data>
+  <data name="ShowHiddenFilesAndFolders" xml:space="preserve">
+    <value>显示隐藏的文件和文件夹</value>
+  </data>
+  <data name="ShowProtectedSystemFilesAndFolders" xml:space="preserve">
+    <value>显示受保护的系统文件和文件夹</value>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>高级</value>
+  </data>
 </root>

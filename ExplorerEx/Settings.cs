@@ -171,6 +171,8 @@ internal sealed class Settings {
 		public const string ColorMode = "Appearance.Theme.ColorMode";
 		public const string WindowBackdrop = "Appearance.Theme.WindowBackdrop";
 		public const string DoubleClickGoUpperLevel = "Common.DoubleClickGoUpperLevel";
+		public const string ShowHiddenFilesAndFolders = "Advanced.ShowHiddenFilesAndFolders";
+		public const string ShowProtectedSystemFilesAndFolders = "Advanced.ShowProtectedSystemFilesAndFolders";
 	}
 	
 	public static event Action? ThemeChanged;

@@ -34,7 +34,7 @@
                     <RowDefinition/>
                 </Grid.RowDefinitions>
                 <Image Grid.Row="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
-                       VerticalAlignment="Center" Margin="10" UseLayoutRounding="True"/>
+                       VerticalAlignment="Center" Margin="10" UseLayoutRounding="True" Opacity="{Binding Opacity}"/>
                 <TextBlock x:Name="NameTextBlock" Grid.Row="1" Text="{Binding DisplayText, Mode=OneWay}" HorizontalAlignment="Center" 
                            TextAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
             </Grid>
@@ -48,11 +48,10 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Image Grid.Column="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
-                       VerticalAlignment="Center" Margin="5" UseLayoutRounding="True"/>
+                       VerticalAlignment="Center" Margin="5" UseLayoutRounding="True" Opacity="{Binding Opacity}"/>
                 <TextBlock Grid.Column="1" Text="{Binding DisplayText, Mode=OneWay}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
             </Grid>
         </DataTemplate>
-        <!--主页显示驱动器-->
         <DataTemplate x:Key="TileTemplate">
             <Grid d:DataContext="{d:DesignInstance m:FileListViewItem}"
                   Width="{Binding Path=ItemWidth, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
@@ -62,7 +61,7 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Image Grid.Column="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
-                       VerticalAlignment="Center" Margin="10"/>
+                       VerticalAlignment="Center" Margin="10" Opacity="{Binding Opacity}"/>
                 <Grid Grid.Column="1" Margin="0,5">
                     <Grid.RowDefinitions>
                         <RowDefinition/>
@@ -75,6 +74,7 @@
                 </Grid>
             </Grid>
         </DataTemplate>
+        <!--主页显示驱动器-->
         <DataTemplate x:Key="TileHomeTemplate">
             <Grid d:DataContext="{d:DesignInstance m:DiskDriveItem}"
                   Width="{Binding Path=ItemWidth, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
@@ -106,7 +106,7 @@
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
                 <Image Grid.Column="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
-                       VerticalAlignment="Center" Margin="10"/>
+                       VerticalAlignment="Center" Margin="10" Opacity="{Binding Opacity}"/>
                 <Grid Grid.Column="1" Margin="0,5">
                     <Grid.RowDefinitions>
                         <RowDefinition/>
@@ -132,7 +132,7 @@
                     <ColumnDefinition Width="30"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Image Grid.Column="0" Source="{Binding Icon}" VerticalAlignment="Center" Margin="5"/>
+                <Image Grid.Column="0" Source="{Binding Icon}" VerticalAlignment="Center" Margin="5" Opacity="{Binding Opacity}"/>
                 <TextBlock Grid.Column="1" Text="{Binding DisplayText, Mode=OneWay}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
             </Grid>
         </DataTemplate>

@@ -166,6 +166,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 				isExpanded = value;
 				OnPropertyChanged();
 				if (value) {
+					// ReSharper disable once PossibleUnintendedReferenceComparison
 					if (this == Home) {
 						UpdateDriveChildren();
 						return;
@@ -178,6 +179,10 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 					} else {
 						actualChildren.Clear();
 					}
+
+					var showHidden = Settings.Current[Settings.CommonSettings.ShowHiddenFilesAndFolders].GetBoolean();
+					var showSystem = Settings.Current[Settings.CommonSettings.ShowProtectedSystemFilesAndFolders].GetBoolean();
+
 					cts = new CancellationTokenSource();
 					var token = cts.Token;
 					Task.Run(() => {
@@ -187,6 +192,13 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 								foreach (var entry in archive.Entries.Where(e => e.FullName.StartsWith(relativePath) && e.FullName[relativePath.Length..].Contains('/'))) {
 									if (token.IsCancellationRequested) {
 										return;
+									}
+									var attributes = (FileAttributes)entry.ExternalAttributes;
+									if (attributes.HasFlag(FileAttributes.System) && !showSystem) {
+										continue;
+									}
+									if (attributes.HasFlag(FileAttributes.Hidden) && !showHidden) {
+										continue;
 									}
 									var entryName = entry.FullName;
 									var indexOfSlash = entryName.IndexOf('/', relativePath.Length);
@@ -203,7 +215,14 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 										return;
 									}
 									try {
-										actualChildren.Add(new FolderOnlyItem(new DirectoryInfo(directoryPath), this));
+										var di = new DirectoryInfo(directoryPath);
+										if (di.Attributes.HasFlag(FileAttributes.System) && !showSystem) {
+											continue;
+										}
+										if (di.Attributes.HasFlag(FileAttributes.Hidden) && !showHidden) {
+											continue;
+										}
+										actualChildren.Add(new FolderOnlyItem(di, this));
 									} catch {
 										// 忽略错误，不添加
 									}
@@ -213,6 +232,13 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 										return;
 									}
 									try {
+										var fi = new DirectoryInfo(zipPath);
+										if (fi.Attributes.HasFlag(FileAttributes.System) && !showSystem) {
+											continue;
+										}
+										if (fi.Attributes.HasFlag(FileAttributes.Hidden) && !showHidden) {
+											continue;
+										}
 										actualChildren.Add(new FolderOnlyItem(zipPath, string.Empty, this));
 									} catch {
 										// 忽略错误，不添加
