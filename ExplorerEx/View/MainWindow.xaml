@@ -31,7 +31,7 @@
             <MenuItem CommandParameter="OpenFileLocation"
                       Command="{Binding BookmarkItemCommand}"
                       Icon="{DynamicResource ShareDrawingImage}" Header="{u:Lang OpenFileLocation}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
 
             <MenuItem Command="{Binding EditBookmarkCommand}"
                       CommandParameter="{Binding RelativeSource={RelativeSource Self}}"
@@ -39,7 +39,7 @@
             <MenuItem CommandParameter="RemoveFromBookmarks"
                       Command="{Binding BookmarkItemCommand}"
                       Icon="{DynamicResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
 
             <MenuItem CommandParameter="Properties"
                       Command="{Binding BookmarkItemCommand}"
@@ -76,12 +76,12 @@
             <MenuItem CommandParameter="OpenFileLocation"
                       Command="{Binding BookmarkItemCommand}"
                       Icon="{DynamicResource ShareDrawingImage}" Header="{u:Lang OpenFileLocation}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
 
             <MenuItem CommandParameter="RemoveFromBookmarks"
                       Command="{Binding BookmarkItemCommand}"
                       Icon="{DynamicResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
 
             <MenuItem CommandParameter="Properties"
                       Command="{Binding BookmarkItemCommand}"
@@ -102,20 +102,23 @@
                             <MenuItem ToolTip="{u:Lang Cut}" CommandParameter="Cut"
                                       Command="{Binding SideBarPcItemCommand}"
                                       Icon="{DynamicResource CutDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
-                            <MenuItem Margin="3,0,0,0" ToolTip="{u:Lang Copy}" CommandParameter="Copy"
+                            <MenuItem ToolTip="{u:Lang Copy}" CommandParameter="Copy"
                                       Command="{Binding SideBarPcItemCommand}"
                                       Icon="{DynamicResource CopyDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
-                            <MenuItem Margin="3,0,0,0" ToolTip="{u:Lang Rename}" CommandParameter="Rename"
+                            <MenuItem ToolTip="{u:Lang Rename}" CommandParameter="Rename"
                                       Command="{Binding SideBarPcItemCommand}"
                                       Icon="{DynamicResource RenameDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
-                            <MenuItem Margin="3,0,0,0" ToolTip="{u:Lang Delete}" CommandParameter="Delete"
+                            <MenuItem ToolTip="{u:Lang Delete}" CommandParameter="Delete"
                                       Command="{Binding SideBarPcItemCommand}"
                                       Icon="{DynamicResource DeleteDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                            <MenuItem CommandParameter="Properties"
+                                      Command="{Binding SideBarPcItemCommand}"
+                                      Icon="{DynamicResource PropertiesDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
                         </StackPanel>
                     </ControlTemplate>
                 </MenuItem.Template>
             </MenuItem>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
 
             <MenuItem CommandParameter="Open"
                       Command="{Binding SideBarPcItemCommand}"
@@ -129,7 +132,7 @@
             <MenuItem Header="{u:Lang CopyAsPath}" CommandParameter="CopyAsPath"
                       Command="{Binding Path=SideBarPcItemCommand}"
                       Icon="{DynamicResource CopyDrawingImage}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
 
             <MenuItem CommandParameter="AddToBookmarks"
                       Command="{Binding SideBarPcItemCommand}"
@@ -139,11 +142,6 @@
                       Command="{Binding SideBarPcItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).IsBookmarked, RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{DynamicResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
-
-            <MenuItem CommandParameter="Properties"
-                      Command="{Binding SideBarPcItemCommand}"
-                      Icon="{DynamicResource PropertiesDrawingImage}" Header="{u:Lang Properties}"/>
         </ContextMenu>
     </Window.Resources>
 
@@ -313,7 +311,7 @@
                         </TabItem.Header>
                         <ct:SideBarContent Header="{u:Lang ThisPC}" ShowSearchButton="False">
                             <ct:SideBarContent.Content>
-                                <TreeView x:Name="SideBarThisPcTreeView" BorderThickness="0"
+                                <TreeView BorderThickness="0"
                                           ItemsSource="{Binding Path=Children, Source={x:Static m:FolderOnlyItem.Home}}">
                                     <TreeView.ItemTemplate>
                                         <HierarchicalDataTemplate ItemsSource="{Binding Children, Mode=OneWay}">
@@ -327,6 +325,9 @@
                                                 <Button Cursor="Hand" VerticalAlignment="Center" HorizontalAlignment="Left" BorderThickness="0" Background="Transparent" Padding="0">
                                                     <hc:Interaction.Triggers>
                                                         <hc:RoutedEventTrigger RoutedEvent="Button.Click">
+                                                            <hc:EventToCommand Command="{Binding SideBarItemClickCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
+                                                        </hc:RoutedEventTrigger>
+                                                        <hc:RoutedEventTrigger RoutedEvent="Button.MouseDoubleClick">
                                                             <hc:EventToCommand Command="{Binding SideBarItemClickCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
                                                         </hc:RoutedEventTrigger>
                                                     </hc:Interaction.Triggers>
@@ -443,14 +444,14 @@
                                                         <!-- ReSharper disable once MarkupAttributeTypo -->
                                                         <MenuItem Icon="{Binding Icon}" Header="{u:Lang Restore}" 
                                                               Command="{Binding Command, Mode=OneTime}" CommandParameter="undelete"/>
-                                                        <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+                                                        <Separator/>
 
                                                         <!--<MenuItem Icon="{StaticResource CutDrawingImage}" Header="{u:Lang Cut}"/>
-                                                    <Separator Style="{StaticResource SeparatorBaseStyle}"/>-->
+                                                    <Separator/>-->
 
                                                         <MenuItem Icon="{StaticResource DeleteDrawingImage}" Header="{u:Lang Delete}"
                                                               Command="{Binding Command, Mode=OneTime}" CommandParameter="delete"/>
-                                                        <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+                                                        <Separator/>
 
                                                         <MenuItem Icon="{StaticResource PropertiesDrawingImage}" Header="{u:Lang Properties}"
                                                               Command="{Binding Command, Mode=OneTime}" CommandParameter="properties"/>

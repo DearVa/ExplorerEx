@@ -147,7 +147,6 @@
     <Page Remove="Themes\Styles\Screenshot.xaml" />
     <Page Remove="Themes\Styles\ScrollViewer.xaml" />
     <Page Remove="Themes\Styles\SearchBar.xaml" />
-    <Page Remove="Themes\Styles\Separator.xaml" />
     <Page Remove="Themes\Styles\SideMenu.xaml" />
     <Page Remove="Themes\Styles\SimpleItemsControl.xaml" />
     <Page Remove="Themes\Styles\Slider.xaml" />
@@ -337,7 +336,6 @@
     <None Include="Themes\Styles\Screenshot.xaml" />
     <None Include="Themes\Styles\ScrollViewer.xaml" />
     <None Include="Themes\Styles\SearchBar.xaml" />
-    <None Include="Themes\Styles\Separator.xaml" />
     <None Include="Themes\Styles\SideMenu.xaml" />
     <None Include="Themes\Styles\SimpleItemsControl.xaml" />
     <None Include="Themes\Styles\Slider.xaml" />

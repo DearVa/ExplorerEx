@@ -165,7 +165,6 @@ Styles\Rate.xaml
 Styles\RichTextBox.xaml
 Styles\RunningBlock.xaml
 Styles\Screenshot.xaml
-Styles\Separator.xaml
 Styles\SideMenu.xaml
 Styles\SimpleItemsControl.xaml
 Styles\SplitButton.xaml

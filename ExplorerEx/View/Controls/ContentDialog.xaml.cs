@@ -123,10 +123,10 @@ public partial class ContentDialog {
 		opacityOutAnimation = new DoubleAnimation(0d, TimeSpan.FromMilliseconds(200d)) {
 			EasingFunction = cubicEase
 		};
-		scaleInAnimation = new DoubleAnimation(0.8d, 1d, TimeSpan.FromMilliseconds(200d)) {
+		scaleInAnimation = new DoubleAnimation(0.8d, 1d, TimeSpan.FromMilliseconds(240d)) {
 			EasingFunction = new BackEase {
 				EasingMode = EasingMode.EaseOut,
-				Amplitude = 1.1d
+				Amplitude = 1.05d
 			}
 		};
 		scaleInAnimation.Completed += (_, _) => {
@@ -193,6 +193,40 @@ public partial class ContentDialog {
 			throw new ArgumentNullException();
 		}
 		return Show(owner);
+	}
+
+	/// <summary>
+	/// 弹出一个带有默认操作的对话框（下次不再提示）
+	/// 如果用户已经指定了默认操作，就直接返回true
+	/// </summary>
+	/// <param name="msg"></param>
+	/// <param name="caption"></param>
+	/// <param name="configKey"></param>
+	/// <param name="ownerWindow"></param>
+	/// <returns></returns>
+	public static bool ShowWithDefault(string configKey, string msg, string? caption = null, MainWindow? ownerWindow = null) {
+		if (ConfigHelper.LoadBoolean(configKey)) {
+			return true;
+		}
+		if (MainWindow.FocusedWindow == null) {
+			throw new InvalidOperationException("No MainWindow is shown.");
+		}
+		var content = new ContentDialogContentWithCheckBox {
+			Content = msg
+		};
+		var result = new ContentDialog {
+			Title = caption ?? "Tip".L(),
+			Content = content,
+			PrimaryButtonText = "Ok".L(),
+			CancelButtonText = "Cancel".L()
+		}.Show(ownerWindow ?? MainWindow.FocusedWindow);
+		if (result == ContentDialogResult.Primary) {
+			if (content.IsChecked) {
+				ConfigHelper.Save(configKey, true);
+			}
+			return true;
+		}
+		return false;
 	}
 
 	public void Close() {

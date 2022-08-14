@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows.Media;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
+using ExplorerEx.View.Controls;
 using static ExplorerEx.Utils.IconHelper;
 using File = System.IO.File;
 
@@ -52,7 +53,7 @@ public abstract class FileSystemItem : FileListViewItem {
 	protected override bool InternalRename(string newName) {
 		var basePath = Path.GetDirectoryName(FullPath);
 		if (Path.GetExtension(FullPath) != Path.GetExtension(newName)) {
-			if (!MessageBoxHelper.AskWithDefault("RenameExtension", "#AreYouSureToChangeExtension".L())) {
+			if (!ContentDialog.ShowWithDefault("RenameExtension", "#AreYouSureToChangeExtension".L())) {
 				return false;
 			}
 		}

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -68,6 +69,9 @@ public partial class App {
 		Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 		Settings.Current.LoadSettings();
 		ChangeTheme(((SolidColorBrush)SystemParameters.WindowGlassBrush).Color, false);
+		FrameworkElement.StyleProperty.OverrideMetadata(typeof(Separator), new FrameworkPropertyMetadata {
+			DefaultValue = FindResource("SeparatorBaseStyle")
+		});
 
 		await BookmarkDbContext.Instance.LoadDataBase();
 		await FileViewDbContext.Instance.LoadDataBase();

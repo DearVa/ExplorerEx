@@ -2,6 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"                   
                     xmlns:hc="clr-namespace:HandyControl.Controls">
 
+    <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" BasedOn="{StaticResource SeparatorBaseStyle}" TargetType="Separator" />
+
     <Style x:Key="MenuItemBaseStyle" TargetType="MenuItem">
         <Setter Property="Padding" Value="{StaticResource DefaultControlPadding}"/>
         <Setter Property="OverridesDefaultStyle" Value="True"/>

@@ -92,13 +92,13 @@
                                       IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByType}}"/>
                             <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByFileSize}" Header="{u:Lang FileSize}"
                                       IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByFileSize}}"/>
-                            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+                            <Separator/>
 
                             <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Ascending}" Icon="{DynamicResource SortAscendingDrawingImage}" Header="{u:Lang Ascending}"
                                       IsChecked="{Binding FileView.IsAscending, Mode=OneWay}"/>
                             <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Descending}" Icon="{DynamicResource SortDescendingDrawingImage}" Header="{u:Lang Descending}"
                                       IsChecked="{Binding FileView.IsAscending, Mode=OneWay, Converter={StaticResource Boolean2BooleanReConverter}}"/>
-                            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+                            <Separator/>
 
                             <MenuItem Icon="{DynamicResource GroupDrawingImage}" Header="{u:Lang GroupBy}">
                                 <MenuItem.Items>

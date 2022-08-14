@@ -12,7 +12,7 @@
         <hc:NotifyIcon.ContextMenu>
             <ContextMenu>
                 <MenuItem Header="{u:Lang ShowWindow}" Click="ShowWindow"/>
-                <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+                <Separator/>
                 <MenuItem Icon="{StaticResource ExitDrawingImage}" Header="{u:Lang Exit}" Click="ExitButton_OnClick"/>
             </ContextMenu>
         </hc:NotifyIcon.ContextMenu>

@@ -34,11 +34,11 @@
                                 DockPanel.Dock="Left" Style="{StaticResource ButtonPrimary}" Click="ContentDialogPrimaryButton_OnClick" IsDefault="True"/>
                         <Button x:Name="SecondaryButton" TabIndex="1" Content="{Binding SecondaryButtonText, Mode=OneWay}" MinWidth="100" MaxWidth="200"
                                 Visibility="{Binding SecondaryButtonText, Converter={StaticResource Object2VisibilityConverter}, Mode=OneWay}"
-                                Command="{Binding SecondaryButtonCommand, Mode=OneWay}" Click="ContentDialogSecondaryButton_OnClick"/>
+                                Command="{Binding SecondaryButtonCommand, Mode=OneWay}" Click="ContentDialogSecondaryButton_OnClick" Background="{DynamicResource SecondaryRegionBrush}"/>
                         <Button TabIndex="2" Content="{Binding CancelButtonText, Mode=OneWay}" MinWidth="100" MaxWidth="200"
                                 Visibility="{Binding CancelButtonText, Converter={StaticResource Object2VisibilityConverter}, Mode=OneWay}"
                                 DockPanel.Dock="Right" HorizontalAlignment="Right" Command="{Binding CancelButtonCommand, Mode=OneWay}"
-                                Click="ContentDialogCancelButton_OnClick" IsCancel="True"/>
+                                Click="ContentDialogCancelButton_OnClick" IsCancel="True" Background="{DynamicResource SecondaryRegionBrush}"/>
                     </DockPanel>
                 </Border>
             </Grid>

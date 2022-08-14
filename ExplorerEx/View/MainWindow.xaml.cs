@@ -37,7 +37,7 @@ public sealed partial class MainWindow {
 	/// <summary>
 	/// 获取聚焦的窗口，可能为null
 	/// </summary>
-	public static MainWindow? FocusedWindow => All.FirstOrDefault(mw => mw.IsFocused);
+	public static MainWindow? FocusedWindow => All.Count > 0 ? All.FirstOrDefault(mw => mw.IsFocused) ?? All[0] : null;
 
 	public event Action<uint, EverythingInterop.QueryReply>? EverythingQueryReplied;
 
@@ -72,6 +72,10 @@ public sealed partial class MainWindow {
 	private readonly string? startupPath;
 
 	private readonly FileSystemItemContextMenuConverter bookmarkItemContextMenuConverter;
+	/// <summary>
+	/// 由于侧边栏ThisPC不可选中，所以右键按下时用这个代表选中的Item
+	/// </summary>
+	private FolderOnlyItem? selectedSideBarPcItem;
 	/// <summary>
 	/// 侧边栏“此电脑”项目的右键菜单
 	/// </summary>
@@ -124,7 +128,7 @@ public sealed partial class MainWindow {
 			TabControlProvider = () => FileTabControl.MouseOverTabControl
 		};
 		SideBarPcItemCommand = new FileItemCommand {
-			SelectedItemsProvider = () => SideBarThisPcTreeView.SelectedItem is FolderOnlyItem selectedItem ? new[] { selectedItem } : Array.Empty<FileListViewItem>(),
+			SelectedItemsProvider = () => selectedSideBarPcItem != null ? new[] { selectedSideBarPcItem } : Array.Empty<FileListViewItem>(),
 			TabControlProvider = () => FileTabControl.MouseOverTabControl
 		};
 		EditBookmarkCommand = new SimpleCommand(e => {
@@ -204,6 +208,7 @@ public sealed partial class MainWindow {
 					}
 					break;
 				case FolderOnlyItem folderOnlyItem:
+					selectedSideBarPcItem = folderOnlyItem;
 					sideBarPcItemContextMenu.SetValue(FileItemAttach.FileItemProperty, folderOnlyItem);
 					sideBarPcItemContextMenu.IsOpen = true;
 					break;
@@ -221,8 +226,10 @@ public sealed partial class MainWindow {
 		var e = (RoutedEventArgs)args!;
 		if (e.OriginalSource is FrameworkElement element) {
 			switch (element.DataContext) {
+			case FolderOnlyItem folderOnlyItem when e is MouseButtonEventArgs:  // Double click
+				folderOnlyItem.IsExpanded = !folderOnlyItem.IsExpanded;
+				break;
 			case FileListViewItem fileItem:
-				fileItem.IsSelected = true;
 				if (fileItem.IsFolder) {
 					await FileTabControl.FocusedTabControl!.SelectedTab.LoadDirectoryAsync(fileItem.FullPath);
 				} else {
@@ -749,7 +756,7 @@ public sealed partial class MainWindow {
 
 	protected override void OnClosing(CancelEventArgs e) {
 		if (SplitGrid.FileTabControl.TabItems.Count > 1 || SplitGrid.AnySplitScreen) {
-			if (!MessageBoxHelper.AskWithDefault("CloseMultiTabs", "#YouHaveOpenedMoreThanOneTab".L())) {
+			if (!ContentDialog.ShowWithDefault("CloseMultiTabs", "#YouHaveOpenedMoreThanOneTab".L())) {
 				e.Cancel = true;
 			}
 		}
@@ -790,6 +797,7 @@ public sealed partial class MainWindow {
 	}
 
 	protected override void OnKeyDown(KeyEventArgs e) {
+		var handled = true;
 		if (RootPanel.Children.Count == 2) {  // 没有打开任何对话框
 			var mouseOverTab = FileTabControl.MouseOverTabControl?.SelectedTab;
 			if (mouseOverTab != null) {
@@ -815,6 +823,9 @@ public sealed partial class MainWindow {
 					case Key.W:
 						FileTabControl.MouseOverTabControl!.CloseTab(mouseOverTab);
 						break;
+					default:
+						handled = false;
+						break;
 					}
 				} else if ((Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt) {
 					switch (e.SystemKey) {
@@ -827,6 +838,9 @@ public sealed partial class MainWindow {
 					case Key.Up:
 						mouseOverTab.GoToUpperLevelAsync();
 						break;
+					default:
+						handled = false;
+						break;
 					}
 				} else {
 					switch (e.Key) {
@@ -834,15 +848,22 @@ public sealed partial class MainWindow {
 						mouseOverTab.FileItemCommand.Execute("Open");
 						break;
 					case Key.Delete:
+						Trace.WriteLine("111");
 						mouseOverTab.FileItemCommand.Execute("Delete");
 						break;
 					case Key.Back:
 						mouseOverTab.GoBackAsync();
 						break;
+					default:
+						handled = false;
+						break;
 					}
 				}
 			}
+		} else {
+			handled = false;
 		}
+		e.Handled = handled;
 		base.OnKeyDown(e);
 	}
 

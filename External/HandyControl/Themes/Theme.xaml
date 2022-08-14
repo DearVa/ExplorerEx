@@ -12916,7 +12916,6 @@
 	</Style>
 	<Style BasedOn="{StaticResource RateBaseStyle}" TargetType="hc:Rate" />
 	<Style BasedOn="{StaticResource RunningBlockBaseStyle}" TargetType="hc:RunningBlock" />
-	<Style BasedOn="{StaticResource SeparatorBaseStyle}" TargetType="Separator" />
 	<Style BasedOn="{StaticResource SideMenuBaseStyle}" TargetType="hc:SideMenu" />
 	<Style x:Key="SideMenuAccordion" BasedOn="{StaticResource SideMenuBaseStyle}" TargetType="hc:SideMenu">
 		<Setter Property="ExpandMode" Value="Accordion" />
@@ -13623,4 +13622,5 @@
 	</Style>
 	<Style BasedOn="{StaticResource RangeSliderBaseStyle}" TargetType="hc:RangeSlider" />
 	<Style BasedOn="{StaticResource SliderBaseStyle}" TargetType="Slider" />
+	<Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" BasedOn="{StaticResource SeparatorBaseStyle}" TargetType="Separator" />
 </ResourceDictionary>

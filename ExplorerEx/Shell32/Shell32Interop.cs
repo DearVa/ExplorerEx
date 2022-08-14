@@ -133,7 +133,7 @@ internal static class Shell32Interop {
 	[DllImport(Shell32, EntryPoint = "#727")]
 	public static extern int SHGetImageList(SHIL iImageList, [In] ref Guid riid, out IntPtr ppv);
 
-	[DllImport(Shell32, CharSet = CharSet.Unicode)]
+	[DllImport(Shell32, CharSet = CharSet.Ansi)]
 	public static extern int SHGetFileInfo(string pszPath, FileAttribute dwFileAttributes, ref ShFileInfo psfi, int cbFileInfo, SHGFI uFlags);
 
 	[DllImport(Shell32)]

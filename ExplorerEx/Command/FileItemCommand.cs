@@ -124,7 +124,7 @@ public class FileItemCommand : ICommand {
 			case "Rename": {
 				var items = Items;
 				switch (items.Count) {
-				case < 0:
+				case <= 0:
 					return;
 				case 1:
 					FileTabControl.MouseOverTabControl?.SelectedTab.StartRename(items[0]);
@@ -137,7 +137,7 @@ public class FileItemCommand : ICommand {
 			}
 			case "Delete":  // 删除一个或多个文件，按住shift就是强制删除
 				if ((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift) {  // 没有按Shift
-					if (!MessageBoxHelper.AskWithDefault("Recycle", "#AreYouSureToRecycleTheseFiles".L())) {
+					if (!ContentDialog.ShowWithDefault("Recycle", "#AreYouSureToRecycleTheseFiles".L())) {
 						return;
 					}
 					try {
@@ -146,7 +146,7 @@ public class FileItemCommand : ICommand {
 						Logger.Exception(e);
 					}
 				} else {
-					if (!MessageBoxHelper.AskWithDefault("Delete", "#AreYouSureToDeleteTheseFilesPermanently".L())) {
+					if (!ContentDialog.ShowWithDefault("Delete", "#AreYouSureToDeleteTheseFilesPermanently".L())) {
 						return;
 					}
 					var failedFiles = new List<string>();

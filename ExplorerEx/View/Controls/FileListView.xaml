@@ -211,16 +211,16 @@
                 <MenuItem ToolTip="{u:Lang Cut}" CommandParameter="Cut"
                           Command="{Binding ViewModel.FileItemCommand}"
                           Icon="{DynamicResource CutDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
-                <MenuItem Margin="3,0,0,0" ToolTip="{u:Lang Copy}" CommandParameter="Copy"
+                <MenuItem ToolTip="{u:Lang Copy}" CommandParameter="Copy"
                           Command="{Binding ViewModel.FileItemCommand}"
                           Icon="{DynamicResource CopyDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
-                <MenuItem Margin="3,0,0,0" ToolTip="{u:Lang Rename}" CommandParameter="Rename"
+                <MenuItem ToolTip="{u:Lang Rename}" CommandParameter="Rename"
                           Command="{Binding ViewModel.FileItemCommand}"
                           Icon="{DynamicResource RenameDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
-                <MenuItem Margin="3,0,0,0" ToolTip="{u:Lang Delete}" CommandParameter="Delete"
+                <MenuItem ToolTip="{u:Lang Delete}" CommandParameter="Delete"
                           Command="{Binding ViewModel.FileItemCommand}"
                           Icon="{DynamicResource DeleteDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
-                <MenuItem Margin="3,0,0,0" ToolTip="{u:Lang Delete}" CommandParameter="Properties"
+                <MenuItem ToolTip="{u:Lang Delete}" CommandParameter="Properties"
                           Command="{Binding ViewModel.FileItemCommand}"
                           Icon="{DynamicResource PropertiesDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
             </StackPanel>
@@ -234,14 +234,14 @@
                             <MenuItem ToolTip="{u:Lang Copy}" CommandParameter="Copy"
                                       Command="{Binding ViewModel.FileItemCommand}"
                                       Icon="{StaticResource CopyDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
-                            <MenuItem Margin="3,0,0,0" ToolTip="{u:Lang Rename}" CommandParameter="Rename"
+                            <MenuItem ToolTip="{u:Lang Rename}" CommandParameter="Rename"
                                       Command="{Binding ViewModel.FileItemCommand}"
                                       Icon="{StaticResource RenameDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
                         </StackPanel>
                     </ControlTemplate>
                 </MenuItem.Template>
             </MenuItem>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
 
             <MenuItem CommandParameter="Open" 
                       Command="{Binding ViewModel.FileItemCommand}"
@@ -252,7 +252,7 @@
             <MenuItem CommandParameter="OpenInNewWindow"
                       Command="{Binding ViewModel.FileItemCommand}" 
                       Icon="{DynamicResource ShareDrawingImage}" Header="{u:Lang OpenInNewWindow}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
 
             <MenuItem CommandParameter="AddToBookmarks"
                       Command="{Binding ViewModel.FileItemCommand}"
@@ -262,14 +262,14 @@
                       Command="{Binding ViewModel.FileItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).IsBookmarked, RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
             <MenuItem Click="FormatDiskDrive_OnClick" Icon="{StaticResource FormatDriveDrawingImage}"
                       Header="{u:Lang FormatDrive}" Foreground="{DynamicResource DangerBrush}"/>
         </ContextMenu>
 
         <ContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance ct:FileListView}">
             <MenuItem Height="35" Template="{StaticResource FileOperationsTemplate}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
 
             <MenuItem CommandParameter="Open"
                       Command="{Binding ViewModel.FileItemCommand}"
@@ -283,7 +283,7 @@
             <MenuItem Header="{u:Lang CopyAsPath}" CommandParameter="CopyAsPath"
                       Command="{Binding Path=ViewModel.FileItemCommand}"
                       Icon="{DynamicResource CopyDrawingImage}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
 
             <MenuItem CommandParameter="AddToBookmarks"
                       Command="{Binding ViewModel.FileItemCommand}"
@@ -293,7 +293,7 @@
                       Command="{Binding ViewModel.FileItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).IsBookmarked, RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{DynamicResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
 
             <MenuItem CommandParameter="ShowMore"
                       Command="{Binding ViewModel.FileItemCommand}"
@@ -327,7 +327,7 @@
 
         <ContextMenu x:Key="FileItemContextMenu" d:DataContext="{d:DesignInstance ct:FileListView}">
             <MenuItem Height="40" Template="{StaticResource FileOperationsTemplate}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
 
             <MenuItem Header="{u:Lang Open}" CommandParameter="Open"
                       Command="{Binding ViewModel.FileItemCommand}"
@@ -346,7 +346,7 @@
                 <MenuItem.ItemsSource>
                     <CompositeCollection>
                         <CollectionContainer Collection="{Binding Source={x:Static ct:FileListView.FileAssocList}, Mode=OneWay}"/>
-                        <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+                        <Separator/>
                         <MenuItem Header="{u:Lang ChooseAnotherApp}" Icon="{DynamicResource OpenWithDrawingImage}" Click="ChooseAnotherAppMenuItem_OnClick"/>
                     </CompositeCollection>
                 </MenuItem.ItemsSource>
@@ -357,7 +357,7 @@
             <MenuItem Header="{u:Lang Extract}" CommandParameter="Unzip"
                       Command="{Binding Path=ViewModel.FileItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileItem.IsZip), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
 
             <MenuItem Header="{u:Lang OpenFileLocation}" CommandParameter="OpenFileLocation"
                       Command="{Binding Path=ViewModel.FileItemCommand}"
@@ -366,7 +366,7 @@
             <MenuItem Header="{u:Lang CopyAsPath}" CommandParameter="CopyAsPath"
                       Command="{Binding Path=ViewModel.FileItemCommand}"
                       Icon="{DynamicResource CopyDrawingImage}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
 
             <MenuItem CommandParameter="AddToBookmarks"
                       Command="{Binding ViewModel.FileItemCommand}"
@@ -376,7 +376,7 @@
                       Command="{Binding ViewModel.FileItemCommand}"
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).IsBookmarked, RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                       Icon="{DynamicResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
 
             <MenuItem CommandParameter="ShowMore"
                       Command="{Binding ViewModel.FileItemCommand}"
@@ -421,9 +421,9 @@
                 <MenuItem.Template>
                     <ControlTemplate>
                         <StackPanel Orientation="Horizontal">
-                            <MenuItem Margin="0,0,3,0" Click="Refresh_OnClick" Icon="{DynamicResource RefreshDrawingImage}" 
+                            <MenuItem Click="Refresh_OnClick" Icon="{DynamicResource RefreshDrawingImage}" 
                                       Header="{u:Lang Refresh}" Style="{StaticResource ButtonLikeMenuItem}"/>
-                            <MenuItem Margin="0,0,3,0" ToolTip="{u:Lang Paste}" CommandParameter="Paste"
+                            <MenuItem ToolTip="{u:Lang Paste}" CommandParameter="Paste"
                                       Command="{Binding FileItemCommand}" 
                                       Visibility="{Binding CanPaste, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
                                       Icon="{DynamicResource PasteDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
@@ -434,7 +434,7 @@
                     </ControlTemplate>
                 </MenuItem.Template>
             </MenuItem>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
             <MenuItem Click="NewFolder_OnClick" Icon="{DynamicResource NewFolderDrawingImage}" Header="{u:Lang NewFolder}"
                       Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"/>
             <MenuItem Icon="{DynamicResource NewDrawingImage}" Header="{u:Lang New}"
@@ -446,7 +446,7 @@
                     </Style>
                 </MenuItem.ItemContainerStyle>
             </MenuItem>
-            <Separator Style="{StaticResource SeparatorBaseStyle}" Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"/>
+            <Separator Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"/>
             <MenuItem Icon="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource ViewIndex2ImageSourceConverter}}" Header="{u:Lang View}">
                 <MenuItem.Items>
                     <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.LargeIcons}" Header="{u:Lang LargeIcons}" Icon="{DynamicResource LargeIconsDrawingImage}"
@@ -476,7 +476,7 @@
                               IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByType}}"/>
                     <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByFileSize}" Command="{Binding SwitchViewCommand}" Header="{u:Lang FileSize}"
                               IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByFileSize}}"/>
-                    <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+                    <Separator/>
 
                     <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Ascending}" Command="{Binding SwitchViewCommand}" 
                               Icon="{DynamicResource SortAscendingDrawingImage}" Header="{u:Lang Ascending}"
@@ -500,7 +500,7 @@
                               IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByFileSize}}"/>
                 </MenuItem.Items>
             </MenuItem>
-            <Separator Style="{StaticResource SeparatorBaseStyle}"/>
+            <Separator/>
 
             <MenuItem CommandParameter="Terminal" Command="{Binding FileItemCommand}"
                       Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"
