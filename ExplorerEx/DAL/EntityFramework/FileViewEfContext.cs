@@ -55,12 +55,12 @@ public class FileViewEfContext : DbContext ,IFileViewDbContext {
         return FolderViewDbSet.AddAsync(item).AsTask();
     }
 
-    void IFileViewDbContext.SaveChanges()
+    public void Save()
     {
         base.SaveChanges();
     }
 
-    public Task SaveChangesAsync()
+    public Task SaveAsync()
     {
         return base.SaveChangesAsync();
     }

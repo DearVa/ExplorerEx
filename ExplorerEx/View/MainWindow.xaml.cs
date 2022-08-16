@@ -117,6 +117,7 @@ public sealed partial class MainWindow {
 		DataContext = this;
 		InitializeComponent();
         SideBarBookmarksTreeView.ItemsSource = BookmarkCategoryComboBox.ItemsSource = _BookmarkDbContext.GetBindable();
+
 		bookmarkItemContextMenuConverter = (FileSystemItemContextMenuConverter)Resources["BookmarkItemContextMenuConverter"];
 		sideBarPcItemContextMenu = (ContextMenu)Resources["SideBarPcItemContextMenu"];
 		sideBarPcItemContextMenu.DataContext = this;

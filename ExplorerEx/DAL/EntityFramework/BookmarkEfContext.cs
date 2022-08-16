@@ -10,19 +10,20 @@ using ExplorerEx.DAL.Interfaces;
 using ExplorerEx.Model;
 using ExplorerEx.Utils;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace ExplorerEx.DAL.EntityFramework;
 
 
 public class BookmarkEfContext : DbContext , IBookmarkDbContext
 {
+    #region  Fields
     private static ObservableCollection<BookmarkCategory> BookmarkCategories { get; set; } = null!;
     private DbSet<BookmarkCategory> BookmarkCategoryDbSet { get; set; } = null!;
     private DbSet<BookmarkItem> BookmarkDbSet { get; set; } = null!;
 
-
     private readonly string dbPath;
+    #endregion
+
 
     public BookmarkEfContext()
     {
@@ -78,6 +79,7 @@ public class BookmarkEfContext : DbContext , IBookmarkDbContext
             .WithMany(cb => cb.Children).HasForeignKey(b => b.CategoryForeignKey);
     }
 
+    #region Interfaces
 
     public ISet<BookmarkItem> GetBookmarkItems()
     {
@@ -133,4 +135,6 @@ public class BookmarkEfContext : DbContext , IBookmarkDbContext
     {
         return BookmarkCategories;
     }
+
+    #endregion
 }

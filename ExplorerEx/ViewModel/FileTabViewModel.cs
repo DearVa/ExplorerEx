@@ -22,7 +22,6 @@ using ExplorerEx.Utils.Collections;
 using ExplorerEx.View;
 using ExplorerEx.View.Controls;
 using ExplorerEx.Win32;
-using Microsoft.EntityFrameworkCore;
 using static ExplorerEx.Model.FileListViewItem;
 using static ExplorerEx.View.Controls.FileListView;
 using hc = HandyControl.Controls;

@@ -7,16 +7,13 @@ using ExplorerEx.Model;
 
 namespace ExplorerEx.DAL.Interfaces
 {
-    public interface IFileViewDbContext
+    public interface IFileViewDbContext : ILazyInitialize ,IDbBehavior
     {
-        Task LoadDataBase();
 
         ISet<FileView> GetFileViews();
 
         void Add(FileView item);
         Task AddAsync(FileView item);
 
-        void SaveChanges();
-        Task SaveChangesAsync();
     }
 }

@@ -8,10 +8,8 @@ using ExplorerEx.Model;
 
 namespace ExplorerEx.DAL.Interfaces
 {
-    public interface IBookmarkDbContext
+    public interface IBookmarkDbContext : ILazyInitialize
     {
-        
-        public Task LoadDataBase();
 
         ISet<BookmarkItem> GetBookmarkItems();
 

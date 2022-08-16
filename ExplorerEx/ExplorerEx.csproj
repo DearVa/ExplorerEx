@@ -70,6 +70,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.4" />
     <PackageReference Include="NLog" Version="4.7.15" />
     <PackageReference Include="SharpVectors" Version="1.7.7" />
+    <PackageReference Include="SqlSugarCore" Version="5.1.2.1" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
     <PackageReference Include="VirtualizingWrapPanel" Version="1.5.7" />
   </ItemGroup>
@@ -113,10 +114,6 @@
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DAL\SqlSugar\" />
   </ItemGroup>
 
 </Project>
