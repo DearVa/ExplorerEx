@@ -4,16 +4,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows;
 using ExplorerEx.Annotations;
 using ExplorerEx.Model.Enums;
 using ExplorerEx.Utils;
-using Microsoft.EntityFrameworkCore;
 
 namespace ExplorerEx.Model;
 
@@ -496,42 +492,5 @@ public class FileView : INotifyPropertyChanged {
 		public int Compare(object? x, object? y) {
 			return IsAscending ? InternalCompare(x, y) : -InternalCompare(x, y);
 		}
-	}
-}
-
-public class FileViewDbContext : DbContext {
-#pragma warning disable CS0612
-	public static FileViewDbContext Instance { get; } = new();
-#pragma warning restore CS0612
-	public DbSet<FileView> FolderViewDbSet { get; set; } = null!;
-
-	private readonly string dbPath;
-
-	/// <summary>
-	/// 之所以用public是因为需要迁移，但是*请勿*使用该构造方法，应该使用Instance
-	/// </summary>
-#pragma warning disable CA1041
-	[Obsolete]
-#pragma warning restore CA1041
-	public FileViewDbContext() {
-		var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Data");
-		if (!Directory.Exists(path)) {
-			Directory.CreateDirectory(path);
-		}
-		dbPath = Path.Combine(path, "FileViews.db");
-	}
-
-	public async Task LoadDataBase() {
-		try {
-			await Database.EnsureCreatedAsync();
-			await FolderViewDbSet!.LoadAsync();
-		} catch (Exception e) {
-			MessageBox.Show("无法加载数据库，可能是权限不够或者数据库版本过旧，请删除Data文件夹后再试一次。\n错误为：" + e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-			Logger.Exception(e, false);
-		}
-	}
-
-	protected override void OnConfiguring(DbContextOptionsBuilder ob) {
-		ob.UseSqlite($"Data Source={dbPath}");
 	}
 }

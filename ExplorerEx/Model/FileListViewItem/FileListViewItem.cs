@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media;
+using ExplorerEx.DAL.Interfaces;
 using ExplorerEx.Utils;
 using ExplorerEx.View.Controls;
 
@@ -110,7 +111,7 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	[NotMapped]
 	public bool IsFolder { get; protected set; }
 
-	public bool IsBookmarked => BookmarkDbContext.Instance.BookmarkDbSet.Any(b => b.FullPath == FullPath);
+	public bool IsBookmarked => ConfigHelper.Container.Resolve<IBookmarkDbContext>().GetBookmarkItems().Any(b => b.FullPath == FullPath);
 
 	[NotMapped]
 	public bool IsSelected {

@@ -12,6 +12,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using ExplorerEx.Command;
+using ExplorerEx.DAL.EntityFramework;
+using ExplorerEx.DAL.Interfaces;
 using ExplorerEx.Model;
 using ExplorerEx.Model.Enums;
 using ExplorerEx.Shell32;
@@ -34,6 +36,8 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	public FileTabControl OwnerTabControl { get; }
 
 	public MainWindow OwnerWindow => OwnerTabControl.MainWindow;
+
+    public readonly IFileViewDbContext _FileViewDbContext = ConfigHelper.Container.Resolve<IFileViewDbContext>();
 
 	public FileListView FileListView { get; set; } = null!;
 
@@ -485,7 +489,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	/// <returns></returns>
 	private async Task SaveViewToDbAsync(FileView? fileView) {
 		var fullPath = FullPath ?? "$Home";
-		fileView ??= await FileViewDbContext.Instance.FolderViewDbSet.FirstOrDefaultAsync(v => v.FullPath == fullPath);
+		fileView ??= _FileViewDbContext.GetFileViews().FirstOrDefault(v => v.FullPath == fullPath);
 		if (fileView == null) {
 			fileView = new FileView {
 				FullPath = fullPath,
@@ -496,7 +500,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 				ItemSize = ItemSize,
 				DetailLists = DetailLists
 			};
-			await FileViewDbContext.Instance.FolderViewDbSet.AddAsync(fileView);
+			await _FileViewDbContext.AddAsync(fileView);
 		} else {
 			Debug.Assert(fileView.FullPath == fullPath);
 			fileView.SortBy = SortBy;
@@ -506,7 +510,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			fileView.ItemSize = ItemSize;
 			fileView.DetailLists = DetailLists;
 		}
-		await FileViewDbContext.Instance.SaveChangesAsync();
+		await _FileViewDbContext.SaveChangesAsync();
 	}
 
 	private void OnClipboardChanged() {
@@ -635,7 +639,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		FileView? savedView;
 		try {
 			var fullPath = FullPath ?? "$Home";
-			savedView = await FileViewDbContext.Instance.FolderViewDbSet.FirstOrDefaultAsync(v => v.FullPath == fullPath, token);
+			savedView = _FileViewDbContext.GetFileViews().FirstOrDefault(v => v.FullPath == fullPath);
 			if (savedView != null) { // 如果存储了，那就获取用户定义的视图模式
 				SortBy = savedView.SortBy;
 				IsAscending = savedView.IsAscending;

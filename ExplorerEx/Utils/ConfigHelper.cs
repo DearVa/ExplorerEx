@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Castle.MicroKernel.ModelBuilder.Descriptors;
+using Castle.MicroKernel.Registration;
+using Castle.Windsor;
+using ExplorerEx.DAL.EntityFramework;
+using ExplorerEx.DAL.Interfaces;
+using ExplorerEx.Model;
 using Microsoft.Win32;
 
 namespace ExplorerEx.Utils; 
@@ -15,6 +21,25 @@ public static class ConfigHelper {
 	private static Task? bufferSaveTask;
 	private static readonly Dictionary<string, object> Buffer = new();
 	private static bool canSave;
+
+    /// <summary>
+    /// 全局实例的注册容器
+    /// </summary>
+    public static IWindsorContainer Container
+    {
+        get 
+        {
+            if (_container == null)
+            {
+                _container = new WindsorContainer();
+                _container.Register(Component.For<IBookmarkDbContext>().Instance(new BookmarkEfContext()));
+                _container.Register(Component.For<IFileViewDbContext>().Instance(new FileViewEfContext()));
+            }
+            return _container;
+        }
+    }
+
+    private static IWindsorContainer?  _container = null;
 
 	/// <summary>
 	/// 暂存入缓冲区，如果1s没有新的写入就批量存储
