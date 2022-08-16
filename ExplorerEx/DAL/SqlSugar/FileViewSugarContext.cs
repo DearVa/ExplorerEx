@@ -8,36 +8,35 @@ using ExplorerEx.Model;
 
 namespace ExplorerEx.DAL.SqlSugar
 {
-    public class FileViewSugarContext : IFileViewDbContext
+    public class FileViewSugarContext : SugarContext, IFileViewDbContext
     {
+        public FileViewSugarContext():base("FileViews.db")
+        {
+            
+        }
         public void Add(FileView item)
         {
-            throw new NotImplementedException();
+            ConnectionClient.Insertable<FileView>(item).ExecuteCommand();
         }
 
         public Task AddAsync(FileView item)
         {
-            throw new NotImplementedException();
+            return ConnectionClient.Insertable<FileView>(item).ExecuteCommandAsync();
         }
 
         public ISet<FileView> GetFileViews()
         {
-            throw new NotImplementedException();
+            return ConnectionClient.Queryable<FileView>().ToArray().ToHashSet();
         }
 
-        public Task LoadDataBase()
+        public void Save()
         {
-            throw new NotImplementedException();
+       
         }
 
-        public void SaveChanges()
+        public Task SaveAsync()
         {
-            throw new NotImplementedException();
-        }
-
-        public Task SaveChangesAsync()
-        {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
     }
 }

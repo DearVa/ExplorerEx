@@ -11,10 +11,9 @@ using SqlSugar;
 
 namespace ExplorerEx.DAL.SqlSugar
 {
-    internal class SugarContext : ILazyInitialize
+    public class SugarContext : ILazyInitialize
     {
         private readonly string dbPath;
-        private ConnectionConfig? Config;
         protected SqlSugarClient? ConnectionClient;
 
         protected SugarContext(string DatabaseFilename)
@@ -25,20 +24,19 @@ namespace ExplorerEx.DAL.SqlSugar
                 Directory.CreateDirectory(path);
             }
             dbPath = Path.Combine(path, DatabaseFilename);
-
         }
 
-        public Task LoadDataBase()
+        public virtual Task LoadDataBase()
         {
             return Task.Run(() =>
             {
-                Config = new ConnectionConfig
+                ConnectionClient = new SqlSugarClient(new ConnectionConfig
                 {
                     DbType = DbType.Sqlite,
-                    ConnectionString = @"Data Source=" + dbPath + ";Version=3",
+                    ConnectionString = @"Data Source=" + dbPath + ";",
                     InitKeyType = InitKeyType.Attribute
-                };
-                ConnectionClient = new SqlSugarClient(Config);
+                });
+                ConnectionClient.DbMaintenance.CreateDatabase();
             });
         }
     }

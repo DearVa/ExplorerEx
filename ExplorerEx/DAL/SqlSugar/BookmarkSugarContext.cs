@@ -11,9 +11,12 @@ using SQLitePCL;
 
 namespace ExplorerEx.DAL.SqlSugar
 {
-    public class BookmarkSugarContext : IBookmarkDbContext
+    public class BookmarkSugarContext :SugarContext, IBookmarkDbContext 
     {
-        
+        public BookmarkSugarContext():base("BookMarks.db")
+        {
+
+        }
 
         public void Add(BookmarkItem item)
         {
@@ -65,12 +68,12 @@ namespace ExplorerEx.DAL.SqlSugar
             throw new NotImplementedException();
         }
 
-        public void SaveChanges()
+        public void Save()
         {
             throw new NotImplementedException();
         }
 
-        public Task SaveChangesAsync()
+        public Task SaveAsync()
         {
             throw new NotImplementedException();
         }
