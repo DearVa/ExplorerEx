@@ -318,6 +318,7 @@ public class FileView : INotifyPropertyChanged
     }
     private bool isAscending;
 
+    [SugarColumn(IsIgnore = true)]
     public DetailListType? GroupBy
     {
         get => groupBy;

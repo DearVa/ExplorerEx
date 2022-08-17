@@ -23,12 +23,19 @@ namespace ExplorerEx.DAL.SqlSugar
         
         protected SugarContext(string databaseFilename)
         {
-            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Data");
+            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "SqlSugar");
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
             }
             dbPath = Path.Combine(path, databaseFilename);
+            ConnectionClient = new SqlSugarClient(new ConnectionConfig
+            {
+                DbType = DbType.Sqlite,
+                ConnectionString = @"Data Source=" + dbPath + ";",
+                InitKeyType = InitKeyType.Attribute,
+                IsAutoCloseConnection = true
+            });
         }
 
 
@@ -36,13 +43,6 @@ namespace ExplorerEx.DAL.SqlSugar
         {
             return Task.Run(() =>
             {
-                ConnectionClient = new SqlSugarClient(new ConnectionConfig
-                {
-                    DbType = DbType.Sqlite,
-                    ConnectionString = @"Data Source=" + dbPath + ";",
-                    InitKeyType = InitKeyType.Attribute,
-                    IsAutoCloseConnection = true
-                });
                 ConnectionClient.DbMaintenance.CreateDatabase();
             });
         }

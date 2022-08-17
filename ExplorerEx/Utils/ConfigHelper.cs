@@ -7,6 +7,7 @@ using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using ExplorerEx.DAL.EntityFramework;
 using ExplorerEx.DAL.Interfaces;
+using ExplorerEx.DAL.SqlSugar;
 using ExplorerEx.Model;
 using Microsoft.Win32;
 
@@ -32,8 +33,8 @@ public static class ConfigHelper {
             if (_container == null)
             {
                 _container = new WindsorContainer();
-                _container.Register(Component.For<IBookmarkDbContext>().Instance(new BookmarkEfContext()));
-                _container.Register(Component.For<IFileViewDbContext>().Instance(new FileViewEfContext()));
+                _container.Register(Component.For<IBookmarkDbContext>().Instance(new BookmarkSugarContext()));
+                _container.Register(Component.For<IFileViewDbContext>().Instance(new FileViewSugarContext()));
             }
             return _container;
         }
