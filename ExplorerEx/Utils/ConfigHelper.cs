@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Castle.MicroKernel.ModelBuilder.Descriptors;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
-using ExplorerEx.DAL.EntityFramework;
-using ExplorerEx.DAL.Interfaces;
-using ExplorerEx.DAL.SqlSugar;
-using ExplorerEx.Model;
+using ExplorerEx.Database.Interface;
+using ExplorerEx.Database.SqlSugar;
 using Microsoft.Win32;
 
 namespace ExplorerEx.Utils; 
@@ -30,23 +27,23 @@ public static class ConfigHelper {
     {
         get 
         {
-            if (_container == null)
+            if (container == null)
             {
-                _container = new WindsorContainer();
-                _container.Register(Component.For<IBookmarkDbContext>().Instance(
+                container = new WindsorContainer();
+                container.Register(Component.For<IBookmarkDbContext>().Instance(
                     new BookmarkSugarContext()
 					//new BookmarkEfContext()
                     ));
-                _container.Register(Component.For<IFileViewDbContext>().Instance(
+                container.Register(Component.For<IFileViewDbContext>().Instance(
                     new FileViewSugarContext()
 					//new FileViewEfContext()
                     ));
             }
-            return _container;
+            return container;
         }
     }
 
-    private static IWindsorContainer?  _container = null;
+    private static IWindsorContainer? container;
 
 	/// <summary>
 	/// 暂存入缓冲区，如果1s没有新的写入就批量存储

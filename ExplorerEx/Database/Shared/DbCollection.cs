@@ -4,21 +4,9 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using ExplorerEx.Database.Interface;
 
-namespace ExplorerEx.Database;
-
-/// <summary>
-/// 这个对应一个数据库文件或者一个数据源
-/// </summary>
-public interface IDatabase {
-	/// <summary>
-	/// 负责对数据库加载的异常进行处理，并处理特殊情况（如首次加载、错误数据的修正等等）
-	/// </summary>
-	/// <returns></returns>
-	public Task LoadAsync();
-
-	public Task SaveChangesAsync();
-}
+namespace ExplorerEx.Database.Shared;
 
 /// <summary>
 /// 代表一个可与数据库对接的集合，同时还实现INotify接口可以直接绑定到View
@@ -81,15 +69,70 @@ public class DbColumn : Attribute {
 	public string? Name { get; set; }
 
 	/// <summary>
-	/// 说明是一个映射
+	/// 存储时的最大长度
+	/// </summary>
+	public int MaxLength { get; set; } = -1;
+
+	/// <summary>
+	/// 说明是一个映射，和IsPrimaryKey相冲突
 	/// </summary>
 	public string? NavigateTo { get; set; }
 
-	public DbColumnNavigateType NavigateType { get; set; }
+	public DbNavigateType NavigateType { get; set; }
+
+	public DbColumn() { }
+
+	public DbColumn(string navigateTo, DbNavigateType navigateType) {
+		NavigateTo = navigateTo;
+		NavigateType = navigateType;
+	}
 }
 
-public enum DbColumnNavigateType {
+public enum DbNavigateType {
+	/// <summary>
+	/// 默认值，说明不是映射
+	/// </summary>
 	NoNavigate,
+	/// <summary>
+	/// 一对一映射
+	/// <remarks>
+	///	<para>
+	/// 用法1，小蝌蚪找妈妈
+	///	<code>
+	///	class Parent {
+	///		public int Id { get; set; }
+	///
+	///		[DbColumn(nameof(Child.ParentId), DbNavigateType.OneToOne)]
+	///		public Child Child { get; set; }
+	///	}
+	///
+	///	class Child {
+	///		public int Id { get; set; }
+	///		public int ParentId { get; set; }
+	///	} 
+	///	</code>
+	///	</para>
+	///
+	///	<para>
+	///	用法2，妈妈找小蝌蚪
+	///	<code>
+	///	class Parent {
+	///		public int Id { get; set; }
+	///
+	///		public int ChildId { get; set; }
+	///
+	///		[DbColumn(nameof(ChildId), DbNavigateType.OneToOne)]
+	///		public Child Child { get; set; }
+	///	}
+	///
+	///	class Child {
+	///		public int Id { get; set; }
+	///	} 
+	///	</code>
+	///	</para> 
+	/// </remarks>
+	/// 
+	/// </summary>
 	OneToOne,
 	OneToMany,
 	ManyToOne,

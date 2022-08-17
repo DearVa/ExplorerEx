@@ -531,7 +531,6 @@
 
                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="{u:Lang Category}" VerticalAlignment="Center"/>
                                 <hc:ComboBox x:Name="BookmarkCategoryComboBox" Grid.Row="1" Grid.Column="1" ShowClearButton="True" IsEditable="True" 
-                                         ItemsSource="{Binding Source={x:Static m:BookmarkDbContext.BookmarkCategories}}"
                                          Text="{Binding BookmarkCategory, Mode=OneWayToSource}" Margin="5,0,0,0" SelectedIndex="0"/>
                             </Grid>
                             <hc:SimplePanel Margin="0,20,0,0">

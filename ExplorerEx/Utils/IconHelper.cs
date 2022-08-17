@@ -70,6 +70,11 @@ internal static class IconHelper {
 		MissingFileDrawingImage = (DrawingImage)resources["MissingFileDrawingImage"];
 	}
 
+	/// <summary>
+	/// 空函数，目的只是为了确保在UI线程调用静态构造方法
+	/// </summary>
+	public static void Initialize() { }
+
 	public static BitmapSource HIcon2BitmapSource(IntPtr hIcon) {
 		var bitmap = Imaging.CreateBitmapSourceFromHIcon(hIcon, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
 		bitmap.Freeze();

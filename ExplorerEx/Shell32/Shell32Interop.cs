@@ -323,7 +323,7 @@ internal static class Shell32Interop {
 		loadIconThread.Start();
 	}
 
-	public static void Initizlize() { }
+	public static void Initialize() { }
 
 	private record LoadIconParameters(int index, ILD flags, IntPtr pIcon) {
 		public readonly int index = index;

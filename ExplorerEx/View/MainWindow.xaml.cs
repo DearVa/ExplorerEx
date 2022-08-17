@@ -26,7 +26,7 @@ using System.Windows.Media;
 using System.Diagnostics;
 using System.Windows.Data;
 using System.Windows.Threading;
-using ExplorerEx.DAL.Interfaces;
+using ExplorerEx.Database.Interface;
 using hc = HandyControl.Controls;
 using HandyControl.Data;
 using HandyControl.Tools.Interop;
@@ -39,7 +39,7 @@ public sealed partial class MainWindow {
 	/// </summary>
 	public static MainWindow? FocusedWindow => All.Count > 0 ? All.FirstOrDefault(mw => mw.IsFocused) ?? All[0] : null;
 
-	public static readonly IBookmarkDbContext _BookmarkDbContext = ConfigHelper.Container.Resolve<IBookmarkDbContext>();
+	public static readonly IBookmarkDbContext BookmarkDbContext = ConfigHelper.Container.Resolve<IBookmarkDbContext>();
 
 
 	public event Action<uint, EverythingInterop.QueryReply>? EverythingQueryReplied;
@@ -116,7 +116,7 @@ public sealed partial class MainWindow {
 
 		DataContext = this;
 		InitializeComponent();
-        SideBarBookmarksTreeView.ItemsSource = BookmarkCategoryComboBox.ItemsSource = _BookmarkDbContext.GetBindable();
+        SideBarBookmarksTreeView.ItemsSource = BookmarkCategoryComboBox.ItemsSource = BookmarkDbContext.GetBindable();
 
 		bookmarkItemContextMenuConverter = (FileSystemItemContextMenuConverter)Resources["BookmarkItemContextMenuConverter"];
 		sideBarPcItemContextMenu = (ContextMenu)Resources["SideBarPcItemContextMenu"];
@@ -509,7 +509,7 @@ public sealed partial class MainWindow {
 		IsAddToBookmarkShow = false;
 	}
 
-	private async static void OnIsAddToBookmarkShowChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+	private static async void OnIsAddToBookmarkShowChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		var window = (MainWindow)d;
 		if (window.bookmarkPaths == null || window.BookmarkCategory == null) {
 			return;
@@ -517,7 +517,7 @@ public sealed partial class MainWindow {
 		var bookmarkItem = window.bookmarkPaths[window.currentBookmarkIndex];
 		if ((bool)e.NewValue) {
 			var fullPath = Path.GetFullPath(bookmarkItem);
-			var dbBookmark = _BookmarkDbContext.FindLocalItemFirstOrDefault(b => b.FullPath == fullPath);
+			var dbBookmark = BookmarkDbContext.FindLocalItemFirstOrDefault(b => b.FullPath == fullPath);
 			if (dbBookmark != null) {
 				window.AddToBookmarkTipTextBlock.Text = "EditBookmark".L();
 				window.BookmarkName = dbBookmark.Name;
@@ -533,22 +533,22 @@ public sealed partial class MainWindow {
 				if (string.IsNullOrWhiteSpace(category)) {
 					category = "DefaultBookmark".L();
 				}
-                var categoryItem = _BookmarkDbContext.FindFirstOrDefault(bc => bc.Name == category);
+                var categoryItem = BookmarkDbContext.FindFirstOrDefault(bc => bc.Name == category);
 				if (categoryItem == null) {
 					categoryItem = new BookmarkCategory(category);
-					await _BookmarkDbContext.AddAsync(categoryItem);
+					await BookmarkDbContext.AddAsync(categoryItem);
 				}
 				var fullPath = Path.GetFullPath(bookmarkItem);
-				var dbBookmark = _BookmarkDbContext.FindLocalItemFirstOrDefault(b => b.FullPath == fullPath);
+				var dbBookmark = BookmarkDbContext.FindLocalItemFirstOrDefault(b => b.FullPath == fullPath);
 				if (dbBookmark != null) {
 					dbBookmark.Name = window.BookmarkName;
 					dbBookmark.OnPropertyChanged(nameof(dbBookmark.Name));
 					dbBookmark.Category = categoryItem;
-					await _BookmarkDbContext.SaveAsync();
+					await BookmarkDbContext.SaveAsync();
 				} else {
 					var item = new BookmarkItem(bookmarkItem, window.BookmarkName, categoryItem);
-					await _BookmarkDbContext.AddAsync(item);
-					await _BookmarkDbContext.SaveAsync();
+					await BookmarkDbContext.AddAsync(item);
+					await BookmarkDbContext.SaveAsync();
 					item.LoadIcon(FileListViewItem.LoadDetailsOptions.Default);
 				}
 				await BookmarkManager.BookmarkItems.SaveChangesAsync();
@@ -570,10 +570,10 @@ public sealed partial class MainWindow {
 		}
         foreach (var filePath in filePaths) {
 			var fullPath = Path.GetFullPath(filePath);
-			var item = _BookmarkDbContext.FindLocalItemFirstOrDefault(b => b.FullPath == fullPath);
+			var item = BookmarkDbContext.FindLocalItemFirstOrDefault(b => b.FullPath == fullPath);
 			if (item != null) {
-                _BookmarkDbContext.Remove(item);
-				await _BookmarkDbContext.SaveAsync();
+                BookmarkDbContext.Remove(item);
+				await BookmarkDbContext.SaveAsync();
 				foreach (var updateItem in All.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
 					updateItem.OnPropertyChanged(nameof(updateItem.IsBookmarked));
 				}

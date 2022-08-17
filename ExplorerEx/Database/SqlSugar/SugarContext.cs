@@ -1,18 +1,30 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
+using ExplorerEx.Database.Interface;
+using ExplorerEx.Database.Shared;
 using SqlSugar;
 
-namespace ExplorerEx.Database; 
+namespace ExplorerEx.Database.SqlSugar; 
 
-internal static class SqlSugarHelper {
-	public static SqlSugarScope CreateSqlSugarScope(string dbPath) {
-		return new SqlSugarScope(new ConnectionConfig {
+public abstract class SugarContext : IDatabase {
+	protected readonly SqlSugarClient ConnectionClient;
+
+	protected SugarContext(string databaseFilename) {
+		var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "SqlSugar");
+		if (!Directory.Exists(path)) {
+			Directory.CreateDirectory(path);
+		}
+		var dbPath = Path.Combine(path, databaseFilename);
+		ConnectionClient = new SqlSugarClient(new ConnectionConfig {
 			ConnectionString = @"DataSource=" + dbPath,  // 连接符字串
 			DbType = DbType.Sqlite,  // 数据库类型
-			IsAutoCloseConnection = true, // 不设成true要手动close
+			InitKeyType = InitKeyType.Attribute,
 			ConfigureExternalServices = new ConfigureExternalServices {
+				// 在这里解析Attributes标注
 				EntityNameService = (t, info) => {
 					var dbTable = t.GetCustomAttributes().OfType<DbTable>().FirstOrDefault();
 					if (dbTable != null) {
@@ -37,13 +49,14 @@ internal static class SqlSugarHelper {
 							column.IsIdentity = dbColumn.IsIdentity;
 						} else if (dbColumn.NavigateTo != null) {
 							var navigateType = dbColumn.NavigateType switch {
-								DbColumnNavigateType.OneToOne => NavigateType.OneToOne,
-								DbColumnNavigateType.OneToMany => NavigateType.OneToMany,
-								DbColumnNavigateType.ManyToOne => NavigateType.ManyToOne,
-								DbColumnNavigateType.ManyToMany => NavigateType.ManyToMany,
+								DbNavigateType.OneToOne => NavigateType.OneToOne,
+								DbNavigateType.OneToMany => NavigateType.OneToMany,
+								DbNavigateType.ManyToOne => NavigateType.ManyToOne,
+								DbNavigateType.ManyToMany => NavigateType.ManyToMany,
 								_ => NavigateType.Dynamic
 							};
 							column.Navigat = new Navigate(navigateType, dbColumn.NavigateTo);
+							column.IsIgnore = true;
 							if (t.PropertyType.IsSubclassOf(typeof(ObservableCollection<>))) {
 
 							}
@@ -51,14 +64,18 @@ internal static class SqlSugarHelper {
 					}
 				}
 			}
-		}, db => {
-			// 调试SQL事件，可以删掉
-			db.Aop.OnLogExecuting = (sql, pars) => {
-				Console.WriteLine(sql);
-				// 输出sql,查看执行sql 性能无影响
-				// 5.0.8.2 获取无参数化 SQL  对性能有影响，特别大的SQL参数多的，调试使用
-				// UtilMethods.GetSqlString(DbType.SqlServer,sql,pars)
-			};
 		});
+	}
+
+	public virtual Task LoadAsync() {
+		throw new InvalidOperationException();
+	}
+
+	public virtual void Save() {
+		throw new InvalidOperationException();
+	}
+
+	public virtual Task SaveAsync() {
+		throw new InvalidOperationException();
 	}
 }

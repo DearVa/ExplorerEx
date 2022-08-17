@@ -10,11 +10,11 @@ namespace ExplorerEx.Converter;
 /// 根据<see cref="FileViewType"/>来转换ItemsPanel
 /// </summary>
 internal class FileDataGridItemsPanelConverter : IValueConverter {
-	public ItemsPanelTemplate StackPanelTemplate { get; set; }
-	public ItemsPanelTemplate WrapPanelTemplate { get; set; }
+	public ItemsPanelTemplate StackPanelTemplate { get; set; } = null!;
+	public ItemsPanelTemplate WrapPanelTemplate { get; set; } = null!;
 
 	public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-		return (FileViewType)value! switch {
+		return (FileViewType)value switch {
 			FileViewType.Details => StackPanelTemplate,
 			FileViewType.Content => StackPanelTemplate,
 			_ => WrapPanelTemplate
