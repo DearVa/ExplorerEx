@@ -8,7 +8,7 @@ using ExplorerEx.Model;
 
 namespace ExplorerEx.DAL.Interfaces
 {
-    public interface IBookmarkDbContext : ILazyInitialize
+    public interface IBookmarkDbContext : ILazyInitialize , IDbBehavior
     {
 
         ISet<BookmarkItem> GetBookmarkItems();
@@ -17,16 +17,15 @@ namespace ExplorerEx.DAL.Interfaces
         Task AddAsync(BookmarkItem item);
 
         ISet<BookmarkItem> GetLocalBookmarkItems();
-
+        public BookmarkItem? FindLocalItemFirstOrDefault(Func<BookmarkItem,bool> match);
         void Remove(BookmarkItem item);
 
         ISet<BookmarkCategory> GetBookmarkCategories();
 
+        BookmarkCategory? FindFirstOrDefault(Func<BookmarkCategory,bool> match);
+
         void Add(BookmarkCategory item);
         Task AddAsync(BookmarkCategory item);
-
-        void SaveChanges();
-        Task SaveChangesAsync();
 
         ObservableCollection<BookmarkCategory> GetBindable();
     }

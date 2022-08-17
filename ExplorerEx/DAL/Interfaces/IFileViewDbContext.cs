@@ -9,11 +9,10 @@ namespace ExplorerEx.DAL.Interfaces
 {
     public interface IFileViewDbContext : ILazyInitialize ,IDbBehavior
     {
-
         ISet<FileView> GetFileViews();
+        FileView? FindFirstOrDefault(Func<FileView,bool> match);
 
         void Add(FileView item);
         Task AddAsync(FileView item);
-
     }
 }

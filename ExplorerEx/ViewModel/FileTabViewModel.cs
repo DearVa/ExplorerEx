@@ -488,7 +488,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	/// <returns></returns>
 	private async Task SaveViewToDbAsync(FileView? fileView) {
 		var fullPath = FullPath ?? "$Home";
-		fileView ??= _FileViewDbContext.GetFileViews().FirstOrDefault(v => v.FullPath == fullPath);
+		fileView ??= _FileViewDbContext.FindFirstOrDefault(v => v.FullPath == fullPath);
 		if (fileView == null) {
 			fileView = new FileView {
 				FullPath = fullPath,
@@ -509,7 +509,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			fileView.ItemSize = ItemSize;
 			fileView.DetailLists = DetailLists;
 		}
-		await _FileViewDbContext.SaveChangesAsync();
+		await _FileViewDbContext.SaveAsync();
 	}
 
 	private void OnClipboardChanged() {
@@ -638,7 +638,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		FileView? savedView;
 		try {
 			var fullPath = FullPath ?? "$Home";
-			savedView = _FileViewDbContext.GetFileViews().FirstOrDefault(v => v.FullPath == fullPath);
+			savedView = _FileViewDbContext.FindFirstOrDefault(v => v.FullPath == fullPath);
 			if (savedView != null) { // 如果存储了，那就获取用户定义的视图模式
 				SortBy = savedView.SortBy;
 				IsAscending = savedView.IsAscending;

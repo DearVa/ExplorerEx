@@ -15,6 +15,7 @@ using SqlSugar;
 
 namespace ExplorerEx.Model;
 
+
 /// <summary>
 /// 文件视图类型
 /// </summary>
@@ -248,7 +249,7 @@ public class FileView : INotifyPropertyChanged
     private readonly HashSet<string> changedPropertiesName = new();
 
     [Key]
-    [SugarColumn(IsPrimaryKey = true, IsIdentity = true)]
+    [SugarColumn(IsPrimaryKey = true)]
     public string? FullPath
     {
         get => fullPath;

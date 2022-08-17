@@ -13,6 +13,7 @@ using ExplorerEx.Converter;
 using ExplorerEx.DAL.SharedClasses;
 using ExplorerEx.Utils;
 using Microsoft.EntityFrameworkCore;
+using SqlSugar;
 using static ExplorerEx.Utils.IconHelper;
 
 namespace ExplorerEx.Model;
@@ -22,7 +23,8 @@ namespace ExplorerEx.Model;
 /// </summary>
 [Serializable]
 public class BookmarkCategory : NotifyPropertyChangedBase {
-	[Key] 
+	[Key]
+    [SugarColumn(IsPrimaryKey = true)]
 	public string Name { get; set; } = null!;
 
 	/// <summary>
@@ -43,9 +45,9 @@ public class BookmarkCategory : NotifyPropertyChangedBase {
 
 	public ImageSource Icon => Children is { Count: > 0 } ? FolderDrawingImage : EmptyFolderDrawingImage;
 
-	public virtual ObservableCollection<BookmarkItem>? Children { get; set; }
+	public ObservableCollection<BookmarkItem>? Children { get; set; }
 
-	private BookmarkCategory() { }
+	public BookmarkCategory() { }
 
 	public BookmarkCategory(string name) {
 		Name = name;
@@ -70,11 +72,11 @@ public class BookmarkCategory : NotifyPropertyChangedBase {
 public class BookmarkItem : FileListViewItem, IFilterable {
 	public override string DisplayText => Name;
 
-	public string CategoryForeignKey { get; set; } = null!;
+	public virtual string CategoryForeignKey { get; set; } = null!;
 
 	public BookmarkCategory Category { get; set; } = null!;
 
-	private BookmarkItem() : base(null!, null!, false) { }
+	public BookmarkItem() : base(null!, null!, false) { }
 
 	public BookmarkItem(string fullPath, string name, BookmarkCategory category) : base(null!, null!, false) {
 		FullPath = Path.GetFullPath(fullPath);

@@ -64,4 +64,9 @@ public class FileViewEfContext : DbContext ,IFileViewDbContext {
     {
         return base.SaveChangesAsync();
     }
+
+    public FileView? FindFirstOrDefault(Func<FileView, bool> match)
+    {
+        return GetFileViews().FirstOrDefault(match);
+    }
 }

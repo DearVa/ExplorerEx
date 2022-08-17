@@ -77,7 +77,7 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 
 	public abstract string DisplayText { get; }
 
-	public string Name { get; set; }
+	public virtual string Name { get; set; }
 
 	/// <summary>
 	/// 类型描述，自动更新UI

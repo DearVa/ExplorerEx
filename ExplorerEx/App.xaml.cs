@@ -236,7 +236,7 @@ public partial class App
         if (isRunning)
         {
             isRunning = false;
-            _BookmarkDbContext.SaveChanges();
+            _BookmarkDbContext.Save();
             notifyIconWindow?.NotifyIcon.Dispose();
             mutex!.Dispose();
         }

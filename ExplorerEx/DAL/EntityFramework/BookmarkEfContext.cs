@@ -17,7 +17,7 @@ namespace ExplorerEx.DAL.EntityFramework;
 public class BookmarkEfContext : DbContext , IBookmarkDbContext
 {
     #region  Fields
-    private static ObservableCollection<BookmarkCategory> BookmarkCategories { get; set; } = null!;
+
     private DbSet<BookmarkCategory> BookmarkCategoryDbSet { get; set; } = null!;
     private DbSet<BookmarkItem> BookmarkDbSet { get; set; } = null!;
 
@@ -43,15 +43,18 @@ public class BookmarkEfContext : DbContext , IBookmarkDbContext
             await BookmarkCategoryDbSet.LoadAsync();
             await BookmarkDbSet.LoadAsync();
 
-            BookmarkCategories = BookmarkCategoryDbSet.Local.ToObservableCollection();
-            if (BookmarkCategories.Count == 0)
+            if (BookmarkCategoryDbSet.ToArray().Length == 0)
             {
                 var defaultCategory = new BookmarkCategory("Default_bookmark".L());
                 await BookmarkCategoryDbSet.AddAsync(defaultCategory);
                 await BookmarkDbSet.AddRangeAsync(
-                    new BookmarkItem(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Documents".L(), defaultCategory),
-                    new BookmarkItem(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Desktop".L(), defaultCategory));
-                await SaveChangesAsync();
+                    new BookmarkItem(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), 
+                        "Documents".L(), 
+                        defaultCategory),
+                    new BookmarkItem(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                        "Desktop".L(), 
+                        defaultCategory));
+                await SaveAsync();
             }
             await Task.Run(() =>
             {
@@ -90,7 +93,6 @@ public class BookmarkEfContext : DbContext , IBookmarkDbContext
     {
         BookmarkDbSet.Add(item);
     }
-
     public Task AddAsync(BookmarkItem item)
     {
         return BookmarkDbSet.AddAsync(item).AsTask();
@@ -100,28 +102,27 @@ public class BookmarkEfContext : DbContext , IBookmarkDbContext
     {
         BookmarkCategoryDbSet.Add(item);
     }
-
     public Task AddAsync(BookmarkCategory item)
     {
         return BookmarkCategoryDbSet.AddAsync(item).AsTask();
     }
 
+    
     public ISet<BookmarkItem> GetLocalBookmarkItems()
     {
         return BookmarkDbSet.Local.ToHashSet();
     }
-
     public ISet<BookmarkCategory> GetBookmarkCategories()
     {
         return BookmarkCategoryDbSet.ToHashSet();
     }
 
-    public new void SaveChanges()
+    public new void Save()
     {
         base.SaveChanges();
     }
 
-    public Task SaveChangesAsync()
+    public Task SaveAsync()
     {
         return base.SaveChangesAsync();
     }
@@ -131,10 +132,25 @@ public class BookmarkEfContext : DbContext , IBookmarkDbContext
         base.Remove(item);
     }
 
-    ObservableCollection<BookmarkCategory> IBookmarkDbContext.GetBindable()
+    public ObservableCollection<BookmarkCategory> GetBindable()
     {
-        return BookmarkCategories;
+        return BookmarkCategoryDbSet.Local.ToObservableCollection();
     }
+
+    #region ProbablyModify
+    public BookmarkCategory? FindFirstOrDefault(Func<BookmarkCategory, bool> match)
+    {
+        return GetBookmarkCategories().FirstOrDefault(match);
+    }
+
+    public BookmarkItem? FindLocalItemFirstOrDefault(Func<BookmarkItem, bool> match)
+    {
+        return GetLocalBookmarkItems().FirstOrDefault(match);
+    }
+
+
+
+    #endregion
 
     #endregion
 }
