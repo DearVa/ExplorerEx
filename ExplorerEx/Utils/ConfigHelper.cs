@@ -33,8 +33,14 @@ public static class ConfigHelper {
             if (_container == null)
             {
                 _container = new WindsorContainer();
-                _container.Register(Component.For<IBookmarkDbContext>().Instance(new BookmarkSugarContext()));
-                _container.Register(Component.For<IFileViewDbContext>().Instance(new FileViewSugarContext()));
+                _container.Register(Component.For<IBookmarkDbContext>().Instance(
+                    new BookmarkSugarContext()
+					//new BookmarkEfContext()
+                    ));
+                _container.Register(Component.For<IFileViewDbContext>().Instance(
+                    new FileViewSugarContext()
+					//new FileViewEfContext()
+                    ));
             }
             return _container;
         }
