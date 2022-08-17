@@ -11,7 +11,9 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 using ExplorerEx.DAL.Interfaces;
+using ExplorerEx.Database;
 using ExplorerEx.Utils;
+using ExplorerEx.Utils.Collections;
 using ExplorerEx.View.Controls;
 
 namespace ExplorerEx.Model;
@@ -37,7 +39,6 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	/// <summary>
 	/// 图标，自动更新UI
 	/// </summary>
-	[NotMapped]
 	public ImageSource? Icon {
 		get {
 			if (icon != null) {
@@ -58,8 +59,7 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 
 	protected readonly ImageSource defaultIcon;
 
-
-	[NotMapped]
+	
 	public double Opacity {
 		get => opacity;
 		set {
@@ -72,17 +72,17 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 
 	private double opacity = 1d;
 
-	[Key]
+	[DbColumn(IsPrimaryKey = true)]
 	public string FullPath { get; protected init; }
-
+	
 	public abstract string DisplayText { get; }
 
+	[DbColumn]
 	public virtual string Name { get; set; }
 
 	/// <summary>
 	/// 类型描述，自动更新UI
 	/// </summary>
-	[NotMapped]
 	public string? Type {
 		get => type;
 		protected set {
@@ -94,8 +94,7 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	}
 
 	private string? type;
-
-	[NotMapped]
+	
 	public long FileSize {
 		get => fileSize;
 		protected set {
@@ -107,13 +106,11 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	}
 
 	private long fileSize;
-
-	[NotMapped]
+	
 	public bool IsFolder { get; protected set; }
 
 	public bool IsBookmarked => ConfigHelper.Container.Resolve<IBookmarkDbContext>().GetBookmarkItems().Any(b => b.FullPath == FullPath);
-
-	[NotMapped]
+	
 	public bool IsSelected {
 		get => isSelected;
 		set {

@@ -640,9 +640,9 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 默认收藏夹 的本地化字符串。
         /// </summary>
-        internal static string Default_bookmark {
+        internal static string DefaultBookmark {
             get {
-                return ResourceManager.GetString("Default_bookmark", resourceCulture);
+                return ResourceManager.GetString("DefaultBookmark", resourceCulture);
             }
         }
         

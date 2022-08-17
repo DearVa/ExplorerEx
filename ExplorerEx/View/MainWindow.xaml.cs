@@ -202,6 +202,7 @@ public sealed partial class MainWindow {
 			if (frameworkElement.DataContext is FileListViewItem fileListViewItem) {
 				switch (fileListViewItem) {
 				case BookmarkItem bookmarkItem:
+					bookmarkItem.IsSelected = true;
 					if (!File.Exists(bookmarkItem.FullPath) && !Directory.Exists(bookmarkItem.FullPath)) {
 
 					} else {
@@ -530,7 +531,7 @@ public sealed partial class MainWindow {
 			if (!window.isDeleteBookmark) {
 				var category = window.BookmarkCategory.Trim();
 				if (string.IsNullOrWhiteSpace(category)) {
-					category = "Default_bookmark".L();
+					category = "DefaultBookmark".L();
 				}
                 var categoryItem = _BookmarkDbContext.FindFirstOrDefault(bc => bc.Name == category);
 				if (categoryItem == null) {
@@ -550,6 +551,8 @@ public sealed partial class MainWindow {
 					await _BookmarkDbContext.SaveAsync();
 					item.LoadIcon(FileListViewItem.LoadDetailsOptions.Default);
 				}
+				await BookmarkManager.BookmarkItems.SaveChangesAsync();
+				await BookmarkManager.BookmarkCategories.SaveChangesAsync();
 				foreach (var updateItem in All.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
 					updateItem.OnPropertyChanged(nameof(updateItem.IsBookmarked));
 				}

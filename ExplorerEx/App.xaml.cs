@@ -38,14 +38,7 @@ public partial class App
 
     protected override async void OnStartup(StartupEventArgs e)
     {
-       
-        MainWindow? m = null;
-        Task[] ts =
-        {
-            _BookmarkDbContext.LoadDataBase(),
-            _FileViewDbContext.LoadDataBase(),
-        };
-        Logger.Initialize();
+	    Logger.Initialize();
 
         AttachConsole(-1);
         await Console.Out.FlushAsync();
@@ -86,6 +79,12 @@ public partial class App
         {
             IsBackground = true
         }.Start();
+        
+        Task[] dbLoadTasks =
+        {
+            _BookmarkDbContext.LoadDataBase(),
+            _FileViewDbContext.LoadDataBase(),
+        };
 
         ProcessorCount = Environment.ProcessorCount;
         Shell32Interop.Initizlize();
@@ -98,11 +97,10 @@ public partial class App
         });
 
 
-        await Task.WhenAll(ts);
+        await Task.WhenAll(dbLoadTasks);
         if (!Args.RunInBackground)
         {
-            m = new MainWindow(null);
-            m?.Show();
+            new MainWindow(null).Show();
         }
 
         notifyIconWindow = new NotifyIconWindow();

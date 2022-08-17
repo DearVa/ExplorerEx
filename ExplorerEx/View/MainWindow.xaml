@@ -15,7 +15,6 @@
     Foreground="{DynamicResource PrimaryTextBrush}" BorderThickness="0" AllowDrop="True">
 
     <Window.Resources>
-        
         <c:StringFilter2VisibilityConverter x:Key="BookmarkFilter"/>
         <c:StringFilter2VisibilityConverter x:Key="RecycleBinFilter"/>
 
@@ -150,7 +149,7 @@
         <WindowChrome GlassFrameThickness="-1" ResizeBorderThickness="8" UseAeroCaptionButtons="False" CaptionHeight="0"/>
     </WindowChrome.WindowChrome>
 
-    <Grid x:Name="RootPanel">
+    <hc:SimplePanel x:Name="RootPanel">
         <StackPanel ZIndex="99999" HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">
             <StackPanel.Resources>
                 <Style x:Key="ButtonStyle" TargetType="Button">
@@ -219,7 +218,6 @@
                         <ct:SideBarContent Header="{u:Lang Bookmarks}" Filter="{StaticResource BookmarkFilter}" FileDrop="BookmarksSideBarContent_OnFileDrop">
                             <ct:SideBarContent.Content>
                                 <TreeView x:Name="SideBarBookmarksTreeView" BorderThickness="0" Focusable="False" Background="Transparent">
-
                                     <TreeView.ItemContainerStyle>
                                         <Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemBaseStyle}">
                                             <Setter Property="Focusable" Value="False"/>
@@ -533,7 +531,7 @@
 
                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="{u:Lang Category}" VerticalAlignment="Center"/>
                                 <hc:ComboBox x:Name="BookmarkCategoryComboBox" Grid.Row="1" Grid.Column="1" ShowClearButton="True" IsEditable="True" 
-                                         
+                                         ItemsSource="{Binding Source={x:Static m:BookmarkDbContext.BookmarkCategories}}"
                                          Text="{Binding BookmarkCategory, Mode=OneWayToSource}" Margin="5,0,0,0" SelectedIndex="0"/>
                             </Grid>
                             <hc:SimplePanel Margin="0,20,0,0">
@@ -561,5 +559,5 @@
                 <Border MouseLeftButtonDown="OnDragAreaMouseLeftButtonDown" Background="Transparent"/>
             </hc:SimplePanel>
         </Grid>
-    </Grid>
+    </hc:SimplePanel>
 </Window>

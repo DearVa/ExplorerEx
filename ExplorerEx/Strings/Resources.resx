@@ -288,7 +288,7 @@
   <data name="Category" xml:space="preserve">
     <value>类别</value>
   </data>
-  <data name="Default_bookmark" xml:space="preserve">
+  <data name="DefaultBookmark" xml:space="preserve">
     <value>默认收藏夹</value>
   </data>
   <data name="RunAsAdmin" xml:space="preserve">

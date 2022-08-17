@@ -241,7 +241,7 @@ Are you sure you want to change?</value>
   <data name="Category" xml:space="preserve">
     <value>Category</value>
   </data>
-  <data name="Default_bookmark" xml:space="preserve">
+  <data name="DefaultBookmark" xml:space="preserve">
     <value>Default bookmark</value>
   </data>
   <data name="RunAsAdmin" xml:space="preserve">

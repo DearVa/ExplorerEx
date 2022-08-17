@@ -1,20 +1,28 @@
-﻿using System;
+﻿// #define EFCore
+
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using ExplorerEx.Converter;
-using ExplorerEx.DAL.SharedClasses;
+using ExplorerEx.Database;
 using ExplorerEx.Utils;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Crypto;
 using SqlSugar;
+using static System.Formats.Asn1.AsnWriter;
 using static ExplorerEx.Utils.IconHelper;
+using Task = System.Threading.Tasks.Task;
 
 namespace ExplorerEx.Model;
 
@@ -23,8 +31,7 @@ namespace ExplorerEx.Model;
 /// </summary>
 [Serializable]
 public class BookmarkCategory : NotifyPropertyChangedBase {
-	[Key]
-    [SugarColumn(IsPrimaryKey = true)]
+	[DbColumn(IsPrimaryKey = true)]
 	public string Name { get; set; } = null!;
 
 	/// <summary>
@@ -45,7 +52,8 @@ public class BookmarkCategory : NotifyPropertyChangedBase {
 
 	public ImageSource Icon => Children is { Count: > 0 } ? FolderDrawingImage : EmptyFolderDrawingImage;
 
-	public ObservableCollection<BookmarkItem>? Children { get; set; }
+	[DbColumn(NavigateType = DbColumnNavigateType.OneToMany, NavigateTo = nameof(BookmarkItem.CategoryForeignKey))]
+	public virtual ObservableCollection<BookmarkItem>? Children { get; set; }
 
 	public BookmarkCategory() { }
 
@@ -54,7 +62,7 @@ public class BookmarkCategory : NotifyPropertyChangedBase {
 	}
 
 	public void AddBookmark(BookmarkItem item) {
-		Children ??= new ObservableCollection<BookmarkItem>();
+		Children ??= new List<BookmarkItem>();
 		Children.Add(item);
 		OnPropertyChanged(nameof(Children));
 		OnPropertyChanged(nameof(Icon));
@@ -72,8 +80,9 @@ public class BookmarkCategory : NotifyPropertyChangedBase {
 public class BookmarkItem : FileListViewItem, IFilterable {
 	public override string DisplayText => Name;
 
+	[DbColumn]
 	public virtual string CategoryForeignKey { get; set; } = null!;
-
+	
 	public BookmarkCategory Category { get; set; } = null!;
 
 	public BookmarkItem() : base(null!, null!, false) { }
@@ -106,10 +115,10 @@ public class BookmarkItem : FileListViewItem, IFilterable {
 
 	public override string GetRenameName() {
 		throw new InvalidOperationException();
-}
+	}
 
 	protected override bool InternalRename(string newName) {
-throw new InvalidOperationException();
+		throw new InvalidOperationException();
 	}
 
 	public bool Filter(string filter) {
