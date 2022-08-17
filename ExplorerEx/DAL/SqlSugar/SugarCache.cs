@@ -152,13 +152,17 @@ namespace ExplorerEx.DAL.SqlSugar
                                                              MethodAttributes.SpecialName))
                     {
                         T p = (T)invocation.Proxy;
-                        if (!Cache.changes.Contains(p) && !Cache.deletes.Contains(p))
+                        if (!Cache.changes.Contains(p) && 
+                            !Cache.deletes.Contains(p) && 
+                             Cache.locals.Contains(p)) 
                         {
                             Cache.changes.Add(p);
                         }
                     }
                 });
             }
+            
+            
             public T? Clone(T o)
             {
                 var ret = (T?)type.InvokeMember("", BindingFlags.CreateInstance, null, o, null);
