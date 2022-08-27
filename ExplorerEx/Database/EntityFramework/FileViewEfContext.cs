@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ExplorerEx.Database.EntityFramework;
 
 public class FileViewEfContext : DbContext, IFileViewDbContext {
-	private DbSet<FileView> FolderViewDbSet { get; set; } = null!;
+	private DbSet<FileView> FileViewDbSet { get; set; } = null!;
 
 	private readonly string dbPath;
 
@@ -29,22 +29,22 @@ public class FileViewEfContext : DbContext, IFileViewDbContext {
 		ob.UseSqlite($"Data Source={dbPath}");
 	}
 
-	public ISet<FileView> GetFileViews() {
-		return FolderViewDbSet.ToHashSet();
+	public bool Any(Func<FileView, bool> match) {
+		return FileViewDbSet.Any(match);
 	}
 
 	public void Add(FileView item) {
-		FolderViewDbSet.Add(item);
+		FileViewDbSet.Add(item);
 	}
 
 	public Task AddAsync(FileView item) {
-		return FolderViewDbSet.AddAsync(item).AsTask();
+		return FileViewDbSet.AddAsync(item).AsTask();
 	}
 
 	public async Task LoadAsync() {
 		try {
 			await Database.EnsureCreatedAsync();
-			await FolderViewDbSet.LoadAsync();
+			await FileViewDbSet.LoadAsync();
 		} catch (Exception e) {
 			MessageBox.Show("无法加载数据库，可能是权限不够或者数据库版本过旧，请删除Data文件夹后再试一次。\n错误为：" + e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
 			Logger.Exception(e, false);
@@ -59,7 +59,11 @@ public class FileViewEfContext : DbContext, IFileViewDbContext {
 		return base.SaveChangesAsync();
 	}
 
-	public FileView? FindFirstOrDefault(Func<FileView, bool> match) {
-		return GetFileViews().FirstOrDefault(match);
+	public FileView? FirstOrDefault(Func<FileView, bool> match) {
+		return FileViewDbSet.FirstOrDefault(match);
+	}
+
+	public bool Contains(FileView fileView) {
+		return FileViewDbSet.Contains(fileView);
 	}
 }

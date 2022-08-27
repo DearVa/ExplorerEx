@@ -42,7 +42,7 @@ namespace HandyControl.Tools {
 			d switch {
 				null => default,
 				T t => t,
-				Window _ => null,
+				Window => null,
 				_ => GetParent<T>(VisualTreeHelper.GetParent(d))
 			};
 

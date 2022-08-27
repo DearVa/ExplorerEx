@@ -1,10 +1,8 @@
 ﻿using System;
-using ExplorerEx.Shell32;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using ExplorerEx.Utils;
@@ -53,7 +51,7 @@ public class ZipFileItem : FileItem {
 public class ZipFolderItem : FolderItem, IDisposable {
 	private readonly ZipArchive zipArchive;
 	private readonly string zipPath;
-	private readonly string relativePath;  // 一定以\结尾或者为string.Empty
+	private readonly string relativePath;  // 不能以\结尾
 	private bool hasItems;
 
 	/// <summary>
@@ -61,23 +59,29 @@ public class ZipFolderItem : FolderItem, IDisposable {
 	/// </summary>
 	/// <param name="fullPath">一定以\结尾，如F:\test.zip\</param>
 	/// <param name="zipPath">如F:\test.zip</param>
-	/// <param name="relativePath">开头不为\</param>
-	public ZipFolderItem(string fullPath, string zipPath, string relativePath) : this(ZipFile.Open(zipPath, ZipArchiveMode.Read, Encoding.GetEncoding("gb2312")), fullPath, zipPath, relativePath) { }
+	public ZipFolderItem(string fullPath, string zipPath) : this(ZipFile.Open(zipPath, ZipArchiveMode.Read, Encoding.GetEncoding("gbk")), fullPath, zipPath) { }
 
-	private ZipFolderItem(ZipArchiveEntry zipArchiveEntry, string fullPath, string zipPath, string relativePath) : this(zipArchiveEntry.Archive, fullPath, zipPath, relativePath) {
+	private ZipFolderItem(ZipArchiveEntry zipArchiveEntry, string fullPath, string zipPath) : this(zipArchiveEntry.Archive, fullPath, zipPath) {
 		DateModified = zipArchiveEntry.LastWriteTime.DateTime;
 	}
 
-	private ZipFolderItem(ZipArchive zipArchive, string fullPath, string zipPath, string relativePath) {
-		Debug.Assert(relativePath == string.Empty || relativePath[^1] == '\\');
+	/// <summary>
+	/// fullPath形如F:\123.zip\444
+	/// zipPath形如F:\123.zip
+	/// </summary>
+	/// <param name="zipArchive"></param>
+	/// <param name="fullPath"></param>
+	/// <param name="zipPath"></param>
+	private ZipFolderItem(ZipArchive zipArchive, string fullPath, string zipPath) {
+		Debug.Assert(fullPath.StartsWith(zipPath));
 		this.zipArchive = zipArchive;
 		FullPath = fullPath;
-		Name = Path.GetFileName(relativePath == string.Empty ? zipPath : relativePath[..^1]);
+		relativePath = fullPath[zipPath.Length..].TrimStart('\\');
+		Name = Path.GetFileName(relativePath == string.Empty ? zipPath : relativePath);
 		IsFolder = true;
 		FileSize = -1;
 		Type = "Folder".L();
 		this.zipPath = zipPath;
-		this.relativePath = relativePath;
 	}
 
 	public override void LoadAttributes(LoadDetailsOptions options) { }
@@ -92,18 +96,34 @@ public class ZipFolderItem : FolderItem, IDisposable {
 		}
 	}
 
-	public override List<FileListViewItem> EnumerateItems(string selectedPath, out FileListViewItem selectedItem, CancellationToken token) {
+	public override List<FileListViewItem> EnumerateItems(string? selectedPath, out FileListViewItem? selectedItem, CancellationToken token) {
+		var showHidden = Settings.Current[Settings.CommonSettings.ShowHiddenFilesAndFolders].GetBoolean();
+		var showSystem = Settings.Current[Settings.CommonSettings.ShowProtectedSystemFilesAndFolders].GetBoolean();
+
 		selectedItem = null;
 		var list = new List<FileListViewItem>();
 		var slashRelativePath = relativePath.Replace('\\', '/');
-		foreach (var entry in zipArchive.Entries.Where(e => e.FullName.Length > slashRelativePath.Length && e.FullName.StartsWith(slashRelativePath))) {
+		if (slashRelativePath.Length > 0 && !slashRelativePath.EndsWith('/')) {
+			slashRelativePath += '/';
+		}
+		foreach (var entry in zipArchive.Entries) {
 			if (token.IsCancellationRequested) {
-				return null;
+				return list;
+			}
+			var attributes = (FileAttributes)entry.ExternalAttributes;
+			if (attributes.HasFlag(FileAttributes.System) && !showSystem) {
+				continue;
+			}
+			if (attributes.HasFlag(FileAttributes.Hidden) && !showHidden) {
+				continue;
 			}
 			var entryName = entry.FullName;
-			var indexOfSlash = entryName.IndexOf('/', relativePath.Length);
+			if (entryName.Length <= slashRelativePath.Length || !entryName.StartsWith(slashRelativePath)) {
+				continue;
+			}
+			var indexOfSlash = entryName.IndexOf('/', relativePath.Length + 1);
 			if (indexOfSlash != -1) {
-				var folderName = entryName[relativePath.Length..indexOfSlash];
+				var folderName = entryName[relativePath.Length..indexOfSlash].TrimStart('/');
 				var exists = false;
 				foreach (var item in list) {
 					if (item is not ZipFolderItem folder) {
@@ -118,8 +138,8 @@ public class ZipFolderItem : FolderItem, IDisposable {
 					}
 				}
 				if (!exists) {
-					var newRelativePath = relativePath + folderName + '\\';
-					list.Add(new ZipFolderItem(entry, zipPath + "\\" + newRelativePath, zipPath, newRelativePath) { hasItems = entryName.Length > indexOfSlash + 1 });
+					var fullPath = Path.Combine(zipPath, relativePath, folderName);
+					list.Add(new ZipFolderItem(entry, fullPath, zipPath) { hasItems = entryName.Length > indexOfSlash + 1 });
 				}
 			} else {
 				list.Add(new ZipFileItem(entry, zipPath));
@@ -129,6 +149,6 @@ public class ZipFolderItem : FolderItem, IDisposable {
 	}
 
 	public void Dispose() {
-		zipArchive?.Dispose();
+		zipArchive.Dispose();
 	}
 }

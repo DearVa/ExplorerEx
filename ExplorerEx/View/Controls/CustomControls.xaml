@@ -432,7 +432,7 @@
                         </Grid.RowDefinitions>
 
                         <ContentPresenter Grid.Row="0" Content="{TemplateBinding Content}"/>
-                        <CheckBox Grid.Row="1" Margin="0,20,0,0" Content="{u:Lang RememberMyChoiceAndDontAskAgain}" IsChecked="{TemplateBinding IsChecked}"/>
+                        <CheckBox Grid.Row="1" Margin="0,20,0,0" Content="{u:Lang RememberMyChoiceAndDontAskAgain}" IsChecked="{Binding IsChecked, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

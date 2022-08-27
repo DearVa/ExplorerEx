@@ -12,7 +12,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using ExplorerEx.Command;
-using ExplorerEx.Database.Interface;
 using ExplorerEx.Model;
 using ExplorerEx.Model.Enums;
 using ExplorerEx.Shell32;
@@ -34,8 +33,6 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	public FileTabControl OwnerTabControl { get; }
 
 	public MainWindow OwnerWindow => OwnerTabControl.MainWindow;
-
-    public readonly IFileViewDbContext _FileViewDbContext = ConfigHelper.Container.Resolve<IFileViewDbContext>();
 
 	public FileListView FileListView { get; set; } = null!;
 
@@ -190,7 +187,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	public SimpleCommand ItemDoubleClickedCommand { get; }
 
 	public bool CanPaste {
-		get => canPaste && Folder is not HomeFolderItem;
+		get => canPaste && !Folder.IsReadonly;
 		private set {
 			if (canPaste != value) {
 				canPaste = value;
@@ -246,11 +243,11 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 
 	private int nextHistoryIndex, historyCount;
 
-	private readonly FileSystemWatcher watcher;
+	private readonly ThreadedFileSystemWatcher watcher;
 
 	private readonly Dispatcher dispatcher;
 
-	private CancellationTokenSource? cts;
+	private CancellationTokenSource cts = new();
 
 	private readonly LoadDetailsOptions loadDetailsOptions = new();
 
@@ -280,13 +277,10 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 
 		dispatcher = Application.Current.Dispatcher;
 
-		watcher = new FileSystemWatcher {
+		watcher = new ThreadedFileSystemWatcher {
 			NotifyFilter = NotifyFilters.CreationTime | NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size
 		};
 		watcher.Changed += Watcher_OnChanged;
-		watcher.Created += Watcher_OnCreated;
-		watcher.Deleted += Watcher_OnDeleted;
-		watcher.Renamed += Watcher_OnRenamed;
 		watcher.Error += Watcher_OnError;
 
 		DataObjectContent.ClipboardChanged += OnClipboardChanged;
@@ -486,8 +480,9 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	/// <param name="fileView">为null表示新建，不为null就是修改，要确保是从Db里拿到的对象否则修改没有效果</param>
 	/// <returns></returns>
 	private async Task SaveViewToDbAsync(FileView? fileView) {
-		var fullPath = FullPath ?? "$Home";
-		fileView ??= _FileViewDbContext.FindFirstOrDefault(v => v.FullPath == fullPath);
+		var fullPath = FullPath;
+		var dbCtx = App.FileViewDbContext;
+		fileView ??= dbCtx.FirstOrDefault(v => v.FullPath == fullPath);
 		if (fileView == null) {
 			fileView = new FileView {
 				FullPath = fullPath,
@@ -498,7 +493,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 				ItemSize = ItemSize,
 				DetailLists = DetailLists
 			};
-			await _FileViewDbContext.AddAsync(fileView);
+			await dbCtx.AddAsync(fileView);
 		} else {
 			Debug.Assert(fileView.FullPath == fullPath);
 			fileView.SortBy = SortBy;
@@ -508,7 +503,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			fileView.ItemSize = ItemSize;
 			fileView.DetailLists = DetailLists;
 		}
-		await _FileViewDbContext.SaveAsync();
+		await dbCtx.SaveAsync();
 	}
 
 	private void OnClipboardChanged() {
@@ -545,18 +540,18 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	/// <param name="selectedPath">如果是返回，那就把这个设为返回前选中的那一项</param>
 	/// <returns></returns>
 	public async Task<bool> LoadDirectoryAsync(string? path, bool recordHistory = true, string? selectedPath = null) {
-		watcher.EnableRaisingEvents = false;
+		watcher.Enabled = false;
 		IsLoading = true;
 		switchIconCts?.Cancel();
 		SelectedItems.Clear();
-		cts?.Cancel();
+		cts.Cancel();
 
 		if (Folder is IDisposable disposable) {
 			disposable.Dispose();
 		}
 
 		path = path?.Trim();
-		if (string.IsNullOrEmpty(path)) {
+		if (string.IsNullOrEmpty(path) || path == "$Home") {
 			Folder = HomeFolderItem.Singleton;
 			PathType = PathType.Home;
 		} else {
@@ -564,7 +559,8 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			try {
 				(folder, PathType) = FolderItem.ParsePath(path);
 			} catch (Exception e) {
-				hc.MessageBox.Error(e.Message, "CannotOpenPath".L());
+				ContentDialog.Error(e.Message, "CannotOpenPath".L(), OwnerWindow);
+				await ErrorGoBack();
 				return false;
 			}
 
@@ -579,7 +575,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 						Logger.Exception(ex);
 					}
 				} else {
-					hc.MessageBox.Error("#InvalidPath", "CannotOpenPath".L());
+					ContentDialog.Error("#InvalidPath".L(), "CannotOpenPath".L(), OwnerWindow);
 				}
 
 				await ErrorGoBack();
@@ -596,12 +592,10 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			// 加载图标出错，忽略
 		}
 
-		Items.Clear();
-
 		if (Folder.GetType() == typeof(FolderItem) || Folder is DiskDriveItem) {
 			try {
 				watcher.Path = Folder.FullPath;
-				watcher.EnableRaisingEvents = true;
+				watcher.Enabled = true;
 			} catch {
 				hc.MessageBox.Error("Error watcher");
 			}
@@ -616,7 +610,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			OnPropertyChanged(nameof(FullPath));
 		} catch (Exception e) {
 			Logger.Exception(e, false);
-			hc.MessageBox.Error(string.Format("#ExplorerExCannotFind...".L(), path), "Error".L());
+			ContentDialog.Error(string.Format("#ExplorerExCannotFind...".L(), path), "Error".L(), OwnerWindow);
 			await ErrorGoBack();
 			return false;
 		}
@@ -636,8 +630,8 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		// 查找数据库看有没有存储当前目录
 		FileView? savedView;
 		try {
-			var fullPath = FullPath ?? "$Home";
-			savedView = _FileViewDbContext.FindFirstOrDefault(v => v.FullPath == fullPath);
+			var fullPath = FullPath;
+			savedView = App.FileViewDbContext.FirstOrDefault(v => v.FullPath == fullPath);
 			if (savedView != null) { // 如果存储了，那就获取用户定义的视图模式
 				SortBy = savedView.SortBy;
 				IsAscending = savedView.IsAscending;
@@ -707,6 +701,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		Trace.WriteLine($"Enumerate {path} costs: {sw.ElapsedMilliseconds}ms");
 		sw.Restart();
 #endif
+		Items.Clear();
 		FileView.CommitChange();  // 一旦调用这个，模板就会改变，所以要在清空之后，不然会导致排版混乱和绑定失败
 
 		if (fileListViewItems.Count > 0) {
@@ -950,74 +945,90 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		await LoadDetails(fileListViewItems, loadDetailsOptions, token);
 	}
 
-	private static void Watcher_OnError(object sender, ErrorEventArgs e) {
-		Logger.Error(e.GetException().Message);
+	private void Watcher_OnError(Exception e) {
+		if (!Directory.Exists(FullPath)) {  // 当前目录不复存在力，被删除力
+			string? parentPath;
+			do {
+				parentPath = Path.GetDirectoryName(FullPath);
+			} while (parentPath != null && !Directory.Exists(parentPath));
+			_ = LoadDirectoryAsync(parentPath);
+		} else {
+			Logger.Error(e.Message);
+		}
 	}
 
-	private void Watcher_OnRenamed(object sender, RenamedEventArgs e) {
-		Task.Run(() => {
+	private void Watcher_OnChanged(FileSystemChangeEvent e) {
+		FileSystemItem? oldItem = null;
+		foreach (var item in Items.OfType<FileSystemItem>()) {
+			if (cts.IsCancellationRequested) {
+				return;
+			}
+			if (item.FullPath == e.FullPath) {
+				oldItem = item;
+				break;
+			}
+		}
+		switch (e.ChangeType) {
+		case WatcherChangeTypes.Created: {
+			if (oldItem == null) {
+				FileSystemItem newItem;
+				if (Directory.Exists(e.FullPath)) {
+					newItem = new FolderItem(new DirectoryInfo(e.FullPath));
+				} else if (File.Exists(e.FullPath)) {
+					newItem = new FileItem(new FileInfo(e.FullPath));
+				} else {
+					return;
+				}
+				Items.Add(newItem);
+				Task.Run(() => {
+					newItem.LoadAttributes(loadDetailsOptions); // TODO: 需要一个专有线程去加载……
+					newItem.LoadIcon(loadDetailsOptions);
+				});
+			} else {
+				Task.Run(() => oldItem.Refresh(loadDetailsOptions)); // TODO: 需要一个专有线程去加载……
+			}
+			break;
+		}
+		case WatcherChangeTypes.Changed:
+			if (oldItem != null) {
+				Task.Run(() => oldItem.Refresh(loadDetailsOptions)); // TODO: 需要一个专有线程去加载……
+			}
+			break;
+		case WatcherChangeTypes.Renamed: {
 			FileSystemItem? newItem = null;
 			if (Directory.Exists(e.FullPath)) {
 				newItem = new FolderItem(new DirectoryInfo(e.FullPath));
-				Task.Run(() => {
+				Task.Run(() => { // TODO: 需要一个专有线程去加载……
 					newItem.LoadAttributes(loadDetailsOptions);
 					newItem.LoadIcon(loadDetailsOptions);
 				});
 			} else if (File.Exists(e.FullPath)) {
 				newItem = new FileItem(new FileInfo(e.FullPath));
-				Task.Run(() => {
+				Task.Run(() => { // TODO: 需要一个专有线程去加载……
 					newItem.LoadAttributes(loadDetailsOptions);
 					newItem.LoadIcon(loadDetailsOptions);
 				});
 			}
-			if (newItem != null) {
-				Items.ReplaceWhere(i => i.Name == e.OldName, newItem);
+			if (newItem == null) {
+				if (oldItem != null) {
+					Items.Remove(oldItem);
+				}
 			} else {
-				Items.RemoveWhere(i => i.Name == e.OldName);
+				if (oldItem == null) {
+					Items.Add(newItem);
+				} else {
+					Items.Replace(oldItem, newItem);
+				}
 			}
-		});
-	}
-
-	private void Watcher_OnDeleted(object sender, FileSystemEventArgs e) {
-		Task.Run(() => {
-			var oldItem = Items.FirstOrDefault(i => i.Name == e.Name);
+			break;
+		}
+		case WatcherChangeTypes.Deleted:
 			if (oldItem != null) {
 				SelectedItems.Remove(oldItem);
 				Items.Remove(oldItem);
 			}
-		});
-	}
-
-	private void Watcher_OnCreated(object sender, FileSystemEventArgs e) {
-		Task.Run(() => {
-			if (Items.Any(i => i.Name == e.Name)) {
-				return;
-			}
-			FileSystemItem item;
-			if (Directory.Exists(e.FullPath)) {
-				item = new FolderItem(new DirectoryInfo(e.FullPath));
-			} else if (File.Exists(e.FullPath)) {
-				item = new FileItem(new FileInfo(e.FullPath));
-			} else {
-				return;
-			}
-			Items.Add(item);
-			Task.Run(() => {
-				item.LoadAttributes(loadDetailsOptions);
-				item.LoadIcon(loadDetailsOptions);
-			});
-		});
-	}
-
-	private void Watcher_OnChanged(object sender, FileSystemEventArgs e) {
-		Task.Run(() => {
-			foreach (var item in Items.OfType<FileSystemItem>()) {
-				if (item.Name == e.Name) {
-					item.Refresh(loadDetailsOptions);
-					return;
-				}
-			}
-		});
+			break;
+		}
 	}
 
 	~FileTabViewModel() {
@@ -1027,7 +1038,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	public void Dispose() {
 		Items.Clear();
 		watcher.Dispose();
-		cts?.Dispose();
+		cts.Dispose();
 		everythingReplyCts?.Dispose();
 		GC.SuppressFinalize(this);
 	}

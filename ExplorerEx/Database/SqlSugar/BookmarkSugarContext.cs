@@ -37,10 +37,10 @@ public class BookmarkSugarContext : SugarContext, IBookmarkDbContext {
 				if (categorySugarCache.Count() == 0) {
 					var defaultCategory = new BookmarkCategory("DefaultBookmark".L());
 					categorySugarCache.Add(defaultCategory);
+					categorySugarCache.Save();
 					itemSugarCache.Add(new BookmarkItem(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Documents".L(), defaultCategory));
 					itemSugarCache.Add(new BookmarkItem(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Desktop".L(), defaultCategory));
 					itemSugarCache.Save();
-					categorySugarCache.Save();
 				}
 			} catch (Exception e) {
 				MessageBox.Show("无法加载数据库，可能是权限不够或者数据库版本过旧，请删除Data文件夹后再试一次。\n错误为：" + e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -49,51 +49,46 @@ public class BookmarkSugarContext : SugarContext, IBookmarkDbContext {
 		});
 	}
 
-	public void Add(BookmarkItem item) {
-		itemSugarCache.Add(item);
+	public void Add(BookmarkItem bookmark) {
+		itemSugarCache.Add(bookmark);
 	}
 
-	public void Add(BookmarkCategory item) {
-		categorySugarCache.Add(item);
+	public void Add(BookmarkCategory category) {
+		categorySugarCache.Add(category);
 	}
 
-	public Task AddAsync(BookmarkItem item) {
-		return Task.Run(() => Add(item));
+	public Task AddAsync(BookmarkItem bookmark) {
+		return Task.Run(() => Add(bookmark));
 	}
 
-	public Task AddAsync(BookmarkCategory item) {
-		return Task.Run(() => Add(item));
+	public Task AddAsync(BookmarkCategory category) {
+		return Task.Run(() => Add(category));
 	}
 
-	public BookmarkCategory? FindFirstOrDefault(Func<BookmarkCategory, bool> match) {
-		return categorySugarCache.Find(match);
+	public bool Contains(BookmarkItem bookmark) {
+		return itemSugarCache.Contains(bookmark);
 	}
 
-	public BookmarkItem? FindLocalItemFirstOrDefault(Func<BookmarkItem, bool> match) {
-		return itemSugarCache.Find(match);
+	public bool Any(Func<BookmarkItem, bool> match) {
+		return itemSugarCache.Any(match);
+	}
+
+	public BookmarkCategory? FirstOrDefault(Func<BookmarkCategory, bool> match) {
+		return categorySugarCache.FirstOrDefault(match);
+	}
+
+	public BookmarkItem? FirstOrDefault(Func<BookmarkItem, bool> match) {
+		return itemSugarCache.FirstOrDefault(match);
 	}
 
 	public ObservableCollection<BookmarkCategory> GetBindable() {
-		ObservableCollection<BookmarkCategory> ret = new ObservableCollection<BookmarkCategory>();
-		categorySugarCache.QueryAll().ForEach(x => { ret.Add(x); });
+		var ret = new ObservableCollection<BookmarkCategory>();
+		categorySugarCache.ForEach(x => ret.Add(x));
 		return ret;
 	}
 
-	public ISet<BookmarkCategory> GetBookmarkCategories() {
-		return categorySugarCache.QueryAll().ToHashSet();
-	}
-
-	public ISet<BookmarkItem> GetBookmarkItems() {
-		return itemSugarCache.QueryAll().ToHashSet();
-	}
-
-	public ISet<BookmarkItem> GetLocalBookmarkItems() {
-		return itemSugarCache.QueryAll().ToHashSet();
-	}
-
-
-	public void Remove(BookmarkItem item) {
-		itemSugarCache.Remove(item);
+	public void Remove(BookmarkItem bookmark) {
+		itemSugarCache.Remove(bookmark);
 	}
 
 	public override void Save() {

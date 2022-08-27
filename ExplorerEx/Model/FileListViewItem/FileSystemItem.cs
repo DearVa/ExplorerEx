@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -164,18 +163,18 @@ public class FolderItem : FileSystemItem {
 		if (path == "ThisPC".L() || path.ToUpper() is "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}" or "::{5E5F29CE-E0A8-49D3-AF32-7A7BDC173478}") {  // 加载“此电脑”
 			return (HomeFolderItem.Singleton, PathType.Home);
 		}
-		path = Environment.ExpandEnvironmentVariables(path.Replace('/', '\\'));
-		if (path.Length >= 3) {
+		path = Environment.ExpandEnvironmentVariables(path).Replace('/', '\\').TrimEnd('\\');
+		if (path.Length >= 2) {
 			if (path[0] is (>= 'A' and <= 'Z') or (>= 'a' and <= 'z') && path[1] == ':') {  // 以驱动器作为开头，表示是本地的目录
-				if (path.Length == 2 || (path.Length == 3 && path[2] == '\\')) {  // 长度为2或3，表示本地驱动器根目录 TODO: 可能为映射的网络驱动器
+				if (path.Length == 2) {  // 长度为2，表示本地驱动器根目录 TODO: 可能为映射的网络驱动器
 					if (Directory.Exists(path)) {
 						return (new DiskDriveItem(new DriveInfo(path[..1])), PathType.LocalFolder);
 					}
 					throw new IOException("#PathNotExistOrAccessDenied".L());
 				}
 				// 本地的一个文件地址
-				var zipIndex = path.IndexOf(@".zip\", StringComparison.CurrentCulture);
-				if (zipIndex == -1) { // 没找到.zip\，不是zip文件
+				var zipIndex = path.IndexOf(".zip", StringComparison.CurrentCulture);
+				if (zipIndex == -1) { // 没找到.zip，不是zip文件
 					if (Directory.Exists(path)) {
 						return (new FolderItem(new DirectoryInfo(path)), PathType.LocalFolder);
 					}
@@ -184,15 +183,18 @@ public class FolderItem : FileSystemItem {
 					}
 					throw new IOException("#PathNotExistOrAccessDenied".L());
 				}
-				if (path[^1] != '\\') {
-					throw new IOException("#ZipMustEndsWithSlash".L());
-				}
-				return (new ZipFolderItem(path, path[..(zipIndex + 4)], path[(zipIndex + 5)..]), PathType.Zip);
+				return (new ZipFolderItem(path, path[..(zipIndex + 4)]), PathType.Zip);
 			}
 		}
 		return PathParsers.Select(pathParser => pathParser.Invoke(path)).FirstOrDefault(result => result.Item1 != null, (null, PathType.Unknown));
 	}
 
+	public bool IsReadonly { get; protected init; }
+
+	/// <summary>
+	/// 是否为虚拟文件夹，如主页就是
+	/// </summary>
+	public bool IsVirtual { get; protected init; }
 
 	private bool isEmptyFolder;
 

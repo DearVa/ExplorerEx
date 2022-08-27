@@ -170,7 +170,12 @@ internal sealed class Settings {
 	public static class CommonSettings {
 		public const string ColorMode = "Appearance.Theme.ColorMode";
 		public const string WindowBackdrop = "Appearance.Theme.WindowBackdrop";
+
 		public const string DoubleClickGoUpperLevel = "Common.DoubleClickGoUpperLevel";
+
+		public const string DontAskWhenRecycle = "Customize.DontAskWhenRecycle";
+		public const string DontAskWhenDelete = "Customize.DontAskWhenDelete";
+
 		public const string ShowHiddenFilesAndFolders = "Advanced.ShowHiddenFilesAndFolders";
 		public const string ShowProtectedSystemFilesAndFolders = "Advanced.ShowProtectedSystemFilesAndFolders";
 	}

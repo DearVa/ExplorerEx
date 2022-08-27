@@ -71,25 +71,32 @@ internal class AddressBar : TextBox {
 	}
 
 	private static void FullPath_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		var newPath = (string?)e.NewValue;
+		if (newPath == null) {
+			return;
+		}
 		var addressBar = (AddressBar)d;
 		var items = addressBar.Items;
-		var newPath = (string?)e.NewValue;
-		if (newPath == null) {  // 新路径是主页，就清空，只留第一个
+		if (newPath == "$Home") {  // 新路径是主页，就清空，只留第一个
 			addressBar.Text = "ThisPC".L();
 			while (items.Count > 1) {
 				items.RemoveAt(items.Count - 1);
 			}
 			return;
 		}
-		addressBar.Text = newPath;
 		if (newPath.Length < 3) {
 			return;
 		}
+		newPath = newPath.Replace('/', '\\');
+		if (newPath.Length > 3) {
+			newPath = newPath.TrimEnd('\\');
+		}
+		addressBar.Text = newPath;
 		var zipPathIndex = -1;
 		var n = 1;
 		for (var i = 0; i < newPath.Length; i++) {
 			if (newPath[i] == '\\') {
-				var fullPath = n == 1 || zipPathIndex != -1 ? newPath[..(i + 1)] : newPath[..i];
+				var fullPath = n == 1 ? newPath[..(i + 1)] : newPath[..i];
 				if (n < items.Count) {
 					if (items[n].FullPath != fullPath) {
 						if (n == 1) {
@@ -102,6 +109,8 @@ internal class AddressBar : TextBox {
 						} else {
 							items[n] = new FolderOnlyItem(new DirectoryInfo(fullPath), items[n - 1]);
 						}
+					} else if (fullPath.EndsWith(".zip")) {
+						zipPathIndex = i;
 					}
 				} else {
 					if (n == 1) {
@@ -121,12 +130,12 @@ internal class AddressBar : TextBox {
 		while (items.Count > n) {
 			items.RemoveAt(items.Count - 1);
 		}
-		if (newPath[^1] != '\\') {
+		if (newPath.Length > 3) {
 			if (zipPathIndex != -1) {
 				items.Add(new FolderOnlyItem(newPath[..zipPathIndex], newPath[(zipPathIndex + 1)..], items[n - 1]));
 			} else if (newPath.EndsWith(".zip") && File.Exists(newPath)) {
 				items.Add(new FolderOnlyItem(newPath, string.Empty, items[^1]));
-			} else {
+			} else if (Directory.Exists(newPath)) {
 				items.Add(new FolderOnlyItem(new DirectoryInfo(newPath), items[^1]));
 			}
 		}

@@ -620,4 +620,13 @@ For the application to run properly, it's recommanded that you first extract all
   <data name="Advanced" xml:space="preserve">
     <value>Advanced</value>
   </data>
+  <data name="Customize" xml:space="preserve">
+    <value>Customize</value>
+  </data>
+  <data name="DontAskWhenRecycle" xml:space="preserve">
+    <value>Dont ask when move files to recycle bin</value>
+  </data>
+  <data name="DontAskWhenDelete" xml:space="preserve">
+    <value>(Not recommanded to enable) Dont ask when delete files forever</value>
+  </data>
 </root>

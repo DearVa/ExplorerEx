@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -20,8 +23,8 @@ public abstract class SugarContext : IDatabase {
 		}
 		var dbPath = Path.Combine(path, databaseFilename);
 		ConnectionClient = new SqlSugarClient(new ConnectionConfig {
-			ConnectionString = @"DataSource=" + dbPath,  // 连接符字串
-			DbType = DbType.Sqlite,  // 数据库类型
+			ConnectionString = @"DataSource=" + dbPath,
+			DbType = DbType.Sqlite,
 			InitKeyType = InitKeyType.Attribute,
 			ConfigureExternalServices = new ConfigureExternalServices {
 				// 在这里解析Attributes标注
@@ -38,11 +41,15 @@ public abstract class SugarContext : IDatabase {
 				},
 				EntityService = (t, column) => {
 					var dbColumn = t.GetCustomAttributes().OfType<DbColumn>().FirstOrDefault();
+					column.Navigat = null;
 					if (dbColumn == null) {
 						column.IsIgnore = true;  // 没有这个特性的通通忽略
 					} else {
 						if (dbColumn.Name != null) {
 							column.DbColumnName = dbColumn.Name;
+						}
+						if (dbColumn.MaxLength > 0) {
+							column.Length = dbColumn.MaxLength;
 						}
 						if (dbColumn.IsPrimaryKey) {
 							column.IsPrimarykey = true;
@@ -57,14 +64,20 @@ public abstract class SugarContext : IDatabase {
 							};
 							column.Navigat = new Navigate(navigateType, dbColumn.NavigateTo);
 							column.IsIgnore = true;
-							if (t.PropertyType.IsSubclassOf(typeof(ObservableCollection<>))) {
-
-							}
 						}
 					}
 				}
 			}
 		});
+		// 实体创建的时候执行
+		ConnectionClient.Aop.DataExecuting = (value, info) => {
+			var column = info.EntityColumnInfo;
+			if (column.Navigat != null) {
+				if (info.EntityValue is INotifyCollectionChanged ncc) {
+					
+				}
+			}
+		};
 	}
 
 	public virtual Task LoadAsync() {

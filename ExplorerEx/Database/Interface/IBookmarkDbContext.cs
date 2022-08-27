@@ -7,22 +7,17 @@ using ExplorerEx.Model;
 namespace ExplorerEx.Database.Interface;
 
 public interface IBookmarkDbContext : IDatabase {
+	void Add(BookmarkItem bookmark);
+	Task AddAsync(BookmarkItem bookmark);
+	public BookmarkItem? FirstOrDefault(Func<BookmarkItem, bool> match);
+	void Remove(BookmarkItem bookmark);
+	bool Contains(BookmarkItem bookmark);
+	bool Any(Func<BookmarkItem, bool> match);
 
-	ISet<BookmarkItem> GetBookmarkItems();
 
-	void Add(BookmarkItem item);
-	Task AddAsync(BookmarkItem item);
-
-	ISet<BookmarkItem> GetLocalBookmarkItems();
-	public BookmarkItem? FindLocalItemFirstOrDefault(Func<BookmarkItem, bool> match);
-	void Remove(BookmarkItem item);
-
-	ISet<BookmarkCategory> GetBookmarkCategories();
-
-	BookmarkCategory? FindFirstOrDefault(Func<BookmarkCategory, bool> match);
-
-	void Add(BookmarkCategory item);
-	Task AddAsync(BookmarkCategory item);
+	BookmarkCategory? FirstOrDefault(Func<BookmarkCategory, bool> match);
+	void Add(BookmarkCategory category);
+	Task AddAsync(BookmarkCategory category);
 
 	ObservableCollection<BookmarkCategory> GetBindable();
 }

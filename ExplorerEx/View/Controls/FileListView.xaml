@@ -421,7 +421,7 @@
                 <MenuItem.Template>
                     <ControlTemplate>
                         <StackPanel Orientation="Horizontal">
-                            <MenuItem Click="Refresh_OnClick" Icon="{DynamicResource RefreshDrawingImage}" 
+                            <MenuItem ToolTip="{u:Lang Refresh}" Click="Refresh_OnClick" Icon="{DynamicResource RefreshDrawingImage}" 
                                       Header="{u:Lang Refresh}" Style="{StaticResource ButtonLikeMenuItem}"/>
                             <MenuItem ToolTip="{u:Lang Paste}" CommandParameter="Paste"
                                       Command="{Binding FileItemCommand}" 
@@ -436,9 +436,9 @@
             </MenuItem>
             <Separator/>
             <MenuItem Click="NewFolder_OnClick" Icon="{DynamicResource NewFolderDrawingImage}" Header="{u:Lang NewFolder}"
-                      Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"/>
+                      Visibility="{Binding Folder.IsReadonly, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
             <MenuItem Icon="{DynamicResource NewDrawingImage}" Header="{u:Lang New}"
-                      Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"
+                      Visibility="{Binding Folder.IsReadonly, Converter={StaticResource Boolean2VisibilityReConverter}}"
                       ItemsSource="{Binding Source={x:Static m:CreateFileItem.Items}}">
                 <MenuItem.ItemContainerStyle>
                     <Style BasedOn="{StaticResource CreateMenuItemContainerStyle}" TargetType="MenuItem">
@@ -446,7 +446,7 @@
                     </Style>
                 </MenuItem.ItemContainerStyle>
             </MenuItem>
-            <Separator Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"/>
+            <Separator Visibility="{Binding Folder.IsReadonly, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
             <MenuItem Icon="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource ViewIndex2ImageSourceConverter}}" Header="{u:Lang View}">
                 <MenuItem.Items>
                     <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.LargeIcons}" Header="{u:Lang LargeIcons}" Icon="{DynamicResource LargeIconsDrawingImage}"
@@ -503,9 +503,9 @@
             <Separator/>
 
             <MenuItem CommandParameter="Terminal" Command="{Binding FileItemCommand}"
-                      Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"
+                      Visibility="{Binding Folder.IsVirtual, Converter={StaticResource Boolean2VisibilityReConverter}}"
                       Icon="{Binding Source={x:Static u:Terminal.TerminalIcon}}" Header="{u:Lang OpenInTerminal}"/>
-            <Separator Visibility="{Binding Folder.FullPath, Converter={StaticResource Object2VisibilityConverter}}"
+            <Separator Visibility="{Binding Folder.IsVirtual, Converter={StaticResource Boolean2VisibilityReConverter}}"
                        Style="{StaticResource SeparatorBaseStyle}"/>
 
             <MenuItem CommandParameter="ShowMore"

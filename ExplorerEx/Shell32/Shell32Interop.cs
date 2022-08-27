@@ -171,7 +171,7 @@ internal static class Shell32Interop {
 
 	[DllImport(Shell32, CharSet = CharSet.Unicode)]
 	public static extern int SHCreateItemFromParsingName(string pszPath, IBindCtx? pbc, [MarshalAs(UnmanagedType.LPStruct)] Guid riid, out IShellItem ppv);
-
+	
 	[DllImport(Shell32, CharSet = CharSet.Unicode)]
 	public static extern int SHCreateShellItemArrayFromIDLists(uint cidl, IntPtr[] rgpidl, out IShellItemArray ppsiItemArray);
 
@@ -378,6 +378,9 @@ internal static class Shell32Interop {
 	/// </summary>
 	/// <param name="fullPaths"></param>
 	public static void ShowShellContextMenu(params string[] fullPaths) {
+		if (fullPaths.Length == 0) {
+			throw new ArgumentOutOfRangeException(nameof(fullPaths));
+		}
 		var list = new List<(IntPtr, IShellItem)>();
 		foreach (var fullPath in fullPaths) {
 			if (string.IsNullOrWhiteSpace(fullPath)) {
@@ -418,6 +421,47 @@ internal static class Shell32Interop {
 		foreach (var tuple in list) {
 			Marshal.ReleaseComObject(tuple.Item2);
 		}
+		contextMenu.IsOpen = true;
+		contextMenu.Closed += (_, _) => {
+			DestroyMenu(hMenuCtx);
+			Marshal.ReleaseComObject(menu);
+		};
+	}
+
+	/// <summary>
+	/// 在鼠标处显示文件或者文件夹的右键菜单
+	/// </summary>
+	/// <param name="csidls"></param>
+	public static void ShowShellContextMenu(params CSIDL[] csidls) {
+		if (csidls.Length == 0) {
+			throw new ArgumentOutOfRangeException(nameof(csidls));
+		}
+		var pidls = new IntPtr[csidls.Length];
+		for (var i = 0; i < csidls.Length; i++) {
+			Marshal.ThrowExceptionForHR(SHGetSpecialFolderLocation(IntPtr.Zero, csidls[i], out var ppidl));
+			pidls[i] = ppidl;
+		}
+
+		Marshal.ThrowExceptionForHR(SHCreateShellItemArrayFromIDLists((uint)csidls.Length, pidls, out var itemArray));
+		itemArray.BindToHandler(IntPtr.Zero, BHID_SFUIObject, GUID_IContextMenu, out var pMenu);
+		var menu = (IContextMenu)Marshal.GetTypedObjectForIUnknown(pMenu, typeof(IContextMenu));
+		var hMenuCtx = CreatePopupMenu();
+
+		var typeStrBuf = Marshal.AllocCoTaskMem(512);
+		var mii = new MenuItemInfo {
+			cbSize = (uint)Marshal.SizeOf<MenuItemInfo>(),
+			fMask = MenuItemInfoMask.Bitmap | MenuItemInfoMask.FType | MenuItemInfoMask.String | MenuItemInfoMask.ID | MenuItemInfoMask.Submenu,
+			dwTypeData = typeStrBuf,
+			cch = 511
+		};
+
+		Marshal.ThrowExceptionForHR(menu.QueryContextMenu(hMenuCtx, 0, 1, 0x7FFF, CMF.Explore | CMF.ItemMenu));
+		var contextMenu = new ContextMenu();
+		var paramters = string.Join(' ', csidls);
+		EnumerateContextMenu(contextMenu.Items, menu, hMenuCtx, typeStrBuf, ref mii, paramters);
+		
+		Marshal.FreeCoTaskMem(typeStrBuf);
+		Marshal.ReleaseComObject(itemArray);
 		contextMenu.IsOpen = true;
 		contextMenu.Closed += (_, _) => {
 			DestroyMenu(hMenuCtx);

@@ -17,6 +17,7 @@
         <Setter Property="hc:IconElement.Width" Value="18"/>
         <Setter Property="hc:IconElement.Height" Value="18"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="ToolTipService.InitialShowDelay" Value="800"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="MenuItem">

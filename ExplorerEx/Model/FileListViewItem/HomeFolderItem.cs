@@ -28,10 +28,11 @@ internal sealed class HomeFolderItem : FolderItem, ISpecialFolder {
 	static HomeFolderItem() { }
 
 	private HomeFolderItem() {
-		FullPath = null!;
+		FullPath = "$Home";
 		Name = "ThisPC".L();
 		Type = "Home".L();
 		Icon = IconHelper.ComputerBitmapImage;
+		IsReadonly = IsVirtual = true;
 	}
 
 	public override string DisplayText => Name;

@@ -4,18 +4,16 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using ExplorerEx.Database.Interface;
-using ExplorerEx.Model;
+using ExplorerEx.Database.SqlSugar;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 using ExplorerEx.View;
-using Microsoft.Win32;
 using static ExplorerEx.Win32.Win32Interop;
 
 namespace ExplorerEx;
@@ -24,8 +22,13 @@ public partial class App {
 	public static Arguments Args { get; private set; } = null!;
 	public static int ProcessorCount { get; private set; }
 
-	private static readonly IBookmarkDbContext BookmarkDbContext = ConfigHelper.Container.Resolve<IBookmarkDbContext>();
-	private static readonly IFileViewDbContext FileViewDbContext = ConfigHelper.Container.Resolve<IFileViewDbContext>();
+	/// <summary>
+	/// 全局实例的注册容器
+	/// </summary>
+	public static IWindsorContainer Container { get; private set; } = null!;
+
+	public static IBookmarkDbContext BookmarkDbContext { get; private set; } = null!;
+	public static IFileViewDbContext FileViewDbContext { get; private set; } = null!;
 
 	private App() { }
 
@@ -65,12 +68,28 @@ public partial class App {
 			return;
 		}
 
+
+		Container = new WindsorContainer();
+		Container.Register(Component.For<IBookmarkDbContext>().Instance(
+			new BookmarkSugarContext()
+			// new BookmarkEfContext()
+			));
+		BookmarkDbContext = Container.Resolve<IBookmarkDbContext>();
+		Container.Register(Component.For<IFileViewDbContext>().Instance(
+			new FileViewSugarContext()
+			// new FileViewEfContext()
+			));
+		FileViewDbContext = Container.Resolve<IFileViewDbContext>();
+		var loadDataBaseTasks = new[] {
+			BookmarkDbContext.LoadAsync(),
+			FileViewDbContext.LoadAsync()
+		};
+
 		isRunning = true;
 		notifyMmf = new NotifyMemoryMappedFile("ExplorerExIPC", 1024, true);
 		new Thread(IPCWork) {
 			IsBackground = true
 		}.Start();
-
 
 		ProcessorCount = Environment.ProcessorCount;
 		IconHelper.Initialize();
@@ -78,19 +97,16 @@ public partial class App {
 		Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 		Settings.Current.LoadSettings();
 		ChangeTheme(((SolidColorBrush)SystemParameters.WindowGlassBrush).Color, false);
-		FrameworkElement.StyleProperty.OverrideMetadata(typeof(Separator), new FrameworkPropertyMetadata {
-			DefaultValue = FindResource("SeparatorBaseStyle")
-		});
-		
-		await BookmarkDbContext.LoadAsync();
-		await FileViewDbContext.LoadAsync();
-		if (!Args.RunInBackground) {
-			new MainWindow(null).Show();
-		}
+
+		await Task.WhenAll(loadDataBaseTasks);
 
 		notifyIconWindow = new NotifyIconWindow();
 		//dispatcherTimer = new DispatcherTimer(TimeSpan.FromSeconds(5), DispatcherPriority.Background, LowFrequencyWork, Dispatcher);
 		//dispatcherTimer.Start();
+
+		if (!Args.RunInBackground) {
+			new MainWindow(null).Show();
+		}
 
 #if DEBUG
 		EventManager.RegisterClassHandler(typeof(UIElement), UIElement.PreviewKeyDownEvent, new KeyEventHandler((_, args) => {
@@ -190,6 +206,7 @@ public partial class App {
 		if (isRunning) {
 			isRunning = false;
 			BookmarkDbContext.Save();
+			FileViewDbContext.Save();
 			notifyIconWindow?.NotifyIcon.Dispose();
 			mutex!.Dispose();
 		}

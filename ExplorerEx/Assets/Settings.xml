@@ -21,6 +21,11 @@
     <item header="DoubleClickGoUpperLevel" description="#DoubleClickGoUpperLevelDescription" type="boolean" default="true"/>
   </category>
 
+  <category header="Customize">
+    <item header="DontAskWhenRecycle" type="boolean" default="false"/>
+    <item header="DontAskWhenDelete" type="boolean" default="false"/>
+  </category>
+
   <category header="Advanced">
     <item header="ShowHiddenFilesAndFolders" description="#ShowHiddenFilesAndFoldersDescription" type="boolean" default="false"/>
     <item header="ShowProtectedSystemFilesAndFolders" description="#ShowProtectedSystemFilesAndFoldersDescription" type="boolean" default="false"/>

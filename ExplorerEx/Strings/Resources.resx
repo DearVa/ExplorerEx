@@ -667,4 +667,13 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="Advanced" xml:space="preserve">
     <value>高级</value>
   </data>
+  <data name="Customize" xml:space="preserve">
+    <value>自定义</value>
+  </data>
+  <data name="DontAskWhenRecycle" xml:space="preserve">
+    <value>移动文件到回收站时不提示确认</value>
+  </data>
+  <data name="DontAskWhenDelete" xml:space="preserve">
+    <value>（不推荐开启）永久删除文件时不提示确认</value>
+  </data>
 </root>

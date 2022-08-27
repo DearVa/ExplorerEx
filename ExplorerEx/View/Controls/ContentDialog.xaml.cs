@@ -1,7 +1,6 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.Windows.Media;
@@ -147,8 +146,15 @@ public partial class ContentDialog {
 			}
 		};
 
-		if (PrimaryButtonText == null && SecondaryButtonText == null && CancelButtonText == null) {
-			PrimaryButtonText = "Ok".L();
+		DataContext = this;
+		Loaded += OnLoaded;
+		InitializeComponent();
+	}
+
+	private void OnLoaded(object sender, RoutedEventArgs e) {
+		if (SecondaryButtonText == null && CancelButtonText == null) {
+			PrimaryButtonText ??= "Ok".L();
+			PrimaryButton.SetValue(DockPanel.DockProperty, Dock.Right);
 		}
 		if (CancelButtonText != null) {
 			SecondaryButton.Margin = new Thickness(0, 0, 10, 0);
@@ -156,9 +162,6 @@ public partial class ContentDialog {
 		if (SecondaryButtonText != null || CancelButtonText != null) {
 			PrimaryButton.Margin = new Thickness(0, 0, 10, 0);
 		}
-
-		DataContext = this;
-		InitializeComponent();
 	}
 
 	private void ContentDialogPrimaryButton_OnClick(object sender, RoutedEventArgs e) {
@@ -205,7 +208,7 @@ public partial class ContentDialog {
 	/// <param name="ownerWindow"></param>
 	/// <returns></returns>
 	public static bool ShowWithDefault(string configKey, string msg, string? caption = null, MainWindow? ownerWindow = null) {
-		if (ConfigHelper.LoadBoolean(configKey)) {
+		if (Settings.Current[configKey].GetBoolean()) {
 			return true;
 		}
 		if (MainWindow.FocusedWindow == null) {
@@ -222,11 +225,22 @@ public partial class ContentDialog {
 		}.Show(ownerWindow ?? MainWindow.FocusedWindow);
 		if (result == ContentDialogResult.Primary) {
 			if (content.IsChecked) {
-				ConfigHelper.Save(configKey, true);
+				Settings.Current[configKey].Value = true;
 			}
 			return true;
 		}
 		return false;
+	}
+
+	public static void Error(string msg, string? caption = null, MainWindow? ownerWindow = null) {
+		if (MainWindow.FocusedWindow == null) {
+			throw new InvalidOperationException("No MainWindow is shown.");
+		}
+		new ContentDialog {
+			Title = caption ?? "Error".L(),
+			Content = msg,
+			PrimaryButtonText = "Ok".L()
+		}.Show(ownerWindow ?? MainWindow.FocusedWindow);
 	}
 
 	public void Close() {

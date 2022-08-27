@@ -71,30 +71,18 @@ public class BookmarkEfContext : DbContext, IBookmarkDbContext {
 
 	#region Interfaces
 
-	public ISet<BookmarkItem> GetBookmarkItems() {
-		return BookmarkDbSet.ToHashSet();
+	public void Add(BookmarkItem bookmark) {
+		BookmarkDbSet.Add(bookmark);
+	}
+	public Task AddAsync(BookmarkItem bookmark) {
+		return BookmarkDbSet.AddAsync(bookmark).AsTask();
 	}
 
-	public void Add(BookmarkItem item) {
-		BookmarkDbSet.Add(item);
+	public void Add(BookmarkCategory category) {
+		BookmarkCategoryDbSet.Add(category);
 	}
-	public Task AddAsync(BookmarkItem item) {
-		return BookmarkDbSet.AddAsync(item).AsTask();
-	}
-
-	public void Add(BookmarkCategory item) {
-		BookmarkCategoryDbSet.Add(item);
-	}
-	public Task AddAsync(BookmarkCategory item) {
-		return BookmarkCategoryDbSet.AddAsync(item).AsTask();
-	}
-
-
-	public ISet<BookmarkItem> GetLocalBookmarkItems() {
-		return BookmarkDbSet.Local.ToHashSet();
-	}
-	public ISet<BookmarkCategory> GetBookmarkCategories() {
-		return BookmarkCategoryDbSet.ToHashSet();
+	public Task AddAsync(BookmarkCategory category) {
+		return BookmarkCategoryDbSet.AddAsync(category).AsTask();
 	}
 
 	public Task LoadAsync() {
@@ -109,8 +97,16 @@ public class BookmarkEfContext : DbContext, IBookmarkDbContext {
 		return base.SaveChangesAsync();
 	}
 
-	public void Remove(BookmarkItem item) {
-		base.Remove(item);
+	public void Remove(BookmarkItem bookmark) {
+		base.Remove(bookmark);
+	}
+
+	public bool Contains(BookmarkItem bookmark) {
+		return BookmarkDbSet.Contains(bookmark);
+	}
+
+	public bool Any(Func<BookmarkItem, bool> match) {
+		return BookmarkDbSet.Any(match);
 	}
 
 	public ObservableCollection<BookmarkCategory> GetBindable() {
@@ -118,15 +114,13 @@ public class BookmarkEfContext : DbContext, IBookmarkDbContext {
 	}
 
 	#region ProbablyModify
-	public BookmarkCategory? FindFirstOrDefault(Func<BookmarkCategory, bool> match) {
-		return GetBookmarkCategories().FirstOrDefault(match);
+	public BookmarkCategory? FirstOrDefault(Func<BookmarkCategory, bool> match) {
+		return BookmarkCategoryDbSet.FirstOrDefault(match);
 	}
 
-	public BookmarkItem? FindLocalItemFirstOrDefault(Func<BookmarkItem, bool> match) {
-		return GetLocalBookmarkItems().FirstOrDefault(match);
+	public BookmarkItem? FirstOrDefault(Func<BookmarkItem, bool> match) {
+		return BookmarkDbSet.FirstOrDefault(match);
 	}
-
-
 
 	#endregion
 

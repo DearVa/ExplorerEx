@@ -27,7 +27,7 @@ public class FileItemCommand : ICommand {
 	/// <summary>
 	/// 当前操作的目录
 	/// </summary>
-	public FolderItem Folder { get; set; }
+	public FolderItem Folder { get; set; } = null!;
 
 	public bool CanExecute(object? parameter) => true;
 
@@ -96,12 +96,15 @@ public class FileItemCommand : ICommand {
 				var items = Items;
 				if (items.Count > 0) {
 					var data = new DataObject(DataFormats.FileDrop, items.Where(item => item is FileSystemItem or DiskDriveItem).Select(item => item.FullPath).ToArray());
-					data.SetData("IsCut", str == "Cut");
+					data.SetData("IsCut", !Folder.IsReadonly && str == "Cut");
 					Clipboard.SetDataObject(data);
 				}
 				break;
 			}
 			case "Paste": {
+				if (Folder.IsReadonly) {
+					break;
+				}
 				if (Clipboard.GetDataObject() is DataObject data) {
 					if (data.GetData(DataFormats.FileDrop) is string[] filePaths) {
 						bool isCut;
@@ -122,6 +125,9 @@ public class FileItemCommand : ICommand {
 				break;
 			}
 			case "Rename": {
+				if (Folder.IsReadonly) {
+					break;
+				}
 				var items = Items;
 				switch (items.Count) {
 				case <= 0:
@@ -136,8 +142,11 @@ public class FileItemCommand : ICommand {
 				break;
 			}
 			case "Delete":  // 删除一个或多个文件，按住shift就是强制删除
+				if (Folder.IsReadonly) {
+					break;
+				}
 				if ((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift) {  // 没有按Shift
-					if (!ContentDialog.ShowWithDefault("Recycle", "#AreYouSureToRecycleTheseFiles".L())) {
+					if (!ContentDialog.ShowWithDefault(Settings.CommonSettings.DontAskWhenRecycle, "#AreYouSureToRecycleTheseFiles".L())) {
 						return;
 					}
 					try {
@@ -146,7 +155,7 @@ public class FileItemCommand : ICommand {
 						Logger.Exception(e);
 					}
 				} else {
-					if (!ContentDialog.ShowWithDefault("Delete", "#AreYouSureToDeleteTheseFilesPermanently".L())) {
+					if (!ContentDialog.ShowWithDefault(Settings.CommonSettings.DontAskWhenDelete, "#AreYouSureToDeleteTheseFilesPermanently".L())) {
 						return;
 					}
 					var failedFiles = new List<string>();
@@ -192,6 +201,9 @@ public class FileItemCommand : ICommand {
 				}
 				break;
 			case "Unzip":
+				if (Folder.IsReadonly) {
+					break;
+				}
 				foreach (var item in Items.Where(i => i is FileItem { IsZip: true })) {
 					ExtractZipWindow.Show(item.FullPath);
 				}
@@ -206,9 +218,18 @@ public class FileItemCommand : ICommand {
 				}
 				var items = Items;
 				if (items.Count == 0) {
-					Shell32Interop.ShowShellContextMenu(Folder.FullPath);
+					if (Folder is ISpecialFolder specialFolder) {
+						Shell32Interop.ShowShellContextMenu(specialFolder.Csidl);
+					} else {
+						Shell32Interop.ShowShellContextMenu(Folder.FullPath);
+					}
 				} else {
-					Shell32Interop.ShowShellContextMenu(items.Select(i => i.FullPath).ToArray());
+					if (items[0] is ISpecialFolder) {
+						Debug.Assert(items.All(i => i is ISpecialFolder));
+						Shell32Interop.ShowShellContextMenu(items.Select(i => ((ISpecialFolder)i).Csidl).ToArray());
+					} else {
+						Shell32Interop.ShowShellContextMenu(items.Select(i => i.FullPath).ToArray());
+					}
 				}
 				break;
 			}

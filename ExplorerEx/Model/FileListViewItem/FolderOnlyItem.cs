@@ -66,11 +66,11 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 		this.zipPath = zipPath;
 		this.relativePath = relativePath;
 		if (relativePath == string.Empty) {
-			FullPath = zipPath + '\\';
+			FullPath = zipPath;
 			Name = Path.GetFileName(zipPath);
 		} else {
 			FullPath = zipPath + '\\' + relativePath.Replace('/', '\\');
-			Name = Path.GetFileName(relativePath[..^1]);
+			Name = Path.GetFileName(relativePath);
 		}
 		Parent = parent;
 		IsFolder = true;
@@ -188,10 +188,18 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 					Task.Run(() => {
 						try {
 							if (zipPath != null && relativePath != null) {
-								using var archive = ZipFile.Open(zipPath, ZipArchiveMode.Read, Encoding.GetEncoding("gb2312"));
-								foreach (var entry in archive.Entries.Where(e => e.FullName.StartsWith(relativePath) && e.FullName[relativePath.Length..].Contains('/'))) {
+								using var archive = ZipFile.Open(zipPath, ZipArchiveMode.Read, Encoding.GetEncoding("gbk"));
+								foreach (var entry in archive.Entries) {
 									if (token.IsCancellationRequested) {
 										return;
+									}
+									var slashRelativePath = relativePath.Replace('\\', '/');
+									if (slashRelativePath.Length > 0 && !slashRelativePath.EndsWith('/')) {
+										slashRelativePath += '/';
+									}
+									var entryName = entry.FullName;
+									if (entryName.Length <= slashRelativePath.Length || !entryName.StartsWith(slashRelativePath)) {
+										continue;
 									}
 									var attributes = (FileAttributes)entry.ExternalAttributes;
 									if (attributes.HasFlag(FileAttributes.System) && !showSystem) {
@@ -200,12 +208,11 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 									if (attributes.HasFlag(FileAttributes.Hidden) && !showHidden) {
 										continue;
 									}
-									var entryName = entry.FullName;
-									var indexOfSlash = entryName.IndexOf('/', relativePath.Length);
+									var indexOfSlash = entryName.IndexOf('/', relativePath.Length + 1);
 									if (indexOfSlash != -1) {
-										var folderName = entryName[relativePath.Length..indexOfSlash];
-										if (actualChildren.All(i => Path.GetFileName(i.relativePath![..^1]) != folderName)) {
-											actualChildren.Add(new FolderOnlyItem(zipPath, relativePath + folderName + '/', this));
+										var folderName = entryName[relativePath.Length..indexOfSlash].TrimStart('/');
+										if (actualChildren.All(i => Path.GetFileName(i.relativePath!) != folderName)) {
+											actualChildren.Add(new FolderOnlyItem(zipPath, Path.Combine(relativePath, folderName), this));
 										}
 									}
 								}

@@ -7,7 +7,7 @@ using System.Windows;
 
 namespace HandyControl.Tools.Interop
 {
-    internal class InteropValues
+    public class InteropValues
     {
         internal static class ExternDll
         {
@@ -178,7 +178,7 @@ namespace HandyControl.Tools.Interop
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        internal struct POINT
+        public struct POINT
         {
             public int X;
             public int Y;

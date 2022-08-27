@@ -620,6 +620,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 自定义 的本地化字符串。
+        /// </summary>
+        internal static string Customize {
+            get {
+                return ResourceManager.GetString("Customize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 剪切 的本地化字符串。
         /// </summary>
         internal static string Cut {
@@ -706,6 +715,24 @@ namespace ExplorerEx.Strings {
         internal static string Documents {
             get {
                 return ResourceManager.GetString("Documents", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 （不推荐开启）永久删除文件时不提示确认 的本地化字符串。
+        /// </summary>
+        internal static string DontAskWhenDelete {
+            get {
+                return ResourceManager.GetString("DontAskWhenDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 移动文件到回收站时不提示确认 的本地化字符串。
+        /// </summary>
+        internal static string DontAskWhenRecycle {
+            get {
+                return ResourceManager.GetString("DontAskWhenRecycle", resourceCulture);
             }
         }
         

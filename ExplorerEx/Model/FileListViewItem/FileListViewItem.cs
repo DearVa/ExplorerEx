@@ -2,19 +2,15 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media;
-using ExplorerEx.Database;
 using ExplorerEx.Database.Interface;
 using ExplorerEx.Database.Shared;
 using ExplorerEx.Utils;
-using ExplorerEx.Utils.Collections;
 using ExplorerEx.View.Controls;
 
 namespace ExplorerEx.Model;
@@ -110,7 +106,7 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	
 	public bool IsFolder { get; protected set; }
 
-	public bool IsBookmarked => ConfigHelper.Container.Resolve<IBookmarkDbContext>().GetBookmarkItems().Any(b => b.FullPath == FullPath);
+	public bool IsBookmarked => App.Container.Resolve<IBookmarkDbContext>().Any(b => b.FullPath == FullPath);
 	
 	public bool IsSelected {
 		get => isSelected;
@@ -210,19 +206,19 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 					return Task.CompletedTask;
 				}, token));
 
-				if (options.PreLoadIcon) {
-					tasks = tasks.Append(Task.Run(() => {
-						foreach (var item in list) {
-							if (token.IsCancellationRequested) {
-								return Task.FromCanceled(token);
-							}
-
-							item.LoadIcon(options);
-						}
-
-						return Task.CompletedTask;
-					}, token));
-				}
+				// if (options.PreLoadIcon) {  // 有时候会冲突
+				// 	tasks = tasks.Append(Task.Run(() => {
+				// 		foreach (var item in list) {
+				// 			if (token.IsCancellationRequested) {
+				// 				return Task.FromCanceled(token);
+				// 			}
+				// 
+				// 			item.LoadIcon(options);
+				// 		}
+				// 
+				// 		return Task.CompletedTask;
+				// 	}, token));
+				// }
 
 				await Task.WhenAll(tasks);
 			} catch (TaskCanceledException) {
