@@ -392,10 +392,6 @@ If the location in on this PC, make sure the device or drive is connected or the
 
 You can find the detailed messages in the ExplorerEx\Logs directory.</value>
   </data>
-  <data name="#ZipMustEndsWithSlash" xml:space="preserve">
-    <value>To access the contents of the zip, the path should end with "\".
-For example: C:\compress.zip\Folder1\</value>
-  </data>
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
@@ -615,7 +611,7 @@ For the application to run properly, it's recommanded that you first extract all
     <value>Show hidden files and folders</value>
   </data>
   <data name="ShowProtectedSystemFilesAndFolders" xml:space="preserve">
-    <value>Show protected system files and folders</value>
+    <value>(Not recommanded) Show protected system files and folders</value>
   </data>
   <data name="Advanced" xml:space="preserve">
     <value>Advanced</value>
@@ -627,6 +623,36 @@ For the application to run properly, it's recommanded that you first extract all
     <value>Dont ask when move files to recycle bin</value>
   </data>
   <data name="DontAskWhenDelete" xml:space="preserve">
-    <value>(Not recommanded to enable) Dont ask when delete files forever</value>
+    <value>(Not recommanded) Dont ask when delete files permanently</value>
+  </data>
+  <data name="BackgroundImage" xml:space="preserve">
+    <value>Background image</value>
+  </data>
+  <data name="#BackgroundImageDescription" xml:space="preserve">
+    <value>Set the background image of file browser list</value>
+  </data>
+  <data name="BackgroundImageOpacity" xml:space="preserve">
+    <value>Background image opacity</value>
+  </data>
+  <data name="Background" xml:space="preserve">
+    <value>Background</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="#LanguageDescription" xml:space="preserve">
+    <value>Select the interface language of ExplorerEx</value>
+  </data>
+  <data name="Chinese" xml:space="preserve">
+    <value>Chinese</value>
+  </data>
+  <data name="English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="...Item" xml:space="preserve">
+    <value>{0} item</value>
+  </data>
+  <data name="DontAskWhenClosingMultiTabs" xml:space="preserve">
+    <value>Don't remind me when closing a window with multiple tabs</value>
   </data>
 </root>

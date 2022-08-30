@@ -26,7 +26,6 @@ using System.Windows.Media;
 using System.Diagnostics;
 using System.Windows.Data;
 using System.Windows.Threading;
-using ExplorerEx.Database.Interface;
 using hc = HandyControl.Controls;
 using HandyControl.Data;
 using HandyControl.Tools.Interop;
@@ -459,7 +458,7 @@ public sealed partial class MainWindow {
 	}
 
 	#region 收藏夹
-	public readonly DependencyProperty IsAddToBookmarkShowProperty = DependencyProperty.Register(
+	public static readonly DependencyProperty IsAddToBookmarkShowProperty = DependencyProperty.Register(
 		nameof(IsAddToBookmarkShow), typeof(bool), typeof(MainWindow), new PropertyMetadata(false, OnIsAddToBookmarkShowChanged));
 
 	public bool IsAddToBookmarkShow {
@@ -535,7 +534,7 @@ public sealed partial class MainWindow {
                 var categoryItem = dbCtx.FirstOrDefault((BookmarkCategory bc) => bc.Name == category);
 				if (categoryItem == null) {
 					categoryItem = new BookmarkCategory(category);
-					await dbCtx.AddAsync(categoryItem);
+					dbCtx.Add(categoryItem);
 				}
 				var fullPath = Path.GetFullPath(bookmarkItem);
 				var dbBookmark = dbCtx.FirstOrDefault(b => b.FullPath == fullPath);
@@ -546,7 +545,7 @@ public sealed partial class MainWindow {
 					await dbCtx.SaveAsync();
 				} else {
 					var item = new BookmarkItem(bookmarkItem, window.BookmarkName, categoryItem);
-					await dbCtx.AddAsync(item);
+					dbCtx.Add(item);
 					await dbCtx.SaveAsync();
 					item.LoadIcon(FileListViewItem.LoadDetailsOptions.Default);
 				}
@@ -760,15 +759,16 @@ public sealed partial class MainWindow {
 	#region Overrides
 
 	protected override void OnClosing(CancelEventArgs e) {
+		base.OnClosing(e);
 		if (SplitGrid.FileTabControl.TabItems.Count > 1 || SplitGrid.AnySplitScreen) {
-			if (!ContentDialog.ShowWithDefault("CloseMultiTabs", "#YouHaveOpenedMoreThanOneTab".L())) {
+			if (!ContentDialog.ShowWithDefault(Settings.CommonSettings.DontAskWhenClosingMultiTabs, "#YouHaveOpenedMoreThanOneTab".L())) {
 				e.Cancel = true;
 			}
 		}
-		base.OnClosing(e);
 	}
 
 	protected override void OnClosed(EventArgs e) {
+		base.OnClosed(e);
 		Settings.ThemeChanged -= ChangeTheme;
 
 		All.Remove(this);
@@ -777,7 +777,6 @@ public sealed partial class MainWindow {
 			FrequentTimer.Stop();
 			RecycleBinItem.UnregisterAllWatchers();
 		}
-		base.OnClosed(e);
 	}
 
 	protected override void OnStateChanged(EventArgs e) {

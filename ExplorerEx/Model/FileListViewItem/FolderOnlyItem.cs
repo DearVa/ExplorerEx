@@ -27,10 +27,19 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	/// 充当占位项目，以便展开
 	/// </summary>
 	public static readonly FolderOnlyItem DefaultItem = new(Home) {
+		Name = "Loading".L()
+	};
+
+	/// <summary>
+	/// 充当占位项目，以便展开
+	/// </summary>
+	public static readonly FolderOnlyItem EmptyItem = new(Home) {
 		Name = "EmptyFolder".L()
 	};
 
-	private static readonly ReadOnlyCollection<FolderOnlyItem> DefaultChildren = new(new List<FolderOnlyItem> { DefaultItem });
+	private static readonly ReadOnlyCollection<FolderOnlyItem> LoadingChildren = new(new List<FolderOnlyItem> { DefaultItem });
+
+	private static readonly ReadOnlyCollection<FolderOnlyItem> EmptyChildren = new(new List<FolderOnlyItem> { EmptyItem });
 
 	public override string DisplayText => Name;
 
@@ -89,7 +98,8 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	public FolderOnlyItem(DirectoryInfo directoryInfo, FolderOnlyItem parent) : base(directoryInfo.FullName, directoryInfo.Name, true) {
 		Parent = parent;
 		IsFolder = true;
-		if (Directory.EnumerateDirectories(FullPath).Any()) {
+		// 只看有没有文件夹，不能用FolderUtils.IsEmptyFolder
+		if (Directory.EnumerateDirectories(FullPath).Any() || Directory.EnumerateFiles(FullPath, "*.zip").Any()) {
 			InitializeChildren();
 		}
 	}
@@ -104,7 +114,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	}
 
 	private void InitializeChildren() {
-		Children = DefaultChildren;
+		Children = LoadingChildren;
 		actualChildren = new ConcurrentObservableCollection<FolderOnlyItem>();
 	}
 
@@ -139,7 +149,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	public FolderOnlyItem Parent { get; }
 
 	/// <summary>
-	/// 枚举之前，先把这个设为<see cref="DefaultChildren"/>，枚举完成后如数量大于1，设为<see cref="actualChildren"/>
+	/// 枚举之前，先把这个设为<see cref="LoadingChildren"/>，枚举完成后如数量大于1，设为<see cref="actualChildren"/>
 	/// </summary>
 	public IList<FolderOnlyItem>? Children {
 		get => children;
@@ -173,7 +183,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 					}
 
 					cts?.Cancel();
-					Children = DefaultChildren;
+					Children = LoadingChildren;
 					if (actualChildren == null) {
 						actualChildren = new ConcurrentObservableCollection<FolderOnlyItem>();
 					} else {
@@ -263,8 +273,12 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 								}
 								item.LoadIcon(LoadDetailsOptions.Default);
 							}
+						} else {
+							Children = EmptyChildren;
 						}
 					}, token);
+				} else {
+					actualChildren?.Clear();  // 释放内存
 				}
 			}
 		}
@@ -285,7 +299,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 		cts = new CancellationTokenSource();
 		var token = cts.Token;
 		Task.Run(() => {
-			Children = DefaultChildren;
+			Children = LoadingChildren;
 			if (actualChildren == null) {
 				actualChildren = new ConcurrentObservableCollection<FolderOnlyItem>();
 			} else {

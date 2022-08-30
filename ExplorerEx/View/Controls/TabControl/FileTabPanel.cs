@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace ExplorerEx.View.Controls; 
@@ -21,13 +22,13 @@ public class FileTabPanel : Panel {
 	///     标签宽度
 	/// </summary>
 	public static readonly DependencyProperty TabItemWidthProperty = DependencyProperty.Register(
-		"TabItemWidth", typeof(double), typeof(FileTabPanel), new PropertyMetadata(200.0));
+		nameof(TabItemWidth), typeof(double), typeof(FileTabPanel), new PropertyMetadata(200.0));
 
 	/// <summary>
 	///     标签高度
 	/// </summary>
 	public static readonly DependencyProperty TabItemHeightProperty = DependencyProperty.Register(
-		"TabItemHeight", typeof(double), typeof(FileTabPanel), new PropertyMetadata(30.0));
+		nameof(TabItemHeight), typeof(double), typeof(FileTabPanel), new PropertyMetadata(30.0));
 
 	/// <summary>
 	///     是否已经加载
@@ -78,6 +79,13 @@ public class FileTabPanel : Panel {
 		set => SetValue(TabItemHeightProperty, value);
 	}
 
+	/// <summary>
+	/// 存储之前的，当鼠标在上面的时候，就不自动把标签页宽度调大，方便连续关闭
+	/// </summary>
+	private double prevActualItemWidth = double.PositiveInfinity;
+
+	private bool isWaitingForMouseLeave;
+
 	protected override Size MeasureOverride(Size constraint) {
 		if (TemplatedParent is not FileTabControl tabControl) {
 			return oldSize;
@@ -101,6 +109,19 @@ public class FileTabPanel : Panel {
 		if (containerWidth > 0 && itemWidth * count > containerWidth) {
 			itemWidth = containerWidth / count;
 		}
+		var actualItemWidth = Math.Max(itemWidth - 1, 1);
+		if (actualItemWidth > prevActualItemWidth) {
+			// 标签页变大了，说明关闭了，这个时候就看鼠标指针是不是在上面悬浮着
+			if (IsMouseOver) {
+				actualItemWidth = prevActualItemWidth;  // 就先不变大，保留
+				itemWidth = actualItemWidth + 1;
+				isWaitingForMouseLeave = true;
+			} else {
+				prevActualItemWidth = actualItemWidth;
+			}
+		} else {
+			prevActualItemWidth = actualItemWidth;
+		}
 
 		for (var index = 0; index < count; index++) {
 			if (InternalChildren[index] is FileTabItem tabItem) {
@@ -113,11 +134,11 @@ public class FileTabPanel : Panel {
 				};
 				newButtonLeft = Math.Max(newButtonLeft, rect.X + itemWidth);
 				tabItem.Arrange(rect);
-				tabItem.ItemWidth = Math.Max(itemWidth - tabItem.BorderThickness.Left, 1);
+				tabItem.ItemWidth = actualItemWidth;
 				tabItem.CurrentIndex = index;
 				tabItem.TargetOffsetX = 0;
 				ItemDict[index] = tabItem;
-				size.Width += tabItem.ItemWidth;
+				size.Width += actualItemWidth;
 			}
 		}
 		tabControl.NewTabButton.Margin = new Thickness(newButtonLeft + 12, 5, 0, 3);
@@ -125,5 +146,14 @@ public class FileTabPanel : Panel {
 		size.Height = constraint.Height;
 		oldSize = size;
 		return oldSize;
+	}
+
+	protected override void OnMouseLeave(MouseEventArgs e) {
+		base.OnMouseLeave(e);
+		if (isWaitingForMouseLeave) {
+			isWaitingForMouseLeave = false;
+			prevActualItemWidth = double.PositiveInfinity;
+			Measure(new Size(DesiredSize.Width, ActualHeight));
+		}
 	}
 }

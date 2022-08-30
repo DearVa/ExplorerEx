@@ -119,6 +119,7 @@ public class FileItem : FileSystemItem {
 		if (FileSystemInfo == null) {
 			return;
 		}
+		FileSystemInfo.Refresh();
 		var type = FileUtils.GetFileTypeDescription(FileSystemInfo.Extension);
 		if (string.IsNullOrEmpty(type)) {
 			Type = "UnknownType".L();
@@ -215,13 +216,17 @@ public class FolderItem : FileSystemItem {
 	public override string DisplayText => Name;
 
 	public override void LoadAttributes(LoadDetailsOptions options) {
+		if (FileSystemInfo == null) {
+			return;
+		}
 		isEmptyFolder = FolderUtils.IsEmptyFolder(FullPath);
 		IsEmptyFolderDictionary.Add(FullPath, isEmptyFolder);
 		Type = isEmptyFolder ? "EmptyFolder".L() : "Folder".L();
-		var directoryInfo = new DirectoryInfo(FullPath);
+		var directoryInfo = (DirectoryInfo)FileSystemInfo;
+		directoryInfo.Refresh();
 		DateModified = directoryInfo.LastWriteTime;
 		DateCreated = directoryInfo.CreationTime;
-		if (FileSystemInfo != null && FileSystemInfo.Attributes.HasFlag(FileAttributes.Hidden)) {
+		if (directoryInfo.Attributes.HasFlag(FileAttributes.Hidden)) {
 			Opacity = 0.5d;
 		}
 	}

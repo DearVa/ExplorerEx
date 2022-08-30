@@ -207,7 +207,7 @@
             </Grid.ColumnDefinitions>
             <hc:SimplePanel Grid.Column="0" MouseLeftButtonDown="OnDragAreaMouseLeftButtonDown">
                 <ct:FluentTabControl x:Name="SidebarTabControl" Focusable="False" Padding="0,52,0,0"
-                                   WindowChrome.IsHitTestVisibleInChrome="True" CanDeselect="True" SelectionChanged="OnSidebarSelectionChanged">
+                                     WindowChrome.IsHitTestVisibleInChrome="True" CanDeselect="True" SelectionChanged="OnSidebarSelectionChanged">
                     <TabItem x:Name="BookmarksTabItem" Width="50" Padding="0">
                         <TabItem.Header>
                             <Grid Height="40" ToolTip="{u:Lang Bookmarks}" ToolTipService.InitialShowDelay="300"
@@ -235,7 +235,7 @@
                                                 </Style>
                                             </HierarchicalDataTemplate.ItemContainerStyle>
 
-                                            <hc:SimplePanel Background="Transparent">
+                                            <hc:SimplePanel Background="Transparent" Height="28">
                                                 <hc:Interaction.Triggers>
                                                     <hc:RoutedEventTrigger RoutedEvent="Control.PreviewMouseUp">
                                                         <hc:EventToCommand Command="{Binding SideBarItemPreviewMouseUpCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
@@ -263,7 +263,7 @@
                                             </hc:SimplePanel>
                                         </HierarchicalDataTemplate>
                                         <DataTemplate DataType="{x:Type m:BookmarkItem}">
-                                            <hc:SimplePanel Background="Transparent">
+                                            <hc:SimplePanel Background="Transparent" Height="26">
                                                 <hc:Interaction.Triggers>
                                                     <hc:RoutedEventTrigger RoutedEvent="Control.PreviewMouseUp">
                                                         <hc:EventToCommand Command="{Binding SideBarItemPreviewMouseUpCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
@@ -314,7 +314,7 @@
                                           ItemsSource="{Binding Path=Children, Source={x:Static m:FolderOnlyItem.Home}}">
                                     <TreeView.ItemTemplate>
                                         <HierarchicalDataTemplate ItemsSource="{Binding Children, Mode=OneWay}">
-                                            <hc:SimplePanel Background="Transparent">
+                                            <hc:SimplePanel Background="Transparent" Height="26">
                                                 <hc:Interaction.Triggers>
                                                     <hc:RoutedEventTrigger RoutedEvent="Control.PreviewMouseUp">
                                                         <hc:EventToCommand Command="{Binding SideBarItemPreviewMouseUpCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>

@@ -12,7 +12,7 @@ namespace ExplorerEx.View.Controls;
 /// </summary>
 public class FluentTabControl : TabControl {
 	public static readonly DependencyProperty CanDeselectProperty = DependencyProperty.Register(
-		"CanDeselect", typeof(bool), typeof(FluentTabControl), new PropertyMetadata(default(bool)));
+		nameof(CanDeselect), typeof(bool), typeof(FluentTabControl), new PropertyMetadata(default(bool)));
 
 	/// <summary>
 	/// 是否可以再次点击TabItem取消选择
@@ -25,10 +25,10 @@ public class FluentTabControl : TabControl {
 	public SimpleCommand TabItemPreviewMouseDownCommand { get; }
 	public SimpleCommand TabItemPreviewMouseUpCommand { get; }
 
-	private TabItem mouseDownFileTabItem;
+	private TabItem? mouseDownFileTabItem;
 	private Point mouseDownPoint;
-	private Border contentPanel;
-	private FluentBorder fluentBorder;
+	private Border contentPanel = null!;
+	private FluentBorder fluentBorder = null!;
 	private readonly Storyboard storyboard;
 	private int? targetIndex;
 	private static readonly CubicEase CubicEase = new() { EasingMode = EasingMode.EaseInOut };
@@ -43,21 +43,24 @@ public class FluentTabControl : TabControl {
 
 	public override void OnApplyTemplate() {
 		base.OnApplyTemplate();
-		contentPanel = (Border)GetTemplateChild("ContentPanel");
-		fluentBorder = (FluentBorder)GetTemplateChild("FluentBorder");
+		contentPanel = (Border)GetTemplateChild("ContentPanel")!;
+		fluentBorder = (FluentBorder)GetTemplateChild("FluentBorder")!;
 		Storyboard.SetTarget(storyboard, fluentBorder);
+		if (SelectedIndex == -1) {
+			contentPanel.Visibility = Visibility.Collapsed;
+		}
 	}
 
-	private void OnTabItemPreviewMouseDown(object args) {
-		var e = (MouseButtonEventArgs)args;
-		mouseDownFileTabItem = (TabItem)ContainerFromElement((DependencyObject)e.OriginalSource);
+	private void OnTabItemPreviewMouseDown(object? args) {
+		var e = (MouseButtonEventArgs)args!;
+		mouseDownFileTabItem = (TabItem)ContainerFromElement((DependencyObject)e.OriginalSource)!;
 		mouseDownPoint = e.GetPosition(this);
 		e.Handled = true;
 	}
 
-	private void OnTabItemPreviewMouseUp(object args) {
-		var e = (MouseButtonEventArgs)args;
-		var tabItem = (TabItem)ContainerFromElement((DependencyObject)e.OriginalSource);
+	private void OnTabItemPreviewMouseUp(object? args) {
+		var e = (MouseButtonEventArgs)args!;
+		var tabItem = (TabItem?)ContainerFromElement((DependencyObject)e.OriginalSource);
 		if (tabItem != null && tabItem == mouseDownFileTabItem) {
 			var point = e.GetPosition(this);
 			if (Math.Abs(point.X - mouseDownPoint.X) < SystemParameters.MinimumHorizontalDragDistance && Math.Abs(point.Y - mouseDownPoint.Y) < SystemParameters.MinimumVerticalDragDistance) {
@@ -74,6 +77,11 @@ public class FluentTabControl : TabControl {
 
 	protected override void OnSelectionChanged(SelectionChangedEventArgs e) {
 		base.OnSelectionChanged(e);
+		if (SelectedIndex == -1) {
+			contentPanel.Visibility = Visibility.Collapsed;
+		} else {
+			contentPanel.Visibility = Visibility.Visible;
+		}
 		if (targetIndex == null) {
 			targetIndex = SelectedIndex;
 			Animate();

@@ -8,10 +8,10 @@ using System.Windows.Data;
 namespace ExplorerEx.Converter;
 
 public class DependencyKeyValuePair : DependencyObject {
-	public object Key { get; set; }
+	public object Key { get; set; } = null!;
 
 	public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(
-		"Value", typeof(object), typeof(DependencyKeyValuePair), new PropertyMetadata(default(object)));
+		nameof(Value), typeof(object), typeof(DependencyKeyValuePair), new PropertyMetadata(default(object)));
 
 	public object Value {
 		get => GetValue(ValueProperty);
@@ -42,7 +42,7 @@ public class DictionaryConverter : IValueConverter {
 		};
 	}
 
-	public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+	public object? Convert(object? value, Type targetType, object parameter, CultureInfo culture) {
 		if (value == null) {
 			return null;
 		}
@@ -53,6 +53,6 @@ public class DictionaryConverter : IValueConverter {
 	}
 
 	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-		throw new NotImplementedException();
+		throw new InvalidOperationException();
 	}
 }

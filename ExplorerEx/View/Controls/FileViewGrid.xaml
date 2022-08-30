@@ -10,6 +10,7 @@
                 xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
                 xmlns:e="clr-namespace:ExplorerEx.Model.Enums"
                 xmlns:c="clr-namespace:ExplorerEx.Converter"
+                xmlns:ex="clr-namespace:ExplorerEx"
                 mc:Ignorable="d" d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
 
     <Grid>
@@ -20,9 +21,9 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="10, 15, 10, 10" Orientation="Horizontal">
+        <StackPanel Grid.Row="0" Margin="0,15,10,10" Orientation="Horizontal">
             <hc:SplitButton Padding="0" Height="35" HitMode="None" IsEnabled="{Binding CanGoToUpperLevel}"
-                            Command="{Binding TabViewModel.CreateCommand, RelativeSource={RelativeSource AncestorType=ct:FileViewGrid}}"
+                            Command="{Binding ViewModel.CreateCommand, RelativeSource={RelativeSource AncestorType=ct:FileViewGrid}}"
                             Style="{StaticResource SplitButtonTransparent}">
                 <StackPanel Orientation="Horizontal" Margin="10,5,5,5">
                     <Image VerticalAlignment="Center" Source="{StaticResource NewDrawingImage}" Width="20" Height="20" SnapsToDevicePixels="True"/>
@@ -35,7 +36,7 @@
             </hc:SplitButton>
             <Rectangle Width="1" Height="30" Fill="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
 
-            <StackPanel Orientation="Horizontal" Visibility="{Binding IsFileUtilsVisible, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}, RelativeSource={RelativeSource AncestorType=ct:FileTabControl}}">
+            <StackPanel Orientation="Horizontal">
                 <Button VerticalAlignment="Stretch" Height="35" ToolTip="{u:Lang Cut}"
                         IsEnabled="{Binding CanDeleteOrCut, Mode=OneWay}"
                         Command="{Binding FileItemCommand}" CommandParameter="Cut"
@@ -146,16 +147,9 @@
                     </ContextMenu>
                 </hc:SplitButton.DropDownContent>
             </hc:SplitButton>
-            <!--<Rectangle Width="1" Height="30" Fill="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
-
-            <Button
-                VerticalAlignment="Stretch" Width="45" Height="35" Padding="0" ToolTip="{u:Lang More}"
-                Style="{StaticResource ButtonTransparent}">
-                <Image Width="24" Height="24" Source="{DynamicResource MoreDrawingImage}"/>
-            </Button>-->
         </StackPanel>
 
-        <Border Grid.Row="1" Margin="10,0" Padding="0,3" BorderBrush="{DynamicResource BorderBrush}">
+        <Border Grid.Row="1" Margin="0,0,10,0" Padding="0,3" BorderBrush="{DynamicResource BorderBrush}">
             <Grid Height="40">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -221,25 +215,29 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <ct:ClippingBorder Grid.Row="0" Margin="10,0,10,0" CornerRadius="4" 
+            <ct:ClippingBorder Grid.Row="0" Margin="0,0,10,0" CornerRadius="4" 
                                BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
                                Background="{DynamicResource RegionBrush}">
-                <ct:FileListView x:Name="FileListView" d:DataContext="{d:DesignInstance vm:FileTabViewModel}"
-                                 ItemsSource="{Binding Items.AsObservable, Mode=OneWay}" 
-                                 FileView="{Binding FileView, Mode=OneWay}"
-                                 FullPath="{Binding FullPath, Mode=OneWay}"
-                                 Folder="{Binding Folder, Mode=OneWay}"
-                                 Background="{DynamicResource RegionBrush}"
-                                 OwnerWindow="{Binding OwnerWindow, Mode=OneTime}">
-                    <hc:Interaction.Triggers>
-                        <hc:RoutedEventTrigger RoutedEvent="ct:FileListView.ItemDoubleClicked">
-                            <hc:EventToCommand Command="{Binding ItemDoubleClickedCommand}" PassEventArgsToCommand="True"/>
-                        </hc:RoutedEventTrigger>
-                    </hc:Interaction.Triggers>
-                </ct:FileListView>
+                <hc:SimplePanel>
+                    <Image Source="{Binding BackgroundImage, Source={x:Static ex:Settings.Current}}"
+                           Opacity="{Binding BackgroundImageOpacity, Source={x:Static ex:Settings.Current}}"
+                           Stretch="UniformToFill"/>
+                    <ct:FileListView x:Name="FileListView" d:DataContext="{d:DesignInstance vm:FileTabViewModel}"
+                                     ItemsSource="{Binding Items.AsObservable, Mode=OneWay}" 
+                                     FileView="{Binding FileView, Mode=OneWay}"
+                                     FullPath="{Binding FullPath, Mode=OneWay}"
+                                     Folder="{Binding Folder, Mode=OneWay}"
+                                     OwnerWindow="{Binding OwnerWindow, Mode=OneTime}">
+                        <hc:Interaction.Triggers>
+                            <hc:RoutedEventTrigger RoutedEvent="ct:FileListView.ItemDoubleClicked">
+                                <hc:EventToCommand Command="{Binding ItemDoubleClickedCommand}" PassEventArgsToCommand="True"/>
+                            </hc:RoutedEventTrigger>
+                        </hc:Interaction.Triggers>
+                    </ct:FileListView>
+                </hc:SimplePanel>
             </ct:ClippingBorder>
 
-            <hc:SimplePanel Grid.Row="1" Margin="20,0,10,0">
+            <hc:SimplePanel Grid.Row="1" Margin="0,0,10,0">
                 <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
                     <StackPanel.Resources>
                         <c:ItemsCount2TextConverter x:Key="ItemsCount2TextConverter"/>

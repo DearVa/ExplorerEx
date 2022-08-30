@@ -5,6 +5,8 @@ using ExplorerEx.Model;
 using ExplorerEx.Win32;
 using System.Runtime.InteropServices;
 using System.Windows.Media;
+using System.Globalization;
+using System.Threading;
 
 namespace ExplorerEx.View; 
 
@@ -13,6 +15,8 @@ namespace ExplorerEx.View;
 /// </summary>
 public partial class NotifyIconWindow {
 	public NotifyIconWindow() {
+		Thread.CurrentThread.CurrentUICulture = new CultureInfo(Settings.Current[Settings.CommonSettings.Language].GetInt32());
+
 		DataContext = this;
 		
 		InitializeComponent();

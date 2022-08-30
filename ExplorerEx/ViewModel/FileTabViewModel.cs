@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -161,13 +162,6 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	public bool IsItemSelected => SelectedItems.Count > 0;
 
 	public bool CanDeleteOrCut => IsItemSelected && SelectedItems.All(i => i is FileSystemItem);
-
-	/// <summary>
-	/// 视窗的滚动位置
-	/// </summary>
-	public double ScrollViewX { get; set; }
-
-	public double ScrollViewY { get; set; }
 
 	/// <summary>
 	/// 文件项的Command
@@ -479,7 +473,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	/// </summary>
 	/// <param name="fileView">为null表示新建，不为null就是修改，要确保是从Db里拿到的对象否则修改没有效果</param>
 	/// <returns></returns>
-	private async Task SaveViewToDbAsync(FileView? fileView) {
+	private Task SaveViewToDbAsync(FileView? fileView) {
 		var fullPath = FullPath;
 		var dbCtx = App.FileViewDbContext;
 		fileView ??= dbCtx.FirstOrDefault(v => v.FullPath == fullPath);
@@ -493,7 +487,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 				ItemSize = ItemSize,
 				DetailLists = DetailLists
 			};
-			await dbCtx.AddAsync(fileView);
+			dbCtx.Add(fileView);
 		} else {
 			Debug.Assert(fileView.FullPath == fullPath);
 			fileView.SortBy = SortBy;
@@ -502,8 +496,9 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			fileView.FileViewType = FileViewType;
 			fileView.ItemSize = ItemSize;
 			fileView.DetailLists = DetailLists;
+			dbCtx.Update(fileView);
 		}
-		await dbCtx.SaveAsync();
+		return dbCtx.SaveAsync();
 	}
 
 	private void OnClipboardChanged() {
@@ -585,14 +580,9 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		}
 
 		FileItemCommand.Folder = Folder;
+		Folder.LoadIcon(loadDetailsOptions);
 
-		try {
-			_ = Task.Run(() => Folder.LoadIcon(loadDetailsOptions));
-		} catch {
-			// 加载图标出错，忽略
-		}
-
-		if (Folder.GetType() == typeof(FolderItem) || Folder is DiskDriveItem) {
+		if (!Folder.IsVirtual) {
 			try {
 				watcher.Path = Folder.FullPath;
 				watcher.Enabled = true;
@@ -741,8 +731,24 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		return !token.IsCancellationRequested;
 	}
 
+	/// <summary>
+	/// 遇到错误需要返回
+	/// </summary>
+	/// <returns></returns>
 	private Task ErrorGoBack() {
 		if (CanGoBack) {
+			var originalPath = HistoryList[--nextHistoryIndex].FullPath;
+			while (nextHistoryIndex > 1) {
+				var currentPath = HistoryList[nextHistoryIndex - 1].FullPath;
+				var prevPath = HistoryList[nextHistoryIndex].FullPath;
+				if (currentPath.Length > prevPath.Length && currentPath.StartsWith(prevPath)) {  // 如果这个路径包含了之前的路径，那还是不行，继续回退
+					nextHistoryIndex--;
+				} else if (currentPath == originalPath) {  // 如果相等，还是不得行
+					nextHistoryIndex--;
+				} else {
+					break;
+				}
+			}
 			return LoadDirectoryAsync(HistoryList[nextHistoryIndex - 1].FullPath, false, FullPath);
 		}
 		return LoadDirectoryAsync(null, false, FullPath);
@@ -946,12 +952,20 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	}
 
 	private void Watcher_OnError(Exception e) {
-		if (!Directory.Exists(FullPath)) {  // 当前目录不复存在力，被删除力
+		if (e is Win32Exception { NativeErrorCode: 5 }) {  // 当前目录不复存在力，被删除力
 			string? parentPath;
-			do {
+			while (true) {
 				parentPath = Path.GetDirectoryName(FullPath);
-			} while (parentPath != null && !Directory.Exists(parentPath));
-			_ = LoadDirectoryAsync(parentPath);
+				if (parentPath == null) {
+					break;
+				}
+				var di = new DirectoryInfo(parentPath);
+				di.Refresh();
+				if (di.Exists) {
+					break;
+				}
+			}
+			_ = LoadDirectoryAsync(parentPath, false);
 		} else {
 			Logger.Error(e.Message);
 		}

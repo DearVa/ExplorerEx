@@ -17,6 +17,7 @@
           VirtualizingStackPanel.IsVirtualizing="True"
           VirtualizingStackPanel.ScrollUnit="Pixel"
           Padding="2" FocusVisualStyle="{x:Null}"
+          Background="Transparent"
           UseLayoutRounding="True">
     <ListView.Resources>
         <c:FileListViewItemDetails0Converter x:Key="FileListViewItemDetails0Converter"/>
@@ -193,11 +194,11 @@
         <!-- 该资源在C#逻辑中获取 -->
         <!-- ReSharper disable once Xaml.RedundantResource -->
         <c:FileGridDataGridColumnsConverter x:Key="ColumnsConverter"
-                                        Name="{StaticResource NameColumn}" DateModified="{StaticResource ModificationDateColumn}"
-                                        Type="{StaticResource TypeColumn}" FileSize="{StaticResource FileSizeColumn}"
-                                        AvailableSpace="{StaticResource AvailableSpaceColumn}" TotalSpace="{StaticResource TotalSpaceColumn}"
-                                        FillRatio="{StaticResource FillRatioColumn}" FileSystem="{StaticResource FileSystemColumn}"
-                                        FullPath="{StaticResource FullPathColumn}"/>
+                                            Name="{StaticResource NameColumn}" DateModified="{StaticResource ModificationDateColumn}"
+                                            Type="{StaticResource TypeColumn}" FileSize="{StaticResource FileSizeColumn}"
+                                            AvailableSpace="{StaticResource AvailableSpaceColumn}" TotalSpace="{StaticResource TotalSpaceColumn}"
+                                            FillRatio="{StaticResource FillRatioColumn}" FileSystem="{StaticResource FileSystemColumn}"
+                                            FullPath="{StaticResource FullPathColumn}"/>
 
         <!-- 该资源在C#逻辑中获取 -->
         <!-- ReSharper disable once Xaml.RedundantResource -->
@@ -220,7 +221,7 @@
                 <MenuItem ToolTip="{u:Lang Delete}" CommandParameter="Delete"
                           Command="{Binding ViewModel.FileItemCommand}"
                           Icon="{DynamicResource DeleteDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
-                <MenuItem ToolTip="{u:Lang Delete}" CommandParameter="Properties"
+                <MenuItem ToolTip="{u:Lang Properties}" CommandParameter="Properties"
                           Command="{Binding ViewModel.FileItemCommand}"
                           Icon="{DynamicResource PropertiesDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
             </StackPanel>
@@ -237,6 +238,9 @@
                             <MenuItem ToolTip="{u:Lang Rename}" CommandParameter="Rename"
                                       Command="{Binding ViewModel.FileItemCommand}"
                                       Icon="{StaticResource RenameDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                            <MenuItem ToolTip="{u:Lang Properties}" CommandParameter="Properties"
+                                      Command="{Binding ViewModel.FileItemCommand}"
+                                      Icon="{DynamicResource PropertiesDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
                         </StackPanel>
                     </ControlTemplate>
                 </MenuItem.Template>

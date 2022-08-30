@@ -6,7 +6,7 @@ using ExplorerEx.Strings;
 
 namespace ExplorerEx.Utils; 
 
-internal static class LangHselper {
+internal static class LangHelper {
 	/// <summary>
 	/// 本地化字符串
 	/// </summary>
@@ -14,7 +14,7 @@ internal static class LangHselper {
 	/// <returns></returns>
 	public static string L(this string key) {
 		try {
-			return Resources.ResourceManager.GetString(key) ?? key;
+			return Resources.ResourceManager.GetString(key, Settings.CurrentCulture) ?? key;
 		} catch {
 			return key;
 		}

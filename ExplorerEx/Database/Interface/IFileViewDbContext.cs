@@ -1,14 +1,17 @@
 ﻿using System;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 using ExplorerEx.Model;
 
 namespace ExplorerEx.Database.Interface; 
 
 public interface IFileViewDbContext : IDatabase {
-	FileView? FirstOrDefault(Func<FileView, bool> match);
+	FileView? FirstOrDefault(Expression<Func<FileView, bool>> match);
 	bool Contains(FileView fileView);
-	bool Any(Func<FileView, bool> match);
-
+	bool Any(Expression<Func<FileView, bool>> match);
 	void Add(FileView item);
-	Task AddAsync(FileView item);
+	/// <summary>
+	/// 由于不带Cache跟踪，所以需要手动更新数据
+	/// </summary>
+	/// <param name="item"></param>
+	void Update(FileView item);
 }

@@ -130,7 +130,7 @@ public class FileItemCommand : ICommand {
 				}
 				var items = Items;
 				switch (items.Count) {
-				case <= 0:
+				case 0:
 					return;
 				case 1:
 					FileTabControl.MouseOverTabControl?.SelectedTab.StartRename(items[0]);
@@ -141,16 +141,20 @@ public class FileItemCommand : ICommand {
 				}
 				break;
 			}
-			case "Delete":  // 删除一个或多个文件，按住shift就是强制删除
+			case "Delete": { // 删除一个或多个文件，按住shift就是强制删除
 				if (Folder.IsReadonly) {
 					break;
 				}
-				if ((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift) {  // 没有按Shift
+				var items = Items;
+				if (items.Count == 0) {
+					break;
+				}
+				if ((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift) { // 没有按Shift
 					if (!ContentDialog.ShowWithDefault(Settings.CommonSettings.DontAskWhenRecycle, "#AreYouSureToRecycleTheseFiles".L())) {
 						return;
 					}
 					try {
-						await FileUtils.FileOperation(FileOpType.Delete, Items.Where(item => item is FileSystemItem).Select(item => item.FullPath).ToArray());
+						await FileUtils.FileOperation(FileOpType.Delete, items.Where(item => item is FileSystemItem).Select(item => item.FullPath).ToArray());
 					} catch (Exception e) {
 						Logger.Exception(e);
 					}
@@ -159,7 +163,7 @@ public class FileItemCommand : ICommand {
 						return;
 					}
 					var failedFiles = new List<string>();
-					foreach (var item in Items) {
+					foreach (var item in items) {
 						if (item is FileSystemItem fsi) {
 							try {
 								if (fsi.IsFolder) {
@@ -178,6 +182,7 @@ public class FileItemCommand : ICommand {
 					}
 				}
 				break;
+			}
 			case "AddToBookmarks":
 				TabControlProvider.Invoke()?.MainWindow.AddToBookmarks(Items.Select(i => i.FullPath).ToArray());
 				break;

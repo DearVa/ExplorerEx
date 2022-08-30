@@ -5,11 +5,218 @@
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                 xmlns:hc="https://handyorg.github.io/handycontrol"
                 xmlns:ex="clr-namespace:ExplorerEx"
-                mc:Ignorable="d" 
-                MinWidth="800">
+                xmlns:c="clr-namespace:ExplorerEx.Converter"
+                xmlns:u="clr-namespace:ExplorerEx.Utils"
+                mc:Ignorable="d" MinWidth="800">
+    <hc:SimplePanel.Resources>
+        <DataTemplate x:Key="SettingsSelectItemTemplate" DataType="{x:Type ex:SettingsSelectItem}">
+            <Border Margin="8,0,0,6" CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource SecondaryRegionBrush}" MinHeight="70">
+                <Grid Margin="0,0,20,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="60"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
 
-    <ScrollViewer>
-        <ItemsControl x:Name="ItemsControl">
+                    <Image Grid.Column="0" Source="{Binding Icon}" Width="30" Height="30"/>
+                    <hc:SimplePanel Grid.Column="1">
+                        <Grid HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="{Binding Header, Converter={StaticResource LangConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
+                            <TextBlock Grid.Row="1" Text="{Binding Description, Converter={StaticResource LangConverter}}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Visibility="{Binding Description, Converter={StaticResource Object2VisibilityConverter}}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                        </Grid>
+                        <ComboBox HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="14" MinWidth="180" ItemsSource="{Binding Items}" 
+                                  SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"/>
+                    </hc:SimplePanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="SettingsStringItemTemplate" DataType="{x:Type ex:SettingsStringItem}">
+            <Border Margin="8,0,0,6" CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource SecondaryRegionBrush}" MinHeight="70">
+                <Grid Margin="0,0,20,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="60"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <Image Grid.Column="0" Source="{Binding Icon}" Width="30" Height="30"/>
+                    <DockPanel Grid.Column="1">
+                        <Grid DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,20,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="{Binding Header, Converter={StaticResource LangConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
+                            <TextBlock Grid.Row="1" Text="{Binding Description, Converter={StaticResource LangConverter}}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Visibility="{Binding Description, Converter={StaticResource Object2VisibilityConverter}}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                        </Grid>
+                        <hc:SimplePanel DockPanel.Dock="Right" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <TextBox FontSize="14" MinWidth="240" MaxWidth="360" Text="{Binding Value, Mode=TwoWay}"/>
+                                <Button Margin="10,0,0,0" Content="{u:Lang Browse...}" Command="{Binding BrowserFileCommand}"
+                                    Visibility="{Binding BrowserFileCommand, Converter={StaticResource Object2VisibilityConverter}}"/>
+                            </StackPanel>
+                        </hc:SimplePanel>
+                    </DockPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="SettingsBooleanItemTemplate" DataType="{x:Type ex:SettingsBooleanItem}">
+            <Border Margin="8,0,0,6" CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource SecondaryRegionBrush}" MinHeight="70">
+                <Grid Margin="0,0,20,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="60"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <Image Grid.Column="0" Source="{Binding Icon}" Width="30" Height="30"/>
+                    <hc:SimplePanel Grid.Column="1">
+                        <Grid HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="{Binding Header, Converter={StaticResource LangConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
+                            <TextBlock Grid.Row="1" Text="{Binding Description, Converter={StaticResource LangConverter}}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Visibility="{Binding Description, Converter={StaticResource Object2VisibilityConverter}}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                        </Grid>
+                        <ToggleButton HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ToggleButtonSwitch}" 
+                                      Background="{DynamicResource RegionBrush}" IsChecked="{Binding Value, Mode=TwoWay}"/>
+                    </hc:SimplePanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="SettingsNumberItemTemplate" DataType="{x:Type ex:SettingsNumberItem}">
+            <Border Margin="8,0,0,6" CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource SecondaryRegionBrush}" MinHeight="70">
+                <Grid Margin="0,0,20,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="60"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <Image Grid.Column="0" Source="{Binding Icon}" Width="30" Height="30"/>
+                    <hc:SimplePanel Grid.Column="1">
+                        <Grid HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="{Binding Header, Converter={StaticResource LangConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
+                            <TextBlock Grid.Row="1" Text="{Binding Description, Converter={StaticResource LangConverter}}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Visibility="{Binding Description, Converter={StaticResource Object2VisibilityConverter}}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                        </Grid>
+                        <hc:PreviewSlider MinWidth="200" HorizontalAlignment="Right" VerticalAlignment="Center" Minimum="{Binding Min}" Maximum="{Binding Max}"
+                                          Background="{DynamicResource RegionBrush}" Value="{Binding Value, Mode=TwoWay}"/>
+                    </hc:SimplePanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <c:SettingsPanelItemTemplateSelector x:Key="SettingsPanelItemTemplateSelector" 
+                                             SettingsSelectItemTemplate="{StaticResource SettingsSelectItemTemplate}"
+                                             SettingsBooleanItemTemplate="{StaticResource SettingsBooleanItemTemplate}"
+                                             SettingsNumberItemTemplate="{StaticResource SettingsNumberItemTemplate}"
+                                             SettingsStringItemTemplate="{StaticResource SettingsStringItemTemplate}"/>
+
+        <DataTemplate x:Key="SettingsExpanderTemplate" DataType="{x:Type ex:SettingsExpander}">
+            <Expander Header="{Binding Header, Converter={StaticResource LangConverter}}" FontSize="14" IsExpanded="False" Margin="8,0,0,0">
+                <Expander.Template>
+                    <ControlTemplate TargetType="Expander">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Border x:Name="BorderHeader" Margin="0,0,0,6" Grid.Row="0" CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource SecondaryRegionBrush}">
+                                <ToggleButton x:Name="ToggleButton" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Focusable="False" Foreground="{TemplateBinding Foreground}" IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" MinHeight="70" Background="Transparent" BorderThickness="0">
+                                    <ToggleButton.Template>
+                                        <ControlTemplate TargetType="ToggleButton">
+                                            <hc:SimplePanel Background="Transparent">
+                                                <ContentPresenter RecognizesAccessKey="True" VerticalAlignment="Center" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                            </hc:SimplePanel>
+                                        </ControlTemplate>
+                                    </ToggleButton.Template>
+
+                                    <DockPanel>
+                                        <Path DockPanel.Dock="Right" IsHitTestVisible="False" Stretch="Uniform" Fill="{TemplateBinding Foreground}" Data="{StaticResource DownGeometry}" Margin="0,0,20,0" Width="12" Height="12" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalAlignment="Right" RenderTransformOrigin="0.5,0.5">
+                                            <Path.RenderTransform>
+                                                <RotateTransform x:Name="PathRotation"/>
+                                            </Path.RenderTransform>
+                                        </Path>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="60"/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Image Grid.Column="0" Source="{Binding Icon}" Width="30" Height="30"/>
+
+                                            <Grid Grid.Column="1">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <TextBlock Grid.Row="0" Text="{Binding Header, Converter={StaticResource LangConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
+                                                <TextBlock Grid.Row="1" Text="{Binding Description, Converter={StaticResource LangConverter}}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Visibility="{Binding Description, Converter={StaticResource Object2VisibilityConverter}}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                                            </Grid>
+                                        </Grid>
+                                    </DockPanel>
+                                </ToggleButton>
+                            </Border>
+
+                            <hc:SimplePanel Name="ExpandSite" Grid.Row="1" Visibility="Collapsed" ClipToBounds="True">
+                                <hc:TransitioningContentControl TransitionMode="Top2Bottom">
+                                    <ItemsControl ItemsSource="{Binding Items}"
+                                                  ItemTemplateSelector="{StaticResource SettingsPanelItemTemplateSelector}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Vertical"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+                                </hc:TransitioningContentControl>
+                            </hc:SimplePanel>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter Property="Visibility" TargetName="ExpandSite" Value="Visible" />
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="PathRotation" Storyboard.TargetProperty="Angle" To="180" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="PathRotation" Storyboard.TargetProperty="Angle" To="0" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" SourceName="ToggleButton" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource LightSelectBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Expander.Template>
+            </Expander>
+        </DataTemplate>
+    </hc:SimplePanel.Resources>
+
+    <ScrollViewer Margin="0,0,-10,0">
+        <ItemsControl x:Name="ItemsControl" Margin="0,0,10,0">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Vertical"/>
@@ -26,217 +233,13 @@
                                     <StackPanel Orientation="Vertical"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
-
-                            <ItemsControl.Resources>
-                                <ItemsControl x:Key="CategoryItemsControl" ItemsSource="{Binding Items}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel Orientation="Vertical"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-
-                                    <ItemsControl.Resources>
-                                        <DataTemplate DataType="{x:Type ex:SettingsSelectItem}">
-                                            <hc:SimplePanel>
-                                                <TextBlock HorizontalAlignment="Left" Text="{Binding Header, Converter={StaticResource LangConverter}}"/>
-                                                <ComboBox HorizontalAlignment="Right" MinWidth="180" ItemsSource="{Binding Items}" 
-                                                          SelectedIndex="{Binding Value, Mode=TwoWay}" Margin="0,0,0,10"/>
-                                            </hc:SimplePanel>
-                                        </DataTemplate>
-                                    </ItemsControl.Resources>
-                                </ItemsControl>
-
-                                <DataTemplate DataType="{x:Type ex:SettingsExpander}">
-                                    <Expander Header="{Binding Header, Converter={StaticResource LangConverter}}" FontSize="14" IsExpanded="False" Margin="8,0,0,0">
-                                        <Expander.Template>
-                                            <ControlTemplate TargetType="Expander">
-                                                <Grid>
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition/>
-                                                        <RowDefinition Height="Auto" />
-                                                    </Grid.RowDefinitions>
-                                                    <Border x:Name="BorderHeader" Grid.Row="0" CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource SecondaryRegionBrush}">
-                                                        <ToggleButton x:Name="ToggleButton" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Focusable="False" Foreground="{TemplateBinding Foreground}" IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" MinHeight="70" Background="Transparent" BorderThickness="0">
-                                                            <ToggleButton.Template>
-                                                                <ControlTemplate TargetType="ToggleButton">
-                                                                    <hc:SimplePanel Background="Transparent">
-                                                                        <ContentPresenter RecognizesAccessKey="True" VerticalAlignment="Center" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                                                    </hc:SimplePanel>
-                                                                </ControlTemplate>
-                                                            </ToggleButton.Template>
-
-                                                            <DockPanel>
-                                                                <Path DockPanel.Dock="Right" IsHitTestVisible="False" Stretch="Uniform" Fill="{TemplateBinding Foreground}" Data="{StaticResource DownGeometry}" Margin="0,0,20,0" Width="12" Height="12" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalAlignment="Right" RenderTransformOrigin="0.5,0.5">
-                                                                    <Path.RenderTransform>
-                                                                        <RotateTransform x:Name="PathRotation"/>
-                                                                    </Path.RenderTransform>
-                                                                </Path>
-                                                                <Grid>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="60"/>
-                                                                        <ColumnDefinition/>
-                                                                    </Grid.ColumnDefinitions>
-
-                                                                    <Image Grid.Column="0" Source="{Binding Icon}" Width="30" Height="30"/>
-
-                                                                    <Grid Grid.Column="1">
-                                                                        <Grid.RowDefinitions>
-                                                                            <RowDefinition/>
-                                                                            <RowDefinition Height="Auto"/>
-                                                                        </Grid.RowDefinitions>
-
-                                                                        <TextBlock Grid.Row="0" Text="{Binding Header, Converter={StaticResource LangConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
-                                                                        <TextBlock Grid.Row="1" Text="{Binding Description, Converter={StaticResource LangConverter}}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Visibility="{Binding Description, Converter={StaticResource Object2VisibilityConverter}}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
-                                                                    </Grid>
-                                                                </Grid>
-                                                            </DockPanel>
-                                                        </ToggleButton>
-                                                    </Border>
-
-                                                    <ItemsControl Grid.Row="1" Name="ExpandSite" Visibility="Collapsed" ItemsSource="{Binding Items}">
-                                                        <ItemsControl.ItemsPanel>
-                                                            <ItemsPanelTemplate>
-                                                                <StackPanel Orientation="Vertical"/>
-                                                            </ItemsPanelTemplate>
-                                                        </ItemsControl.ItemsPanel>
-
-                                                        <ItemsControl.Resources>
-                                                            <DataTemplate DataType="{x:Type ex:SettingsSelectItem}">
-                                                                <Border BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource SecondaryRegionBrush}" MinHeight="60">
-                                                                    <Grid Margin="0,0,20,0">
-                                                                        <Grid.ColumnDefinitions>
-                                                                            <ColumnDefinition Width="60"/>
-                                                                            <ColumnDefinition/>
-                                                                        </Grid.ColumnDefinitions>
-
-                                                                        <Image Grid.Column="0" Source="{Binding Icon}"/>
-                                                                        <hc:SimplePanel Grid.Column="1">
-                                                                            <Grid HorizontalAlignment="Left" VerticalAlignment="Center">
-                                                                                <Grid.RowDefinitions>
-                                                                                    <RowDefinition/>
-                                                                                    <RowDefinition Height="Auto"/>
-                                                                                </Grid.RowDefinitions>
-
-                                                                                <TextBlock Grid.Row="0" Text="{Binding Header, Converter={StaticResource LangConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
-                                                                                <TextBlock Grid.Row="1" Text="{Binding Description, Converter={StaticResource LangConverter}}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Visibility="{Binding Description, Converter={StaticResource Object2VisibilityConverter}}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
-                                                                            </Grid>
-                                                                            <ComboBox HorizontalAlignment="Right" VerticalAlignment="Center" MinWidth="180" ItemsSource="{Binding Items}" 
-                                                                                SelectedIndex="{Binding Value, Mode=TwoWay}"/>
-                                                                        </hc:SimplePanel>
-                                                                    </Grid>
-                                                                </Border>
-                                                            </DataTemplate>
-                                                        </ItemsControl.Resources>
-                                                    </ItemsControl>
-                                                </Grid>
-                                                <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsExpanded" Value="True">
-                                                        <Setter Property="Visibility" TargetName="ExpandSite" Value="Visible" />
-                                                        <Setter Property="CornerRadius" TargetName="BorderHeader" Value="6,6,0,0"/>
-                                                        <Trigger.EnterActions>
-                                                            <BeginStoryboard>
-                                                                <Storyboard>
-                                                                    <DoubleAnimation Storyboard.TargetName="PathRotation" Storyboard.TargetProperty="Angle" To="180" Duration="0:0:0.2"/>
-                                                                </Storyboard>
-                                                            </BeginStoryboard>
-                                                        </Trigger.EnterActions>
-                                                        <Trigger.ExitActions>
-                                                            <BeginStoryboard>
-                                                                <Storyboard>
-                                                                    <DoubleAnimation Storyboard.TargetName="PathRotation" Storyboard.TargetProperty="Angle" To="0" Duration="0:0:0.2"/>
-                                                                </Storyboard>
-                                                            </BeginStoryboard>
-                                                        </Trigger.ExitActions>
-                                                    </Trigger>
-                                                    <Trigger Property="IsEnabled" Value="False">
-                                                        <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}" />
-                                                    </Trigger>
-                                                    <Trigger Property="IsMouseOver" SourceName="ToggleButton" Value="True">
-                                                        <Setter Property="Background" Value="{DynamicResource LightSelectBrush}"/>
-                                                    </Trigger>
-                                                </ControlTemplate.Triggers>
-                                            </ControlTemplate>
-                                        </Expander.Template>
-                                    </Expander>
-                                </DataTemplate>
-
-                                <DataTemplate DataType="{x:Type ex:SettingsSelectItem}">
-                                    <Border CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource SecondaryRegionBrush}" MinHeight="70">
-                                        <Grid Margin="0,0,20,0">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="60"/>
-                                                <ColumnDefinition/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <Image Grid.Column="0" Source="{Binding Icon}"/>
-                                            <hc:SimplePanel Grid.Column="1">
-                                                <Grid HorizontalAlignment="Left" VerticalAlignment="Center">
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition/>
-                                                        <RowDefinition Height="Auto"/>
-                                                    </Grid.RowDefinitions>
-
-                                                    <TextBlock Grid.Row="0" Text="{Binding Header, Converter={StaticResource LangConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
-                                                    <TextBlock Grid.Row="1" Text="{Binding Description, Converter={StaticResource LangConverter}}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Visibility="{Binding Description, Converter={StaticResource Object2VisibilityConverter}}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
-                                                </Grid>
-                                                <ComboBox HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="14" MinWidth="180" ItemsSource="{Binding Items}" 
-                                                          SelectedIndex="{Binding Value, Mode=TwoWay}"/>
-                                            </hc:SimplePanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-
-                                <DataTemplate DataType="{x:Type ex:SettingsStringItem}">
-                                    <Border Margin="8,0,0,6" CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource SecondaryRegionBrush}" MinHeight="70">
-                                        <Grid Margin="0,0,20,0">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="60"/>
-                                                <ColumnDefinition/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <Image Grid.Column="0" Source="{Binding Icon}"/>
-                                            <DockPanel Grid.Column="1">
-                                                <Grid DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,20,0">
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition/>
-                                                        <RowDefinition Height="Auto"/>
-                                                    </Grid.RowDefinitions>
-
-                                                    <TextBlock Grid.Row="0" Text="{Binding Header, Converter={StaticResource LangConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
-                                                    <TextBlock Grid.Row="1" Text="{Binding Description, Converter={StaticResource LangConverter}}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Visibility="{Binding Description, Converter={StaticResource Object2VisibilityConverter}}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
-                                                </Grid>
-                                                <TextBox DockPanel.Dock="Right" VerticalAlignment="Center" FontSize="14" MinWidth="240" MaxWidth="360" Text="{Binding Value, Mode=TwoWay}"/>
-                                            </DockPanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-
-                                <DataTemplate DataType="{x:Type ex:SettingsBooleanItem}">
-                                    <Border Margin="8,0,0,6" CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource SecondaryRegionBrush}" MinHeight="70">
-                                        <Grid Margin="0,0,20,0">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="60"/>
-                                                <ColumnDefinition/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <Image Grid.Column="0" Source="{Binding Icon}"/>
-                                            <hc:SimplePanel Grid.Column="1">
-                                                <Grid HorizontalAlignment="Left" VerticalAlignment="Center">
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition/>
-                                                        <RowDefinition Height="Auto"/>
-                                                    </Grid.RowDefinitions>
-
-                                                    <TextBlock Grid.Row="0" Text="{Binding Header, Converter={StaticResource LangConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
-                                                    <TextBlock Grid.Row="1" Text="{Binding Description, Converter={StaticResource LangConverter}}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Visibility="{Binding Description, Converter={StaticResource Object2VisibilityConverter}}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
-                                                </Grid>
-                                                <ToggleButton HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ToggleButtonSwitch}" 
-                                                              Background="{DynamicResource RegionBrush}" IsChecked="{Binding Value, Mode=TwoWay}"/>
-                                            </hc:SimplePanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.Resources>
+                            <ItemsControl.ItemTemplateSelector>
+                                <c:SettingsPanelItemTemplateSelector SettingsSelectItemTemplate="{StaticResource SettingsSelectItemTemplate}"
+                                                                     SettingsBooleanItemTemplate="{StaticResource SettingsBooleanItemTemplate}"
+                                                                     SettingsNumberItemTemplate="{StaticResource SettingsNumberItemTemplate}"
+                                                                     SettingsStringItemTemplate="{StaticResource SettingsStringItemTemplate}"
+                                                                     SettingsExpanderTemplate="{StaticResource SettingsExpanderTemplate}"/>
+                            </ItemsControl.ItemTemplateSelector>
                         </ItemsControl>
                     </GroupBox>
                 </DataTemplate>

@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
@@ -29,18 +29,6 @@ public class FileViewEfContext : DbContext, IFileViewDbContext {
 		ob.UseSqlite($"Data Source={dbPath}");
 	}
 
-	public bool Any(Func<FileView, bool> match) {
-		return FileViewDbSet.Any(match);
-	}
-
-	public void Add(FileView item) {
-		FileViewDbSet.Add(item);
-	}
-
-	public Task AddAsync(FileView item) {
-		return FileViewDbSet.AddAsync(item).AsTask();
-	}
-
 	public async Task LoadAsync() {
 		try {
 			await Database.EnsureCreatedAsync();
@@ -51,19 +39,19 @@ public class FileViewEfContext : DbContext, IFileViewDbContext {
 		}
 	}
 
-	public void Save() {
-		base.SaveChanges();
+	public void Save() => base.SaveChanges();
+
+	public Task SaveAsync() => base.SaveChangesAsync();
+
+	public bool Any(Expression<Func<FileView, bool>> match) => FileViewDbSet.Any(match);
+
+	public void Add(FileView item) => FileViewDbSet.Add(item);
+
+	public void Update(FileView item) {
+		// No need to update
 	}
 
-	public Task SaveAsync() {
-		return base.SaveChangesAsync();
-	}
+	public FileView? FirstOrDefault(Expression<Func<FileView, bool>> match) => FileViewDbSet.FirstOrDefault(match);
 
-	public FileView? FirstOrDefault(Func<FileView, bool> match) {
-		return FileViewDbSet.FirstOrDefault(match);
-	}
-
-	public bool Contains(FileView fileView) {
-		return FileViewDbSet.Contains(fileView);
-	}
+	public bool Contains(FileView fileView) => FileViewDbSet.Contains(fileView);
 }

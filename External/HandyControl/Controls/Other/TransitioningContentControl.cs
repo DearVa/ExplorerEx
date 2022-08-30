@@ -5,103 +5,96 @@ using System.Windows.Media.Animation;
 using HandyControl.Data;
 using HandyControl.Tools;
 
-namespace HandyControl.Controls
-{
-    public class TransitioningContentControl : ContentControl
-    {
-        private FrameworkElement _contentPresenter;
+namespace HandyControl.Controls; 
 
-        private static Storyboard StoryboardBuildInDefault;
+public class TransitioningContentControl : ContentControl {
+	private FrameworkElement contentPresenter;
 
-        private Storyboard _storyboardBuildIn;
+	private static Storyboard storyboardBuildInDefault;
 
-        public TransitioningContentControl()
-        {
-            Loaded += TransitioningContentControl_Loaded;
-            Unloaded += TransitioningContentControl_Unloaded;
-        }
+	private Storyboard storyboardBuildIn;
 
-        public static readonly DependencyProperty TransitionModeProperty = DependencyProperty.Register(
-            "TransitionMode", typeof(TransitionMode), typeof(TransitioningContentControl), new PropertyMetadata(default(TransitionMode), OnTransitionModeChanged));
+	public TransitioningContentControl() {
+		Loaded += TransitioningContentControl_Loaded;
+		Unloaded += TransitioningContentControl_Unloaded;
+	}
 
-        private static void OnTransitionModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var ctl = (TransitioningContentControl) d;
-            ctl.OnTransitionModeChanged((TransitionMode) e.NewValue);
-        }
+	public static readonly DependencyProperty TransitionModeProperty = DependencyProperty.Register(
+		nameof(TransitionMode), typeof(TransitionMode), typeof(TransitioningContentControl), new PropertyMetadata(default(TransitionMode), OnTransitionModeChanged));
 
-        private void OnTransitionModeChanged(TransitionMode newValue)
-        {
-            _storyboardBuildIn = ResourceHelper.GetResourceInternal<Storyboard>($"{newValue}Transition");
-            StartTransition();
-        }
+	private static void OnTransitionModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		var ctl = (TransitioningContentControl)d;
+		ctl.OnTransitionModeChanged((TransitionMode)e.NewValue);
+	}
 
-        public TransitionMode TransitionMode
-        {
-            get => (TransitionMode) GetValue(TransitionModeProperty);
-            set => SetValue(TransitionModeProperty, value);
-        }
+	private void OnTransitionModeChanged(TransitionMode newValue) {
+		storyboardBuildIn = ResourceHelper.GetResourceInternal<Storyboard>($"{newValue}Transition");
+		StartTransition();
+	}
 
-        public static readonly DependencyProperty TransitionStoryboardProperty = DependencyProperty.Register(
-            "TransitionStoryboard", typeof(Storyboard), typeof(TransitioningContentControl), new PropertyMetadata(default(Storyboard)));
+	public TransitionMode TransitionMode {
+		get => (TransitionMode)GetValue(TransitionModeProperty);
+		set => SetValue(TransitionModeProperty, value);
+	}
 
-        public Storyboard TransitionStoryboard
-        {
-            get => (Storyboard) GetValue(TransitionStoryboardProperty);
-            set => SetValue(TransitionStoryboardProperty, value);
-        }
+	public static readonly DependencyProperty TransitionStoryboardProperty = DependencyProperty.Register(
+		nameof(TransitionStoryboard), typeof(Storyboard), typeof(TransitioningContentControl), new PropertyMetadata(default(Storyboard)));
 
-        private void TransitioningContentControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e) => StartTransition();
+	public Storyboard TransitionStoryboard {
+		get => (Storyboard)GetValue(TransitionStoryboardProperty);
+		set => SetValue(TransitionStoryboardProperty, value);
+	}
 
-        private void TransitioningContentControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            StartTransition();
-            IsVisibleChanged += TransitioningContentControl_IsVisibleChanged;
-        }
+	private void TransitioningContentControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e) => StartTransition();
 
-        private void TransitioningContentControl_Unloaded(object sender, RoutedEventArgs e)
-        {
-            IsVisibleChanged -= TransitioningContentControl_IsVisibleChanged;
-        }
+	private void TransitioningContentControl_Loaded(object sender, RoutedEventArgs e) {
+		IsVisibleChanged += TransitioningContentControl_IsVisibleChanged;
+	}
 
-        private void StartTransition()
-        {
-            if (!IsArrangeValid || _contentPresenter == null) return;
+	private void TransitioningContentControl_Unloaded(object sender, RoutedEventArgs e) {
+		IsVisibleChanged -= TransitioningContentControl_IsVisibleChanged;
+	}
 
-            if (TransitionStoryboard != null)
-            {
-                TransitionStoryboard.Begin(_contentPresenter);
-            }
-            else if (_storyboardBuildIn != null)
-            {
-                _storyboardBuildIn?.Begin(_contentPresenter);
-            }
-            else
-            {
-                StoryboardBuildInDefault ??= ResourceHelper.GetResourceInternal<Storyboard>($"{default(TransitionMode)}Transition");
-                StoryboardBuildInDefault?.Begin(_contentPresenter);
-            }
-        }
+	private void StartTransition() {
+		if (!IsArrangeValid || contentPresenter == null) {
+			return;
+		}
 
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
+		if (TransitionStoryboard != null) {
+			TransitionStoryboard.Begin(contentPresenter);
+		} else if (storyboardBuildIn != null) {
+			storyboardBuildIn?.Begin(contentPresenter);
+		} else {
+			storyboardBuildInDefault ??= ResourceHelper.GetResourceInternal<Storyboard>($"{default(TransitionMode)}Transition");
+			storyboardBuildInDefault?.Begin(contentPresenter);
+		}
+	}
 
-            _contentPresenter = VisualTreeHelper.GetChild(this, 0) as FrameworkElement;
-            if (_contentPresenter != null)
-            {
-                _contentPresenter.RenderTransformOrigin = new Point(0.5, 0.5);
-                _contentPresenter.RenderTransform = new TransformGroup
-                {
-                    Children =
-                    {
-                        new ScaleTransform(),
-                        new SkewTransform(),
-                        new RotateTransform(),
-                        new TranslateTransform()
-                    }
-                };
-            }
-        }
-    }
+	public override void OnApplyTemplate() {
+		base.OnApplyTemplate();
+
+		contentPresenter = VisualTreeHelper.GetChild(this, 0) as FrameworkElement;
+		if (contentPresenter != null) {
+			contentPresenter.RenderTransformOrigin = new Point(0.5, 0.5);
+			contentPresenter.RenderTransform = new TransformGroup {
+				Children = {
+					new ScaleTransform(),
+					new SkewTransform(),
+					new RotateTransform(),
+					new TranslateTransform()
+				}
+			};
+		}
+	}
+
+	private bool rendered;
+
+	protected override void OnRender(DrawingContext drawingContext) {
+		base.OnRender(drawingContext);
+		if (rendered) {
+			return;
+		}
+		rendered = true;
+		StartTransition();
+	}
 }

@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
+using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Xml;
+using ExplorerEx.Command;
 using ExplorerEx.Utils;
 using Microsoft.Win32;
 
@@ -47,7 +51,7 @@ internal class SettingsExpander : SettingsCategoryItem {
 internal enum SettingsType {
 	Unknown,
 	Boolean,
-	Integer,
+	Number,
 	String,
 	Select,
 }
@@ -77,7 +81,7 @@ internal abstract class SettingsItem : SettingsCategoryItem, INotifyPropertyChan
 				OnPropertyChanged();
 				OnPropertyChanged(nameof(Self));
 				if (value != null) {
-					ConfigHelper.Save(FullName, value);
+					ConfigHelper.SaveToBuffer(FullName, value);
 				} else {
 					ConfigHelper.Delete(FullName);
 				}
@@ -93,18 +97,22 @@ internal abstract class SettingsItem : SettingsCategoryItem, INotifyPropertyChan
 	/// </summary>
 	public SettingsItem Self { get; }
 
-	public object? Default { get; set; }
+	public virtual void SetDefaultValue(object? value) {
+		Value = value;
+	}
 
 	public bool GetBoolean() => Convert.ToBoolean(Value);
 
 	public int GetInt32() => Convert.ToInt32(Value);
 
-	public string GetString() => Convert.ToString(Value) ?? Convert.ToString(Default) ?? string.Empty;
+	public double GetDouble() => Convert.ToDouble(Value);
+
+	public string GetString() => Convert.ToString(Value) ?? string.Empty;
 
 	/// <summary>
 	/// 与<see cref="PropertyChanged"/>不同，这个是专门用于监测值的变化
 	/// </summary>
-	public event Action<object?>? Changed; 
+	public event Action<object?>? Changed;
 
 	public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -129,21 +137,69 @@ internal class SettingsSelectItem : SettingsItem {
 		}
 	}
 
+	public List<Item> Items { get; } = new();
+
+	public int SelectedIndex {
+		get => Value is int value ? Items.FindIndex(i => i.Value == value) : -1;
+		set {
+			if (value < 0 || value >= Items.Count) {
+				Value = null;
+			} else {
+				Value = Items[value].Value;
+			}
+		}
+	}
+
 	public SettingsSelectItem(string fullName, string header, string? description, string? icon) : base(fullName, header, description, icon, SettingsType.Select) { }
 
-	public List<Item> Items { get; } = new();
+	public override void SetDefaultValue(object? value) {
+		if (value is int i) {
+			Value = i;
+		} else {
+			Value = 0;
+		}
+	}
 }
 
 internal class SettingsBooleanItem : SettingsItem {
 	public SettingsBooleanItem(string fullName, string header, string? description, string? icon) : base(fullName, header, description, icon, SettingsType.Boolean) { }
 }
 
-internal class SettingsIntegerItem : SettingsItem {
-	public SettingsIntegerItem(string fullName, string header, string? description, string? icon) : base(fullName, header, description, icon, SettingsType.Integer) { }
+internal class SettingsNumberItem : SettingsItem {
+	public double Min { get; }
+
+	public double Max { get; }
+
+	public SettingsNumberItem(string fullName, string header, double min, double max, string? description, string? icon) : base(fullName, header, description, icon, SettingsType.Number) {
+		Min = min;
+		Max = max;
+	}
+
+	public override void SetDefaultValue(object? value) {
+		if (value != null && double.TryParse(value.ToString(), out var number) && number <= Max && number >= Min) {
+			Value = number;
+		} else {
+			Value = Max;
+		}
+	}
 }
 
 internal class SettingsStringItem : SettingsItem {
+	public SimpleCommand? BrowserFileCommand { get; set; }
+
 	public SettingsStringItem(string fullName, string header, string? description, string? icon) : base(fullName, header, description, icon, SettingsType.String) { }
+
+	public void SetBrowserFileCommand(string filter) {
+		BrowserFileCommand = new SimpleCommand(() => {
+			var ofd = new OpenFileDialog {
+				CheckFileExists = true,
+				Filter = filter
+			};
+			if (ofd.ShowDialog().GetValueOrDefault()) {
+				Value = ofd.FileName;
+			}
+		});
+	}
 }
 
 public enum ColorMode {
@@ -158,7 +214,7 @@ public enum WindowBackdrop {
 	Mica
 }
 
-internal sealed class Settings {
+internal sealed class Settings : INotifyPropertyChanged {
 	public static Settings Current { get; } = new();
 
 	public ObservableCollection<SettingsCategory> Categories { get; } = new();
@@ -168,18 +224,24 @@ internal sealed class Settings {
 	#region 特殊/常用设置
 
 	public static class CommonSettings {
-		public const string ColorMode = "Appearance.Theme.ColorMode";
-		public const string WindowBackdrop = "Appearance.Theme.WindowBackdrop";
+		public const string Language = "Appearance.Language";
+		public const string ColorMode = "Appearance.ColorMode";
+		public const string WindowBackdrop = "Appearance.Background.WindowBackdrop";
+		public const string BackgroundImage = "Appearance.Background.BackgroundImage";
+		public const string BackgroundImageOpacity = "Appearance.Background.BackgroundImageOpacity";
 
 		public const string DoubleClickGoUpperLevel = "Common.DoubleClickGoUpperLevel";
 
+		public const string DontAskWhenClosingMultiTabs = "Customize.DontAskWhenClosingMultiTabs";
 		public const string DontAskWhenRecycle = "Customize.DontAskWhenRecycle";
 		public const string DontAskWhenDelete = "Customize.DontAskWhenDelete";
 
 		public const string ShowHiddenFilesAndFolders = "Advanced.ShowHiddenFilesAndFolders";
 		public const string ShowProtectedSystemFilesAndFolders = "Advanced.ShowProtectedSystemFilesAndFolders";
 	}
-	
+
+	public static CultureInfo CurrentCulture { get; private set; } = CultureInfo.CurrentUICulture;
+
 	public static event Action? ThemeChanged;
 
 	/// <summary>
@@ -208,13 +270,40 @@ internal sealed class Settings {
 
 	public WindowBackdrop WindowBackdrop => (WindowBackdrop)settings[CommonSettings.WindowBackdrop].GetInt32();
 
+	public ImageSource? BackgroundImage { get; set; }
+
+	public double BackgroundImageOpacity => this[CommonSettings.BackgroundImageOpacity].GetDouble();
+
 	private void RegisterEvents() {
 		ThemeChanged = null;
 
-		settings[CommonSettings.ColorMode].Changed += _ => ThemeChanged?.Invoke();
+		settings[CommonSettings.Language].Changed += o => {  // 更改界面语言
+			if (o is int lcId) {
+				var prevCulture = CurrentCulture;
+				try {
+					CurrentCulture = new CultureInfo(lcId);
+				} catch {
+					CurrentCulture = prevCulture;
+				}
+			}
+		};
 		settings[CommonSettings.WindowBackdrop].Changed += _ => ThemeChanged?.Invoke();
+		settings[CommonSettings.BackgroundImage].Changed += o => {
+			if (o is string path && File.Exists(path)) {
+				try {
+					BackgroundImage = new BitmapImage(new Uri(path));
+				} catch {
+					BackgroundImage = null;
+				}
+			} else {
+				BackgroundImage = null;
+			}
+			OnPropertyChanged(nameof(BackgroundImage));
+		};
+		settings[CommonSettings.BackgroundImageOpacity].Changed += _ => OnPropertyChanged(nameof(BackgroundImageOpacity));
+		settings[CommonSettings.ColorMode].Changed += _ => ThemeChanged?.Invoke();  // 更改颜色
 	}
-	
+
 	#endregion
 
 	public SettingsItem this[string name] {
@@ -227,6 +316,11 @@ internal sealed class Settings {
 	}
 
 	public void LoadSettings() {
+		var lcId = ConfigHelper.LoadInt(CommonSettings.Language, -1);
+		if (lcId != -1) {
+			CurrentCulture = new CultureInfo(lcId);
+		}
+
 		using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ExplorerEx.Assets.Settings.xml")!;
 		using var xml = XmlReader.Create(stream);
 		if (!xml.Read() || xml.Name != "settings") {
@@ -272,8 +366,14 @@ internal sealed class Settings {
 					case SettingsType.Boolean:
 						item = new SettingsBooleanItem(fullName, header, xml.GetAttribute("description"), xml.GetAttribute("icon"));
 						break;
-					case SettingsType.Integer:
-						item = new SettingsIntegerItem(fullName, header, xml.GetAttribute("description"), xml.GetAttribute("icon"));
+					case SettingsType.Number:
+						if (!double.TryParse(xml.GetAttribute("min"), out var min)) {
+							min = 0;
+						}
+						if (!double.TryParse(xml.GetAttribute("max"), out var max)) {
+							max = 0;
+						}
+						item = new SettingsNumberItem(fullName, header, min, max, xml.GetAttribute("description"), xml.GetAttribute("icon"));
 						break;
 					case SettingsType.String:
 						item = new SettingsStringItem(fullName, header, xml.GetAttribute("description"), xml.GetAttribute("icon"));
@@ -284,8 +384,7 @@ internal sealed class Settings {
 					default:
 						continue;
 					}
-					item.Default = xml.GetAttribute("default");
-					item.Value = ConfigHelper.Load(fullName) ?? xml.GetAttribute("default");
+					item.SetDefaultValue(ConfigHelper.Load(fullName) ?? xml.GetAttribute("default"));
 					if (expander != null) {
 						expander.Items.Add(item);
 					} else {
@@ -294,14 +393,44 @@ internal sealed class Settings {
 					settings.Add(fullName, item);
 				}
 				break;
-			case "option":
+			case "option": {
 				if (xml.NodeType == XmlNodeType.Element && item is SettingsSelectItem ssi && (header = xml.GetAttribute("header")) != null) {
-					ssi.Items.Add(new SettingsSelectItem.Item(header, ssi.Items.Count));
+					if (!int.TryParse(xml.GetAttribute("value"), out var value)) {
+						value = ssi.Items.Count;
+					}
+					ssi.Items.Add(new SettingsSelectItem.Item(header, value));
+					ssi.Value ??= ssi.Items[0];
 				}
 				break;
+			}
+			case "browse": {
+				if (xml.NodeType == XmlNodeType.Element && item is SettingsStringItem ssi) {
+					ssi.SetBrowserFileCommand(xml.GetAttribute("filter") ?? "*.*|*.*");
+				}
+				break;
+			}
+			}
+		}
+
+		// 调整语言
+		if (lcId == -1) {
+			settings[CommonSettings.Language].Value = CurrentCulture.LCID;
+		}
+		// 设置窗口背景材质
+		if (ConfigHelper.Load(CommonSettings.WindowBackdrop) == null) {
+			if (Environment.OSVersion.Version >= Version.Parse("10.0.22000.0")) {
+				this[CommonSettings.WindowBackdrop].Value = 2;  // Mica
+			} else {
+				this[CommonSettings.WindowBackdrop].Value = 1;  // Acrylic
 			}
 		}
 
 		RegisterEvents();
+	}
+
+	public event PropertyChangedEventHandler? PropertyChanged;
+
+	private void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
+		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 	}
 }

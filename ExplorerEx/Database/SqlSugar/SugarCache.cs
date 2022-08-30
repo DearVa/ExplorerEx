@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using Castle.DynamicProxy;
 using SqlSugar;
 
@@ -19,13 +19,9 @@ public abstract class SugarCacheBase {
 	protected bool IsLoaded;
 
 	protected SugarCacheBase(Type type) {
-		if (!type.IsClass || Caches.ContainsKey(type)) {
-			throw new ExternalException("This class has already been proxied");
-		}
+		Debug.Assert(!type.IsClass || Caches.ContainsKey(type));
 		Caches.Add(type, this);
 	}
-
-	public abstract void LoadDatabase();
 }
 
 /// <summary>
@@ -75,7 +71,7 @@ public class SugarCache<T> : SugarCacheBase where T : class, new() {
 		interceptor = new DbModelInterceptor(this);
 	}
 
-	public override void LoadDatabase() {
+	public void LoadDatabase() {
 		if (!IsLoaded) {
 			var interceptor = new DbModelInterceptor(this);
 			db.Queryable<T>().ForEach(x => locals.Add(Generator.CreateClassProxyWithTarget(x, interceptor)));
@@ -83,13 +79,9 @@ public class SugarCache<T> : SugarCacheBase where T : class, new() {
 		}
 	}
 
-	public T? FirstOrDefault(Func<T, bool> match) {
-		return locals.FirstOrDefault(match);
-	}
+	public T? FirstOrDefault(Func<T, bool> match) => locals.FirstOrDefault(match);
 
-	public bool Contains(T item) {
-		return locals.Contains(item);
-	}
+	public bool Contains(T item) => locals.Contains(item);
 
 	public void ForEach(Action<T> action) {
 		foreach (var local in locals) {
@@ -97,9 +89,7 @@ public class SugarCache<T> : SugarCacheBase where T : class, new() {
 		}
 	}
 
-	public bool Any(Func<T, bool> match) {
-		return locals.Any(match);
-	}
+	public bool Any(Func<T, bool> match) => locals.Any(match);
 
 	public void Add(T item) {
 		// TODO: 目前是加锁，是否需要一个并行方法？（并行参考Utils.Collections.ConcurrentObservableCollection）
@@ -107,6 +97,18 @@ public class SugarCache<T> : SugarCacheBase where T : class, new() {
 			item = Generator.CreateClassProxyWithTarget(item, interceptor);
 			adds.Add(item);
 			locals.Add(item);
+		}
+	}
+
+	/// <summary>
+	/// 标记为已更改
+	/// </summary>
+	/// <param name="item">为Proxy</param>
+	private void MarkAsChanged(T item) {
+		lock (lockObj) {
+			if (!changes.Contains(item) && !deletes.Contains(item) && locals.Contains(item)) {
+				changes.Add(item);
+			}
 		}
 	}
 
@@ -119,9 +121,7 @@ public class SugarCache<T> : SugarCacheBase where T : class, new() {
 		}
 	}
 
-	public int Count() {
-		return locals.Count;
-	}
+	public int Count() => locals.Count;
 
 	public void Save() {
 		lock (lockObj) {
@@ -158,71 +158,14 @@ public class SugarCache<T> : SugarCacheBase where T : class, new() {
 			// 这里只用一个简单的比对即可
 			// 至于下面的Contains和Add，目前是HashSet，性能很高
 			// 可以考虑使用并发Add
+
 			if (invocation.Method.Attributes.HasFlag(MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.SpecialName)) {
-				var p = (T)invocation.Proxy;
-				if (!cache.changes.Contains(p) && !cache.deletes.Contains(p) && cache.locals.Contains(p)) {
-					cache.changes.Add(p);
+				if (invocation.Method.ReturnType == typeof(void)) {
+					cache.MarkAsChanged((T)invocation.Proxy);  // set
+				} else {
+
 				}
 			}
 		}
-	}
-}
-
-/// <summary>
-/// 含有依赖关系的缓存
-/// </summary>
-/// <typeparam name="TSelf"></typeparam>
-/// <typeparam name="TSub"></typeparam>
-public class SugarCache<TSelf, TSub> : SugarCache<TSelf> 
-	where TSelf : class, new() 
-	where TSub : class, new() {
-
-	private readonly SugarStrategy<TSelf, TSub> strategy;
-
-	public SugarCache(ISqlSugarClient db, SugarStrategy<TSelf, TSub> strategy) : base(db) {
-		this.strategy = strategy;
-	}
-
-	public void LoadDataBase() {
-		if (!IsLoaded) {
-			var interceptor = new DbModelInterceptor(this);
-			db.Queryable<TSelf>().ForEach(x => {
-				strategy.Source.ForEach(v => strategy.Action(x, v));
-				locals.Add(Generator.CreateClassProxyWithTarget(x, interceptor));
-			});
-			IsLoaded = true;
-		}
-	}
-}
-
-/// <summary>
-/// 含有更多依赖关系的缓存
-/// </summary>
-/// <typeparam name="TSelf"></typeparam>
-/// <typeparam name="TSub1"></typeparam>
-/// <typeparam name="TSub2"></typeparam>
-public class SugarCache<TSelf, TSub1, TSub2> : SugarCache<TSelf>
-	where TSelf : class, new()
-	where TSub1 : class, new()
-	where TSub2 : class, new() {
-	private readonly SugarStrategy<TSelf, TSub1> strategy1;
-	private readonly SugarStrategy<TSelf, TSub2> strategy2;
-
-	public SugarCache(ISqlSugarClient db, SugarStrategy<TSelf, TSub1> strategy1, SugarStrategy<TSelf, TSub2> strategy2) : base(db) {
-		this.strategy1 = strategy1;
-		this.strategy2 = strategy2;
-	}
-
-	public void LoadDataBase() {
-		if (!IsLoaded) {
-			var interceptor = new DbModelInterceptor(this);
-			db.Queryable<TSelf>().ForEach(x => {
-				strategy1.Source.ForEach(v => strategy1.Action(x, v));
-				strategy2.Source.ForEach(v => strategy2.Action(x, v));
-				locals.Add(Generator.CreateClassProxyWithTarget(x, interceptor));
-			});
-			IsLoaded = true;
-		}
-
 	}
 }

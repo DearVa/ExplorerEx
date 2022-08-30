@@ -204,11 +204,11 @@ public partial class ContentDialog {
 	/// </summary>
 	/// <param name="msg"></param>
 	/// <param name="caption"></param>
-	/// <param name="configKey"></param>
+	/// <param name="settingsKey"></param>
 	/// <param name="ownerWindow"></param>
 	/// <returns></returns>
-	public static bool ShowWithDefault(string configKey, string msg, string? caption = null, MainWindow? ownerWindow = null) {
-		if (Settings.Current[configKey].GetBoolean()) {
+	public static bool ShowWithDefault(string settingsKey, string msg, string? caption = null, MainWindow? ownerWindow = null) {
+		if (Settings.Current[settingsKey].GetBoolean()) {
 			return true;
 		}
 		if (MainWindow.FocusedWindow == null) {
@@ -225,7 +225,7 @@ public partial class ContentDialog {
 		}.Show(ownerWindow ?? MainWindow.FocusedWindow);
 		if (result == ContentDialogResult.Primary) {
 			if (content.IsChecked) {
-				Settings.Current[configKey].Value = true;
+				Settings.Current[settingsKey].Value = true;
 			}
 			return true;
 		}
@@ -262,5 +262,9 @@ public partial class ContentDialog {
 		Primary,
 		Secondary,
 		Cancel
+	}
+
+	private void ContentDialog_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+		owner?.DragMove();
 	}
 }

@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using ExplorerEx.Utils;
 using ExplorerEx.ViewModel;
 using HandyControl.Data;
@@ -125,8 +123,31 @@ public partial class FileTabControl {
 	/// </summary>
 	public ObservableCollection<FileTabViewModel> TabItems { get; } = new();
 
+	private static readonly Dictionary<FileTabViewModel, FileViewGrid> CachedViews = new();
+
 	public new static readonly DependencyProperty SelectedIndexProperty = DependencyProperty.Register(
-		nameof(SelectedIndex), typeof(int), typeof(FileTabControl), new PropertyMetadata(default(int)));
+		nameof(SelectedIndex), typeof(int), typeof(FileTabControl), new PropertyMetadata(0, SelectedIndexProperty_OnChanged));
+
+	/// <summary>
+	/// 在这里关闭虚拟化
+	/// </summary>
+	/// <param name="d"></param>
+	/// <param name="e"></param>
+	/// <exception cref="NotImplementedException"></exception>
+	private static void SelectedIndexProperty_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		var tabControl = (FileTabControl)d;
+		var index = (int)e.NewValue;
+		if (index == -1) {
+			tabControl.ContentPanel.Child = null;
+			return;
+		}
+		var tabViewModel = tabControl.TabItems[index];
+		if (!CachedViews.TryGetValue(tabViewModel, out var fileViewGrid)) {
+			CachedViews.Add(tabViewModel, new FileViewGrid(tabViewModel, tabControl.ContentPanel));
+		} else {
+			tabControl.ContentPanel.Child = fileViewGrid;
+		}
+	}
 
 	public new int SelectedIndex {
 		get => (int)GetValue(SelectedIndexProperty);
@@ -154,14 +175,6 @@ public partial class FileTabControl {
 			}
 			return TabItems[index];
 		}
-	}
-
-	public static readonly DependencyProperty IsFileUtilsVisibleProperty = DependencyProperty.Register(
-		nameof(IsFileUtilsVisible), typeof(bool), typeof(FileTabControl), new PropertyMetadata(default(bool)));
-
-	public bool IsFileUtilsVisible {
-		get => (bool)GetValue(IsFileUtilsVisibleProperty);
-		set => SetValue(IsFileUtilsVisibleProperty, value);
 	}
 
 	public MainWindow MainWindow { get; }
@@ -220,6 +233,7 @@ public partial class FileTabControl {
 	/// </summary>
 	public void Close() {
 		foreach (var tab in TabItems) {
+			CachedViews.Remove(tab);
 			tab.Dispose();
 		}
 		TabItems.Clear();
@@ -237,6 +251,7 @@ public partial class FileTabControl {
 			return;
 		}
 		if (await HandleTabClosing(tab)) {
+			CachedViews.Remove(tab);
 			TabItems.RemoveAt(index);
 		}
 	}
@@ -422,13 +437,6 @@ public partial class FileTabControl {
 		return true;
 	}
 
-	protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
-		base.OnRenderSizeChanged(sizeInfo);
-		if (sizeInfo.WidthChanged) {
-			IsFileUtilsVisible = sizeInfo.NewSize.Width > 640d;
-		}
-	}
-
 	private static bool CanDragDrop(DragEventArgs e, FileTabViewModel vm) {
 		if (vm.PathType == PathType.Home) {
 			e.Effects = DragDropEffects.None;
@@ -547,6 +555,7 @@ public partial class FileTabControl {
 		headerBorder = (Border)GetTemplateChild(HeaderBorderKey)!;
 		NewTabButton = (Button)GetTemplateChild(NewTabButtonKey)!;
 		ContentPanel = (Border)GetTemplateChild(ContentPanelKey)!;
+		SelectedIndexProperty_OnChanged(this, new DependencyPropertyChangedEventArgs(SelectedIndexProperty, 0, 0));
 	}
 
 	private void TabBorder_OnMouseEnter(object sender, MouseEventArgs e) {

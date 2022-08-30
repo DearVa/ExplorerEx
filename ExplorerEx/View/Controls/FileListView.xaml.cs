@@ -65,17 +65,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		set => SetValue(ItemsSourceProperty, value);
 	}
 
-	public FileTabViewModel ViewModel {
-		get => viewModel;
-		private set {
-			if (viewModel != value) {
-				viewModel = value;
-				OnPropertyChanged();
-			}
-		}
-	}
-
-	private FileTabViewModel viewModel = null!;
+	public FileTabViewModel ViewModel { get; private set; } = null!;
 
 	public static readonly DependencyProperty OwnerWindowProperty = DependencyProperty.Register(
 		nameof(OwnerWindow), typeof(MainWindow), typeof(FileListView), new PropertyMetadata(default(MainWindow)));
@@ -96,7 +86,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	}
 
 	public static readonly DependencyProperty FileViewProperty = DependencyProperty.Register(
-		nameof(FileView), typeof(FileView), typeof(FileListView), new PropertyMetadata(default(FileView), OnViewChanged));
+		nameof(FileView), typeof(FileView), typeof(FileListView), new PropertyMetadata(default(FileView), OnFileViewChanged));
 
 	public FileView? FileView {
 		get => (FileView)GetValue(FileViewProperty);
@@ -177,8 +167,9 @@ public partial class FileListView : INotifyPropertyChanged {
 	private Border selectionRect = null!;
 
 	public FileListView() {
-		DataContextChanged += OnDataContextChanged;
+		DataContextChanged += (_, e) => ViewModel = (FileTabViewModel)e.NewValue;
 		InitializeComponent();
+		ApplyTemplate();
 		SelectCommand = new SimpleCommand(Select);
 		StartRenameCommand = new SimpleCommand(e => ViewModel.StartRename((string?)e));
 		SwitchViewCommand = new SimpleCommand(OnSwitchView);
@@ -205,46 +196,14 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// </summary>
 	private bool isDataContextChanging;
 
-	/// <summary>
-	/// 发生在切换标签页的时候
-	/// </summary>
-	/// <param name="sender"></param>
-	/// <param name="e"></param>
-	private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
-		isDataContextChanging = true;
-		var oldViewModel = e.OldValue as FileTabViewModel;
-		if (oldViewModel != null) {
-			oldViewModel.ScrollViewX = scrollViewer!.HorizontalOffset;
-			oldViewModel.ScrollViewY = scrollViewer!.VerticalOffset;
-		}
-		if (e.NewValue is FileTabViewModel newViewModel) {
-			ViewModel = newViewModel;
-			ContextMenu!.DataContext = newViewModel;
-			if (oldViewModel != null) {
-				newViewModel.FileView.StageChangesFromOther(oldViewModel.FileView);
-			} else {
-				newViewModel.FileView.StageAllChanges();
-			}
-			if (scrollViewer != null) {
-				scrollViewer.ScrollToHorizontalOffset(newViewModel.ScrollViewX);
-				scrollViewer.ScrollToVerticalOffset(newViewModel.ScrollViewY);
-			}
-		}
-	}
-
-	private static void OnViewChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+	private static void OnFileViewChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		var fileGrid = (FileListView)d;
-		if (e.NewValue is FileView fileView) {
-			fileView.PropertyChanged += fileGrid.OnFileViewPropertyChanged;
-			fileView.CommitChange();
-		}
+		var fileView = (FileView)e.NewValue;
+		fileView.PropertyChanged += fileGrid.OnFileViewPropertyChanged;
 	}
 
 	private void OnFileViewPropertyChanged(object? sender, PropertyChangedEventArgs e) {
-		var fileView = FileView;
-		if (fileView == null) {
-			return;
-		}
+		var fileView = FileView!;
 		switch (e.PropertyName) {
 		case nameof(fileView.FileViewType):
 			if (fileView.FileViewType == FileViewType.Details) {
@@ -704,8 +663,9 @@ public partial class FileListView : INotifyPropertyChanged {
 							openedContextMenu.IsOpen = true;
 						} else {
 							UnselectAll();
-							openedContextMenu = ContextMenu;
-							openedContextMenu!.IsOpen = true;
+							openedContextMenu = ContextMenu!;
+							openedContextMenu.DataContext = ViewModel;
+							openedContextMenu.IsOpen = true;
 						}
 						break;
 					}
@@ -731,7 +691,7 @@ public partial class FileListView : INotifyPropertyChanged {
 			return;
 		}
 		
-		viewModel.ChangeSelection(e);
+		ViewModel.ChangeSelection(e);
 	}
 
 	protected override void OnPreviewMouseWheel(MouseWheelEventArgs e) {
@@ -999,11 +959,11 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	#region MenuItem点击事件，用Binding的话太浪费资源了
 	private void Refresh_OnClick(object sender, RoutedEventArgs e) {
-		viewModel.Refresh();
+		ViewModel.Refresh();
 	}
 
 	private void NewFolder_OnClick(object sender, RoutedEventArgs e) {
-		viewModel.CreateCommand.Execute(CreateFolderItem.Singleton);
+		ViewModel.CreateCommand.Execute(CreateFolderItem.Singleton);
 	}
 
 	private void FormatDiskDrive_OnClick(object sender, RoutedEventArgs e) {

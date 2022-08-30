@@ -128,7 +128,7 @@ public class FileTabItem : TabItem {
 
 	private FileTabPanel? fileTabPanel;
 
-	private Grid templateRoot;
+	private Grid templateRoot = null!;
 
 	private static readonly DoubleAnimation TabShowAnimation = new(1d, new Duration(TimeSpan.FromMilliseconds(300))) {
 		EasingFunction = new SineEase {
@@ -138,7 +138,7 @@ public class FileTabItem : TabItem {
 
 	public FileTabItem() {
 		CommandBindings.Add(new CommandBinding(ControlCommands.Close, (_, _) => Close()));
-		CommandBindings.Add(new CommandBinding(ControlCommands.CloseOther, (_, _) => TabControlParent.CloseOtherItems(this)));
+		CommandBindings.Add(new CommandBinding(ControlCommands.CloseOther, (_, _) => TabControlParent?.CloseOtherItems(this)));
 		Loaded += (s, _) => {
 			var tab = (FileTabItem)s;
 			if (tab.ViewModel.playTabAnimation) {
@@ -205,7 +205,7 @@ public class FileTabItem : TabItem {
 	/// </summary>
 	/// <param name="oldIndex"></param>
 	private void UpdateItemOffsetX(int oldIndex) {
-		if (!isDragging || CurrentIndex >= FileTabPanel.ItemDict.Count) {
+		if (!isDragging || FileTabPanel == null || CurrentIndex >= FileTabPanel.ItemDict.Count) {
 			return;
 		}
 
@@ -247,11 +247,10 @@ public class FileTabItem : TabItem {
 			return;
 		}
 
-		FileTabPanel.SetValue(FileTabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromMilliseconds(200)));
+		FileTabPanel?.SetValue(FileTabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromMilliseconds(200)));
 		parent.IsInternalAction = true;
 
-		var list = parent.GetActualList();
-		list?.Remove(item);
+		parent.GetActualList().Remove(item);
 	}
 
 	protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
@@ -260,19 +259,21 @@ public class FileTabItem : TabItem {
 		if (VisualTreeHelper.HitTest(this, e.GetPosition(this)) == null) {
 			return;
 		}
+
 		// 所有TabItem放在这个里边
-		if (TabControlParent == null) {
+		var parent = TabControlParent;
+		if (parent == null) {
 			return;
 		}
 
-		var parent = TabControlParent.TabBorder;
+		var parentBorder = parent.TabBorder;
 		if (!isItemDragging && !isDragging) {
-			FileTabPanel.SetValue(FileTabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromSeconds(0)));
+			FileTabPanel?.SetValue(FileTabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromSeconds(0)));
 			mouseDownOffsetX = RenderTransform.Value.OffsetX;
-			var mx = TranslatePoint(new Point(), parent).X;
-			mouseDownPoint = e.GetPosition(parent);
+			var mx = TranslatePoint(new Point(), parentBorder).X;
+			mouseDownPoint = e.GetPosition(parentBorder);
 			mouseDownTabPoint = e.GetPosition(this);
-			StartDrag(parent, mouseDownPoint, CalLocationIndex(mx));
+			StartDrag(parentBorder, mouseDownPoint, CalLocationIndex(mx));
 		}
 	}
 
@@ -445,6 +446,9 @@ public class FileTabItem : TabItem {
 	/// </summary>
 	internal void CreateAnimation(double offsetX, double resultX, int index = -1) {
 		var parent = TabControlParent;
+		if (parent == null) {
+			return;
+		}
 
 		void AnimationCompleted() {
 			RenderTransform = new TranslateTransform(resultX, 0);
@@ -453,10 +457,6 @@ public class FileTabItem : TabItem {
 			}
 
 			var list = parent.GetActualList();
-			if (list == null) {
-				return;
-			}
-
 			var item = parent.ItemContainerGenerator.ItemFromContainer(this);
 			if (item == null) {
 				return;
@@ -471,8 +471,11 @@ public class FileTabItem : TabItem {
 				list.Insert(index, item);
 			}
 
-			fileTabPanel.SetValue(FileTabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromMilliseconds(0)));
-			FileTabPanel.Measure(new Size(FileTabPanel.DesiredSize.Width, ActualHeight));
+			var fileTabPanel = FileTabPanel;
+			if (fileTabPanel != null) {
+				fileTabPanel.SetValue(FileTabPanel.FluidMoveDurationPropertyKey, new Duration(TimeSpan.FromMilliseconds(0)));
+				fileTabPanel.Measure(new Size(fileTabPanel.DesiredSize.Width, ActualHeight));
+			}
 
 			Focus();
 			IsSelected = true;
@@ -504,7 +507,12 @@ public class FileTabItem : TabItem {
 			return CurrentIndex;
 		}
 
-		var maxIndex = TabControlParent.Items.Count - 1;
+		var parent = TabControlParent;
+		if (parent == null) {
+			return 0;
+		}
+
+		var maxIndex = parent.Items.Count - 1;
 		var div = (int)(left / ItemWidth);
 		var rest = left % ItemWidth;
 		var result = rest / ItemWidth > .5 ? div + 1 : div;

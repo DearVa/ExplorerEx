@@ -90,6 +90,15 @@ namespace ExplorerEx.Strings {
         /// <summary>
         ///   查找类似 共{0}个项目 的本地化字符串。
         /// </summary>
+        internal static string ___Item {
+            get {
+                return ResourceManager.GetString("...Item", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 共{0}个项目 的本地化字符串。
+        /// </summary>
         internal static string ___Items {
             get {
                 return ResourceManager.GetString("...Items", resourceCulture);
@@ -132,6 +141,15 @@ namespace ExplorerEx.Strings {
         internal static string _AreYouSureToRecycleTheseFiles {
             get {
                 return ResourceManager.GetString("#AreYouSureToRecycleTheseFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 设置文件浏览列表的背景图片 的本地化字符串。
+        /// </summary>
+        internal static string _BackgroundImageDescription {
+            get {
+                return ResourceManager.GetString("#BackgroundImageDescription", resourceCulture);
             }
         }
         
@@ -232,6 +250,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 选择ExplorerEx的显示语言 的本地化字符串。
+        /// </summary>
+        internal static string _LanguageDescription {
+            get {
+                return ResourceManager.GetString("#LanguageDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 路径不存在或者没有权限访问。 的本地化字符串。
         /// </summary>
         internal static string _PathNotExistOrAccessDenied {
@@ -300,16 +327,6 @@ namespace ExplorerEx.Strings {
         internal static string _ZipFileIsExecutable {
             get {
                 return ResourceManager.GetString("#ZipFileIsExecutable", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 要访问zip的内容，路径应该以“\”结尾。
-        ///如C:\compress.zip\Folder1\ 的本地化字符串。
-        /// </summary>
-        internal static string _ZipMustEndsWithSlash {
-            get {
-                return ResourceManager.GetString("#ZipMustEndsWithSlash", resourceCulture);
             }
         }
         
@@ -400,6 +417,33 @@ namespace ExplorerEx.Strings {
         internal static string AvailableSpace {
             get {
                 return ResourceManager.GetString("AvailableSpace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 背景 的本地化字符串。
+        /// </summary>
+        internal static string Background {
+            get {
+                return ResourceManager.GetString("Background", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 背景图片 的本地化字符串。
+        /// </summary>
+        internal static string BackgroundImage {
+            get {
+                return ResourceManager.GetString("BackgroundImage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 背景图片透明度 的本地化字符串。
+        /// </summary>
+        internal static string BackgroundImageOpacity {
+            get {
+                return ResourceManager.GetString("BackgroundImageOpacity", resourceCulture);
             }
         }
         
@@ -499,6 +543,15 @@ namespace ExplorerEx.Strings {
         internal static string CheckYourInputAndTryAgain {
             get {
                 return ResourceManager.GetString("CheckYourInputAndTryAgain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 中文 的本地化字符串。
+        /// </summary>
+        internal static string Chinese {
+            get {
+                return ResourceManager.GetString("Chinese", resourceCulture);
             }
         }
         
@@ -719,6 +772,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 当关闭有多个标签页的窗口时不要提醒我 的本地化字符串。
+        /// </summary>
+        internal static string DontAskWhenClosingMultiTabs {
+            get {
+                return ResourceManager.GetString("DontAskWhenClosingMultiTabs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 （不推荐开启）永久删除文件时不提示确认 的本地化字符串。
         /// </summary>
         internal static string DontAskWhenDelete {
@@ -859,6 +921,15 @@ namespace ExplorerEx.Strings {
         internal static string EmptyRecycleBin {
             get {
                 return ResourceManager.GetString("EmptyRecycleBin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 英文 的本地化字符串。
+        /// </summary>
+        internal static string English {
+            get {
+                return ResourceManager.GetString("English", resourceCulture);
             }
         }
         
@@ -1084,6 +1155,15 @@ namespace ExplorerEx.Strings {
         internal static string InitializeLoggerFailed {
             get {
                 return ResourceManager.GetString("InitializeLoggerFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 语言 的本地化字符串。
+        /// </summary>
+        internal static string Language {
+            get {
+                return ResourceManager.GetString("Language", resourceCulture);
             }
         }
         
@@ -1610,7 +1690,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 显示受保护的系统文件和文件夹 的本地化字符串。
+        ///   查找类似 （不推荐开启）显示受保护的系统文件和文件夹 的本地化字符串。
         /// </summary>
         internal static string ShowProtectedSystemFilesAndFolders {
             get {
@@ -1871,7 +1951,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 窗口背景 的本地化字符串。
+        ///   查找类似 窗口背景材质 的本地化字符串。
         /// </summary>
         internal static string WindowBackdrop {
             get {

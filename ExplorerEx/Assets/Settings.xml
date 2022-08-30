@@ -1,33 +1,42 @@
 ﻿<settings>
   <category header="Appearance">
-    <expander header="Theme" icon="BrushDrawingImage">
-      <item header="WindowBackdrop" description="#WindowBackdropDescription" type="select">
+    <item header="Language" description="#LanguageDescription" icon="LanguageDrawingImage" type="select">
+      <option header="Chinese" value="2052"/>
+      <option header="English" value="1033"/>
+    </item>
+    <expander header="Background" icon="BrushDrawingImage">
+      <item header="WindowBackdrop" icon="BackgroundDrawingImage" type="select">
         <option header="SolidColor"/>
         <option header="Acrylic"/>
         <option header="MicaWindows11Only"/>
       </item>
-      <item header="ColorMode" description="#ColorModeDescription" type="select">
-        <option header="FollowSystem"/>
-        <option header="ColorMode-Light"/>
-        <option header="ColorMode-Dark"/>
+      <item header="BackgroundImage" icon="ImageDrawingImage" description="#BackgroundImageDescription" type="string">
+        <browse type="file" filter="Image|*.png;*.jpg;*.bmp"/>
       </item>
+      <item header="BackgroundImageOpacity" icon="BlurDrawingImage" type="number" min="0" max="1" default="0.8"/>
     </expander>
+    <item header="ColorMode" icon="ColorDrawingImage" type="select">
+      <option header="FollowSystem"/>
+      <option header="ColorMode-Light"/>
+      <option header="ColorMode-Dark"/>
+    </item>
   </category>
 
   <category header="Common">
-    <item header="DefaultTextEditor" description="#DefaultTextEditorDescription" type="string" default="notepad.exe">
-      <browseDialog type="file" filter=".exe"/>
+    <item header="DefaultTextEditor" icon="TextEditorDrawingImage" description="#DefaultTextEditorDescription" type="string" default="notepad.exe">
+      <browse type="file" filter="Application|*.exe"/>
     </item>
-    <item header="DoubleClickGoUpperLevel" description="#DoubleClickGoUpperLevelDescription" type="boolean" default="true"/>
+    <item header="DoubleClickGoUpperLevel" icon="ClickDrawingImage" description="#DoubleClickGoUpperLevelDescription" type="boolean" default="true"/>
   </category>
 
   <category header="Customize">
+    <item header="DontAskWhenClosingMultiTabs" type="boolean" default="false"/>
     <item header="DontAskWhenRecycle" type="boolean" default="false"/>
     <item header="DontAskWhenDelete" type="boolean" default="false"/>
   </category>
 
   <category header="Advanced">
-    <item header="ShowHiddenFilesAndFolders" description="#ShowHiddenFilesAndFoldersDescription" type="boolean" default="false"/>
-    <item header="ShowProtectedSystemFilesAndFolders" description="#ShowProtectedSystemFilesAndFoldersDescription" type="boolean" default="false"/>
+    <item header="ShowHiddenFilesAndFolders" icon="EyeDrawingImage" type="boolean" default="false"/>
+    <item header="ShowProtectedSystemFilesAndFolders" icon="EyeDrawingImage" type="boolean" default="false"/>
   </category>
 </settings>

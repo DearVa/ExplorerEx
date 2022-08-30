@@ -421,39 +421,6 @@ public class FileView : INotifyPropertyChanged {
 	}
 
 	/// <summary>
-	/// 与另一个FileView对比，将差异暂存
-	/// </summary>
-	/// <param name="other"></param>
-	public void StageChangesFromOther(FileView other) {
-		if (fullPath != other.fullPath) {
-			StageChange(nameof(FullPath));
-		}
-		if (pathType != other.pathType) {
-			StageChange(nameof(PathType));
-		}
-		if (sortBy != other.sortBy) {
-			StageChange(nameof(SortBy));
-		}
-		if (isAscending != other.isAscending) {
-			StageChange(nameof(IsAscending));
-		}
-		if (groupBy != other.groupBy) {
-			StageChange(nameof(GroupBy));
-		}
-		if (fileViewType != other.fileViewType) {
-			StageChange(nameof(FileViewType));
-		}
-		if (ItemSize != other.ItemSize) {
-			StageChange(nameof(ItemSize));
-		}
-		if ((DetailListsData != null && other.DetailListsData == null) ||
-			(DetailListsData == null && other.DetailListsData != null) ||
-			(DetailListsData != null && other.DetailListsData != null && !DetailListsData.SequenceEqual(other.DetailListsData))) {
-			StageChange(nameof(DetailListsData));
-		}
-	}
-
-	/// <summary>
 	/// 将所有属性标记为已更改
 	/// </summary>
 	public void StageAllChanges() {

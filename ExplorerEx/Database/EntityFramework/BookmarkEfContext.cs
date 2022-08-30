@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
@@ -31,7 +31,18 @@ public class BookmarkEfContext : DbContext, IBookmarkDbContext {
 		dbPath = Path.Combine(path, "BookMarks.db");
 	}
 
-	public async Task LoadDataBase() {
+	protected override void OnConfiguring(DbContextOptionsBuilder ob) {
+		ob.UseSqlite($"Data Source={dbPath}");
+	}
+
+	protected override void OnModelCreating(ModelBuilder modelBuilder) {
+		modelBuilder.Entity<BookmarkItem>().HasOne(b => b.Category)
+			.WithMany(cb => cb.Children).HasForeignKey(b => b.CategoryForeignKey);
+	}
+
+	#region Interfaces
+
+	public async Task LoadAsync() {
 		try {
 			await Database.EnsureCreatedAsync();
 			await BookmarkCategoryDbSet.LoadAsync();
@@ -60,69 +71,29 @@ public class BookmarkEfContext : DbContext, IBookmarkDbContext {
 		}
 	}
 
-	protected override void OnConfiguring(DbContextOptionsBuilder ob) {
-		ob.UseSqlite($"Data Source={dbPath}");
-	}
+	public void Save() => base.SaveChanges();
 
-	protected override void OnModelCreating(ModelBuilder modelBuilder) {
-		modelBuilder.Entity<BookmarkItem>().HasOne(b => b.Category)
-			.WithMany(cb => cb.Children).HasForeignKey(b => b.CategoryForeignKey);
-	}
-
-	#region Interfaces
+	public Task SaveAsync() => base.SaveChangesAsync();
 
 	public void Add(BookmarkItem bookmark) {
 		BookmarkDbSet.Add(bookmark);
-	}
-	public Task AddAsync(BookmarkItem bookmark) {
-		return BookmarkDbSet.AddAsync(bookmark).AsTask();
 	}
 
 	public void Add(BookmarkCategory category) {
 		BookmarkCategoryDbSet.Add(category);
 	}
-	public Task AddAsync(BookmarkCategory category) {
-		return BookmarkCategoryDbSet.AddAsync(category).AsTask();
-	}
 
-	public Task LoadAsync() {
-		throw new NotImplementedException();
-	}
+	public void Remove(BookmarkItem bookmark) => base.Remove(bookmark);
 
-	public void Save() {
-		base.SaveChanges();
-	}
+	public bool Contains(BookmarkItem bookmark) => BookmarkDbSet.Contains(bookmark);
 
-	public Task SaveAsync() {
-		return base.SaveChangesAsync();
-	}
+	public bool Any(Expression<Func<BookmarkItem, bool>> match) => BookmarkDbSet.Any(match);
 
-	public void Remove(BookmarkItem bookmark) {
-		base.Remove(bookmark);
-	}
+	public ObservableCollection<BookmarkCategory> GetBindable() => BookmarkCategoryDbSet.Local.ToObservableCollection();
+	
+	public BookmarkCategory? FirstOrDefault(Expression<Func<BookmarkCategory, bool>> match) => BookmarkCategoryDbSet.FirstOrDefault(match);
 
-	public bool Contains(BookmarkItem bookmark) {
-		return BookmarkDbSet.Contains(bookmark);
-	}
-
-	public bool Any(Func<BookmarkItem, bool> match) {
-		return BookmarkDbSet.Any(match);
-	}
-
-	public ObservableCollection<BookmarkCategory> GetBindable() {
-		return BookmarkCategoryDbSet.Local.ToObservableCollection();
-	}
-
-	#region ProbablyModify
-	public BookmarkCategory? FirstOrDefault(Func<BookmarkCategory, bool> match) {
-		return BookmarkCategoryDbSet.FirstOrDefault(match);
-	}
-
-	public BookmarkItem? FirstOrDefault(Func<BookmarkItem, bool> match) {
-		return BookmarkDbSet.FirstOrDefault(match);
-	}
-
-	#endregion
-
+	public BookmarkItem? FirstOrDefault(Expression<Func<BookmarkItem, bool>> match) => BookmarkDbSet.FirstOrDefault(match);
+	
 	#endregion
 }

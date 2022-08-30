@@ -19,6 +19,8 @@ namespace ExplorerEx.Model;
 /// 所有可以显示在<see cref="FileListView"/>中的项目的基类
 /// </summary>
 public abstract class FileListViewItem : INotifyPropertyChanged {
+	protected FileListViewItem() { }
+
 	protected FileListViewItem(string fullPath, string name, bool isFolder) {
 		FullPath = fullPath;
 		Name = name;
@@ -70,7 +72,7 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	private double opacity = 1d;
 
 	[DbColumn(IsPrimaryKey = true)]
-	public string FullPath { get; protected init; }
+	public virtual string FullPath { get; protected init; }
 	
 	public abstract string DisplayText { get; }
 
@@ -124,10 +126,7 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	/// 加载文件的各项属性
 	/// </summary>
 	public abstract void LoadAttributes(LoadDetailsOptions options);
-
-	/// <summary>
-	/// LoadIcon用到了shell，那并不是一个可以多线程的方法，所以与其每次都Task.Run，不如提高粗粒度
-	/// </summary>
+	
 	public abstract void LoadIcon(LoadDetailsOptions options);
 
 	#region 文件重命名
