@@ -201,7 +201,7 @@
         </StackPanel>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="SidebarColumnDefinition" Width="300"/>
+                <ColumnDefinition x:Name="SidebarColumnDefinition" Width="Auto"/>
                 <ColumnDefinition Width="1"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>

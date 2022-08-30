@@ -119,7 +119,8 @@
                         <hc:SimplePanel Grid.Column="0" Margin="{TemplateBinding Padding}" VerticalAlignment="Top" Height="{Binding ActualHeight, ElementName=headerPanel}" Panel.ZIndex="2" ClipToBounds="true">
                             <ct:FluentBorder x:Name="FluentBorder" IsHitTestVisible="False" Margin="4,0,0,0" Width="3" Height="24" CornerRadius="1.5" Background="{DynamicResource PrimaryBrush}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                         </hc:SimplePanel>
-                        <Border x:Name="ContentPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" ClipToBounds="True" Padding="0,0,10,0"
+                        <Border x:Name="ContentPanel" Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" ClipToBounds="True" 
+                                Padding="0,0,10,0"
                                 KeyboardNavigation.DirectionalNavigation="Contained"
                                 KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
                             <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">

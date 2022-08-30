@@ -288,7 +288,8 @@ internal sealed class Settings : INotifyPropertyChanged {
 			}
 		};
 		settings[CommonSettings.WindowBackdrop].Changed += _ => ThemeChanged?.Invoke();
-		settings[CommonSettings.BackgroundImage].Changed += o => {
+
+		void UpdateBackgroundImage(object? o) {
 			if (o is string path && File.Exists(path)) {
 				try {
 					BackgroundImage = new BitmapImage(new Uri(path));
@@ -299,7 +300,11 @@ internal sealed class Settings : INotifyPropertyChanged {
 				BackgroundImage = null;
 			}
 			OnPropertyChanged(nameof(BackgroundImage));
-		};
+		}
+
+		settings[CommonSettings.BackgroundImage].Changed += UpdateBackgroundImage;
+		UpdateBackgroundImage(settings[CommonSettings.BackgroundImage].Value);
+
 		settings[CommonSettings.BackgroundImageOpacity].Changed += _ => OnPropertyChanged(nameof(BackgroundImageOpacity));
 		settings[CommonSettings.ColorMode].Changed += _ => ThemeChanged?.Invoke();  // 更改颜色
 	}

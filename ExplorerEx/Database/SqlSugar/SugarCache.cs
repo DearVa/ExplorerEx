@@ -19,7 +19,9 @@ public abstract class SugarCacheBase {
 	protected bool IsLoaded;
 
 	protected SugarCacheBase(Type type) {
+#if DEBUG
 		Debug.Assert(!type.IsClass || Caches.ContainsKey(type));
+#endif
 		Caches.Add(type, this);
 	}
 }

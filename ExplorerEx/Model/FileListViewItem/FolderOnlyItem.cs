@@ -51,14 +51,16 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	/// </summary>
 	private readonly string? relativePath;
 
-	private FolderOnlyItem(FolderOnlyItem? parent) : base(null!, null!, true) {
+	private FolderOnlyItem(FolderOnlyItem? parent) : base(IconHelper.FolderDrawingImage) {
 		if (parent == null) {
 			InitializeChildren();
 			UpdateDriveChildren();
 			Parent = this;
+			FullPath = "$Home";
 		} else {
 			IsEnabled = false;
 			Parent = parent;
+			FullPath = "$Unknown";
 		}
 	}
 
@@ -277,8 +279,8 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 							Children = EmptyChildren;
 						}
 					}, token);
-				} else {
-					actualChildren?.Clear();  // 释放内存
+				} else if (actualChildren != null && this != Home) {
+					actualChildren.Clear();  // 释放内存
 				}
 			}
 		}

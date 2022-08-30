@@ -39,6 +39,15 @@ public class FluentTabControl : TabControl {
 		TabItemPreviewMouseUpCommand = new SimpleCommand(OnTabItemPreviewMouseUp);
 		storyboard = new Storyboard();
 		storyboard.Completed += (_, _) => Animate();
+		Loaded += OnLoaded;
+	}
+
+	private void OnLoaded(object sender, RoutedEventArgs e) {
+		if (SelectedIndex == -1) {
+			contentPanel.Visibility = Visibility.Collapsed;
+		} else {
+			contentPanel.Visibility = Visibility.Visible;
+		}
 	}
 
 	public override void OnApplyTemplate() {
@@ -46,9 +55,6 @@ public class FluentTabControl : TabControl {
 		contentPanel = (Border)GetTemplateChild("ContentPanel")!;
 		fluentBorder = (FluentBorder)GetTemplateChild("FluentBorder")!;
 		Storyboard.SetTarget(storyboard, fluentBorder);
-		if (SelectedIndex == -1) {
-			contentPanel.Visibility = Visibility.Collapsed;
-		}
 	}
 
 	private void OnTabItemPreviewMouseDown(object? args) {
@@ -77,11 +83,6 @@ public class FluentTabControl : TabControl {
 
 	protected override void OnSelectionChanged(SelectionChangedEventArgs e) {
 		base.OnSelectionChanged(e);
-		if (SelectedIndex == -1) {
-			contentPanel.Visibility = Visibility.Collapsed;
-		} else {
-			contentPanel.Visibility = Visibility.Visible;
-		}
 		if (targetIndex == null) {
 			targetIndex = SelectedIndex;
 			Animate();

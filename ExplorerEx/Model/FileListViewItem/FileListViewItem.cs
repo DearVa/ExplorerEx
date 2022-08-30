@@ -19,7 +19,15 @@ namespace ExplorerEx.Model;
 /// 所有可以显示在<see cref="FileListView"/>中的项目的基类
 /// </summary>
 public abstract class FileListViewItem : INotifyPropertyChanged {
-	protected FileListViewItem() { }
+	protected FileListViewItem(bool isFolder) {
+		defaultIcon = isFolder ? IconHelper.FolderDrawingImage : IconHelper.UnknownFileDrawingImage;
+		This = this;
+	}
+
+	protected FileListViewItem(ImageSource defaultIcon) {
+		this.defaultIcon = defaultIcon;
+		This = this;
+	}
 
 	protected FileListViewItem(string fullPath, string name, bool isFolder) {
 		FullPath = fullPath;
@@ -71,13 +79,13 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 
 	private double opacity = 1d;
 
-	[DbColumn(IsPrimaryKey = true)]
-	public virtual string FullPath { get; protected init; }
+	[DbColumn(IsPrimaryKey = true, MaxLength = 260)]
+	public virtual string FullPath { get; protected init; } = null!;
 	
 	public abstract string DisplayText { get; }
 
 	[DbColumn]
-	public virtual string Name { get; set; }
+	public virtual string Name { get; set; } = null!;
 
 	/// <summary>
 	/// 类型描述，自动更新UI

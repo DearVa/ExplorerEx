@@ -230,6 +230,7 @@ public enum PathType {
 /// 记录一个文件夹的视图状态，即排序方式、分组依据和查看类型，还包括详细信息的列的项目大小
 /// </summary>
 [Serializable]
+[DbTable(TableName = "FolderViewDbSet")]
 public class FileView : INotifyPropertyChanged {
 	private readonly HashSet<string> changedPropertiesName = new();
 

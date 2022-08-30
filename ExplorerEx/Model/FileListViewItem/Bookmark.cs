@@ -21,8 +21,8 @@ public class BookmarkCategory : NotifyPropertyChangedBase {
 	/// <summary>
 	/// 在Binding里使用
 	/// </summary>
-	// ReSharper disable once UnusedMember.Global
-	public bool IsExpanded {
+	[DbColumn]
+	public virtual bool IsExpanded {
 		get => isExpanded;
 		set {
 			if (isExpanded != value) {
@@ -77,9 +77,9 @@ public class BookmarkItem : FileListViewItem, IFilterable {
 	[DbColumn(nameof(CategoryForeignKey), DbNavigateType.OneToOne)]
 	public virtual BookmarkCategory Category { get; set; } = null!;
 
-	public BookmarkItem() { }
+	public BookmarkItem() : base(false) { }
 
-	public BookmarkItem(string fullPath, string name, BookmarkCategory category) {
+	public BookmarkItem(string fullPath, string name, BookmarkCategory category) : base(false) {
 		FullPath = Path.GetFullPath(fullPath);
 		Name = name;
 		Category = category;
