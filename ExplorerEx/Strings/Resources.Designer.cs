@@ -154,6 +154,24 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 没有要重命名的项目。 的本地化字符串。
+        /// </summary>
+        internal static string _BatchRenameErrorNotModified {
+            get {
+                return ResourceManager.GetString("#BatchRenameErrorNotModified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 成功{0}个，失败{1}个。 的本地化字符串。
+        /// </summary>
+        internal static string _BatchRenameResult {
+            get {
+                return ResourceManager.GetString("#BatchRenameResult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 无法格式化所选驱动器。 的本地化字符串。
         /// </summary>
         internal static string _CannotFormatDrive {
@@ -240,16 +258,6 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 文件名不能包含下列字符：
-        /// \ / : * ? &quot; &lt; &gt; | 的本地化字符串。
-        /// </summary>
-        internal static string _InvalidFileName {
-            get {
-                return ResourceManager.GetString("#InvalidFileName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 选择ExplorerEx的显示语言 的本地化字符串。
         /// </summary>
         internal static string _LanguageDescription {
@@ -264,6 +272,42 @@ namespace ExplorerEx.Strings {
         internal static string _PathNotExistOrAccessDenied {
             get {
                 return ResourceManager.GetString("#PathNotExistOrAccessDenied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 文件名不能以点结尾 的本地化字符串。
+        /// </summary>
+        internal static string _ProhibitedFileNameErrorEndWithDot {
+            get {
+                return ResourceManager.GetString("#ProhibitedFileNameErrorEndWithDot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 文件名不能为空 的本地化字符串。
+        /// </summary>
+        internal static string _ProhibitedFileNameErrorNotEmpty {
+            get {
+                return ResourceManager.GetString("#ProhibitedFileNameErrorNotEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 文件名不能包含 \ / : * ? &quot; &lt; &gt; | 的本地化字符串。
+        /// </summary>
+        internal static string _ProhibitedFileNameErrorSpecialChar {
+            get {
+                return ResourceManager.GetString("#ProhibitedFileNameErrorSpecialChar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 文件名不能为con、prn、aux、nul、com1~com9、lpt1~lpt9 的本地化字符串。
+        /// </summary>
+        internal static string _ProhibitedFileNameErrorSpecialName {
+            get {
+                return ResourceManager.GetString("#ProhibitedFileNameErrorSpecialName", resourceCulture);
             }
         }
         
@@ -345,6 +389,24 @@ namespace ExplorerEx.Strings {
         internal static string Acrylic {
             get {
                 return ResourceManager.GetString("Acrylic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 添加替换 的本地化字符串。
+        /// </summary>
+        internal static string AddReplaceItem {
+            get {
+                return ResourceManager.GetString("AddReplaceItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 添加序号 的本地化字符串。
+        /// </summary>
+        internal static string AddSequence {
+            get {
+                return ResourceManager.GetString("AddSequence", resourceCulture);
             }
         }
         
@@ -453,6 +515,24 @@ namespace ExplorerEx.Strings {
         internal static string BackToHome {
             get {
                 return ResourceManager.GetString("BackToHome", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 批量重命名 的本地化字符串。
+        /// </summary>
+        internal static string BatchRename {
+            get {
+                return ResourceManager.GetString("BatchRename", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 批量重命名结果 的本地化字符串。
+        /// </summary>
+        internal static string BatchRenameResult {
+            get {
+                return ResourceManager.GetString("BatchRenameResult", resourceCulture);
             }
         }
         
@@ -772,6 +852,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 更改文件拓展名时不要提示我 的本地化字符串。
+        /// </summary>
+        internal static string DontAskWhenChangeExtension {
+            get {
+                return ResourceManager.GetString("DontAskWhenChangeExtension", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 当关闭有多个标签页的窗口时不要提醒我 的本地化字符串。
         /// </summary>
         internal static string DontAskWhenClosingMultiTabs {
@@ -1042,6 +1131,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 固定位数 的本地化字符串。
+        /// </summary>
+        internal static string FixedNumber {
+            get {
+                return ResourceManager.GetString("FixedNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 文件夹 的本地化字符串。
         /// </summary>
         internal static string Folder {
@@ -1204,6 +1302,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 左边文本 的本地化字符串。
+        /// </summary>
+        internal static string LeftText {
+            get {
+                return ResourceManager.GetString("LeftText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 链接 的本地化字符串。
         /// </summary>
         internal static string Link {
@@ -1254,6 +1361,15 @@ namespace ExplorerEx.Strings {
         internal static string LocalDisk {
             get {
                 return ResourceManager.GetString("LocalDisk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 小写转大写 的本地化字符串。
+        /// </summary>
+        internal static string Lowercase2Uppercase {
+            get {
+                return ResourceManager.GetString("Lowercase2Uppercase", resourceCulture);
             }
         }
         
@@ -1537,11 +1653,38 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 从列表中移除 的本地化字符串。
+        /// </summary>
+        internal static string RemoveFromList {
+            get {
+                return ResourceManager.GetString("RemoveFromList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 重命名 的本地化字符串。
         /// </summary>
         internal static string Rename {
             get {
                 return ResourceManager.GetString("Rename", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 替换文本 的本地化字符串。
+        /// </summary>
+        internal static string ReplaceText {
+            get {
+                return ResourceManager.GetString("ReplaceText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 替换为 的本地化字符串。
+        /// </summary>
+        internal static string ReplaceTo {
+            get {
+                return ResourceManager.GetString("ReplaceTo", resourceCulture);
             }
         }
         
@@ -1560,6 +1703,15 @@ namespace ExplorerEx.Strings {
         internal static string RestoreAll {
             get {
                 return ResourceManager.GetString("RestoreAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 右边文本 的本地化字符串。
+        /// </summary>
+        internal static string RightText {
+            get {
+                return ResourceManager.GetString("RightText", resourceCulture);
             }
         }
         
@@ -1672,6 +1824,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 快捷操作 的本地化字符串。
+        /// </summary>
+        internal static string Shortcuts {
+            get {
+                return ResourceManager.GetString("Shortcuts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 显示隐藏的文件和文件夹 的本地化字符串。
         /// </summary>
         internal static string ShowHiddenFilesAndFolders {
@@ -1749,6 +1910,15 @@ namespace ExplorerEx.Strings {
         internal static string SplitScreen {
             get {
                 return ResourceManager.GetString("SplitScreen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 开始序号 的本地化字符串。
+        /// </summary>
+        internal static string StartingNumber {
+            get {
+                return ResourceManager.GetString("StartingNumber", resourceCulture);
             }
         }
         
@@ -1938,6 +2108,15 @@ namespace ExplorerEx.Strings {
         internal static string UnknownType {
             get {
                 return ResourceManager.GetString("UnknownType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 大写转小写 的本地化字符串。
+        /// </summary>
+        internal static string Uppercase2Lowercase {
+            get {
+                return ResourceManager.GetString("Uppercase2Lowercase", resourceCulture);
             }
         }
         

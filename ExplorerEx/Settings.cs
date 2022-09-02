@@ -233,6 +233,7 @@ internal sealed class Settings : INotifyPropertyChanged {
 		public const string DoubleClickGoUpperLevel = "Common.DoubleClickGoUpperLevel";
 
 		public const string DontAskWhenClosingMultiTabs = "Customize.DontAskWhenClosingMultiTabs";
+		public const string DontAskWhenChangeExtension = "Customize.DontAskWhenChangeExtension";
 		public const string DontAskWhenRecycle = "Customize.DontAskWhenRecycle";
 		public const string DontAskWhenDelete = "Customize.DontAskWhenDelete";
 

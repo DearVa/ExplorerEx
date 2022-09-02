@@ -47,7 +47,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	/// </summary>
 	public string FullPath => Folder.FullPath;
 
-	public FileView FileView { get; } = new();
+	public FileView FileView { get; } = new() { StageChangeEnabled = true };
 
 	public PathType PathType {
 		get => FileView.PathType;
@@ -88,7 +88,10 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		private set => FileView.FileViewType = value;
 	}
 
-	public List<DetailList>? DetailLists { get; private set; }
+	public List<DetailList>? DetailLists {
+		get => FileView.DetailLists;
+		private set => FileView.DetailLists = value;
+	}
 
 	/// <summary>
 	/// 当前文件夹内的文件列表
@@ -360,7 +363,11 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		}
 		var newName = OwnerWindow.StartRename("Rename".L(), originalName, item.IsFolder);
 		if (newName != null && newName != originalName) {
-			item.Rename(newName);
+			try {
+				item.Rename(newName);
+			} catch (Exception e) {
+				ContentDialog.Error(e.Message, null, OwnerWindow);
+			}
 		}
 	}
 
@@ -693,6 +700,9 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 #endif
 		Items.Clear();
 		FileView.CommitChange();  // 一旦调用这个，模板就会改变，所以要在清空之后，不然会导致排版混乱和绑定失败
+		loadDetailsOptions.SetPreLoadIconByItemCount(fileListViewItems.Count);
+		LoadDetailsOptions.Current.SetPreLoadIconByItemCount(fileListViewItems.Count);
+		LoadDetailsOptions.Current.UseLargeIcon = loadDetailsOptions.UseLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content;
 
 		if (fileListViewItems.Count > 0) {
 			Items.AddRange(fileListViewItems);
@@ -719,8 +729,6 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		sw.Restart();
 #endif
 
-		loadDetailsOptions.SetPreLoadIconByItemCount(fileListViewItems.Count);
-		loadDetailsOptions.UseLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content;
 		await LoadDetails(fileListViewItems, loadDetailsOptions, token);
 
 #if DEBUG

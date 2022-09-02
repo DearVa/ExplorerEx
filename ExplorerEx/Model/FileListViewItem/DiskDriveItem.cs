@@ -72,14 +72,8 @@ public sealed class DiskDriveItem : FolderItem {
 		return null;
 	}
 
-	protected override bool InternalRename(string newName) {
-		try {
-			Drive.VolumeLabel = newName;
-			return true;
-		} catch (Exception e) {
-			Logger.Error(e.Message);
-			return false;
-		}
+	protected override void InternalRename(string newName) {
+		Drive.VolumeLabel = newName;
 	}
 
 	private class Gradient {

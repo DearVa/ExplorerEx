@@ -31,6 +31,7 @@
 
   <category header="Customize">
     <item header="DontAskWhenClosingMultiTabs" type="boolean" default="false"/>
+    <item header="DontAskWhenChangeExtension" type="boolean" default="false"/>
     <item header="DontAskWhenRecycle" type="boolean" default="false"/>
     <item header="DontAskWhenDelete" type="boolean" default="false"/>
   </category>

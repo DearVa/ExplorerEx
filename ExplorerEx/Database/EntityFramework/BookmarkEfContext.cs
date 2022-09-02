@@ -62,7 +62,7 @@ public class BookmarkEfContext : DbContext, IBookmarkDbContext {
 			}
 			await Task.Run(() => {
 				foreach (var item in BookmarkDbSet.Local) {
-					item.LoadIcon(FileListViewItem.LoadDetailsOptions.Default);
+					item.LoadIcon(FileListViewItem.LoadDetailsOptions.Current);
 				}
 			});
 		} catch (Exception e) {

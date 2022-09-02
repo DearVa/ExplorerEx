@@ -109,11 +109,13 @@ public class SugarContext<T> : IDatabase, IDbContext<T> where T : class, new() {
 
 	public virtual Task SaveAsync() => ConnectionClient.SaveQueuesAsync();
 
-	public virtual void Add(T item) => ConnectionClient.Insertable(item);
+	public virtual void Add(T item) => ConnectionClient.Insertable(item).AddQueue();
+
+	public virtual void Update(T item) => ConnectionClient.Updateable(item).AddQueue();
 
 	public virtual T? FirstOrDefault(Expression<Func<T, bool>> match) => ConnectionClient.Queryable<T>().First(match);
 
-	public virtual void Remove(T item) => ConnectionClient.Deleteable(item);
+	public virtual void Remove(T item) => ConnectionClient.Deleteable(item).AddQueue();
 
 	public virtual bool Contains(T item) => ConnectionClient.Queryable<T>().Any(i => i == item);
 

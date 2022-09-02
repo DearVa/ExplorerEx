@@ -43,7 +43,7 @@ internal sealed class HomeFolderItem : FolderItem, ISpecialFolder {
 
 	public override void LoadIcon(LoadDetailsOptions options) { }
 
-	protected override bool InternalRename(string newName) {
+	protected override void InternalRename(string newName) {
 		throw new InvalidOperationException();
 	}
 

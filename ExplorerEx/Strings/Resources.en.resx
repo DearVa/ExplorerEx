@@ -332,9 +332,8 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="DriveIsNotReady" xml:space="preserve">
     <value>Drive is not ready.</value>
   </data>
-  <data name="#InvalidFileName" xml:space="preserve">
-    <value>The file name cannot contain the following characters:
- \ / : * ? " &lt; &gt; |</value>
+  <data name="#ProhibitedFileNameErrorSpecialChar" xml:space="preserve">
+    <value>File name cannot contain \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="ThisIsAnEmptyFolder" xml:space="preserve">
     <value>This is an empty folder.</value>
@@ -654,5 +653,65 @@ For the application to run properly, it's recommanded that you first extract all
   </data>
   <data name="DontAskWhenClosingMultiTabs" xml:space="preserve">
     <value>Don't remind me when closing a window with multiple tabs</value>
+  </data>
+  <data name="ReplaceTo" xml:space="preserve">
+    <value>Replace to</value>
+  </data>
+  <data name="AddReplaceItem" xml:space="preserve">
+    <value>Add replace</value>
+  </data>
+  <data name="ReplaceText" xml:space="preserve">
+    <value>Replace text</value>
+  </data>
+  <data name="RemoveFromList" xml:space="preserve">
+    <value>Remove from list</value>
+  </data>
+  <data name="BatchRename" xml:space="preserve">
+    <value>Batch rename</value>
+  </data>
+  <data name="AddSequence" xml:space="preserve">
+    <value>Add seq.</value>
+  </data>
+  <data name="Shortcuts" xml:space="preserve">
+    <value>Shortcuts</value>
+  </data>
+  <data name="Lowercase2Uppercase" xml:space="preserve">
+    <value>Lowercase to uppercase</value>
+  </data>
+  <data name="Uppercase2Lowercase" xml:space="preserve">
+    <value>Uppercase to lowercase</value>
+  </data>
+  <data name="BatchRenameResult" xml:space="preserve">
+    <value>Batch rename result</value>
+  </data>
+  <data name="#BatchRenameResult" xml:space="preserve">
+    <value>{0} Succeed, {1} Failed.</value>
+  </data>
+  <data name="DontAskWhenChangeExtension" xml:space="preserve">
+    <value>Don't remind me when changing file extension </value>
+  </data>
+  <data name="LeftText" xml:space="preserve">
+    <value>Left text</value>
+  </data>
+  <data name="RightText" xml:space="preserve">
+    <value>Right text</value>
+  </data>
+  <data name="StartingNumber" xml:space="preserve">
+    <value>Starting number</value>
+  </data>
+  <data name="FixedNumber" xml:space="preserve">
+    <value>Fixed number</value>
+  </data>
+  <data name="#BatchRenameErrorNotModified" xml:space="preserve">
+    <value>No need to rename.</value>
+  </data>
+  <data name="#ProhibitedFileNameErrorNotEmpty" xml:space="preserve">
+    <value>File name cannot be empty</value>
+  </data>
+  <data name="#ProhibitedFileNameErrorEndWithDot" xml:space="preserve">
+    <value>File name cannot ends with dot</value>
+  </data>
+  <data name="#ProhibitedFileNameErrorSpecialName" xml:space="preserve">
+    <value>File name cannot be con, prn, aux, nul, com1-com9, lpt1-lpt9</value>
   </data>
 </root>

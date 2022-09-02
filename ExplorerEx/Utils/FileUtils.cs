@@ -11,6 +11,8 @@ using System.Windows;
 using ExplorerEx.Shell32;
 using System.Threading;
 using System.Threading.Tasks;
+using ExplorerEx.View.Controls;
+using HandyControl.Data;
 using FileAttribute = ExplorerEx.Shell32.FileAttribute;
 
 namespace ExplorerEx.Utils;
@@ -42,6 +44,17 @@ internal static class FileUtils {
 		"lpt9"
 	};
 
+	public static Func<string, OperationResult<bool>> FileNameVerifyFunc { get; }
+
+	public static Func<string, OperationResult<bool>> FileNameVerifyFuncNoMsg { get; }
+
+	static FileUtils() {
+		FileNameVerifyFunc = fileName => new OperationResult<bool>(!IsProhibitedFileName(fileName, out var msg)) {
+			Message = msg
+		};
+		FileNameVerifyFuncNoMsg = fileName => new OperationResult<bool>(!IsProhibitedFileName(fileName, out _));
+	}
+
 	/// <summary>
 	/// 是否为可执行文件
 	/// </summary>
@@ -55,19 +68,32 @@ internal static class FileUtils {
 	/// 判断是否是非法的文件名，传入的是文件名
 	/// </summary>
 	/// <param name="fileName"></param>
+	/// <param name="msg">错误信息</param>
 	/// <returns></returns>
-	public static bool IsProhibitedFileName(string? fileName) {
+	public static bool IsProhibitedFileName(string? fileName, out string? msg) {
 		if (fileName == null) {
+			msg = "#ProhibitedFileNameErrorNotEmpty".L();
 			return true;
 		}
 		fileName = fileName.Trim();
 		if (fileName == string.Empty) {
+			msg = "#ProhibitedFileNameErrorNotEmpty".L();
+			return true;
+		}
+		if (fileName[^1] == '.') {
+			msg = "#ProhibitedFileNameErrorEndWithDot".L();
 			return true;
 		}
 		if (ProhibitedFileNames.Contains(fileName.ToLower())) {
+			msg = "#ProhibitedFileNameErrorSpecialName".L();
 			return true;
 		}
-		return fileName.Any(c => c is '\\' or '/' or ':' or '*' or '?' or '"' or '<' or '>' or '|');
+		if (fileName.Any(c => c is '\\' or '/' or ':' or '*' or '?' or '"' or '<' or '>' or '|')) {
+			msg = "#ProhibitedFileNameErrorSpecialChar".L();
+			return true;
+		}
+		msg = null;
+		return false;
 	}
 
 	private static readonly string[] SizeSuffixes = { "bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
@@ -220,7 +246,7 @@ internal static class FileUtils {
 	/// <param name="destinationFiles"></param>
 	/// <exception cref="ArgumentException"></exception>
 	/// <exception cref="IOException"></exception>
-	public static Task FileOperation(FileOpType type, IList<string> sourceFiles, IList<string>? destinationFiles = null) {
+	public static void FileOperation(FileOpType type, IList<string> sourceFiles, IList<string>? destinationFiles = null) {
 		if (sourceFiles is not { Count: > 0 }) {
 			throw new ArgumentException("原文件个数不能为0");
 		}
@@ -247,12 +273,10 @@ internal static class FileUtils {
 		if (type != FileOpType.Delete) {
 			fo.pTo = ParseFileList(destinationFiles);
 		}
-		return Task.Run(() => {
-			var result = Shell32Interop.SHFileOperation(fo);
-			if (result is not 0 and not 1223) { // 1223: 用户取消了操作
-				throw new IOException(GetErrorPrompting(result));
-			}
-		});
+		var result = Shell32Interop.SHFileOperation(fo);
+		if (result is not 0 and not 1223) { // 1223: 用户取消了操作
+			throw new IOException(GetErrorPrompting(result));
+		}
 	}
 
 	/// <summary>
@@ -264,7 +288,7 @@ internal static class FileUtils {
 	/// <exception cref="ArgumentNullException"></exception>
 	/// <exception cref="ArgumentException"></exception>
 	/// <exception cref="IOException"></exception>
-	public static Task FileOperation(FileOpType type, string sourceFile, string? destinationFile = null) {
+	public static void FileOperation(FileOpType type, string sourceFile, string? destinationFile = null) {
 		if (sourceFile == null) {
 			throw new ArgumentNullException(nameof(sourceFile));
 		}
@@ -288,21 +312,10 @@ internal static class FileUtils {
 		if (type != FileOpType.Delete) {
 			fo.pTo = destinationFile + '\0';
 		}
-		return Task.Run(() => {
-			var result = Shell32Interop.SHFileOperation(fo);
-			if (result is not 0 and not 1223) { // 1223: 用户取消了操作
-				throw new IOException(GetErrorPrompting(result));
-			}
-		});
-	}
-
-	/// <summary>
-	/// 将<see cref="sourceFiles"/>拷贝到目标文件夹
-	/// </summary>
-	/// <param name="sourceFiles"></param>
-	/// <param name="destFolder"></param>
-	public static void CopyFiles(IList<string> sourceFiles, string destFolder) {
-
+		var result = Shell32Interop.SHFileOperation(fo);
+		if (result is not 0 and not 1223) { // 1223: 用户取消了操作
+			throw new IOException(GetErrorPrompting(result));
+		}
 	}
 
 	/// <summary>
@@ -359,11 +372,12 @@ internal static class FileUtils {
 									destPaths[i] = lnkPath;
 								}
 							} else {
-								await FileOperation(type == DragDropEffects.Move ? FileOpType.Move : FileOpType.Copy, filePaths, destPaths);
+								await Task.Run(() => FileOperation(type == DragDropEffects.Move ? FileOpType.Move : FileOpType.Copy, filePaths, destPaths));
 							}
 							return destPaths;
 						} catch (Exception ex) {
-							Logger.Exception(ex);
+							Logger.Exception(ex, false);
+							ContentDialog.Error(ex.Message);
 						}
 					}
 					break;

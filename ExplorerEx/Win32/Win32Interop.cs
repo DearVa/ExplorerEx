@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
-using static ExplorerEx.Win32.Win32Interop;
-using System.Windows.Controls;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ExplorerEx.Win32;
 
@@ -17,12 +19,16 @@ public static class Win32Interop {
 	// ReSharper disable FieldCanBeMadeReadOnly.Local
 	// ReSharper disable FieldCanBeMadeReadOnly.Global
 	// ReSharper disable UnusedType.Global
+	// ReSharper disable CommentTypo
+	// ReSharper disable UnassignedField.Global
+	// ReSharper disable NotAccessedField.Global
 	private const string Gdi32 = "gdi32.dll";
 	private const string User32 = "user32.dll";
 	private const string Kernel32 = "kernel32.dll";
 
 	private const string Ntdll = "ntdll.dll";
 	private const string Dwmapi = "dwmapi.dll";
+	private const string Rstrtmgr = "rstrtmgr.dll";
 
 
 	[DllImport(User32)]
@@ -357,6 +363,7 @@ public static class Win32Interop {
 	[Flags]
 	public enum OpenProcessDesiredAccess : uint {
 		VmRead = 0x0010,
+		ProcessDupHandle = 0x0040,
 		QueryInformation = 0x0400,
 		QueryLimitedInformation = 0x1000
 	}
@@ -408,8 +415,7 @@ public static class Win32Interop {
 	[DllImport(Kernel32)]
 	public static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, IntPtr lpBuffer, uint nSize, out uint lpNumberOfBytesRead);
 
-	private static bool ReadStructFromProcessMemory<TStruct>(
-		IntPtr hProcess, IntPtr lpBaseAddress, out TStruct val) {
+	private static bool ReadStructFromProcessMemory<TStruct>(IntPtr hProcess, IntPtr lpBaseAddress, out TStruct? val) {
 		val = default;
 		var structSize = Marshal.SizeOf<TStruct>();
 		var mem = Marshal.AllocHGlobal(structSize);
@@ -424,7 +430,7 @@ public static class Win32Interop {
 		return false;
 	}
 
-	public static string GetCommandLine(this Process process) {
+	public static string? GetCommandLine(this Process process) {
 		var hProcess = OpenProcess(
 			OpenProcessDesiredAccess.QueryInformation |
 			OpenProcessDesiredAccess.VmRead, false, (uint)process.Id);
@@ -875,6 +881,196 @@ public static class Win32Interop {
 
 	[DllImport(User32, CharSet = CharSet.Unicode)]
 	public static extern bool GetMenuItemInfo(IntPtr hmenu, uint item, bool fByPosition, ref MenuItemInfo lpmii);
+
+
+	#region 文件解锁
+
+	public enum SystemInformationClass {
+		SystemExtendedHandleInformation = 64
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct SystemHandleTableEntryInfoEx {
+		public ulong Object;
+		/// <summary>
+		/// 所属进程Pid
+		/// </summary>
+		public ulong UniqueProcessId;
+		/// <summary>
+		/// 句柄
+		/// </summary>
+		public ulong HandleValue;
+		public uint GrantedAccess;
+		public ushort CreatorBackTraceIndex;
+		public ushort ObjectTypeIndex;
+		public uint HandleAttributes;
+		public uint Reserved;
+	}
+
+	/// <summary>
+	/// https://docs.microsoft.com/en-us/windows/win32/sysinfo/zwquerysysteminformation
+	/// </summary>
+	/// <param name="SystemInformationClass"></param>
+	/// <param name="SystemInformation"></param>
+	/// <param name="SystemInformationLength"></param>
+	/// <param name="ReturnLength"></param>
+	/// <returns></returns>
+	[DllImport(Ntdll)]
+	public static extern uint ZwQuerySystemInformation(SystemInformationClass SystemInformationClass, IntPtr SystemInformation, uint SystemInformationLength, ref uint ReturnLength);
+
+	public enum ObjectInformationClass {
+		ObjectBasicInformation,
+		ObjectNameInformation,
+		ObjectTypeInformation
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct PublicObjectTypeInformation {
+		public UnicodeString TypeName;
+
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 22)]
+		public uint[] Reserved;
+	}
+
+	[DllImport(Ntdll)]
+	public static extern uint ZwQueryObject(IntPtr Handle, ObjectInformationClass ObjectInformationClass, IntPtr ObjectInformation, uint ObjectInformationLength, IntPtr ReturnLength);
+
+	[DllImport(Kernel32, SetLastError = true)]
+	public static extern bool DuplicateHandle(IntPtr hSourceProcessHandle, IntPtr hSourceHandle, IntPtr hTargetProcessHandle, out IntPtr lpTargetHandle, uint dwDesiredAccess, bool bInheritHandle, uint dwOptions);
+
+	[DllImport(Kernel32, CharSet = CharSet.Unicode)]
+	public static extern uint QueryDosDevice(string deviceName, IntPtr targetPath, uint chMax);
+
+	/// <summary>
+	/// 获取目标进程占用某个文件的句柄
+	/// </summary>
+	/// <param name="targetPid">目标进程pid</param>
+	/// <param name="hProcess">目标进程句柄，要求至少有ProcessDupHandle权限</param>
+	/// <param name="fullPath"></param>
+	/// <param name="bufSize"></param>
+	/// <param name="maxRetry"></param>
+	/// <returns>文件句柄列表，注意这里是原句柄</returns>
+	public static List<IntPtr> SearchFileHandles(uint targetPid, IntPtr hProcess, string fullPath, uint bufSize = 0x8000, uint maxRetry = 8) {
+		// 句柄路径形如\Device\HarddiskVolume2\Program Files (x86)\Steam\steamapps\common\wallpaper_engine
+		// 要先把原路径转换，找到驱动器号
+		var diskDosName = Marshal.AllocHGlobal(120);
+		if (QueryDosDevice(fullPath[..2], diskDosName, 120) == 0) {
+			Marshal.FreeHGlobal(diskDosName);
+			throw new Win32Exception();
+		}
+		var dosPath = Marshal.PtrToStringUni(diskDosName) + fullPath[2..];
+		Marshal.FreeHGlobal(diskDosName);
+		var currentHandle = Process.GetCurrentProcess().Handle;
+		var pHandle = Marshal.AllocHGlobal((int)bufSize);
+		var length = 0U;
+		for (var i = 0; i < maxRetry; i++) {
+			if (ZwQuerySystemInformation(SystemInformationClass.SystemExtendedHandleInformation, pHandle, bufSize, ref length) == 0) {
+				var result = new List<IntPtr>();
+
+				var nInfos = Marshal.ReadInt64(pHandle);
+				pHandle += 0x10;
+
+				var objTypeInfo = Marshal.AllocHGlobal(128);
+				var objNameInfo = Marshal.AllocHGlobal(1024);
+				for (var j = 0; j < nInfos; j++) {
+					var ptr = pHandle + Marshal.SizeOf<SystemHandleTableEntryInfoEx>() * j;
+					var pid = (uint)Marshal.ReadInt32(ptr + sizeof(ulong));
+					if (pid == targetPid) {
+						var sourceHandle = Marshal.ReadIntPtr(ptr + 2 * sizeof(ulong));
+						if (!DuplicateHandle(hProcess, sourceHandle, currentHandle, out var duplicatedHandle, 0, false, 2)) {
+							continue;
+						}
+						Task.Run(() => {
+							if (ZwQueryObject(duplicatedHandle, ObjectInformationClass.ObjectTypeInformation, objTypeInfo, 128, IntPtr.Zero) != 0) {
+								return;
+							}
+							// 这里获取到Type：https://www.geoffchappell.com/studies/windows/km/ntoskrnl/inc/api/ntobapi/object_type_information.htm
+							unsafe {
+								if (*(short*)objTypeInfo == 0) {
+									return;
+								}
+								var typePtr = *(byte**)(objTypeInfo + 8);
+								// File ASCII
+								if (*typePtr != 70 || *(typePtr + 2) != 105 || *(typePtr + 4) != 108 || *(typePtr + 6) != 101) {
+									return;
+								}
+							}
+							if (ZwQueryObject(duplicatedHandle, ObjectInformationClass.ObjectNameInformation, objNameInfo, 1024, IntPtr.Zero) != 0) {
+								return;
+							}
+							var strLength = Marshal.ReadInt16(objNameInfo);
+							if (strLength == 0) {
+								return;
+							}
+							var str = Marshal.PtrToStringUni(objNameInfo + 16, strLength / 2);
+
+							if (str == dosPath) {
+								result.Add(sourceHandle);
+							}
+							CloseHandle(duplicatedHandle);
+						}).Wait(10);
+					}
+				}
+
+				Marshal.FreeHGlobal(objTypeInfo);
+				Marshal.FreeHGlobal(objNameInfo);
+
+				Marshal.FreeHGlobal(pHandle - 0x10);
+				return result;
+			}
+			bufSize = length + 1024;  // 留一些盈余
+			pHandle = Marshal.ReAllocHGlobal(pHandle, new IntPtr(bufSize));
+		}
+		throw new Win32Exception();
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct RmUniqueProcess {
+		public uint dwProcessId;
+		public System.Runtime.InteropServices.ComTypes.FILETIME ProcessStartTime;
+	}
+
+	public enum RmAppType {
+		RmUnknownApp = 0,
+		RmMainWindow = 1,
+		RmOtherWindow = 2,
+		RmService = 3,
+		RmExplorer = 4,
+		RmConsole = 5,
+		RmCritical = 1000
+	}
+
+	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+	public struct RmProcessInfo {
+		public RmUniqueProcess Process;
+
+		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+		public string strAppName;
+
+		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
+		public string strServiceShortName;
+
+		public RmAppType ApplicationType;
+		public uint AppStatus;
+		public uint TSSessionId;
+		[MarshalAs(UnmanagedType.Bool)]
+		public bool bRestartable;
+	}
+
+	[DllImport(Rstrtmgr, CharSet = CharSet.Unicode)]
+	public static extern int RmRegisterResources(uint pSessionHandle, uint nFiles, string[] rgsFilenames, uint nApplications, [In] RmUniqueProcess[]? rgApplications, uint nServices, string[]? rgsServiceNames);
+
+	[DllImport(Rstrtmgr, CharSet = CharSet.Auto)]
+	public static extern int RmStartSession(out uint pSessionHandle, int dwSessionFlags, string strSessionKey);
+
+	[DllImport(Rstrtmgr)]
+	public static extern int RmEndSession(uint pSessionHandle);
+
+	[DllImport(Rstrtmgr)]
+	public static extern int RmGetList(uint dwSessionHandle, out uint pnProcInfoNeeded, ref uint pnProcInfo, [In, Out] RmProcessInfo[]? rgAffectedApps, ref uint lpdwRebootReasons);
+
+	#endregion
+
 	// ReSharper restore InconsistentNaming
 	// ReSharper restore IdentifierTypo
 	// ReSharper restore StringLiteralTypo
@@ -882,5 +1078,8 @@ public static class Win32Interop {
 	// ReSharper restore FieldCanBeMadeReadOnly.Local
 	// ReSharper restore FieldCanBeMadeReadOnly.Global
 	// ReSharper restore UnusedType.Global
+	// ReSharper restore CommentTypo
+	// ReSharper restore UnassignedField.Global
+	// ReSharper restore NotAccessedField.Global
 #pragma warning restore CS0649
 }

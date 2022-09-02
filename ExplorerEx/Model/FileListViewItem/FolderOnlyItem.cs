@@ -144,7 +144,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 		throw new InvalidOperationException();
 	}
 
-	protected override bool InternalRename(string newName) {
+	protected override void InternalRename(string newName) {
 		throw new InvalidOperationException();
 	}
 
@@ -273,7 +273,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 								if (token.IsCancellationRequested) {
 									return;
 								}
-								item.LoadIcon(LoadDetailsOptions.Default);
+								item.LoadIcon(LoadDetailsOptions.Current);
 							}
 						} else {
 							Children = EmptyChildren;

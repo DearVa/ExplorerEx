@@ -1,0 +1,202 @@
+﻿<hc:SimplePanel x:Class="ExplorerEx.View.Controls.BatchRenameControl"
+                x:ClassModifier="internal"
+                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+                xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
+                xmlns:hc="https://handyorg.github.io/handycontrol"
+                xmlns:u="clr-namespace:ExplorerEx.Utils"
+                mc:Ignorable="d" Height="450" Width="800"
+                d:DataContext="{d:DesignInstance ct:BatchRenameControl}">
+    <hc:SimplePanel.Resources>
+        <Geometry x:Key="DismissGeometry">M22.2929 4.29289C22.6834 3.90237 23.3166 3.90237 23.7071 4.29289C24.0976 4.68342 24.0976 5.31658 23.7071 5.70711L15.4142 14L23.7071 22.2929C24.0976 22.6834 24.0976 23.3166 23.7071 23.7071C23.3166 24.0976 22.6834 24.0976 22.2929 23.7071L14 15.4142L5.70711 23.7071C5.31658 24.0976 4.68342 24.0976 4.29289 23.7071C3.90237 23.3166 3.90237 22.6834 4.29289 22.2929L12.5858 14L4.29289 5.70711C3.90237 5.31658 3.90237 4.68342 4.29289 4.29289C4.68342 3.90237 5.31658 3.90237 5.70711 4.29289L14 12.5858L22.2929 4.29289Z</Geometry>
+    </hc:SimplePanel.Resources>
+
+    <ct:FluentTabControl x:Name="TabControl" SelectionChanged="TabControl_OnSelectionChanged">
+        <TabItem Width="120" Padding="0">
+            <TabItem.Header>
+                <hc:SimplePanel Height="40">
+                    <Image HorizontalAlignment="Left" Margin="16,12" Source="{StaticResource NumberListDrawingImage}"/>
+                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="40,0,8,0" FontSize="16" Text="{u:Lang AddSequence}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                </hc:SimplePanel>
+            </TabItem.Header>
+            <Grid Margin="10,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="154"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" CornerRadius="8" Background="{DynamicResource RegionBrush}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <hc:TextBox Grid.Column="0" hc:InfoElement.Placeholder="{u:Lang LeftText}" 
+                                    Text="{Binding LeftText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Height="{StaticResource DefaultControlHeight}" Margin="8,0"/>
+                        <Image Grid.Column="1" Source="{DynamicResource AddDrawingImage}" Stretch="Uniform"/>
+                        <Border Grid.Column="2" Margin="8" CornerRadius="8" Background="{DynamicResource SecondaryRegionBrush}">
+                            <Grid Margin="8">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+
+                                <hc:TextBox Grid.Row="0" TextType="NnInt" hc:InfoElement.Title="{u:Lang StartingNumber}" 
+                                            Text="{Binding StartingNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorPrompt=" "/>
+                                <hc:TextBox Grid.Row="1" TextType="NnInt" hc:InfoElement.Title="{u:Lang FixedNumber}" 
+                                            Text="{Binding FixedNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorPrompt=" "/>
+                            </Grid>
+                        </Border>
+                        <Image Grid.Column="3" Source="{DynamicResource AddDrawingImage}" Stretch="Uniform"/>
+                        <hc:TextBox Grid.Column="4" hc:InfoElement.Placeholder="{u:Lang RightText}" 
+                                    Text="{Binding RightText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Height="{StaticResource DefaultControlHeight}" Margin="8,0"/>
+                    </Grid>
+                </Border>
+
+                <hc:SimplePanel x:Name="SimplePanel0" Grid.Row="2"/>
+            </Grid>
+        </TabItem>
+
+        <TabItem Width="120" Padding="0">
+            <TabItem.Header>
+                <hc:SimplePanel Height="40">
+                    <!--<Image HorizontalAlignment="Left" Margin="16,12" Source="{StaticResource StarDrawingImage}"/>-->
+                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="40,0,8,0" FontSize="16" Text="{u:Lang ReplaceText}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                </hc:SimplePanel>
+            </TabItem.Header>
+            <Grid Margin="10,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+
+                <ct:ClippingBorder Grid.Row="0" CornerRadius="8" Background="{DynamicResource RegionBrush}">
+                    <ScrollViewer>
+                        <StackPanel>
+                            <ListBox ItemsSource="{Binding ReplaceTextItems}" HorizontalContentAlignment="Stretch">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem" BasedOn="{StaticResource ListBoxItemBaseStyle}">
+                                        <Setter Property="Focusable" Value="False"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <Grid Height="40">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="6*"/>
+                                                            <ColumnDefinition Width="1*"/>
+                                                            <ColumnDefinition Width="6*"/>
+                                                            <ColumnDefinition Width="30"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <hc:TextBox Grid.Column="0" Margin="0,4" Text="{Binding Left, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                    hc:InfoElement.Placeholder="{u:Lang Search}"/>
+                                                        <Image Grid.Column="1" Margin="12" Source="{DynamicResource RightDrawingImage}"/>
+                                                        <hc:TextBox Grid.Column="2" Margin="0,4" Text="{Binding Right, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                    hc:InfoElement.Placeholder="{u:Lang ReplaceTo}"/>
+                                                        <Button Grid.Column="3" Style="{StaticResource ButtonTransparent}" Margin="4,8" Padding="0"
+                                                                Cursor="Hand" ToolTip="{u:Lang Remove}" Click="RemoveReplaceTextItemButton_OnClick">
+                                                            <Path Margin="10" Stretch="Uniform" Data="{StaticResource DismissGeometry}" Fill="{DynamicResource DangerBrush}"/>
+                                                        </Button>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                            </ListBox>
+                            <Button Margin="0,10,0,0" Content="{u:Lang AddReplaceItem}" Click="AddReplaceTextItemButton_OnClick"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </ct:ClippingBorder>
+
+                <hc:SimplePanel x:Name="SimplePanel1" Grid.Row="2"/>
+            </Grid>
+        </TabItem>
+
+        <TabItem Width="120" Padding="0">
+            <TabItem.Header>
+                <hc:SimplePanel Height="40">
+                    <Image HorizontalAlignment="Left" Margin="16,12" Source="{StaticResource LightningDrawingImage}"/>
+                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="40,0,8,0" FontSize="16" Text="{u:Lang Shortcuts}" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                </hc:SimplePanel>
+            </TabItem.Header>
+            <Grid Margin="10,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="80"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" CornerRadius="8" Background="{DynamicResource RegionBrush}">
+                    <hc:ComboBox hc:InfoElement.Title="ChooseShortcut" hc:InfoElement.TitlePlacement="Left"
+                                 hc:InfoElement.MarginOnTheLeft="0,7,10,7"
+                                 VerticalAlignment="Center" MinWidth="240" HorizontalAlignment="Center"
+                                 ItemsSource="{Binding Shortcuts}" SelectionChanged="ShortcutsCombobox_OnSelectionChanged">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name, Converter={StaticResource LangConverter}}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </hc:ComboBox>
+                </Border>
+
+                <hc:SimplePanel x:Name="SimplePanel2" Grid.Row="2"/>
+            </Grid>
+        </TabItem>
+    </ct:FluentTabControl>
+
+    <ct:DockingTarget x:Name="DockingTarget">
+        <ct:ClippingBorder CornerRadius="8">
+            <ListBox x:Name="RenameItemsListBox" ItemsSource="{Binding Items}" HorizontalContentAlignment="Stretch">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem" BasedOn="{StaticResource ListBoxItemBaseStyle}">
+                        <Setter Property="Focusable" Value="False"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="ContentTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <Grid Height="40">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="6*"/>
+                                            <ColumnDefinition Width="1*"/>
+                                            <ColumnDefinition Width="6*"/>
+                                            <ColumnDefinition Width="30"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid Grid.Column="0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="30"/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Image Grid.Column="0" Margin="4" Source="{Binding Item.Icon}"/>
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Item.DisplayText}"/>
+                                        </Grid>
+                                        <Image Grid.Column="1" Margin="12" Source="{DynamicResource RightDrawingImage}"/>
+                                        <hc:TextBox Grid.Column="2" Margin="0,4" Text="{Binding ReplacedName, Mode=TwoWay}"
+                                                    hc:InfoElement.Placeholder="{u:Lang ReplaceTo}"
+                                                    VerifyFunc="{Binding Source={x:Static u:FileUtils.FileNameVerifyFuncNoMsg}}"/>
+                                        <Button Grid.Column="3" Style="{StaticResource ButtonTransparent}" Margin="4,8" Padding="0"
+                                                Cursor="Hand" ToolTip="{u:Lang RemoveFromList}">
+                                            <Path Margin="10" Stretch="Uniform" Data="{StaticResource DismissGeometry}" Fill="{DynamicResource DangerBrush}"/>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
+        </ct:ClippingBorder>
+    </ct:DockingTarget>
+</hc:SimplePanel>

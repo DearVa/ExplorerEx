@@ -11,7 +11,7 @@ namespace ExplorerEx.View.Controls;
 /// </summary>
 public abstract class PreviewPopup : Popup {
 	public static readonly DependencyProperty FilePathProperty = DependencyProperty.Register(
-		"FilePath", typeof(string), typeof(PreviewPopup), new PropertyMetadata(default(string)));
+		nameof(FilePath), typeof(string), typeof(PreviewPopup), new PropertyMetadata(default(string)));
 
 	public string FilePath {
 		get => (string)GetValue(FilePathProperty);
@@ -42,7 +42,7 @@ public abstract class PreviewPopup : Popup {
 				".java" or ".js" or ".json" or ".kt" or ".kts" or ".tex" or ".ltx" or ".lua" or
 				".md" or ".m" or ".mm" or ".php" or ".ps1" or ".py" or ".r" or ".reg" or ".rb" or
 				".rs" or ".shader" or ".cg" or ".smali" or ".sql" or ".swift" or ".ts" or ".vb" or
-				".vbs" or ".vba" or ".xml" or ".csproj" or ".sln" or ".yml" or ".config" or ".log" or
+				".vbs" or ".vba" or ".xml" or "xaml" or ".csproj" or ".sln" or ".yml" or ".config" or ".log" or
 				".vsconfig" or ".inf":
 				return TextPreviewPopup.Instance;
 			case ".jpg" or ".jpeg" or ".bmp" or ".png" or ".svg" or ".gif":

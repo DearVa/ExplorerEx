@@ -226,6 +226,7 @@
             </Trigger>
             <Trigger Property="IsError" Value="true">
                 <Setter Property="BorderBrush" TargetName="templateRoot" Value="{DynamicResource DangerBrush}"/>
+                <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource DangerBrush}"/>
                 <Trigger.EnterActions>
                     <BeginStoryboard Storyboard="{StaticResource StoryboardShow}"/>
                 </Trigger.EnterActions>

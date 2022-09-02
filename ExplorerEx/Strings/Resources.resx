@@ -381,9 +381,8 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="DriveIsNotReady" xml:space="preserve">
     <value>设备未就绪。</value>
   </data>
-  <data name="#InvalidFileName" xml:space="preserve">
-    <value>文件名不能包含下列字符：
- \ / : * ? " &lt; &gt; |</value>
+  <data name="#ProhibitedFileNameErrorSpecialChar" xml:space="preserve">
+    <value>文件名不能包含 \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="ThisIsAnEmptyFolder" xml:space="preserve">
     <value>此文件夹为空。</value>
@@ -701,5 +700,65 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name="DontAskWhenClosingMultiTabs" xml:space="preserve">
     <value>当关闭有多个标签页的窗口时不要提醒我</value>
+  </data>
+  <data name="ReplaceTo" xml:space="preserve">
+    <value>替换为</value>
+  </data>
+  <data name="AddReplaceItem" xml:space="preserve">
+    <value>添加替换</value>
+  </data>
+  <data name="ReplaceText" xml:space="preserve">
+    <value>替换文本</value>
+  </data>
+  <data name="RemoveFromList" xml:space="preserve">
+    <value>从列表中移除</value>
+  </data>
+  <data name="BatchRename" xml:space="preserve">
+    <value>批量重命名</value>
+  </data>
+  <data name="AddSequence" xml:space="preserve">
+    <value>添加序号</value>
+  </data>
+  <data name="Shortcuts" xml:space="preserve">
+    <value>快捷操作</value>
+  </data>
+  <data name="Lowercase2Uppercase" xml:space="preserve">
+    <value>小写转大写</value>
+  </data>
+  <data name="Uppercase2Lowercase" xml:space="preserve">
+    <value>大写转小写</value>
+  </data>
+  <data name="BatchRenameResult" xml:space="preserve">
+    <value>批量重命名结果</value>
+  </data>
+  <data name="#BatchRenameResult" xml:space="preserve">
+    <value>成功{0}个，失败{1}个。</value>
+  </data>
+  <data name="DontAskWhenChangeExtension" xml:space="preserve">
+    <value>更改文件拓展名时不要提示我</value>
+  </data>
+  <data name="LeftText" xml:space="preserve">
+    <value>左边文本</value>
+  </data>
+  <data name="RightText" xml:space="preserve">
+    <value>右边文本</value>
+  </data>
+  <data name="StartingNumber" xml:space="preserve">
+    <value>开始序号</value>
+  </data>
+  <data name="FixedNumber" xml:space="preserve">
+    <value>固定位数</value>
+  </data>
+  <data name="#BatchRenameErrorNotModified" xml:space="preserve">
+    <value>没有要重命名的项目。</value>
+  </data>
+  <data name="#ProhibitedFileNameErrorNotEmpty" xml:space="preserve">
+    <value>文件名不能为空</value>
+  </data>
+  <data name="#ProhibitedFileNameErrorEndWithDot" xml:space="preserve">
+    <value>文件名不能以点结尾</value>
+  </data>
+  <data name="#ProhibitedFileNameErrorSpecialName" xml:space="preserve">
+    <value>文件名不能为con、prn、aux、nul、com1~com9、lpt1~lpt9</value>
   </data>
 </root>

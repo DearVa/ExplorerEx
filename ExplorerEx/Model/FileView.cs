@@ -411,13 +411,17 @@ public class FileView : INotifyPropertyChanged {
 		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 	}
 
+	public bool StageChangeEnabled { get; init; }
+
 	/// <summary>
 	/// 暂存更改
 	/// </summary>
 	/// <param name="propertyName"></param>
 	private void StageChange([CallerMemberName] string propertyName = null!) {
-		lock (changedPropertiesName) {
-			changedPropertiesName.Add(propertyName);
+		if (StageChangeEnabled) {
+			lock (changedPropertiesName) {
+				changedPropertiesName.Add(propertyName);
+			}
 		}
 	}
 
@@ -425,14 +429,16 @@ public class FileView : INotifyPropertyChanged {
 	/// 将所有属性标记为已更改
 	/// </summary>
 	public void StageAllChanges() {
-		StageChange(nameof(FullPath));
-		StageChange(nameof(PathType));
-		StageChange(nameof(SortBy));
-		StageChange(nameof(IsAscending));
-		StageChange(nameof(GroupBy));
-		StageChange(nameof(FileViewType));
-		StageChange(nameof(ItemSize));
-		StageChange(nameof(DetailListsData));
+		if (StageChangeEnabled) {
+			StageChange(nameof(FullPath));
+			StageChange(nameof(PathType));
+			StageChange(nameof(SortBy));
+			StageChange(nameof(IsAscending));
+			StageChange(nameof(GroupBy));
+			StageChange(nameof(FileViewType));
+			StageChange(nameof(ItemSize));
+			StageChange(nameof(DetailListsData));
+		}
 	}
 
 	public class SortByComparer : IComparer {

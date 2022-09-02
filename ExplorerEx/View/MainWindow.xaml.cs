@@ -141,23 +141,18 @@ public sealed partial class MainWindow {
 			}
 		});
 
-		var renameDialogContent = new RenameDialogContent {
-			RenameTextBox = {
-				VerifyFunc = fileName => new OperationResult<bool>(!FileUtils.IsProhibitedFileName(fileName))
-			}
-		};
+		renameTextBox = new RenameTextBox();
 		renameContentDialog = new ContentDialog {
-			Content = renameDialogContent,
+			Content = renameTextBox,
 			PrimaryButtonText = "Ok".L(),
 			CancelButtonText = "Cancel".L()
 		};
 		renameContentDialog.SetBinding(ContentDialog.IsPrimaryButtonEnabledProperty, new Binding {
-			Source = renameDialogContent.RenameTextBox,
+			Source = renameTextBox,
 			Path = new PropertyPath(TextBox.IsErrorProperty),
 			Mode = BindingMode.OneWay,
 			Converter = Application.Current.Resources["Boolean2BooleanReConverter"] as IValueConverter
 		});
-		renameTextBox = renameDialogContent.RenameTextBox;
 		renameContentDialog.Shown += () => {
 			if (renameSelectLength != -1) {
 				renameTextBox.Select(0, renameSelectLength);
@@ -547,7 +542,7 @@ public sealed partial class MainWindow {
 					var item = new BookmarkItem(bookmarkItem, window.BookmarkName, categoryItem);
 					dbCtx.Add(item);
 					await dbCtx.SaveAsync();
-					item.LoadIcon(FileListViewItem.LoadDetailsOptions.Default);
+					item.LoadIcon(FileListViewItem.LoadDetailsOptions.Current);
 				}
 				// await BookmarkManager.BookmarkItems.SaveChangesAsync();
 				// await BookmarkManager.BookmarkCategories.SaveChangesAsync();

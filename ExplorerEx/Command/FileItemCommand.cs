@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -31,8 +30,11 @@ public class FileItemCommand : ICommand {
 
 	public bool CanExecute(object? parameter) => true;
 
-	private ImmutableList<FileListViewItem> Items => SelectedItemsProvider.Invoke()?.ToImmutableList() ?? ImmutableList<FileListViewItem>.Empty;
-	private ImmutableList<FileListViewItem> Folders => SelectedItemsProvider.Invoke()?.Where(i => i.IsFolder).ToImmutableList() ?? ImmutableList<FileListViewItem>.Empty;
+	private readonly List<FileListViewItem> emptyItems = new();
+
+	private IReadOnlyList<FileListViewItem> Items => SelectedItemsProvider.Invoke()?.ToList() ?? emptyItems;
+
+	private IReadOnlyList<FileListViewItem> Folders => SelectedItemsProvider.Invoke()?.Where(i => i.IsFolder).ToList() ?? emptyItems;
 
 	public async void Execute(object? param) {
 		switch (param) {
@@ -115,10 +117,11 @@ public class FileItemCommand : ICommand {
 						}
 						var destPaths = filePaths.Select(path => Path.Combine(Folder.FullPath, Path.GetFileName(path))).ToList();
 						try {
-							await FileUtils.FileOperation(isCut ? FileOpType.Move : FileOpType.Copy, filePaths, destPaths);
+							await Task.Run(() => FileUtils.FileOperation(isCut ? FileOpType.Move : FileOpType.Copy, filePaths, destPaths));
 							FileTabControl.MouseOverTabControl?.SelectedTab.FileListView.SelectItems(destPaths);
 						} catch (Exception e) {
-							Logger.Exception(e);
+							Logger.Exception(e, false);
+							ContentDialog.Error(e.Message);
 						}
 					}
 				}
@@ -135,8 +138,8 @@ public class FileItemCommand : ICommand {
 				case 1:
 					FileTabControl.MouseOverTabControl?.SelectedTab.StartRename(items[0]);
 					break;
-				default: // TODO: 批量重命名
-					FileTabControl.MouseOverTabControl?.SelectedTab.StartRename(items[0]);
+				default:
+					BatchRenameControl.Show(items, MainWindow.FocusedWindow!);
 					break;
 				}
 				break;
@@ -150,18 +153,24 @@ public class FileItemCommand : ICommand {
 					break;
 				}
 				if ((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift) { // 没有按Shift
-					if (!ContentDialog.ShowWithDefault(Settings.CommonSettings.DontAskWhenRecycle, "#AreYouSureToRecycleTheseFiles".L())) {
-						return;
+					if (!Settings.Current[Settings.CommonSettings.DontAskWhenRecycle].GetBoolean()) {
+						if (ContentDialog.Ask("#AreYouSureToRecycleTheseFiles".L()) == ContentDialog.ContentDialogResult.Cancel) {
+							break;
+						}
 					}
 					try {
-						await FileUtils.FileOperation(FileOpType.Delete, items.Where(item => item is FileSystemItem).Select(item => item.FullPath).ToArray());
+						await Task.Run(() => FileUtils.FileOperation(FileOpType.Delete, items.Where(item => item is FileSystemItem).Select(item => item.FullPath).ToArray()));
 					} catch (Exception e) {
-						Logger.Exception(e);
+						Logger.Exception(e, false);
+						ContentDialog.Error(e.Message);
 					}
 				} else {
-					if (!ContentDialog.ShowWithDefault(Settings.CommonSettings.DontAskWhenDelete, "#AreYouSureToDeleteTheseFilesPermanently".L())) {
-						return;
+					if (!Settings.Current[Settings.CommonSettings.DontAskWhenDelete].GetBoolean()) {
+						if (ContentDialog.Ask("#AreYouSureToDeleteTheseFilesPermanently".L()) == ContentDialog.ContentDialogResult.Cancel) {
+							break;
+						}
 					}
+					
 					var failedFiles = new List<string>();
 					foreach (var item in items) {
 						if (item is FileSystemItem fsi) {
@@ -178,7 +187,7 @@ public class FileItemCommand : ICommand {
 						}
 					}
 					if (failedFiles.Count > 0) {
-						hc.MessageBox.Error(string.Join('\n', failedFiles), "TheFollowingFilesFailedToDelete".L());
+						ContentDialog.Error(string.Join('\n', failedFiles), "TheFollowingFilesFailedToDelete".L());
 					}
 				}
 				break;

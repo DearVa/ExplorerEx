@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -47,6 +48,9 @@ public partial class ContentDialog {
 	public static readonly DependencyProperty PrimaryButtonCommandProperty = DependencyProperty.Register(
 		nameof(PrimaryButtonCommand), typeof(ICommand), typeof(ContentDialog), new PropertyMetadata(default(ICommand)));
 
+	/// <summary>
+	/// 会传入CancelEventArgs，可取消关闭事件
+	/// </summary>
 	public ICommand? PrimaryButtonCommand {
 		get => (ICommand)GetValue(PrimaryButtonCommandProperty);
 		set => SetValue(PrimaryButtonCommandProperty, value);
@@ -165,17 +169,41 @@ public partial class ContentDialog {
 	}
 
 	private void ContentDialogPrimaryButton_OnClick(object sender, RoutedEventArgs e) {
+		e.Handled = true;
 		result = ContentDialogResult.Primary;
+		if (PrimaryButtonCommand != null) {
+			var cancel = new CancelEventArgs();
+			PrimaryButtonCommand.Execute(cancel);
+			if (cancel.Cancel) {
+				return;
+			}
+		}
 		Close();
 	}
 
 	private void ContentDialogSecondaryButton_OnClick(object sender, RoutedEventArgs e) {
+		e.Handled = true;
 		result = ContentDialogResult.Secondary;
+		if (SecondaryButtonCommand != null) {
+			var cancel = new CancelEventArgs();
+			SecondaryButtonCommand.Execute(cancel);
+			if (cancel.Cancel) {
+				return;
+			}
+		}
 		Close();
 	}
 
 	private void ContentDialogCancelButton_OnClick(object sender, RoutedEventArgs e) {
+		e.Handled = true;
 		result = ContentDialogResult.Cancel;
+		if (CancelButtonCommand != null) {
+			var cancel = new CancelEventArgs();
+			CancelButtonCommand.Execute(cancel);
+			if (cancel.Cancel) {
+				return;
+			}
+		}
 		Close();
 	}
 
@@ -230,6 +258,18 @@ public partial class ContentDialog {
 			return true;
 		}
 		return false;
+	}
+
+	public static ContentDialogResult Ask(string msg, string? caption = null, MainWindow? ownerWindow = null) {
+		if (MainWindow.FocusedWindow == null) {
+			throw new InvalidOperationException("No MainWindow is shown.");
+		}
+		return new ContentDialog {
+			Title = caption ?? "Error".L(),
+			Content = msg,
+			PrimaryButtonText = "Ok".L(),
+			CancelButtonText = "Cancel".L(),
+		}.Show(ownerWindow ?? MainWindow.FocusedWindow);
 	}
 
 	public static void Error(string msg, string? caption = null, MainWindow? ownerWindow = null) {

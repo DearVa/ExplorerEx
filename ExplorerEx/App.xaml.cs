@@ -14,6 +14,7 @@ using ExplorerEx.Database.SqlSugar;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 using ExplorerEx.View;
+using ExplorerEx.Win32;
 using static ExplorerEx.Win32.Win32Interop;
 
 namespace ExplorerEx;

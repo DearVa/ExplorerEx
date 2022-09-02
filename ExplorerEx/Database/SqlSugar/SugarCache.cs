@@ -19,9 +19,9 @@ public abstract class SugarCacheBase {
 	protected bool IsLoaded;
 
 	protected SugarCacheBase(Type type) {
-#if DEBUG
-		Debug.Assert(!type.IsClass || Caches.ContainsKey(type));
-#endif
+		if (!type.IsClass || Caches.ContainsKey(type)) {
+			throw new ArgumentException();
+		}
 		Caches.Add(type, this);
 	}
 }
@@ -164,8 +164,6 @@ public class SugarCache<T> : SugarCacheBase where T : class, new() {
 			if (invocation.Method.Attributes.HasFlag(MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.SpecialName)) {
 				if (invocation.Method.ReturnType == typeof(void)) {
 					cache.MarkAsChanged((T)invocation.Proxy);  // set
-				} else {
-
 				}
 			}
 		}

@@ -49,20 +49,17 @@ public abstract class FileSystemItem : FileListViewItem {
 		return Name;
 	}
 
-	protected override bool InternalRename(string newName) {
+	protected override void InternalRename(string newName) {
 		var basePath = Path.GetDirectoryName(FullPath);
+		if (basePath == null) {
+			throw new InvalidOperationException();
+		}
 		if (Path.GetExtension(FullPath) != Path.GetExtension(newName)) {
-			if (!ContentDialog.ShowWithDefault("RenameExtension", "#AreYouSureToChangeExtension".L())) {
-				return false;
+			if (!ContentDialog.ShowWithDefault(Settings.CommonSettings.DontAskWhenChangeExtension, "#AreYouSureToChangeExtension".L())) {
+				return;
 			}
 		}
-		try {
-			FileUtils.FileOperation(FileOpType.Rename, FullPath, Path.Combine(basePath!, newName));
-			return true;
-		} catch (Exception e) {
-			Logger.Exception(e);
-		}
-		return false;
+		File.Move(FullPath, Path.Combine(basePath, newName), false);
 	}
 
 	/// <summary>

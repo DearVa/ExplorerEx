@@ -8,8 +8,4 @@ namespace ExplorerEx.Database.SqlSugar;
 /// </summary>
 public class FileViewSugarContext : SugarContext<FileView>, IFileViewDbContext {
 	public FileViewSugarContext() : base("FileViews.db") { }
-
-	public void Update(FileView item) {
-		ConnectionClient.Updateable<FileView>().Where(i => i.FullPath == item.FullPath);
-	}
 }

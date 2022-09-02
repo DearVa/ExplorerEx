@@ -21,7 +21,7 @@ public class TextBox : System.Windows.Controls.TextBox, IDataInput {
 	}
 
 	public static readonly DependencyProperty VerifyFuncProperty = DependencyProperty.Register(
-		"VerifyFunc", typeof(Func<string, OperationResult<bool>>), typeof(TextBox), new PropertyMetadata(default(Func<string, OperationResult<bool>>)));
+		nameof(VerifyFunc), typeof(Func<string, OperationResult<bool>>), typeof(TextBox), new PropertyMetadata(default(Func<string, OperationResult<bool>>)));
 
 	public Func<string, OperationResult<bool>> VerifyFunc {
 		get => (Func<string, OperationResult<bool>>)GetValue(VerifyFuncProperty);
@@ -32,7 +32,7 @@ public class TextBox : System.Windows.Controls.TextBox, IDataInput {
 	///     数据是否错误
 	/// </summary>
 	public static readonly DependencyProperty IsErrorProperty = DependencyProperty.Register(
-		"IsError", typeof(bool), typeof(TextBox), new PropertyMetadata(ValueBoxes.FalseBox));
+		nameof(IsError), typeof(bool), typeof(TextBox), new PropertyMetadata(ValueBoxes.FalseBox));
 
 	public bool IsError {
 		get => (bool)GetValue(IsErrorProperty);
@@ -43,7 +43,7 @@ public class TextBox : System.Windows.Controls.TextBox, IDataInput {
 	///     错误提示
 	/// </summary>
 	public static readonly DependencyProperty ErrorPromptProperty = DependencyProperty.Register(
-		"ErrorPrompt", typeof(string), typeof(TextBox), new PropertyMetadata(default(string)));
+		nameof(ErrorPrompt), typeof(string), typeof(TextBox), new PropertyMetadata(default(string)));
 
 	public string ErrorPrompt {
 		get => (string)GetValue(ErrorPromptProperty);
@@ -54,7 +54,7 @@ public class TextBox : System.Windows.Controls.TextBox, IDataInput {
 	///     文本类型
 	/// </summary>
 	public static readonly DependencyProperty TextTypeProperty = DependencyProperty.Register(
-		"TextType", typeof(TextType), typeof(TextBox), new PropertyMetadata(default(TextType)));
+		nameof(TextType), typeof(TextType), typeof(TextBox), new PropertyMetadata(default(TextType)));
 
 	public TextType TextType {
 		get => (TextType)GetValue(TextTypeProperty);
@@ -65,7 +65,7 @@ public class TextBox : System.Windows.Controls.TextBox, IDataInput {
 	///     是否显示清除按钮
 	/// </summary>
 	public static readonly DependencyProperty ShowClearButtonProperty = DependencyProperty.Register(
-		"ShowClearButton", typeof(bool), typeof(TextBox), new PropertyMetadata(ValueBoxes.FalseBox));
+		nameof(ShowClearButton), typeof(bool), typeof(TextBox), new PropertyMetadata(ValueBoxes.FalseBox));
 
 	public bool ShowClearButton {
 		get => (bool)GetValue(ShowClearButtonProperty);

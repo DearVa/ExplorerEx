@@ -51,7 +51,7 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 			if (icon != null) {
 				return icon;
 			}
-			Task.Run(() => LoadIcon(LoadDetailsOptions.Default));
+			Task.Run(() => LoadIcon(LoadDetailsOptions.Current));  // TODO
 			return defaultIcon;
 		}
 		protected set {
@@ -134,7 +134,7 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	/// 加载文件的各项属性
 	/// </summary>
 	public abstract void LoadAttributes(LoadDetailsOptions options);
-	
+
 	public abstract void LoadIcon(LoadDetailsOptions options);
 
 	#region 文件重命名
@@ -145,28 +145,26 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	public abstract string? GetRenameName();
 
 	/// <summary>
-	/// 重命名
+	/// 重命名，错误抛异常
 	/// </summary>
-	public bool Rename(string newName) {
+	public void Rename(string newName) {
 		if (string.IsNullOrWhiteSpace(newName)) {
-			return false;
+			return;
 		}
 		newName = newName.Trim();
-		if (!FileUtils.IsProhibitedFileName(newName)) {
-			if (newName != Name && InternalRename(newName)) {
+		if (!FileUtils.IsProhibitedFileName(newName, out _)) {
+			if (newName != Name) {
+				InternalRename(newName);
 				Name = newName;
 				OnPropertyChanged(nameof(Name));
-				return true;
 			}
 		}
-		return false;
 	}
 
 	/// <summary>
-	/// 重命名
-	/// <returns>成功返回true</returns>
+	/// 重命名，错误抛异常
 	/// </summary>
-	protected abstract bool InternalRename(string newName);
+	protected abstract void InternalRename(string newName);
 
 	#endregion
 
@@ -241,7 +239,7 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	/// 加载详细信息时的设置，例如是否使用大图标
 	/// </summary>
 	public class LoadDetailsOptions {
-		public static LoadDetailsOptions Default { get; } = new() {
+		public static LoadDetailsOptions Current { get; } = new() {
 			PreLoadIcon = true,
 			UseLargeIcon = false
 		};

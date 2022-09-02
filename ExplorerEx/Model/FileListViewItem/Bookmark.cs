@@ -110,7 +110,7 @@ public class BookmarkItem : FileListViewItem, IFilterable {
 		throw new InvalidOperationException();
 	}
 
-	protected override bool InternalRename(string newName) {
+	protected override void InternalRename(string newName) {
 		throw new InvalidOperationException();
 	}
 

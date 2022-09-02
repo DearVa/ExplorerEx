@@ -116,7 +116,7 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 		throw new InvalidOperationException();
 	}
 
-	protected override bool InternalRename(string newName) {
+	protected override void InternalRename(string newName) {
 		throw new InvalidOperationException();
 	}
 
@@ -167,7 +167,7 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 					}
 					var item = new RecycleBinItem(pidl);
 					Items.Add(item);
-					item.LoadIcon(LoadDetailsOptions.Default);
+					item.LoadIcon(LoadDetailsOptions.Current);
 				}
 				Marshal.ReleaseComObject(enumFiles);
 				for (var i = itemsCount - 1; i >= 0; i--) {
