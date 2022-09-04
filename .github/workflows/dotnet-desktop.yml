@@ -73,7 +73,7 @@ jobs:
       with:
         dotnet-version: |
           6.0.x
-          4.6.2
+          4.6.x
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
