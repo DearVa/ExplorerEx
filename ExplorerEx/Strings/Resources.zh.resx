@@ -1,761 +1,805 @@
-﻿<root>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
   </resheader>
   <resheader name="version">
-    <value>1.3</value>
+    <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="New" xml:space="preserve">
-    <value>New</value>
+    <value>新建</value>
   </data>
   <data name="Sort" xml:space="preserve">
-    <value>Sort</value>
+    <value>排序</value>
   </data>
   <data name="View" xml:space="preserve">
-    <value>View</value>
+    <value>查看</value>
   </data>
   <data name="ThisPC" xml:space="preserve">
-    <value>This PC</value>
+    <value>此电脑</value>
   </data>
   <data name="NewFolder" xml:space="preserve">
-    <value>New Folder</value>
+    <value>新建文件夹</value>
   </data>
   <data name="Shortcut" xml:space="preserve">
-    <value>Shortcut</value>
+    <value>快捷方式</value>
   </data>
   <data name="Folder" xml:space="preserve">
-    <value>Folder</value>
+    <value>文件夹</value>
   </data>
   <data name="CannotCreate" xml:space="preserve">
-    <value>Cannot create</value>
+    <value>无法创建</value>
   </data>
   <data name="Available: " xml:space="preserve">
-    <value>Available: </value>
+    <value>可用：</value>
   </data>
   <data name=", " xml:space="preserve">
-    <value>, </value>
+    <value>，</value>
   </data>
   <data name="Total: " xml:space="preserve">
-    <value>Total: </value>
+    <value>共有：</value>
   </data>
   <data name="LocalDisk" xml:space="preserve">
-    <value>Local disk</value>
+    <value>本地磁盘</value>
   </data>
   <data name="Properties" xml:space="preserve">
-    <value>Properties</value>
+    <value>属性</value>
   </data>
   <data name="Open" xml:space="preserve">
-    <value>Open</value>
-  </data>
-  <data name="OpenInNewTab" xml:space="preserve">
-    <value>Open in new Tab</value>
-  </data>
-  <data name="RememberMyChoiceAndDontAskAgain" xml:space="preserve">
-    <value>Remember my choice and don't ask again</value>
-  </data>
-  <data name="#AreYouSureToRecycleTheseFiles" xml:space="preserve">
-    <value>Are you sure to recycle these files?</value>
+    <value>打开</value>
   </data>
   <data name="FailedToOpenFile" xml:space="preserve">
-    <value>Filed to open file</value>
+    <value>打开文件失败</value>
+  </data>
+  <data name="OpenInNewTab" xml:space="preserve">
+    <value>在新标签页中打开</value>
+  </data>
+  <data name="RememberMyChoiceAndDontAskAgain" xml:space="preserve">
+    <value>记住我的选择，下次不再询问</value>
+  </data>
+  <data name="#AreYouSureToRecycleTheseFiles" xml:space="preserve">
+    <value>您确定要将选择的文件移动到回收站吗？</value>
   </data>
   <data name="CheckYourInputAndTryAgain" xml:space="preserve">
-    <value>Check your input and try again.</value>
+    <value>请检查您的输入后重试。</value>
   </data>
   <data name="CannotOpenPath" xml:space="preserve">
-    <value>Cannot open path</value>
+    <value>无法打开此路径</value>
   </data>
   <data name="#AreYouSureToDeleteTheseFilesPermanently" xml:space="preserve">
-    <value>Are you sure to delete these files Permanently?</value>
+    <value>您确定要永久删除选择的文件吗？</value>
   </data>
   <data name="OpenInNewWindow" xml:space="preserve">
-    <value>Open in new Window</value>
+    <value>在新窗口中打开</value>
   </data>
   <data name="Cut" xml:space="preserve">
-    <value>Cut</value>
+    <value>剪切</value>
   </data>
   <data name="Copy" xml:space="preserve">
-    <value>Copy</value>
+    <value>复制</value>
   </data>
   <data name="Paste" xml:space="preserve">
-    <value>Paste</value>
+    <value>粘贴</value>
   </data>
   <data name="Share" xml:space="preserve">
-    <value>Share</value>
+    <value>分享</value>
   </data>
   <data name="Rename" xml:space="preserve">
-    <value>Rename</value>
+    <value>重命名</value>
   </data>
   <data name="Delete" xml:space="preserve">
-    <value>Delete</value>
+    <value>删除</value>
   </data>
   <data name="#YouClosedTheLastTab" xml:space="preserve">
-    <value>You closed the last tab, what do you want?</value>
+    <value>您关闭了最后一个标签页，请问您希望？</value>
   </data>
   <data name="ExitApplication" xml:space="preserve">
-    <value>Exit application</value>
+    <value>退出应用程序</value>
   </data>
   <data name="BackToHome" xml:space="preserve">
-    <value>Back to home</value>
+    <value>回到首页</value>
   </data>
   <data name="UnknownError" xml:space="preserve">
-    <value>Unknown error</value>
+    <value>未知错误</value>
   </data>
   <data name="More" xml:space="preserve">
-    <value>More</value>
+    <value>更多</value>
   </data>
   <data name="TheFollowingFilesFailedToDelete" xml:space="preserve">
-    <value>The following file(s) failed to delete:</value>
+    <value>以下文件删除失败：</value>
   </data>
   <data name="SaveAsFile" xml:space="preserve">
-    <value>Save as file</value>
+    <value>保存为文件</value>
   </data>
   <data name="SaveFileName" xml:space="preserve">
-    <value>Save file name</value>
+    <value>保存文件名</value>
   </data>
   <data name="Save" xml:space="preserve">
-    <value>Save</value>
+    <value>保存</value>
   </data>
   <data name="Text" xml:space="preserve">
-    <value>Text</value>
+    <value>文本</value>
   </data>
   <data name="Link" xml:space="preserve">
-    <value>Link</value>
+    <value>链接</value>
   </data>
   <data name="Image" xml:space="preserve">
-    <value>Image</value>
+    <value>图像</value>
   </data>
   <data name="SaveAs" xml:space="preserve">
-    <value>Save as</value>
+    <value>保存为</value>
   </data>
   <data name="LoadingImageFrom" xml:space="preserve">
-    <value>Loading image from: </value>
+    <value>正在加载图片：</value>
   </data>
   <data name="DontShowAgain" xml:space="preserve">
-    <value>Don't show this message again</value>
+    <value>不要再显示该信息</value>
   </data>
   <data name="CannotAccessDirectory" xml:space="preserve">
-    <value>Cannot access directory</value>
+    <value>无法访问文件夹</value>
   </data>
   <data name="AccessDenied" xml:space="preserve">
-    <value>Access denied</value>
+    <value>拒绝访问</value>
   </data>
   <data name="Name" xml:space="preserve">
-    <value>Name</value>
+    <value>名称</value>
   </data>
   <data name="DateModified" xml:space="preserve">
-    <value>Date modified</value>
+    <value>修改日期</value>
   </data>
   <data name="FileSize" xml:space="preserve">
-    <value>File size</value>
+    <value>文件大小</value>
   </data>
   <data name="Type" xml:space="preserve">
-    <value>Type</value>
+    <value>类型</value>
   </data>
   <data name="EmptyFolder" xml:space="preserve">
-    <value>Empty folder</value>
+    <value>空文件夹</value>
   </data>
   <data name="#AreYouSureToChangeExtension" xml:space="preserve">
-    <value>If you change the file extension, the file may become unavailable.
+    <value>如果改变文件拓展名，则可能导致文件不可用。
 
-Are you sure you want to change?</value>
+确定要更改吗？</value>
   </data>
   <data name="Search" xml:space="preserve">
-    <value>Search</value>
+    <value>搜索</value>
   </data>
   <data name="#EverythingIsNotAvailable" xml:space="preserve">
-    <value>Everything is not running or not installed, cannot search now.</value>
+    <value>Everything未运行或未安装，暂时无法使用搜索。</value>
   </data>
   <data name="RemovableDisk" xml:space="preserve">
-    <value>Removable disk</value>
+    <value>可移动磁盘</value>
   </data>
   <data name="CD_drive" xml:space="preserve">
-    <value>CD drive</value>
+    <value>光盘驱动器</value>
   </data>
   <data name="OtherTypeDisk" xml:space="preserve">
-    <value>Other type disk</value>
+    <value>其他类型磁盘</value>
   </data>
   <data name="LargeIcons" xml:space="preserve">
-    <value>Big icons</value>
+    <value>大图标</value>
   </data>
   <data name="SmallIcons" xml:space="preserve">
-    <value>Small icons</value>
+    <value>小图标</value>
   </data>
   <data name="List" xml:space="preserve">
-    <value>List</value>
+    <value>列表</value>
   </data>
   <data name="Details" xml:space="preserve">
-    <value>Details</value>
+    <value>详细信息</value>
   </data>
   <data name="Tiles" xml:space="preserve">
-    <value>Tiles</value>
+    <value>平铺</value>
   </data>
   <data name="Content" xml:space="preserve">
-    <value>Content</value>
+    <value>内容</value>
   </data>
   <data name="AvailableSpace" xml:space="preserve">
-    <value>Free space</value>
+    <value>可用空间</value>
   </data>
   <data name="TotalSpace" xml:space="preserve">
-    <value>Total space</value>
+    <value>总容量</value>
   </data>
   <data name="FillRatio" xml:space="preserve">
-    <value>Fill ratio</value>
+    <value>填充占比</value>
   </data>
   <data name="FileSystem" xml:space="preserve">
-    <value>File system</value>
+    <value>文件系统</value>
   </data>
   <data name="#YouHaveOpenedMoreThanOneTab" xml:space="preserve">
-    <value>You have opened more than one tab. Are you sure you want to close?</value>
+    <value>你打开了多个标签页，确定要关闭吗？</value>
   </data>
   <data name="Tip" xml:space="preserve">
-    <value>Tip</value>
+    <value>提示</value>
   </data>
   <data name="CopyTo" xml:space="preserve">
-    <value>Copy to</value>
+    <value>复制到</value>
   </data>
   <data name="MoveTo" xml:space="preserve">
-    <value>Move to</value>
+    <value>移动到</value>
   </data>
   <data name="LinkTo" xml:space="preserve">
-    <value>Link to</value>
+    <value>创建链接</value>
   </data>
   <data name="Bookmarks" xml:space="preserve">
-    <value>Bookmarks</value>
+    <value>收藏夹</value>
   </data>
   <data name="Quick_access" xml:space="preserve">
-    <value>Quick access</value>
+    <value>快速访问</value>
   </data>
   <data name="Settings" xml:space="preserve">
-    <value>Settings</value>
+    <value>设置</value>
   </data>
   <data name="AddToBookmarks" xml:space="preserve">
-    <value>Add to bookmarks</value>
+    <value>添加到收藏夹</value>
   </data>
   <data name="Category" xml:space="preserve">
-    <value>Category</value>
+    <value>类别</value>
   </data>
   <data name="DefaultBookmark" xml:space="preserve">
-    <value>Default bookmark</value>
+    <value>默认收藏夹</value>
   </data>
   <data name="RunAsAdmin" xml:space="preserve">
-    <value>Run as admin</value>
+    <value>以管理员身份运行</value>
   </data>
   <data name="Run" xml:space="preserve">
-    <value>Run</value>
+    <value>运行</value>
   </data>
   <data name="Edit" xml:space="preserve">
-    <value>Edit</value>
+    <value>编辑</value>
   </data>
   <data name="Ok" xml:space="preserve">
-    <value>OK</value>
+    <value>确定</value>
   </data>
   <data name="RemoveFromBookmarks" xml:space="preserve">
-    <value>Remove from bookmarks</value>
+    <value>从收藏夹移除</value>
   </data>
   <data name="EditBookmark" xml:space="preserve">
-    <value>Edit bookmark</value>
+    <value>编辑收藏项</value>
   </data>
   <data name="Documents" xml:space="preserve">
-    <value>Documents</value>
+    <value>文档</value>
   </data>
   <data name="Desktop" xml:space="preserve">
-    <value>Desktop</value>
+    <value>桌面</value>
   </data>
   <data name="Error" xml:space="preserve">
-    <value>Error</value>
+    <value>错误</value>
   </data>
   <data name="CannotOpen" xml:space="preserve">
-    <value>Cannot open</value>
-  </data>
-  <data name="UnknownArgument" xml:space="preserve">
-    <value>Unknown argument: </value>
+    <value>无法打开</value>
   </data>
   <data name="#AppHelp" xml:space="preserve">
-    <value>How to use: 
+    <value>使用说明：
 ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requireDebugger] Path1, Path2, ...</value>
+    <comment>Usage：
+ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requireDebugger] Path1, Path2, ...</comment>
+  </data>
+  <data name="UnknownArgument" xml:space="preserve">
+    <value>未知的参数：</value>
   </data>
   <data name="Exit" xml:space="preserve">
-    <value>Exit</value>
+    <value>退出</value>
   </data>
   <data name="ShowWindow" xml:space="preserve">
-    <value>Show window</value>
+    <value>显示窗口</value>
   </data>
   <data name="RecycleBin" xml:space="preserve">
-    <value>Recycle Bin</value>
+    <value>回收站</value>
   </data>
   <data name="Network" xml:space="preserve">
-    <value>Network</value>
+    <value>网络</value>
   </data>
   <data name="ReleaseToAddToBookmark" xml:space="preserve">
-    <value>Release to add to bookmark</value>
-  </data>
-  <data name="Home" xml:space="preserve">
-    <value>Home</value>
+    <value>松手添加到收藏夹</value>
   </data>
   <data name="Refresh" xml:space="preserve">
-    <value>Refresh</value>
+    <value>刷新</value>
   </data>
   <data name="Loading" xml:space="preserve">
-    <value>Loading...</value>
+    <value>加载中……</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>主页</value>
   </data>
   <data name="#Unsupported_encoding" xml:space="preserve">
-    <value>This file is a binary file or the encoding is not supported.</value>
+    <value>此文件是二进制文件或者使用了不支持的编码方式。</value>
   </data>
   <data name="Restore" xml:space="preserve">
-    <value>Restore</value>
+    <value>还原</value>
   </data>
   <data name="UnknownType" xml:space="preserve">
-    <value>Unknown type</value>
+    <value>未知类型</value>
   </data>
   <data name="ReleaseToMoveToRecycleBin" xml:space="preserve">
-    <value>Release to move to Recycle bin</value>
+    <value>松手移动到回收站</value>
   </data>
   <data name="Ascending" xml:space="preserve">
-    <value>Ascending</value>
+    <value>升序（小的在上）</value>
   </data>
   <data name="Descending" xml:space="preserve">
-    <value>Descending</value>
+    <value>降序（大的在上）</value>
   </data>
   <data name="GroupBy" xml:space="preserve">
-    <value>Group by</value>
+    <value>分组依据</value>
   </data>
   <data name="None" xml:space="preserve">
-    <value>None</value>
+    <value>无</value>
   </data>
   <data name="DriveIsNotReady" xml:space="preserve">
-    <value>Drive is not ready.</value>
+    <value>设备未就绪。</value>
   </data>
   <data name="#ProhibitedFileNameErrorSpecialChar" xml:space="preserve">
-    <value>File name cannot contain \ / : * ? " &lt; &gt; |</value>
+    <value>文件名不能包含 \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="ThisIsAnEmptyFolder" xml:space="preserve">
-    <value>This is an empty folder.</value>
+    <value>此文件夹为空。</value>
   </data>
   <data name="FormatDrive" xml:space="preserve">
-    <value>Format Drive</value>
+    <value>格式化驱动器</value>
   </data>
   <data name="#CannotFormatDrive" xml:space="preserve">
-    <value>The drive cannot be formatted.</value>
+    <value>无法格式化所选驱动器。</value>
   </data>
   <data name="#FormatDriveError" xml:space="preserve">
-    <value>An error occurred during the last format. This does not indicate that the drive is unformattable.</value>
+    <value>格式化驱动器时发生错误，这并不表示所选驱动器不可格式化。</value>
   </data>
   <data name="OpenFileLocation" xml:space="preserve">
-    <value>Open file location</value>
+    <value>打开文件位置</value>
   </data>
   <data name="CopyAsPath" xml:space="preserve">
-    <value>Copy as path</value>
+    <value>复制文件路径</value>
   </data>
   <data name="RestoreAll" xml:space="preserve">
-    <value>Restore all</value>
+    <value>全部恢复</value>
   </data>
   <data name="OpenOnTheRight" xml:space="preserve">
-    <value>Open on the right</value>
+    <value>在右侧打开</value>
   </data>
   <data name="DeleteAll" xml:space="preserve">
-    <value>Delete all</value>
+    <value>删除所有</value>
   </data>
   <data name="GoBackTo..." xml:space="preserve">
-    <value>Go back to {0} (Alt + Left arrow)</value>
+    <value>返回到 {0} (Alt + 左箭头)</value>
   </data>
   <data name="GoForwardTo..." xml:space="preserve">
-    <value>Go forward to {0} (Alt + Right Arrow)</value>
+    <value>前进到 {0} (Alt + 右箭头)</value>
   </data>
   <data name="GoUpTo..." xml:space="preserve">
-    <value>Up to {0} (Alt + Up Arrow)</value>
+    <value>向上一级到 {0} (Alt + 上箭头)</value>
   </data>
   <data name="EmptyRecycleBin" xml:space="preserve">
-    <value>Empty Recycle bin</value>
+    <value>清空回收站</value>
   </data>
   <data name="Empty" xml:space="preserve">
-    <value>Empty</value>
+    <value>空</value>
   </data>
   <data name="#ExplorerExCannotFind..." xml:space="preserve">
-    <value>ExplorerEx Cannot Find: {0}
-If the location in on this PC, make sure the device or drive is connected or the disc is inserted, and then try again. If the location is on a network, make sure you're connected to the network or Internet, and then try again. If the location still can't be found, it might have been moved or deleted.</value>
+    <value>ExplorerEx找不到：{0}
+如果路径位于计算机上，请确认磁盘或者光碟已插入，然后再试一次。
+如果路径位于网络，请确认您已经连接到局域网或互联网，然后再试一次。
+如果仍无法打开，说明该路径已被移动或删除，亦或者您没有权限来访问。</value>
   </data>
   <data name="#PathNotExistOrAccessDenied" xml:space="preserve">
-    <value>The path does not exist or access is denied.</value>
+    <value>路径不存在或者没有权限访问。</value>
   </data>
   <data name="#FatalError" xml:space="preserve">
-    <value>Explorerex encountered a fatal error and needs to exit now.
-
+    <value>ExplorerEx遇到严重错误，需要立即退出。
 {0}
-
-You can find the detailed messages in the ExplorerEx\Logs directory.</value>
+您可以在 ExplorerEx安装目录\Logs 目录下找到详细信息。</value>
   </data>
   <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
+    <value>取消</value>
   </data>
   <data name="ExtractAll" xml:space="preserve">
-    <value>Extract all</value>
+    <value>全部解压缩</value>
   </data>
   <data name="RunAnyway" xml:space="preserve">
-    <value>Run anyway</value>
+    <value>直接运行</value>
   </data>
   <data name="Question" xml:space="preserve">
-    <value>Question</value>
+    <value>询问</value>
   </data>
   <data name="#ZipFileIsExecutable" xml:space="preserve">
-    <value>This application may depend on other compressed files in this folder.
-
-For the application to run properly, it's recommanded that you first extract all files.</value>
+    <value>这个应用程序可能依赖于压缩包中的其他文件，为了保证程序正常运行，建议全部解压后再运行。</value>
   </data>
   <data name="CloseWindow" xml:space="preserve">
-    <value>Close window</value>
+    <value>关闭窗口</value>
   </data>
   <data name="#SelectADestinationAndExtractFiles" xml:space="preserve">
-    <value>Select a Destination and Extract Files</value>
+    <value>选择要解压到的位置</value>
   </data>
   <data name="#FilesWillBeExtractedToThisFolder" xml:space="preserve">
-    <value>Files will be extracted to this folder:</value>
+    <value>文件会被解压到这个文件夹：</value>
   </data>
   <data name="Browse..." xml:space="preserve">
-    <value>Browse...</value>
+    <value>浏览……</value>
   </data>
   <data name="#ShowExtractedFilesWhenComplete" xml:space="preserve">
-    <value>Show extracted files when complete</value>
+    <value>解压完成后打开文件夹</value>
   </data>
   <data name="Extract" xml:space="preserve">
-    <value>Extract</value>
-  </data>
-  <data name="And...More" xml:space="preserve">
-    <value>And {0} more.</value>
-  </data>
-  <data name="Close" xml:space="preserve">
-    <value>Close</value>
-  </data>
-  <data name="DuplicateTab" xml:space="preserve">
-    <value>Duplicate Tab</value>
-  </data>
-  <data name="MoveToNewWindow" xml:space="preserve">
-    <value>Move to New Window</value>
-  </data>
-  <data name="SplitScreen" xml:space="preserve">
-    <value>Split Screen</value>
-  </data>
-  <data name="CloseOtherTabs" xml:space="preserve">
-    <value>Close Other Tabs</value>
-  </data>
-  <data name="ToLeft" xml:space="preserve">
-    <value>To Left</value>
-  </data>
-  <data name="ToRight" xml:space="preserve">
-    <value>To Right</value>
-  </data>
-  <data name="ToBottom" xml:space="preserve">
-    <value>To Bottom</value>
-  </data>
-  <data name="Today" xml:space="preserve">
-    <value>Today</value>
-  </data>
-  <data name="LastWeek" xml:space="preserve">
-    <value>Last week</value>
-  </data>
-  <data name="Yesterday" xml:space="preserve">
-    <value>Yesterday</value>
-  </data>
-  <data name="ThisMonth" xml:space="preserve">
-    <value>This month</value>
-  </data>
-  <data name="LastMonth" xml:space="preserve">
-    <value>Last year</value>
-  </data>
-  <data name="ALongTimeAgo" xml:space="preserve">
-    <value>A long time ago</value>
-  </data>
-  <data name="ThisWeek" xml:space="preserve">
-    <value>This week</value>
-  </data>
-  <data name="OpenWith" xml:space="preserve">
-    <value>Open with</value>
-  </data>
-  <data name="ChooseAnotherApp" xml:space="preserve">
-    <value>Choose another app</value>
-  </data>
-  <data name="DragCopyTo" xml:space="preserve">
-    <value>Copy to *</value>
-  </data>
-  <data name="DragLinkTo" xml:space="preserve">
-    <value>Link to *</value>
-  </data>
-  <data name="DragMoveTo" xml:space="preserve">
-    <value>Move to *</value>
-  </data>
-  <data name="DragOpenWith" xml:space="preserve">
-    <value>Open with *</value>
-  </data>
-  <data name="DragOpenInNewTab" xml:space="preserve">
-    <value>Open * in new tab</value>
-  </data>
-  <data name="Tiny" xml:space="preserve">
-    <value>Tiny</value>
-  </data>
-  <data name="Small" xml:space="preserve">
-    <value>Small</value>
-  </data>
-  <data name="Medium" xml:space="preserve">
-    <value>Medium</value>
-  </data>
-  <data name="Large" xml:space="preserve">
-    <value>Large</value>
-  </data>
-  <data name="Huge" xml:space="preserve">
-    <value>Huge</value>
-  </data>
-  <data name="Gigantic" xml:space="preserve">
-    <value>Gigantic</value>
-  </data>
-  <data name="Unknown" xml:space="preserve">
-    <value>Unknown</value>
-  </data>
-  <data name="OpenInTerminal" xml:space="preserve">
-    <value>Open in terminal</value>
-  </data>
-  <data name="ShowMoreOptions" xml:space="preserve">
-    <value>Show more options</value>
-  </data>
-  <data name="#ShowMore" xml:space="preserve">
-    <value>"Show more options" is just a temporary function to make up for some missing functions. In the future, I will remove it and add a custom right-click menu function. Please look forward to it. :)</value>
-  </data>
-  <data name="FullPath" xml:space="preserve">
-    <value>Full path</value>
+    <value>解压缩</value>
   </data>
   <data name="#ErrorExtractFiles" xml:space="preserve">
-    <value>Error occurs when extracting following files:</value>
+    <value>解压下列文件时发生错误：</value>
+  </data>
+  <data name="And...More" xml:space="preserve">
+    <value>还有 {0} 个。</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="DuplicateTab" xml:space="preserve">
+    <value>复制标签页</value>
+  </data>
+  <data name="MoveToNewWindow" xml:space="preserve">
+    <value>移动到新窗口</value>
+  </data>
+  <data name="SplitScreen" xml:space="preserve">
+    <value>分屏</value>
+  </data>
+  <data name="CloseOtherTabs" xml:space="preserve">
+    <value>关闭其他标签页</value>
+  </data>
+  <data name="ToLeft" xml:space="preserve">
+    <value>到左侧</value>
+  </data>
+  <data name="ToRight" xml:space="preserve">
+    <value>到右侧</value>
+  </data>
+  <data name="ToBottom" xml:space="preserve">
+    <value>到底部</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>今天</value>
+  </data>
+  <data name="LastWeek" xml:space="preserve">
+    <value>上周</value>
+  </data>
+  <data name="Yesterday" xml:space="preserve">
+    <value>昨天</value>
+  </data>
+  <data name="ThisMonth" xml:space="preserve">
+    <value>本月</value>
+  </data>
+  <data name="LastMonth" xml:space="preserve">
+    <value>上个月</value>
+  </data>
+  <data name="ALongTimeAgo" xml:space="preserve">
+    <value>很早之前</value>
+  </data>
+  <data name="ThisWeek" xml:space="preserve">
+    <value>本周</value>
+  </data>
+  <data name="OpenWith" xml:space="preserve">
+    <value>打开方式</value>
+  </data>
+  <data name="ChooseAnotherApp" xml:space="preserve">
+    <value>选择其他应用</value>
+  </data>
+  <data name="DragCopyTo" xml:space="preserve">
+    <value>复制到 *</value>
+  </data>
+  <data name="DragMoveTo" xml:space="preserve">
+    <value>移动到 *</value>
+  </data>
+  <data name="DragLinkTo" xml:space="preserve">
+    <value>在 * 创建链接</value>
+  </data>
+  <data name="DragOpenWith" xml:space="preserve">
+    <value>用 * 打开</value>
+  </data>
+  <data name="DragOpenInNewTab" xml:space="preserve">
+    <value>在新标签页打开 *</value>
+  </data>
+  <data name="Tiny" xml:space="preserve">
+    <value>微小</value>
+  </data>
+  <data name="Small" xml:space="preserve">
+    <value>小</value>
+  </data>
+  <data name="Medium" xml:space="preserve">
+    <value>中</value>
+  </data>
+  <data name="Large" xml:space="preserve">
+    <value>大</value>
+  </data>
+  <data name="Huge" xml:space="preserve">
+    <value>巨大</value>
+  </data>
+  <data name="Gigantic" xml:space="preserve">
+    <value>特大</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="OpenInTerminal" xml:space="preserve">
+    <value>在终端中打开</value>
+  </data>
+  <data name="ShowMoreOptions" xml:space="preserve">
+    <value>显示更多选项</value>
+  </data>
+  <data name="#ShowMore" xml:space="preserve">
+    <value>显示更多选项只是一项临时功能，为了暂时弥补一些功能上的缺失。在未来我会将其移除，并添加自定义右键菜单功能，敬请期待。 :)</value>
+  </data>
+  <data name="FullPath" xml:space="preserve">
+    <value>完整路径</value>
   </data>
   <data name="FileOrFolderAlreadyExist" xml:space="preserve">
-    <value>File or Folder already exist.</value>
+    <value>文件或文件夹已存在。</value>
   </data>
   <data name="InitializeLoggerFailed" xml:space="preserve">
-    <value>Initialize Log system Failed.</value>
+    <value>无法初始化日志系统。</value>
   </data>
   <data name="FatalError" xml:space="preserve">
-    <value>Fatal error</value>
+    <value>致命错误</value>
   </data>
   <data name="Create" xml:space="preserve">
-    <value>Create</value>
+    <value>创建</value>
   </data>
   <data name="File" xml:space="preserve">
-    <value>File</value>
+    <value>文件</value>
   </data>
   <data name="Appearance" xml:space="preserve">
-    <value>Appearance</value>
+    <value>外观</value>
   </data>
   <data name="DoubleClickGoUpperLevel" xml:space="preserve">
-    <value>Double click go upper level</value>
+    <value>双击返回上一级</value>
   </data>
   <data name="Theme" xml:space="preserve">
-    <value>Theme</value>
+    <value>主题</value>
   </data>
   <data name="WindowBackdrop" xml:space="preserve">
-    <value>Window backdrop</value>
+    <value>窗口背景材质</value>
   </data>
   <data name="SolidColor" xml:space="preserve">
-    <value>Solid color</value>
+    <value>纯色</value>
   </data>
   <data name="Acrylic" xml:space="preserve">
-    <value>Acrylic</value>
+    <value>亚克力</value>
   </data>
   <data name="MicaWindows11Only" xml:space="preserve">
-    <value>Mica (Windows 11 only)</value>
+    <value>云母（仅Windows 11可用）</value>
   </data>
   <data name="ColorMode" xml:space="preserve">
-    <value>Color mode</value>
+    <value>颜色模式</value>
   </data>
   <data name="FollowSystem" xml:space="preserve">
-    <value>Follow system</value>
+    <value>跟随系统</value>
   </data>
   <data name="ColorMode-Light" xml:space="preserve">
-    <value>Light</value>
+    <value>浅色</value>
   </data>
   <data name="ColorMode-Dark" xml:space="preserve">
-    <value>Dark</value>
+    <value>深色</value>
   </data>
   <data name="Common" xml:space="preserve">
-    <value>Common</value>
+    <value>通用</value>
   </data>
   <data name="DefaultTextEditor" xml:space="preserve">
-    <value>Default text editor</value>
+    <value>默认文本编辑器</value>
   </data>
   <data name="#DefaultTextEditorDescription" xml:space="preserve">
-    <value>When you right-click a text file and select Edit, this program will be used to open it.</value>
+    <value>当使用鼠标右键点击文本文件并选择“编辑”时，会使用这个程序来打开。</value>
   </data>
   <data name="#DoubleClickGoUpperLevelDescription" xml:space="preserve">
-    <value>Double click in the blank space to go to upper level.</value>
+    <value>在空白处双击来返回上一级。</value>
   </data>
   <data name="MediumIcons" xml:space="preserve">
-    <value>Medium icons</value>
-  </data>
-  <data name=":" xml:space="preserve">
-    <value>: </value>
-  </data>
-  <data name="Selected...Items" xml:space="preserve">
-    <value>Selected {0} items</value>
-  </data>
-  <data name="...Items" xml:space="preserve">
-    <value>{0} items</value>
+    <value>中等图标</value>
   </data>
   <data name="...FreeOf..." xml:space="preserve">
-    <value>{0} free of {1}</value>
+    <value>共{1}，剩余{0}</value>
+  </data>
+  <data name=":" xml:space="preserve">
+    <value>：</value>
+  </data>
+  <data name="Selected...Items" xml:space="preserve">
+    <value>选择了{0}个项目</value>
+  </data>
+  <data name="...Items" xml:space="preserve">
+    <value>共{0}个项目</value>
   </data>
   <data name="ShowHiddenFilesAndFolders" xml:space="preserve">
-    <value>Show hidden files and folders</value>
+    <value>显示隐藏的文件和文件夹</value>
   </data>
   <data name="ShowProtectedSystemFilesAndFolders" xml:space="preserve">
-    <value>(Not recommanded) Show protected system files and folders</value>
+    <value>（不推荐开启）显示受保护的系统文件和文件夹</value>
   </data>
   <data name="Advanced" xml:space="preserve">
-    <value>Advanced</value>
+    <value>高级</value>
   </data>
   <data name="Customize" xml:space="preserve">
-    <value>Customize</value>
+    <value>自定义</value>
   </data>
   <data name="DontAskWhenRecycle" xml:space="preserve">
-    <value>Dont ask when move files to recycle bin</value>
+    <value>移动文件到回收站时不提示确认</value>
   </data>
   <data name="DontAskWhenDelete" xml:space="preserve">
-    <value>(Not recommanded) Dont ask when delete files permanently</value>
+    <value>（不推荐开启）永久删除文件时不提示确认</value>
   </data>
   <data name="BackgroundImage" xml:space="preserve">
-    <value>Background image</value>
+    <value>背景图片</value>
   </data>
   <data name="#BackgroundImageDescription" xml:space="preserve">
-    <value>Set the background image of file browser list</value>
+    <value>设置文件浏览列表的背景图片</value>
   </data>
   <data name="BackgroundImageOpacity" xml:space="preserve">
-    <value>Background image opacity</value>
+    <value>背景图片透明度</value>
   </data>
   <data name="Background" xml:space="preserve">
-    <value>Background</value>
+    <value>背景</value>
   </data>
   <data name="Language" xml:space="preserve">
-    <value>Language</value>
+    <value>语言</value>
   </data>
   <data name="#LanguageDescription" xml:space="preserve">
-    <value>Select the interface language of ExplorerEx</value>
+    <value>选择ExplorerEx的显示语言</value>
   </data>
   <data name="Chinese" xml:space="preserve">
-    <value>Chinese</value>
+    <value>中文</value>
   </data>
   <data name="English" xml:space="preserve">
-    <value>English</value>
+    <value>英文</value>
   </data>
   <data name="...Item" xml:space="preserve">
-    <value>{0} item</value>
+    <value>共{0}个项目</value>
   </data>
   <data name="DontAskWhenClosingMultiTabs" xml:space="preserve">
-    <value>Don't remind me when closing a window with multiple tabs</value>
+    <value>当关闭有多个标签页的窗口时不要提醒我</value>
   </data>
   <data name="ReplaceTo" xml:space="preserve">
-    <value>Replace to</value>
+    <value>替换为</value>
   </data>
   <data name="AddReplaceItem" xml:space="preserve">
-    <value>Add replace</value>
+    <value>添加替换</value>
   </data>
   <data name="ReplaceText" xml:space="preserve">
-    <value>Replace text</value>
+    <value>替换文本</value>
   </data>
   <data name="RemoveFromList" xml:space="preserve">
-    <value>Remove from list</value>
+    <value>从列表中移除</value>
   </data>
   <data name="BatchRename" xml:space="preserve">
-    <value>Batch rename</value>
+    <value>批量重命名</value>
   </data>
   <data name="AddSequence" xml:space="preserve">
-    <value>Add seq.</value>
+    <value>添加序号</value>
   </data>
   <data name="Shortcuts" xml:space="preserve">
-    <value>Shortcuts</value>
+    <value>快捷操作</value>
   </data>
   <data name="Lowercase2Uppercase" xml:space="preserve">
-    <value>Lowercase to uppercase</value>
+    <value>小写转大写</value>
   </data>
   <data name="Uppercase2Lowercase" xml:space="preserve">
-    <value>Uppercase to lowercase</value>
+    <value>大写转小写</value>
   </data>
   <data name="BatchRenameResult" xml:space="preserve">
-    <value>Batch rename result</value>
+    <value>批量重命名结果</value>
   </data>
   <data name="#BatchRenameResult" xml:space="preserve">
-    <value>{0} Succeed, {1} Failed.</value>
+    <value>成功{0}个，失败{1}个。</value>
   </data>
   <data name="DontAskWhenChangeExtension" xml:space="preserve">
-    <value>Don't remind me when changing file extension </value>
+    <value>更改文件拓展名时不要提示我</value>
   </data>
   <data name="LeftText" xml:space="preserve">
-    <value>Left text</value>
+    <value>左边文本</value>
   </data>
   <data name="RightText" xml:space="preserve">
-    <value>Right text</value>
+    <value>右边文本</value>
   </data>
   <data name="StartingNumber" xml:space="preserve">
-    <value>Starting number</value>
+    <value>开始序号</value>
   </data>
   <data name="FixedNumber" xml:space="preserve">
-    <value>Fixed number</value>
+    <value>固定位数</value>
   </data>
   <data name="#BatchRenameErrorNotModified" xml:space="preserve">
-    <value>No need to rename.</value>
+    <value>没有要重命名的项目。</value>
   </data>
   <data name="#ProhibitedFileNameErrorNotEmpty" xml:space="preserve">
-    <value>File name cannot be empty</value>
+    <value>文件名不能为空</value>
   </data>
   <data name="#ProhibitedFileNameErrorEndWithDot" xml:space="preserve">
-    <value>File name cannot ends with dot</value>
+    <value>文件名不能以点结尾</value>
   </data>
   <data name="#ProhibitedFileNameErrorSpecialName" xml:space="preserve">
-    <value>File name cannot be con, prn, aux, nul, com1-com9, lpt1-lpt9</value>
+    <value>文件名不能为con、prn、aux、nul、com1~com9、lpt1~lpt9</value>
   </data>
   <data name="SetExplorerExAsDefault" xml:space="preserve">
-    <value>Set ExplorerEx as default file manager</value>
+    <value>设置ExplorerEx为默认文件管理器</value>
   </data>
   <data name="PleaseReadCarefully" xml:space="preserve">
-    <value>Please Read Carefully!</value>
+    <value>请务必仔细阅读！</value>
   </data>
   <data name="#SetExplorerExAsDefaultInstructions0" xml:space="preserve">
-    <value>ExplorerEx is still in development. In order to protect your safety, the next operation will be slightly cumbersome. 
-After you click "OK", a file named "Delete ExplorerEx Proxy.reg" will be created on the desktop. You can move or copy it to any location, but please KEEP it properly. If there is any problem, just double-click to open the file and select "OK" in the pop-up dialog box to reset the default file manager.</value>
+    <value>ExplorerEx尚处于开发阶段，为了保护你的安全，接下来的操作会略为繁琐。
+当你点击“好”之后，桌面上会创建一个名为“Delete ExplorerEx Proxy.reg”的文件，你可以将其移动或者复制到任何位置，但请妥善保管它。如果出现任何问题，只需双击打开该文件，并在弹出的对话框中选择“确定”，即可重置默认文件管理器。</value>
   </data>
   <data name="SetExplorerExAsDefaultFailReg" xml:space="preserve">
-    <value>Unable to create file on desktop, aborting. Your default file manager has NOT been changed.</value>
+    <value>无法在桌面上创建文件，中止，你的默认文件管理器没有被更改。</value>
   </data>
   <data name="#SetExplorerExAsDefaultInstructions1" xml:space="preserve">
-    <value>The file has been created on the desktop. Please confirm whether it exists. If it does NOT exist, you can click "Cancel" to abort, and your default file manager will NOT be changed.</value>
+    <value>文件已经在桌面上创建，请确认是否存在。如果不存在，你可以点击“取消”来中止，你的默认文件管理器将不会被更改。</value>
   </data>
   <data name="#SetExplorerExAsDefaultInstructions2" xml:space="preserve">
-    <value>Next, after you click "OK", a file named "Set ExplorerEx Proxy.reg" will be created on the desktop. You just need to double-click to open it and select "OK" in the pop-up dialog box to set explorerex as the default file manager, and then delete the file. Please note that do not move the installation directory of this program after setting, otherwise it will become invalid.
+    <value>接下来，当你点击“好”之后，桌面上会创建一个名为“Set ExplorerEx Proxy.reg”的文件。你只需要双击打开它，并在弹出的对话框中选择“确定”，即可将ExplorerEx设置为默认的文件管理器，之后即可删除该文件。请注意，设置之后请勿再移动本程序的安装目录，否则会失效。
 
-Enjoy it :)</value>
+尽情享受吧~</value>
   </data>
   <data name="#UnsetExplorerExAsDefaultInstructions" xml:space="preserve">
-    <value>Remember "Delete ExplorerEx Proxy.reg"? You can double-click it to open it at any time, and select "OK" in the pop-up dialog box to restore it to the default.
+    <value>还记得“Delete ExplorerEx Proxy.reg”吗？你可以随时双击打开它，并在弹出的对话框中选择“确定”来恢复为默认。
 
-Can't find it? Don't worry, click "yes" and I will regenerate one on the desktop.</value>
+已经找不到了吗？别担心，点击“是”我会重新生成一个在桌面上。</value>
   </data>
   <data name="#UnsetExplorerExAsDefaultFailReg" xml:space="preserve">
-    <value>Failed to create a file on the desktop, but you can still restore it manually!
-
-1. Press the Win + R combination key on the keyboard, type "regedit" in the pop-up window and press Enter. If a dialog box pops up, click "yes";
-
-2. Enter "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects" in the address bar at the top of the open window and then press Enter;
-
-3. Select the item with the name of {11451400-8700-480c-a27f-000001919810} with your mouse and press Delete to delete it.</value>
+    <value>在桌面上创建文件失败了，但是你仍然可以手动恢复！
+1、按下键盘上的 Win + R 组合键，在弹出窗口中输入regedit并按下回车键，如果弹出对话框，请点击“是”；
+2、在打开的窗口中最上方的地址栏输入 Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects 之后按下回车键；
+3、用鼠标选中你所看到的名为{11451400-8700-480c-a27f-000001919810}的项，按下Delete键删除它。</value>
   </data>
   <data name="#SetExplorerExAsDefaultFailProxyNotFound" xml:space="preserve">
-    <value>ExplorerProxy.dll was not found in the software directory so that ExplorerEx cannot be set as the default file manager.</value>
+    <value>未在软件目录找到ExplorerProxy.dll，无法设置为默认文件管理器。</value>
   </data>
   <data name="#SetExplorerExAsDefaultFailSHDocVwNotFound" xml:space="preserve">
-    <value>Interop.SHDocVw.dll was not found in the software directory so that ExplorerEx cannot be set as the default file manager.</value>
+    <value>未在软件目录找到Interop.SHDocVw.dll，无法设置为默认文件管理器。</value>
   </data>
   <data name="#SetExplorerExAsDefaultFailReg" xml:space="preserve">
-    <value>Failed to create the file, aborting.</value>
+    <value>文件创建失败，中止。</value>
   </data>
 </root>

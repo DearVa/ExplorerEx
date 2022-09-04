@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Xml;
 using ExplorerEx.Command;
 using ExplorerEx.Utils;
+using ExplorerEx.View.Controls;
 using Microsoft.Win32;
 
 namespace ExplorerEx;
@@ -77,15 +78,20 @@ internal abstract class SettingsItem : SettingsCategoryItem, INotifyPropertyChan
 		get => value;
 		set {
 			if (this.value != value) {
-				this.value = value;
-				OnPropertyChanged();
-				OnPropertyChanged(nameof(Self));
-				if (value != null) {
-					ConfigHelper.SaveToBuffer(FullName, value);
+				if (Changing?.Invoke(value) ?? true) {
+					this.value = value;
+					OnPropertyChanged();
+					OnPropertyChanged(nameof(Self));
+					if (value != null) {
+						ConfigHelper.SaveToBuffer(FullName, value);
+					} else {
+						ConfigHelper.Delete(FullName);
+					}
+					Changed?.Invoke(value);
 				} else {
-					ConfigHelper.Delete(FullName);
+					OnPropertyChanged();
+					OnPropertyChanged(nameof(Self));
 				}
-				Changed?.Invoke(value);
 			}
 		}
 	}
@@ -108,6 +114,11 @@ internal abstract class SettingsItem : SettingsCategoryItem, INotifyPropertyChan
 	public double GetDouble() => Convert.ToDouble(Value);
 
 	public string GetString() => Convert.ToString(Value) ?? string.Empty;
+
+	/// <summary>
+	/// 返回值设为false表示取消
+	/// </summary>
+	public event Func<object?, bool>? Changing;
 
 	/// <summary>
 	/// 与<see cref="PropertyChanged"/>不同，这个是专门用于监测值的变化
@@ -239,6 +250,8 @@ internal sealed class Settings : INotifyPropertyChanged {
 
 		public const string ShowHiddenFilesAndFolders = "Advanced.ShowHiddenFilesAndFolders";
 		public const string ShowProtectedSystemFilesAndFolders = "Advanced.ShowProtectedSystemFilesAndFolders";
+
+		public const string SetExplorerExAsDefault = "Experimental.SetExplorerExAsDefault";
 	}
 
 	public static CultureInfo CurrentCulture { get; private set; } = CultureInfo.CurrentUICulture;
@@ -275,6 +288,87 @@ internal sealed class Settings : INotifyPropertyChanged {
 
 	public double BackgroundImageOpacity => this[CommonSettings.BackgroundImageOpacity].GetDouble();
 
+	private void BackgroundImage_OnChanged(object? o) {
+		if (o is string path && File.Exists(path)) {
+			try {
+				BackgroundImage = new BitmapImage(new Uri(path));
+			} catch {
+				BackgroundImage = null;
+			}
+		} else {
+			BackgroundImage = null;
+		}
+		OnPropertyChanged(nameof(BackgroundImage));
+	}
+
+	private static bool SetExplorerExAsDefault_OnChanging(object? o) {
+		if (o is true) {
+			var executingAsm = Assembly.GetExecutingAssembly();
+			var executingPath = Path.GetDirectoryName(executingAsm.Location)!;
+			ConfigHelper.Save("Path", Path.ChangeExtension(executingAsm.Location, ".exe"));
+			var proxyDllPath = Path.Combine(executingPath, "ExplorerProxy.dll");
+			if (!File.Exists(proxyDllPath)) {
+				ContentDialog.Error("#SetExplorerExAsDefaultFailProxyNotFound".L());
+				return false;
+			}
+			if (!File.Exists(Path.Combine(executingPath, "Interop.SHDocVw.dll"))) {
+				ContentDialog.Error("#SetExplorerExAsDefaultFailSHDocVwNotFound".L());
+				return false;
+			}
+			if (ContentDialog.Ask("#SetExplorerExAsDefaultInstructions0".L(), "PleaseReadCarefully".L()) != ContentDialog.ContentDialogResult.Primary) {
+				return false;
+			}
+			try {
+				using var stream = executingAsm.GetManifestResourceStream("ExplorerEx.Assets.DeleteExplorerExProxy.reg");
+				if (stream == null) {
+					ContentDialog.Error("#SetExplorerExAsDefaultFailReg".L());
+					return false;
+				}
+				var regFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Delete ExplorerEx Proxy.reg");
+				using var fs = new FileStream(regFilePath, FileMode.Create);
+				stream.CopyTo(fs);
+			} catch {
+				ContentDialog.Error("#SetExplorerExAsDefaultFailReg".L());
+				return false;
+			}
+			if (ContentDialog.Ask("#SetExplorerExAsDefaultInstructions1".L(), "PleaseReadCarefully".L()) != ContentDialog.ContentDialogResult.Primary) {
+				return false;
+			}
+			if (ContentDialog.Ask("#SetExplorerExAsDefaultInstructions2".L(), "PleaseReadCarefully".L()) != ContentDialog.ContentDialogResult.Primary) {
+				return false;
+			}
+			try {
+				using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ExplorerEx.Assets.SetExplorerExProxy.reg");
+				if (stream == null) {
+					ContentDialog.Error("#SetExplorerExAsDefaultFailReg".L());
+					return false;
+				}
+				var setRegString = new StreamReader(stream).ReadToEnd().Replace("REPLACE_HERE", proxyDllPath.Replace('\\', '/'));
+				var regFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Set ExplorerEx Proxy.reg");
+				File.WriteAllText(regFilePath, setRegString);
+			} catch {
+				ContentDialog.Error("#SetExplorerExAsDefaultFailReg".L());
+			}
+		} else {
+			if (ContentDialog.Ask("#UnsetExplorerExAsDefaultInstructions".L(), "PleaseReadCarefully".L()) != ContentDialog.ContentDialogResult.Primary) {
+				return true;
+			}
+			try {
+				using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ExplorerEx.Assets.DeleteExplorerExProxy.reg");
+				if (stream == null) {
+					ContentDialog.Error("#UnsetExplorerExAsDefaultFailReg".L());
+					return false;
+				}
+				var regFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Delete ExplorerEx Proxy.reg");
+				using var fs = new FileStream(regFilePath, FileMode.Create);
+				stream.CopyTo(fs);
+			} catch {
+				ContentDialog.Error("#UnsetExplorerExAsDefaultFailReg".L());
+			}
+		}
+		return true;
+	}
+
 	private void RegisterEvents() {
 		ThemeChanged = null;
 
@@ -290,24 +384,13 @@ internal sealed class Settings : INotifyPropertyChanged {
 		};
 		settings[CommonSettings.WindowBackdrop].Changed += _ => ThemeChanged?.Invoke();
 
-		void UpdateBackgroundImage(object? o) {
-			if (o is string path && File.Exists(path)) {
-				try {
-					BackgroundImage = new BitmapImage(new Uri(path));
-				} catch {
-					BackgroundImage = null;
-				}
-			} else {
-				BackgroundImage = null;
-			}
-			OnPropertyChanged(nameof(BackgroundImage));
-		}
-
-		settings[CommonSettings.BackgroundImage].Changed += UpdateBackgroundImage;
-		UpdateBackgroundImage(settings[CommonSettings.BackgroundImage].Value);
+		settings[CommonSettings.BackgroundImage].Changed += BackgroundImage_OnChanged;
+		BackgroundImage_OnChanged(settings[CommonSettings.BackgroundImage].Value);
 
 		settings[CommonSettings.BackgroundImageOpacity].Changed += _ => OnPropertyChanged(nameof(BackgroundImageOpacity));
 		settings[CommonSettings.ColorMode].Changed += _ => ThemeChanged?.Invoke();  // 更改颜色
+
+		settings[CommonSettings.SetExplorerExAsDefault].Changing += SetExplorerExAsDefault_OnChanging;
 	}
 
 	#endregion
@@ -429,6 +512,14 @@ internal sealed class Settings : INotifyPropertyChanged {
 			} else {
 				this[CommonSettings.WindowBackdrop].Value = 1;  // Acrylic
 			}
+		}
+		// 设置是否为默认文件管理器的值
+		var registryKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects\{11451400-8700-480c-a27f-000001919810}");
+		if (registryKey != null) {
+			this[CommonSettings.SetExplorerExAsDefault].Value = true;
+			registryKey.Dispose();
+		} else {
+			this[CommonSettings.SetExplorerExAsDefault].Value = false;
 		}
 
 		RegisterEvents();

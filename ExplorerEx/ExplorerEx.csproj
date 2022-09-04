@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Assets\DeleteExplorerExProxy.reg" />
     <None Remove="Assets\LogConfig.xml" />
     <None Remove="Assets\Picture\Computer.png" />
     <None Remove="Assets\Picture\Logo.ico" />
@@ -33,6 +34,7 @@
     <None Remove="Assets\Picture\Network.png" />
     <None Remove="Assets\Picture\RecycleBin.png" />
     <None Remove="Assets\Picture\RecycleBinFull.png" />
+    <None Remove="Assets\SetExplorerExProxy.reg" />
     <None Remove="Assets\Settings.xml" />
   </ItemGroup>
 
@@ -55,7 +57,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Assets\DeleteExplorerExProxy.reg" />
     <EmbeddedResource Include="Assets\LogConfig.xml" />
+    <EmbeddedResource Include="Assets\SetExplorerExProxy.reg" />
     <EmbeddedResource Include="Assets\Settings.xml" />
   </ItemGroup>
 

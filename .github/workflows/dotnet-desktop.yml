@@ -71,7 +71,9 @@ jobs:
     - name: Install .NET
       uses: actions/setup-dotnet@main
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: |
+          6.0.x
+          4.6.2
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
@@ -80,6 +82,13 @@ jobs:
     # Create the app package by building and packaging the Windows Application Packaging project
     - name: Create the app package
       run: dotnet publish ExplorerEx -c Release -r win-x64
+
+    # Build Explorer Proxy
+    - name: Build Explorer Proxy
+      run: |
+        MSBuild .\ExplorerProxy\ExplorerProxy.csproj /property:Configuration=Release,Platform=x64
+        copy .\ExplorerProxy\bin\x64\Release\ExplorerProxy.dll .\ExplorerEx\bin\Release\net6.0-windows\win-x64\publish
+        copy .\ExplorerProxy\bin\x64\Release\Interop.SHDocVw.dll .\ExplorerEx\bin\Release\net6.0-windows\win-x64\publish
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
     - name: Upload build artifacts

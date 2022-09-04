@@ -61,7 +61,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 ： 的本地化字符串。
+        ///   查找类似 :  的本地化字符串。
         /// </summary>
         internal static string _ {
             get {
@@ -70,7 +70,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 ， 的本地化字符串。
+        ///   查找类似 ,  的本地化字符串。
         /// </summary>
         internal static string __ {
             get {
@@ -79,7 +79,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 共{1}，剩余{0} 的本地化字符串。
+        ///   查找类似 {0} free of {1} 的本地化字符串。
         /// </summary>
         internal static string ___FreeOf___ {
             get {
@@ -88,7 +88,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 共{0}个项目 的本地化字符串。
+        ///   查找类似 {0} item 的本地化字符串。
         /// </summary>
         internal static string ___Item {
             get {
@@ -97,7 +97,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 共{0}个项目 的本地化字符串。
+        ///   查找类似 {0} items 的本地化字符串。
         /// </summary>
         internal static string ___Items {
             get {
@@ -106,7 +106,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 使用说明：
+        ///   查找类似 How to use: 
         ///ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requireDebugger] Path1, Path2, ... 的本地化字符串。
         /// </summary>
         internal static string _AppHelp {
@@ -116,9 +116,9 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 如果改变文件拓展名，则可能导致文件不可用。
+        ///   查找类似 If you change the file extension, the file may become unavailable.
         ///
-        ///确定要更改吗？ 的本地化字符串。
+        ///Are you sure you want to change? 的本地化字符串。
         /// </summary>
         internal static string _AreYouSureToChangeExtension {
             get {
@@ -127,7 +127,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 您确定要永久删除选择的文件吗？ 的本地化字符串。
+        ///   查找类似 Are you sure to delete these files Permanently? 的本地化字符串。
         /// </summary>
         internal static string _AreYouSureToDeleteTheseFilesPermanently {
             get {
@@ -136,7 +136,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 您确定要将选择的文件移动到回收站吗？ 的本地化字符串。
+        ///   查找类似 Are you sure to recycle these files? 的本地化字符串。
         /// </summary>
         internal static string _AreYouSureToRecycleTheseFiles {
             get {
@@ -145,7 +145,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 设置文件浏览列表的背景图片 的本地化字符串。
+        ///   查找类似 Set the background image of file browser list 的本地化字符串。
         /// </summary>
         internal static string _BackgroundImageDescription {
             get {
@@ -154,7 +154,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 没有要重命名的项目。 的本地化字符串。
+        ///   查找类似 No need to rename. 的本地化字符串。
         /// </summary>
         internal static string _BatchRenameErrorNotModified {
             get {
@@ -163,7 +163,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 成功{0}个，失败{1}个。 的本地化字符串。
+        ///   查找类似 {0} Succeed, {1} Failed. 的本地化字符串。
         /// </summary>
         internal static string _BatchRenameResult {
             get {
@@ -172,7 +172,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 无法格式化所选驱动器。 的本地化字符串。
+        ///   查找类似 The drive cannot be formatted. 的本地化字符串。
         /// </summary>
         internal static string _CannotFormatDrive {
             get {
@@ -181,7 +181,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 当使用鼠标右键点击文本文件并选择“编辑”时，会使用这个程序来打开。 的本地化字符串。
+        ///   查找类似 When you right-click a text file and select Edit, this program will be used to open it. 的本地化字符串。
         /// </summary>
         internal static string _DefaultTextEditorDescription {
             get {
@@ -190,7 +190,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 在空白处双击来返回上一级。 的本地化字符串。
+        ///   查找类似 Double click in the blank space to go to upper level. 的本地化字符串。
         /// </summary>
         internal static string _DoubleClickGoUpperLevelDescription {
             get {
@@ -199,7 +199,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 解压下列文件时发生错误： 的本地化字符串。
+        ///   查找类似 Error occurs when extracting following files: 的本地化字符串。
         /// </summary>
         internal static string _ErrorExtractFiles {
             get {
@@ -208,7 +208,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 Everything未运行或未安装，暂时无法使用搜索。 的本地化字符串。
+        ///   查找类似 Everything is not running or not installed, cannot search now. 的本地化字符串。
         /// </summary>
         internal static string _EverythingIsNotAvailable {
             get {
@@ -217,10 +217,8 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 ExplorerEx找不到：{0}
-        ///如果路径位于计算机上，请确认磁盘或者光碟已插入，然后再试一次。
-        ///如果路径位于网络，请确认您已经连接到局域网或互联网，然后再试一次。
-        ///如果仍无法打开，说明该路径已被移动或删除，亦或者您没有权限来访问。 的本地化字符串。
+        ///   查找类似 ExplorerEx Cannot Find: {0}
+        ///If the location in on this PC, make sure the device or drive is connected or the disc is inserted, and then try again. If the location is on a network, make sure you&apos;re connected to the network or Internet, and then try again. If the location still can&apos;t be found, it might have been moved or deleted. 的本地化字符串。
         /// </summary>
         internal static string _ExplorerExCannotFind___ {
             get {
@@ -229,9 +227,11 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 ExplorerEx遇到严重错误，需要立即退出。
+        ///   查找类似 Explorerex encountered a fatal error and needs to exit now.
+        ///
         ///{0}
-        ///您可以在 ExplorerEx安装目录\Logs 目录下找到详细信息。 的本地化字符串。
+        ///
+        ///You can find the detailed messages in the ExplorerEx\Logs directory. 的本地化字符串。
         /// </summary>
         internal static string _FatalError {
             get {
@@ -240,7 +240,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 文件会被解压到这个文件夹： 的本地化字符串。
+        ///   查找类似 Files will be extracted to this folder: 的本地化字符串。
         /// </summary>
         internal static string _FilesWillBeExtractedToThisFolder {
             get {
@@ -249,7 +249,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 格式化驱动器时发生错误，这并不表示所选驱动器不可格式化。 的本地化字符串。
+        ///   查找类似 An error occurred during the last format. This does not indicate that the drive is unformattable. 的本地化字符串。
         /// </summary>
         internal static string _FormatDriveError {
             get {
@@ -258,7 +258,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 选择ExplorerEx的显示语言 的本地化字符串。
+        ///   查找类似 Select the interface language of ExplorerEx 的本地化字符串。
         /// </summary>
         internal static string _LanguageDescription {
             get {
@@ -267,7 +267,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 路径不存在或者没有权限访问。 的本地化字符串。
+        ///   查找类似 The path does not exist or access is denied. 的本地化字符串。
         /// </summary>
         internal static string _PathNotExistOrAccessDenied {
             get {
@@ -276,7 +276,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 文件名不能以点结尾 的本地化字符串。
+        ///   查找类似 File name cannot ends with dot 的本地化字符串。
         /// </summary>
         internal static string _ProhibitedFileNameErrorEndWithDot {
             get {
@@ -285,7 +285,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 文件名不能为空 的本地化字符串。
+        ///   查找类似 File name cannot be empty 的本地化字符串。
         /// </summary>
         internal static string _ProhibitedFileNameErrorNotEmpty {
             get {
@@ -294,7 +294,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 文件名不能包含 \ / : * ? &quot; &lt; &gt; | 的本地化字符串。
+        ///   查找类似 File name cannot contain \ / : * ? &quot; &lt; &gt; | 的本地化字符串。
         /// </summary>
         internal static string _ProhibitedFileNameErrorSpecialChar {
             get {
@@ -303,7 +303,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 文件名不能为con、prn、aux、nul、com1~com9、lpt1~lpt9 的本地化字符串。
+        ///   查找类似 File name cannot be con, prn, aux, nul, com1-com9, lpt1-lpt9 的本地化字符串。
         /// </summary>
         internal static string _ProhibitedFileNameErrorSpecialName {
             get {
@@ -312,7 +312,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 选择要解压到的位置 的本地化字符串。
+        ///   查找类似 Select a Destination and Extract Files 的本地化字符串。
         /// </summary>
         internal static string _SelectADestinationAndExtractFiles {
             get {
@@ -321,7 +321,64 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 解压完成后打开文件夹 的本地化字符串。
+        ///   查找类似 ExplorerProxy.dll was not found in the software directory so that ExplorerEx cannot be set as the default file manager. 的本地化字符串。
+        /// </summary>
+        internal static string _SetExplorerExAsDefaultFailProxyNotFound {
+            get {
+                return ResourceManager.GetString("#SetExplorerExAsDefaultFailProxyNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Failed to create the file, aborting. 的本地化字符串。
+        /// </summary>
+        internal static string _SetExplorerExAsDefaultFailReg {
+            get {
+                return ResourceManager.GetString("#SetExplorerExAsDefaultFailReg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Interop.SHDocVw.dll was not found in the software directory so that ExplorerEx cannot be set as the default file manager. 的本地化字符串。
+        /// </summary>
+        internal static string _SetExplorerExAsDefaultFailSHDocVwNotFound {
+            get {
+                return ResourceManager.GetString("#SetExplorerExAsDefaultFailSHDocVwNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 ExplorerEx is still in development. In order to protect your safety, the next operation will be slightly cumbersome. 
+        ///After you click &quot;OK&quot;, a file named &quot;Delete ExplorerEx Proxy.reg&quot; will be created on the desktop. You can move or copy it to any location, but please KEEP it properly. If there is any problem, just double-click to open the file and select &quot;OK&quot; in the pop-up dialog box to reset the default file manager. 的本地化字符串。
+        /// </summary>
+        internal static string _SetExplorerExAsDefaultInstructions0 {
+            get {
+                return ResourceManager.GetString("#SetExplorerExAsDefaultInstructions0", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 The file has been created on the desktop. Please confirm whether it exists. If it does NOT exist, you can click &quot;Cancel&quot; to abort, and your default file manager will NOT be changed. 的本地化字符串。
+        /// </summary>
+        internal static string _SetExplorerExAsDefaultInstructions1 {
+            get {
+                return ResourceManager.GetString("#SetExplorerExAsDefaultInstructions1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Next, after you click &quot;OK&quot;, a file named &quot;Set ExplorerEx Proxy.reg&quot; will be created on the desktop. You just need to double-click to open it and select &quot;OK&quot; in the pop-up dialog box to set explorerex as the default file manager, and then delete the file. Please note that do not move the installation directory of this program after setting, otherwise it will become invalid.
+        ///
+        ///Enjoy it :) 的本地化字符串。
+        /// </summary>
+        internal static string _SetExplorerExAsDefaultInstructions2 {
+            get {
+                return ResourceManager.GetString("#SetExplorerExAsDefaultInstructions2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Show extracted files when complete 的本地化字符串。
         /// </summary>
         internal static string _ShowExtractedFilesWhenComplete {
             get {
@@ -330,7 +387,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 显示更多选项只是一项临时功能，为了暂时弥补一些功能上的缺失。在未来我会将其移除，并添加自定义右键菜单功能，敬请期待。 :) 的本地化字符串。
+        ///   查找类似 &quot;Show more options&quot; is just a temporary function to make up for some missing functions. In the future, I will remove it and add a custom right-click menu function. Please look forward to it. :) 的本地化字符串。
         /// </summary>
         internal static string _ShowMore {
             get {
@@ -339,7 +396,33 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 此文件是二进制文件或者使用了不支持的编码方式。 的本地化字符串。
+        ///   查找类似 Failed to create a file on the desktop, but you can still restore it manually!
+        ///
+        ///1. Press the Win + R combination key on the keyboard, type &quot;regedit&quot; in the pop-up window and press Enter. If a dialog box pops up, click &quot;yes&quot;;
+        ///
+        ///2. Enter &quot;Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects&quot; in the address bar at the top of the open window and then press Enter;
+        ///
+        ///3. Select the item with the name of {11451400-8700-480c-a27f-000001919810} with your mouse and  [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        /// </summary>
+        internal static string _UnsetExplorerExAsDefaultFailReg {
+            get {
+                return ResourceManager.GetString("#UnsetExplorerExAsDefaultFailReg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Remember &quot;Delete ExplorerEx Proxy.reg&quot;? You can double-click it to open it at any time, and select &quot;OK&quot; in the pop-up dialog box to restore it to the default.
+        ///
+        ///Can&apos;t find it? Don&apos;t worry, click &quot;yes&quot; and I will regenerate one on the desktop. 的本地化字符串。
+        /// </summary>
+        internal static string _UnsetExplorerExAsDefaultInstructions {
+            get {
+                return ResourceManager.GetString("#UnsetExplorerExAsDefaultInstructions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 This file is a binary file or the encoding is not supported. 的本地化字符串。
         /// </summary>
         internal static string _Unsupported_encoding {
             get {
@@ -348,7 +431,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 您关闭了最后一个标签页，请问您希望？ 的本地化字符串。
+        ///   查找类似 You closed the last tab, what do you want? 的本地化字符串。
         /// </summary>
         internal static string _YouClosedTheLastTab {
             get {
@@ -357,7 +440,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 你打开了多个标签页，确定要关闭吗？ 的本地化字符串。
+        ///   查找类似 You have opened more than one tab. Are you sure you want to close? 的本地化字符串。
         /// </summary>
         internal static string _YouHaveOpenedMoreThanOneTab {
             get {
@@ -366,7 +449,9 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 这个应用程序可能依赖于压缩包中的其他文件，为了保证程序正常运行，建议全部解压后再运行。 的本地化字符串。
+        ///   查找类似 This application may depend on other compressed files in this folder.
+        ///
+        ///For the application to run properly, it&apos;s recommanded that you first extract all files. 的本地化字符串。
         /// </summary>
         internal static string _ZipFileIsExecutable {
             get {
@@ -375,7 +460,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 拒绝访问 的本地化字符串。
+        ///   查找类似 Access denied 的本地化字符串。
         /// </summary>
         internal static string AccessDenied {
             get {
@@ -384,7 +469,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 亚克力 的本地化字符串。
+        ///   查找类似 Acrylic 的本地化字符串。
         /// </summary>
         internal static string Acrylic {
             get {
@@ -393,7 +478,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 添加替换 的本地化字符串。
+        ///   查找类似 Add replace 的本地化字符串。
         /// </summary>
         internal static string AddReplaceItem {
             get {
@@ -402,7 +487,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 添加序号 的本地化字符串。
+        ///   查找类似 Add seq. 的本地化字符串。
         /// </summary>
         internal static string AddSequence {
             get {
@@ -411,7 +496,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 添加到收藏夹 的本地化字符串。
+        ///   查找类似 Add to bookmarks 的本地化字符串。
         /// </summary>
         internal static string AddToBookmarks {
             get {
@@ -420,7 +505,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 高级 的本地化字符串。
+        ///   查找类似 Advanced 的本地化字符串。
         /// </summary>
         internal static string Advanced {
             get {
@@ -429,7 +514,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 很早之前 的本地化字符串。
+        ///   查找类似 A long time ago 的本地化字符串。
         /// </summary>
         internal static string ALongTimeAgo {
             get {
@@ -438,7 +523,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 还有 {0} 个。 的本地化字符串。
+        ///   查找类似 And {0} more. 的本地化字符串。
         /// </summary>
         internal static string And___More {
             get {
@@ -447,7 +532,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 外观 的本地化字符串。
+        ///   查找类似 Appearance 的本地化字符串。
         /// </summary>
         internal static string Appearance {
             get {
@@ -456,7 +541,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 升序（小的在上） 的本地化字符串。
+        ///   查找类似 Ascending 的本地化字符串。
         /// </summary>
         internal static string Ascending {
             get {
@@ -465,7 +550,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 可用： 的本地化字符串。
+        ///   查找类似 Available:  的本地化字符串。
         /// </summary>
         internal static string Available__ {
             get {
@@ -474,7 +559,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 可用空间 的本地化字符串。
+        ///   查找类似 Free space 的本地化字符串。
         /// </summary>
         internal static string AvailableSpace {
             get {
@@ -483,7 +568,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 背景 的本地化字符串。
+        ///   查找类似 Background 的本地化字符串。
         /// </summary>
         internal static string Background {
             get {
@@ -492,7 +577,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 背景图片 的本地化字符串。
+        ///   查找类似 Background image 的本地化字符串。
         /// </summary>
         internal static string BackgroundImage {
             get {
@@ -501,7 +586,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 背景图片透明度 的本地化字符串。
+        ///   查找类似 Background image opacity 的本地化字符串。
         /// </summary>
         internal static string BackgroundImageOpacity {
             get {
@@ -510,7 +595,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 回到首页 的本地化字符串。
+        ///   查找类似 Back to home 的本地化字符串。
         /// </summary>
         internal static string BackToHome {
             get {
@@ -519,7 +604,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 批量重命名 的本地化字符串。
+        ///   查找类似 Batch rename 的本地化字符串。
         /// </summary>
         internal static string BatchRename {
             get {
@@ -528,7 +613,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 批量重命名结果 的本地化字符串。
+        ///   查找类似 Batch rename result 的本地化字符串。
         /// </summary>
         internal static string BatchRenameResult {
             get {
@@ -537,7 +622,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 收藏夹 的本地化字符串。
+        ///   查找类似 Bookmarks 的本地化字符串。
         /// </summary>
         internal static string Bookmarks {
             get {
@@ -546,7 +631,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 浏览…… 的本地化字符串。
+        ///   查找类似 Browse... 的本地化字符串。
         /// </summary>
         internal static string Browse___ {
             get {
@@ -555,7 +640,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 取消 的本地化字符串。
+        ///   查找类似 Cancel 的本地化字符串。
         /// </summary>
         internal static string Cancel {
             get {
@@ -564,7 +649,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 无法访问文件夹 的本地化字符串。
+        ///   查找类似 Cannot access directory 的本地化字符串。
         /// </summary>
         internal static string CannotAccessDirectory {
             get {
@@ -573,7 +658,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 无法创建 的本地化字符串。
+        ///   查找类似 Cannot create 的本地化字符串。
         /// </summary>
         internal static string CannotCreate {
             get {
@@ -582,7 +667,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 无法打开 的本地化字符串。
+        ///   查找类似 Cannot open 的本地化字符串。
         /// </summary>
         internal static string CannotOpen {
             get {
@@ -591,7 +676,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 无法打开此路径 的本地化字符串。
+        ///   查找类似 Cannot open path 的本地化字符串。
         /// </summary>
         internal static string CannotOpenPath {
             get {
@@ -600,7 +685,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 类别 的本地化字符串。
+        ///   查找类似 Category 的本地化字符串。
         /// </summary>
         internal static string Category {
             get {
@@ -609,7 +694,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 光盘驱动器 的本地化字符串。
+        ///   查找类似 CD drive 的本地化字符串。
         /// </summary>
         internal static string CD_drive {
             get {
@@ -618,7 +703,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 请检查您的输入后重试。 的本地化字符串。
+        ///   查找类似 Check your input and try again. 的本地化字符串。
         /// </summary>
         internal static string CheckYourInputAndTryAgain {
             get {
@@ -627,7 +712,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 中文 的本地化字符串。
+        ///   查找类似 Chinese 的本地化字符串。
         /// </summary>
         internal static string Chinese {
             get {
@@ -636,7 +721,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 选择其他应用 的本地化字符串。
+        ///   查找类似 Choose another app 的本地化字符串。
         /// </summary>
         internal static string ChooseAnotherApp {
             get {
@@ -645,7 +730,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 关闭 的本地化字符串。
+        ///   查找类似 Close 的本地化字符串。
         /// </summary>
         internal static string Close {
             get {
@@ -654,7 +739,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 关闭其他标签页 的本地化字符串。
+        ///   查找类似 Close Other Tabs 的本地化字符串。
         /// </summary>
         internal static string CloseOtherTabs {
             get {
@@ -663,7 +748,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 关闭窗口 的本地化字符串。
+        ///   查找类似 Close window 的本地化字符串。
         /// </summary>
         internal static string CloseWindow {
             get {
@@ -672,7 +757,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 颜色模式 的本地化字符串。
+        ///   查找类似 Color mode 的本地化字符串。
         /// </summary>
         internal static string ColorMode {
             get {
@@ -681,7 +766,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 深色 的本地化字符串。
+        ///   查找类似 Dark 的本地化字符串。
         /// </summary>
         internal static string ColorMode_Dark {
             get {
@@ -690,7 +775,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 浅色 的本地化字符串。
+        ///   查找类似 Light 的本地化字符串。
         /// </summary>
         internal static string ColorMode_Light {
             get {
@@ -699,7 +784,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 通用 的本地化字符串。
+        ///   查找类似 Common 的本地化字符串。
         /// </summary>
         internal static string Common {
             get {
@@ -708,7 +793,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 内容 的本地化字符串。
+        ///   查找类似 Content 的本地化字符串。
         /// </summary>
         internal static string Content {
             get {
@@ -717,7 +802,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 复制 的本地化字符串。
+        ///   查找类似 Copy 的本地化字符串。
         /// </summary>
         internal static string Copy {
             get {
@@ -726,7 +811,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 复制文件路径 的本地化字符串。
+        ///   查找类似 Copy as path 的本地化字符串。
         /// </summary>
         internal static string CopyAsPath {
             get {
@@ -735,7 +820,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 复制到 的本地化字符串。
+        ///   查找类似 Copy to 的本地化字符串。
         /// </summary>
         internal static string CopyTo {
             get {
@@ -744,7 +829,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 创建 的本地化字符串。
+        ///   查找类似 Create 的本地化字符串。
         /// </summary>
         internal static string Create {
             get {
@@ -753,7 +838,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 自定义 的本地化字符串。
+        ///   查找类似 Customize 的本地化字符串。
         /// </summary>
         internal static string Customize {
             get {
@@ -762,7 +847,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 剪切 的本地化字符串。
+        ///   查找类似 Cut 的本地化字符串。
         /// </summary>
         internal static string Cut {
             get {
@@ -771,7 +856,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 修改日期 的本地化字符串。
+        ///   查找类似 Date modified 的本地化字符串。
         /// </summary>
         internal static string DateModified {
             get {
@@ -780,7 +865,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 默认收藏夹 的本地化字符串。
+        ///   查找类似 Default bookmark 的本地化字符串。
         /// </summary>
         internal static string DefaultBookmark {
             get {
@@ -789,7 +874,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 默认文本编辑器 的本地化字符串。
+        ///   查找类似 Default text editor 的本地化字符串。
         /// </summary>
         internal static string DefaultTextEditor {
             get {
@@ -798,7 +883,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 删除 的本地化字符串。
+        ///   查找类似 Delete 的本地化字符串。
         /// </summary>
         internal static string Delete {
             get {
@@ -807,7 +892,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 删除所有 的本地化字符串。
+        ///   查找类似 Delete all 的本地化字符串。
         /// </summary>
         internal static string DeleteAll {
             get {
@@ -816,7 +901,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 降序（大的在上） 的本地化字符串。
+        ///   查找类似 Descending 的本地化字符串。
         /// </summary>
         internal static string Descending {
             get {
@@ -825,7 +910,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 桌面 的本地化字符串。
+        ///   查找类似 Desktop 的本地化字符串。
         /// </summary>
         internal static string Desktop {
             get {
@@ -834,7 +919,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 详细信息 的本地化字符串。
+        ///   查找类似 Details 的本地化字符串。
         /// </summary>
         internal static string Details {
             get {
@@ -843,7 +928,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 文档 的本地化字符串。
+        ///   查找类似 Documents 的本地化字符串。
         /// </summary>
         internal static string Documents {
             get {
@@ -852,7 +937,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 更改文件拓展名时不要提示我 的本地化字符串。
+        ///   查找类似 Don&apos;t remind me when changing file extension  的本地化字符串。
         /// </summary>
         internal static string DontAskWhenChangeExtension {
             get {
@@ -861,7 +946,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 当关闭有多个标签页的窗口时不要提醒我 的本地化字符串。
+        ///   查找类似 Don&apos;t remind me when closing a window with multiple tabs 的本地化字符串。
         /// </summary>
         internal static string DontAskWhenClosingMultiTabs {
             get {
@@ -870,7 +955,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 （不推荐开启）永久删除文件时不提示确认 的本地化字符串。
+        ///   查找类似 (Not recommanded) Dont ask when delete files permanently 的本地化字符串。
         /// </summary>
         internal static string DontAskWhenDelete {
             get {
@@ -879,7 +964,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 移动文件到回收站时不提示确认 的本地化字符串。
+        ///   查找类似 Dont ask when move files to recycle bin 的本地化字符串。
         /// </summary>
         internal static string DontAskWhenRecycle {
             get {
@@ -888,7 +973,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 不要再显示该信息 的本地化字符串。
+        ///   查找类似 Don&apos;t show this message again 的本地化字符串。
         /// </summary>
         internal static string DontShowAgain {
             get {
@@ -897,7 +982,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 双击返回上一级 的本地化字符串。
+        ///   查找类似 Double click go upper level 的本地化字符串。
         /// </summary>
         internal static string DoubleClickGoUpperLevel {
             get {
@@ -906,7 +991,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 复制到 * 的本地化字符串。
+        ///   查找类似 Copy to * 的本地化字符串。
         /// </summary>
         internal static string DragCopyTo {
             get {
@@ -915,7 +1000,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 在 * 创建链接 的本地化字符串。
+        ///   查找类似 Link to * 的本地化字符串。
         /// </summary>
         internal static string DragLinkTo {
             get {
@@ -924,7 +1009,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 移动到 * 的本地化字符串。
+        ///   查找类似 Move to * 的本地化字符串。
         /// </summary>
         internal static string DragMoveTo {
             get {
@@ -933,7 +1018,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 在新标签页打开 * 的本地化字符串。
+        ///   查找类似 Open * in new tab 的本地化字符串。
         /// </summary>
         internal static string DragOpenInNewTab {
             get {
@@ -942,7 +1027,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 用 * 打开 的本地化字符串。
+        ///   查找类似 Open with * 的本地化字符串。
         /// </summary>
         internal static string DragOpenWith {
             get {
@@ -951,7 +1036,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 设备未就绪。 的本地化字符串。
+        ///   查找类似 Drive is not ready. 的本地化字符串。
         /// </summary>
         internal static string DriveIsNotReady {
             get {
@@ -960,7 +1045,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 复制标签页 的本地化字符串。
+        ///   查找类似 Duplicate Tab 的本地化字符串。
         /// </summary>
         internal static string DuplicateTab {
             get {
@@ -969,7 +1054,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 编辑 的本地化字符串。
+        ///   查找类似 Edit 的本地化字符串。
         /// </summary>
         internal static string Edit {
             get {
@@ -978,7 +1063,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 编辑收藏项 的本地化字符串。
+        ///   查找类似 Edit bookmark 的本地化字符串。
         /// </summary>
         internal static string EditBookmark {
             get {
@@ -987,7 +1072,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 空 的本地化字符串。
+        ///   查找类似 Empty 的本地化字符串。
         /// </summary>
         internal static string Empty {
             get {
@@ -996,7 +1081,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 空文件夹 的本地化字符串。
+        ///   查找类似 Empty folder 的本地化字符串。
         /// </summary>
         internal static string EmptyFolder {
             get {
@@ -1005,7 +1090,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 清空回收站 的本地化字符串。
+        ///   查找类似 Empty Recycle bin 的本地化字符串。
         /// </summary>
         internal static string EmptyRecycleBin {
             get {
@@ -1014,7 +1099,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 英文 的本地化字符串。
+        ///   查找类似 English 的本地化字符串。
         /// </summary>
         internal static string English {
             get {
@@ -1023,7 +1108,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 错误 的本地化字符串。
+        ///   查找类似 Error 的本地化字符串。
         /// </summary>
         internal static string Error {
             get {
@@ -1032,7 +1117,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 退出 的本地化字符串。
+        ///   查找类似 Exit 的本地化字符串。
         /// </summary>
         internal static string Exit {
             get {
@@ -1041,7 +1126,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 退出应用程序 的本地化字符串。
+        ///   查找类似 Exit application 的本地化字符串。
         /// </summary>
         internal static string ExitApplication {
             get {
@@ -1050,7 +1135,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 解压缩 的本地化字符串。
+        ///   查找类似 Extract 的本地化字符串。
         /// </summary>
         internal static string Extract {
             get {
@@ -1059,7 +1144,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 全部解压缩 的本地化字符串。
+        ///   查找类似 Extract all 的本地化字符串。
         /// </summary>
         internal static string ExtractAll {
             get {
@@ -1068,7 +1153,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 打开文件失败 的本地化字符串。
+        ///   查找类似 Filed to open file 的本地化字符串。
         /// </summary>
         internal static string FailedToOpenFile {
             get {
@@ -1077,7 +1162,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 致命错误 的本地化字符串。
+        ///   查找类似 Fatal error 的本地化字符串。
         /// </summary>
         internal static string FatalError {
             get {
@@ -1086,7 +1171,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 文件 的本地化字符串。
+        ///   查找类似 File 的本地化字符串。
         /// </summary>
         internal static string File {
             get {
@@ -1095,7 +1180,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 文件或文件夹已存在。 的本地化字符串。
+        ///   查找类似 File or Folder already exist. 的本地化字符串。
         /// </summary>
         internal static string FileOrFolderAlreadyExist {
             get {
@@ -1104,7 +1189,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 文件大小 的本地化字符串。
+        ///   查找类似 File size 的本地化字符串。
         /// </summary>
         internal static string FileSize {
             get {
@@ -1113,7 +1198,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 文件系统 的本地化字符串。
+        ///   查找类似 File system 的本地化字符串。
         /// </summary>
         internal static string FileSystem {
             get {
@@ -1122,7 +1207,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 填充占比 的本地化字符串。
+        ///   查找类似 Fill ratio 的本地化字符串。
         /// </summary>
         internal static string FillRatio {
             get {
@@ -1131,7 +1216,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 固定位数 的本地化字符串。
+        ///   查找类似 Fixed number 的本地化字符串。
         /// </summary>
         internal static string FixedNumber {
             get {
@@ -1140,7 +1225,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 文件夹 的本地化字符串。
+        ///   查找类似 Folder 的本地化字符串。
         /// </summary>
         internal static string Folder {
             get {
@@ -1149,7 +1234,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 跟随系统 的本地化字符串。
+        ///   查找类似 Follow system 的本地化字符串。
         /// </summary>
         internal static string FollowSystem {
             get {
@@ -1158,7 +1243,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 格式化驱动器 的本地化字符串。
+        ///   查找类似 Format Drive 的本地化字符串。
         /// </summary>
         internal static string FormatDrive {
             get {
@@ -1167,7 +1252,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 完整路径 的本地化字符串。
+        ///   查找类似 Full path 的本地化字符串。
         /// </summary>
         internal static string FullPath {
             get {
@@ -1176,7 +1261,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 特大 的本地化字符串。
+        ///   查找类似 Gigantic 的本地化字符串。
         /// </summary>
         internal static string Gigantic {
             get {
@@ -1185,7 +1270,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 返回到 {0} (Alt + 左箭头) 的本地化字符串。
+        ///   查找类似 Go back to {0} (Alt + Left arrow) 的本地化字符串。
         /// </summary>
         internal static string GoBackTo___ {
             get {
@@ -1194,7 +1279,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 前进到 {0} (Alt + 右箭头) 的本地化字符串。
+        ///   查找类似 Go forward to {0} (Alt + Right Arrow) 的本地化字符串。
         /// </summary>
         internal static string GoForwardTo___ {
             get {
@@ -1203,7 +1288,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 向上一级到 {0} (Alt + 上箭头) 的本地化字符串。
+        ///   查找类似 Up to {0} (Alt + Up Arrow) 的本地化字符串。
         /// </summary>
         internal static string GoUpTo___ {
             get {
@@ -1212,7 +1297,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 分组依据 的本地化字符串。
+        ///   查找类似 Group by 的本地化字符串。
         /// </summary>
         internal static string GroupBy {
             get {
@@ -1221,7 +1306,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 主页 的本地化字符串。
+        ///   查找类似 Home 的本地化字符串。
         /// </summary>
         internal static string Home {
             get {
@@ -1230,7 +1315,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 巨大 的本地化字符串。
+        ///   查找类似 Huge 的本地化字符串。
         /// </summary>
         internal static string Huge {
             get {
@@ -1239,7 +1324,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 图像 的本地化字符串。
+        ///   查找类似 Image 的本地化字符串。
         /// </summary>
         internal static string Image {
             get {
@@ -1248,7 +1333,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 无法初始化日志系统。 的本地化字符串。
+        ///   查找类似 Initialize Log system Failed. 的本地化字符串。
         /// </summary>
         internal static string InitializeLoggerFailed {
             get {
@@ -1257,7 +1342,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 语言 的本地化字符串。
+        ///   查找类似 Language 的本地化字符串。
         /// </summary>
         internal static string Language {
             get {
@@ -1266,7 +1351,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 大 的本地化字符串。
+        ///   查找类似 Large 的本地化字符串。
         /// </summary>
         internal static string Large {
             get {
@@ -1275,7 +1360,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 大图标 的本地化字符串。
+        ///   查找类似 Big icons 的本地化字符串。
         /// </summary>
         internal static string LargeIcons {
             get {
@@ -1284,7 +1369,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 上个月 的本地化字符串。
+        ///   查找类似 Last year 的本地化字符串。
         /// </summary>
         internal static string LastMonth {
             get {
@@ -1293,7 +1378,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 上周 的本地化字符串。
+        ///   查找类似 Last week 的本地化字符串。
         /// </summary>
         internal static string LastWeek {
             get {
@@ -1302,7 +1387,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 左边文本 的本地化字符串。
+        ///   查找类似 Left text 的本地化字符串。
         /// </summary>
         internal static string LeftText {
             get {
@@ -1311,7 +1396,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 链接 的本地化字符串。
+        ///   查找类似 Link 的本地化字符串。
         /// </summary>
         internal static string Link {
             get {
@@ -1320,7 +1405,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 创建链接 的本地化字符串。
+        ///   查找类似 Link to 的本地化字符串。
         /// </summary>
         internal static string LinkTo {
             get {
@@ -1329,7 +1414,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 列表 的本地化字符串。
+        ///   查找类似 List 的本地化字符串。
         /// </summary>
         internal static string List {
             get {
@@ -1338,7 +1423,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 加载中…… 的本地化字符串。
+        ///   查找类似 Loading... 的本地化字符串。
         /// </summary>
         internal static string Loading {
             get {
@@ -1347,7 +1432,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 正在加载图片： 的本地化字符串。
+        ///   查找类似 Loading image from:  的本地化字符串。
         /// </summary>
         internal static string LoadingImageFrom {
             get {
@@ -1356,7 +1441,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 本地磁盘 的本地化字符串。
+        ///   查找类似 Local disk 的本地化字符串。
         /// </summary>
         internal static string LocalDisk {
             get {
@@ -1365,7 +1450,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 小写转大写 的本地化字符串。
+        ///   查找类似 Lowercase to uppercase 的本地化字符串。
         /// </summary>
         internal static string Lowercase2Uppercase {
             get {
@@ -1374,7 +1459,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 中 的本地化字符串。
+        ///   查找类似 Medium 的本地化字符串。
         /// </summary>
         internal static string Medium {
             get {
@@ -1383,7 +1468,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 中等图标 的本地化字符串。
+        ///   查找类似 Medium icons 的本地化字符串。
         /// </summary>
         internal static string MediumIcons {
             get {
@@ -1392,7 +1477,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 云母（仅Windows 11可用） 的本地化字符串。
+        ///   查找类似 Mica (Windows 11 only) 的本地化字符串。
         /// </summary>
         internal static string MicaWindows11Only {
             get {
@@ -1401,7 +1486,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 更多 的本地化字符串。
+        ///   查找类似 More 的本地化字符串。
         /// </summary>
         internal static string More {
             get {
@@ -1410,7 +1495,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 移动到 的本地化字符串。
+        ///   查找类似 Move to 的本地化字符串。
         /// </summary>
         internal static string MoveTo {
             get {
@@ -1419,7 +1504,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 移动到新窗口 的本地化字符串。
+        ///   查找类似 Move to New Window 的本地化字符串。
         /// </summary>
         internal static string MoveToNewWindow {
             get {
@@ -1428,7 +1513,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 名称 的本地化字符串。
+        ///   查找类似 Name 的本地化字符串。
         /// </summary>
         internal static string Name {
             get {
@@ -1437,7 +1522,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 网络 的本地化字符串。
+        ///   查找类似 Network 的本地化字符串。
         /// </summary>
         internal static string Network {
             get {
@@ -1446,7 +1531,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 新建 的本地化字符串。
+        ///   查找类似 New 的本地化字符串。
         /// </summary>
         internal static string New {
             get {
@@ -1455,7 +1540,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 新建文件夹 的本地化字符串。
+        ///   查找类似 New Folder 的本地化字符串。
         /// </summary>
         internal static string NewFolder {
             get {
@@ -1464,7 +1549,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 无 的本地化字符串。
+        ///   查找类似 None 的本地化字符串。
         /// </summary>
         internal static string None {
             get {
@@ -1473,7 +1558,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 确定 的本地化字符串。
+        ///   查找类似 OK 的本地化字符串。
         /// </summary>
         internal static string Ok {
             get {
@@ -1482,7 +1567,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 打开 的本地化字符串。
+        ///   查找类似 Open 的本地化字符串。
         /// </summary>
         internal static string Open {
             get {
@@ -1491,7 +1576,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 打开文件位置 的本地化字符串。
+        ///   查找类似 Open file location 的本地化字符串。
         /// </summary>
         internal static string OpenFileLocation {
             get {
@@ -1500,7 +1585,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 在新标签页中打开 的本地化字符串。
+        ///   查找类似 Open in new Tab 的本地化字符串。
         /// </summary>
         internal static string OpenInNewTab {
             get {
@@ -1509,7 +1594,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 在新窗口中打开 的本地化字符串。
+        ///   查找类似 Open in new Window 的本地化字符串。
         /// </summary>
         internal static string OpenInNewWindow {
             get {
@@ -1518,7 +1603,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 在终端中打开 的本地化字符串。
+        ///   查找类似 Open in terminal 的本地化字符串。
         /// </summary>
         internal static string OpenInTerminal {
             get {
@@ -1527,7 +1612,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 在右侧打开 的本地化字符串。
+        ///   查找类似 Open on the right 的本地化字符串。
         /// </summary>
         internal static string OpenOnTheRight {
             get {
@@ -1536,7 +1621,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 打开方式 的本地化字符串。
+        ///   查找类似 Open with 的本地化字符串。
         /// </summary>
         internal static string OpenWith {
             get {
@@ -1545,7 +1630,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 其他类型磁盘 的本地化字符串。
+        ///   查找类似 Other type disk 的本地化字符串。
         /// </summary>
         internal static string OtherTypeDisk {
             get {
@@ -1554,7 +1639,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 粘贴 的本地化字符串。
+        ///   查找类似 Paste 的本地化字符串。
         /// </summary>
         internal static string Paste {
             get {
@@ -1563,7 +1648,16 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 属性 的本地化字符串。
+        ///   查找类似 Please Read Carefully! 的本地化字符串。
+        /// </summary>
+        internal static string PleaseReadCarefully {
+            get {
+                return ResourceManager.GetString("PleaseReadCarefully", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Properties 的本地化字符串。
         /// </summary>
         internal static string Properties {
             get {
@@ -1572,7 +1666,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 询问 的本地化字符串。
+        ///   查找类似 Question 的本地化字符串。
         /// </summary>
         internal static string Question {
             get {
@@ -1581,7 +1675,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 快速访问 的本地化字符串。
+        ///   查找类似 Quick access 的本地化字符串。
         /// </summary>
         internal static string Quick_access {
             get {
@@ -1590,7 +1684,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 回收站 的本地化字符串。
+        ///   查找类似 Recycle Bin 的本地化字符串。
         /// </summary>
         internal static string RecycleBin {
             get {
@@ -1599,7 +1693,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 刷新 的本地化字符串。
+        ///   查找类似 Refresh 的本地化字符串。
         /// </summary>
         internal static string Refresh {
             get {
@@ -1608,7 +1702,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 松手添加到收藏夹 的本地化字符串。
+        ///   查找类似 Release to add to bookmark 的本地化字符串。
         /// </summary>
         internal static string ReleaseToAddToBookmark {
             get {
@@ -1617,7 +1711,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 松手移动到回收站 的本地化字符串。
+        ///   查找类似 Release to move to Recycle bin 的本地化字符串。
         /// </summary>
         internal static string ReleaseToMoveToRecycleBin {
             get {
@@ -1626,7 +1720,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 记住我的选择，下次不再询问 的本地化字符串。
+        ///   查找类似 Remember my choice and don&apos;t ask again 的本地化字符串。
         /// </summary>
         internal static string RememberMyChoiceAndDontAskAgain {
             get {
@@ -1635,7 +1729,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 可移动磁盘 的本地化字符串。
+        ///   查找类似 Removable disk 的本地化字符串。
         /// </summary>
         internal static string RemovableDisk {
             get {
@@ -1644,7 +1738,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 从收藏夹移除 的本地化字符串。
+        ///   查找类似 Remove from bookmarks 的本地化字符串。
         /// </summary>
         internal static string RemoveFromBookmarks {
             get {
@@ -1653,7 +1747,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 从列表中移除 的本地化字符串。
+        ///   查找类似 Remove from list 的本地化字符串。
         /// </summary>
         internal static string RemoveFromList {
             get {
@@ -1662,7 +1756,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 重命名 的本地化字符串。
+        ///   查找类似 Rename 的本地化字符串。
         /// </summary>
         internal static string Rename {
             get {
@@ -1671,7 +1765,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 替换文本 的本地化字符串。
+        ///   查找类似 Replace text 的本地化字符串。
         /// </summary>
         internal static string ReplaceText {
             get {
@@ -1680,7 +1774,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 替换为 的本地化字符串。
+        ///   查找类似 Replace to 的本地化字符串。
         /// </summary>
         internal static string ReplaceTo {
             get {
@@ -1689,7 +1783,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 还原 的本地化字符串。
+        ///   查找类似 Restore 的本地化字符串。
         /// </summary>
         internal static string Restore {
             get {
@@ -1698,7 +1792,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 全部恢复 的本地化字符串。
+        ///   查找类似 Restore all 的本地化字符串。
         /// </summary>
         internal static string RestoreAll {
             get {
@@ -1707,7 +1801,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 右边文本 的本地化字符串。
+        ///   查找类似 Right text 的本地化字符串。
         /// </summary>
         internal static string RightText {
             get {
@@ -1716,7 +1810,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 运行 的本地化字符串。
+        ///   查找类似 Run 的本地化字符串。
         /// </summary>
         internal static string Run {
             get {
@@ -1725,7 +1819,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 直接运行 的本地化字符串。
+        ///   查找类似 Run anyway 的本地化字符串。
         /// </summary>
         internal static string RunAnyway {
             get {
@@ -1734,7 +1828,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 以管理员身份运行 的本地化字符串。
+        ///   查找类似 Run as admin 的本地化字符串。
         /// </summary>
         internal static string RunAsAdmin {
             get {
@@ -1743,7 +1837,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 保存 的本地化字符串。
+        ///   查找类似 Save 的本地化字符串。
         /// </summary>
         internal static string Save {
             get {
@@ -1752,7 +1846,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 保存为 的本地化字符串。
+        ///   查找类似 Save as 的本地化字符串。
         /// </summary>
         internal static string SaveAs {
             get {
@@ -1761,7 +1855,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 保存为文件 的本地化字符串。
+        ///   查找类似 Save as file 的本地化字符串。
         /// </summary>
         internal static string SaveAsFile {
             get {
@@ -1770,7 +1864,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 保存文件名 的本地化字符串。
+        ///   查找类似 Save file name 的本地化字符串。
         /// </summary>
         internal static string SaveFileName {
             get {
@@ -1779,7 +1873,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 搜索 的本地化字符串。
+        ///   查找类似 Search 的本地化字符串。
         /// </summary>
         internal static string Search {
             get {
@@ -1788,7 +1882,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 选择了{0}个项目 的本地化字符串。
+        ///   查找类似 Selected {0} items 的本地化字符串。
         /// </summary>
         internal static string Selected___Items {
             get {
@@ -1797,7 +1891,25 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 设置 的本地化字符串。
+        ///   查找类似 Set ExplorerEx as default file manager 的本地化字符串。
+        /// </summary>
+        internal static string SetExplorerExAsDefault {
+            get {
+                return ResourceManager.GetString("SetExplorerExAsDefault", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Unable to create file on desktop, aborting. Your default file manager has NOT been changed. 的本地化字符串。
+        /// </summary>
+        internal static string SetExplorerExAsDefaultFailReg {
+            get {
+                return ResourceManager.GetString("SetExplorerExAsDefaultFailReg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Settings 的本地化字符串。
         /// </summary>
         internal static string Settings {
             get {
@@ -1806,7 +1918,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 分享 的本地化字符串。
+        ///   查找类似 Share 的本地化字符串。
         /// </summary>
         internal static string Share {
             get {
@@ -1815,7 +1927,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 快捷方式 的本地化字符串。
+        ///   查找类似 Shortcut 的本地化字符串。
         /// </summary>
         internal static string Shortcut {
             get {
@@ -1824,7 +1936,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 快捷操作 的本地化字符串。
+        ///   查找类似 Shortcuts 的本地化字符串。
         /// </summary>
         internal static string Shortcuts {
             get {
@@ -1833,7 +1945,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 显示隐藏的文件和文件夹 的本地化字符串。
+        ///   查找类似 Show hidden files and folders 的本地化字符串。
         /// </summary>
         internal static string ShowHiddenFilesAndFolders {
             get {
@@ -1842,7 +1954,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 显示更多选项 的本地化字符串。
+        ///   查找类似 Show more options 的本地化字符串。
         /// </summary>
         internal static string ShowMoreOptions {
             get {
@@ -1851,7 +1963,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 （不推荐开启）显示受保护的系统文件和文件夹 的本地化字符串。
+        ///   查找类似 (Not recommanded) Show protected system files and folders 的本地化字符串。
         /// </summary>
         internal static string ShowProtectedSystemFilesAndFolders {
             get {
@@ -1860,7 +1972,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 显示窗口 的本地化字符串。
+        ///   查找类似 Show window 的本地化字符串。
         /// </summary>
         internal static string ShowWindow {
             get {
@@ -1869,7 +1981,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 小 的本地化字符串。
+        ///   查找类似 Small 的本地化字符串。
         /// </summary>
         internal static string Small {
             get {
@@ -1878,7 +1990,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 小图标 的本地化字符串。
+        ///   查找类似 Small icons 的本地化字符串。
         /// </summary>
         internal static string SmallIcons {
             get {
@@ -1887,7 +1999,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 纯色 的本地化字符串。
+        ///   查找类似 Solid color 的本地化字符串。
         /// </summary>
         internal static string SolidColor {
             get {
@@ -1896,7 +2008,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 排序 的本地化字符串。
+        ///   查找类似 Sort 的本地化字符串。
         /// </summary>
         internal static string Sort {
             get {
@@ -1905,7 +2017,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 分屏 的本地化字符串。
+        ///   查找类似 Split Screen 的本地化字符串。
         /// </summary>
         internal static string SplitScreen {
             get {
@@ -1914,7 +2026,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 开始序号 的本地化字符串。
+        ///   查找类似 Starting number 的本地化字符串。
         /// </summary>
         internal static string StartingNumber {
             get {
@@ -1923,7 +2035,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 文本 的本地化字符串。
+        ///   查找类似 Text 的本地化字符串。
         /// </summary>
         internal static string Text {
             get {
@@ -1932,7 +2044,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 以下文件删除失败： 的本地化字符串。
+        ///   查找类似 The following file(s) failed to delete: 的本地化字符串。
         /// </summary>
         internal static string TheFollowingFilesFailedToDelete {
             get {
@@ -1941,7 +2053,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 主题 的本地化字符串。
+        ///   查找类似 Theme 的本地化字符串。
         /// </summary>
         internal static string Theme {
             get {
@@ -1950,7 +2062,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 此文件夹为空。 的本地化字符串。
+        ///   查找类似 This is an empty folder. 的本地化字符串。
         /// </summary>
         internal static string ThisIsAnEmptyFolder {
             get {
@@ -1959,7 +2071,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 本月 的本地化字符串。
+        ///   查找类似 This month 的本地化字符串。
         /// </summary>
         internal static string ThisMonth {
             get {
@@ -1968,7 +2080,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 此电脑 的本地化字符串。
+        ///   查找类似 This PC 的本地化字符串。
         /// </summary>
         internal static string ThisPC {
             get {
@@ -1977,7 +2089,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 本周 的本地化字符串。
+        ///   查找类似 This week 的本地化字符串。
         /// </summary>
         internal static string ThisWeek {
             get {
@@ -1986,7 +2098,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 平铺 的本地化字符串。
+        ///   查找类似 Tiles 的本地化字符串。
         /// </summary>
         internal static string Tiles {
             get {
@@ -1995,7 +2107,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 微小 的本地化字符串。
+        ///   查找类似 Tiny 的本地化字符串。
         /// </summary>
         internal static string Tiny {
             get {
@@ -2004,7 +2116,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 提示 的本地化字符串。
+        ///   查找类似 Tip 的本地化字符串。
         /// </summary>
         internal static string Tip {
             get {
@@ -2013,7 +2125,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 到底部 的本地化字符串。
+        ///   查找类似 To Bottom 的本地化字符串。
         /// </summary>
         internal static string ToBottom {
             get {
@@ -2022,7 +2134,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 今天 的本地化字符串。
+        ///   查找类似 Today 的本地化字符串。
         /// </summary>
         internal static string Today {
             get {
@@ -2031,7 +2143,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 到左侧 的本地化字符串。
+        ///   查找类似 To Left 的本地化字符串。
         /// </summary>
         internal static string ToLeft {
             get {
@@ -2040,7 +2152,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 到右侧 的本地化字符串。
+        ///   查找类似 To Right 的本地化字符串。
         /// </summary>
         internal static string ToRight {
             get {
@@ -2049,7 +2161,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 共有： 的本地化字符串。
+        ///   查找类似 Total:  的本地化字符串。
         /// </summary>
         internal static string Total__ {
             get {
@@ -2058,7 +2170,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 总容量 的本地化字符串。
+        ///   查找类似 Total space 的本地化字符串。
         /// </summary>
         internal static string TotalSpace {
             get {
@@ -2067,7 +2179,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 类型 的本地化字符串。
+        ///   查找类似 Type 的本地化字符串。
         /// </summary>
         internal static string Type {
             get {
@@ -2076,7 +2188,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 未知 的本地化字符串。
+        ///   查找类似 Unknown 的本地化字符串。
         /// </summary>
         internal static string Unknown {
             get {
@@ -2085,7 +2197,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 未知的参数： 的本地化字符串。
+        ///   查找类似 Unknown argument:  的本地化字符串。
         /// </summary>
         internal static string UnknownArgument {
             get {
@@ -2094,7 +2206,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 未知错误 的本地化字符串。
+        ///   查找类似 Unknown error 的本地化字符串。
         /// </summary>
         internal static string UnknownError {
             get {
@@ -2103,7 +2215,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 未知类型 的本地化字符串。
+        ///   查找类似 Unknown type 的本地化字符串。
         /// </summary>
         internal static string UnknownType {
             get {
@@ -2112,7 +2224,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 大写转小写 的本地化字符串。
+        ///   查找类似 Uppercase to lowercase 的本地化字符串。
         /// </summary>
         internal static string Uppercase2Lowercase {
             get {
@@ -2121,7 +2233,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 查看 的本地化字符串。
+        ///   查找类似 View 的本地化字符串。
         /// </summary>
         internal static string View {
             get {
@@ -2130,7 +2242,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 窗口背景材质 的本地化字符串。
+        ///   查找类似 Window backdrop 的本地化字符串。
         /// </summary>
         internal static string WindowBackdrop {
             get {
@@ -2139,7 +2251,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 昨天 的本地化字符串。
+        ///   查找类似 Yesterday 的本地化字符串。
         /// </summary>
         internal static string Yesterday {
             get {

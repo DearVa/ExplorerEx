@@ -40,4 +40,8 @@
     <item header="ShowHiddenFilesAndFolders" icon="EyeDrawingImage" type="boolean" default="false"/>
     <item header="ShowProtectedSystemFilesAndFolders" icon="EyeDrawingImage" type="boolean" default="false"/>
   </category>
+
+  <category header="Experimental">
+    <item header="SetExplorerExAsDefault" type="boolean" default="false"/>
+  </category>
 </settings>

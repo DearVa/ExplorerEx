@@ -39,14 +39,18 @@ internal class NotifyMemoryMappedFile : IDisposable {
 	/// 阻塞当前线程，直到调用了Write
 	/// </summary>
 	public void WaitForModified() {
-		semaphore.WaitOne();
+		try {
+			semaphore.WaitOne();
+		} catch (AbandonedMutexException) { }
 	}
 
 	/// <summary>
 	/// 阻塞当前线程，直到调用了Write
 	/// </summary>
 	public void WaitForModified(TimeSpan timeout) {
-		semaphore.WaitOne(timeout);
+		try {
+			semaphore.WaitOne(timeout);
+		} catch (AbandonedMutexException) { }
 	}
 
 	/// <summary>
@@ -54,7 +58,9 @@ internal class NotifyMemoryMappedFile : IDisposable {
 	/// </summary>
 	/// <param name="data"></param>
 	public void Write(ReadOnlySpan<byte> data) {
-		mutex.WaitOne();
+		try {
+			mutex.WaitOne();
+		} catch (AbandonedMutexException) { }
 		using var stream = mmf.CreateViewStream(0, capacity, MemoryMappedFileAccess.ReadWrite);
 		var buf = new byte[4];
 		if (stream.Read(buf) != 4) {
@@ -75,7 +81,9 @@ internal class NotifyMemoryMappedFile : IDisposable {
 	/// </summary>
 	/// <returns></returns>
 	public byte[]? Read() {
-		mutex.WaitOne();
+		try {
+			mutex.WaitOne();
+		} catch (AbandonedMutexException) { }
 		using var stream = mmf.CreateViewStream(0, capacity, MemoryMappedFileAccess.ReadWrite);
 		Span<byte> length = stackalloc byte[4];
 		if (stream.Read(length) == 4) {

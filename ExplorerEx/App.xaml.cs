@@ -65,10 +65,10 @@ public partial class App {
 			notifyMmf = new NotifyMemoryMappedFile("ExplorerExIPC", 1024, false);
 			var command = e.Args.Length > 1 ? "Open|" + e.Args[1] : "Open";
 			notifyMmf.Write(Encoding.UTF8.GetBytes(command));
+			notifyMmf.Dispose();
 			Current.Shutdown();
 			return;
 		}
-
 
 		Container = new WindsorContainer();
 		Container.Register(Component.For<IBookmarkDbContext>().Instance(

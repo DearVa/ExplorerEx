@@ -709,7 +709,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			Items.AddRange(fileListViewItems);
 			_ = dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => {
 				GroupBy = savedView?.GroupBy;  // Loaded之后再执行，不然会非常卡QAQ
-				FileListView.ScrollIntoView(scrollIntoItem);
+				FileListView?.ScrollIntoView(scrollIntoItem);  // TODO：有时还是null，先用?.
 				IsLoading = false;
 			});
 		} else {

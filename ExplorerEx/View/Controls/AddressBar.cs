@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using ExplorerEx.Command;
 using ExplorerEx.Model;
 using ExplorerEx.Utils;
@@ -139,6 +140,7 @@ internal class AddressBar : TextBox {
 				items.Add(new FolderOnlyItem(new DirectoryInfo(newPath), items[^1]));
 			}
 		}
-		addressBar.scrollViewer.ScrollToRightEnd();
+		// Template may not applied yet.
+		addressBar.Dispatcher.BeginInvoke(() => addressBar.scrollViewer.ScrollToRightEnd(), DispatcherPriority.Loaded);
 	}
 }
