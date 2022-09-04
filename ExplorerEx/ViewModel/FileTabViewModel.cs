@@ -96,7 +96,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	/// <summary>
 	/// 当前文件夹内的文件列表
 	/// </summary>
-	public ConcurrentObservableCollection<FileListViewItem> Items { get; } = new();
+	public ConcurrentObservableCollection<FileListViewItem> Items { get; } = new() { UseHashSet = true };
 
 	/// <summary>
 	/// 当前文件夹是否在加载
@@ -365,6 +365,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		if (newName != null && newName != originalName) {
 			try {
 				item.Rename(newName);
+				Items.Remove(item);
 			} catch (Exception e) {
 				ContentDialog.Error(e.Message, null, OwnerWindow);
 			}

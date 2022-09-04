@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0-windows</TargetFrameworks>
+    <UseWPF>true</UseWPF>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <title>VirtualizingWrapPanel</title>
+    <Version>1.5.7</Version>
+    <Authors>S. Bäumlisbergerr</Authors>
+    <Copyright>© S. Bäumlisberger</Copyright>
+    <Description>Implementation of a VirtualizingWrapPanel for WPF running .NET Framework or .NET Core. The panel supports horizontal and vertical orientation, caching, container recycling and grouping. The package also contains a GridView and GridDetailsView control based on the VirtualizingWrapPanel. In addition a simple VirtualizingItemsControl is included. Samples, API-Documentation and Source Code are available on the project site.</Description>
+  </PropertyGroup>
+
+  <!-- pack options -->
+  <PropertyGroup>
+    <PackageId>VirtualizingWrapPanel</PackageId>
+
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/sbaeumlisberger/VirtualizingWrapPanel</RepositoryUrl>
+
+    <PackageProjectUrl>https://github.com/sbaeumlisberger/VirtualizingWrapPanel</PackageProjectUrl>
+
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+    <PackageTags>VirtualizingWrapPanel, VirtualizingPanel, WrapPanel, GridView, Virtualization, WPF, XAML, .NET </PackageTags>
+
+    <PackageReleaseNotes>- Fix #29 Freeze when trying to moving up and down with keyboard keys and tiles bigger than panel size</PackageReleaseNotes>
+
+    <RootNamespace>WpfToolkit.Controls</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0-windows|x64'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0-windows|x64'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+</Project>

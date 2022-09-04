@@ -155,8 +155,6 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 		if (!FileUtils.IsProhibitedFileName(newName, out _)) {
 			if (newName != Name) {
 				InternalRename(newName);
-				Name = newName;
-				OnPropertyChanged(nameof(Name));
 			}
 		}
 	}

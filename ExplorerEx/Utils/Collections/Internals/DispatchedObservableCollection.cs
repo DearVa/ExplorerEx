@@ -14,8 +14,8 @@ public sealed class DispatchedObservableCollection<T> : ObservableCollectionBase
 
 	private bool isDispatcherPending;
 
-	public DispatchedObservableCollection(ConcurrentObservableCollection<T> collection, Dispatcher dispatcher)
-		: base(collection) {
+	public DispatchedObservableCollection(ConcurrentObservableCollection<T> collection, Dispatcher dispatcher, bool useHash)
+		: base(collection, useHash) {
 		this.collection = collection;
 		this.dispatcher = dispatcher;
 	}

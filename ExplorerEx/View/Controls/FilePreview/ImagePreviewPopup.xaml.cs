@@ -29,7 +29,7 @@ public partial class ImagePreviewPopup {
 			break;
 		case ".svg":
 			GifImage.Visibility = Visibility.Collapsed;
-			Image.Source = SvgConverter.ConvertSvgToDrawingImage(filePath);
+			Image.Source = IconHelper.Svg2ImageSource(filePath);
 			Image.Visibility = Visibility.Visible;
 			break;
 		default:

@@ -8,6 +8,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ExplorerEx.Shell32;
+using SharpSvgImage.Svg;
 using static ExplorerEx.Shell32.Shell32Interop;
 using static ExplorerEx.Win32.Win32Interop;
 
@@ -87,6 +88,11 @@ internal static class IconHelper {
 		return bitmap;
 	}
 
+	public static ImageSource Svg2ImageSource(string svgPath) {
+		var svg = new SvgRender();
+		return new DrawingImage(svg.LoadDrawing(svgPath));
+	}
+
 	/// <summary>
 	/// 获取文件的小图标
 	/// </summary>
@@ -110,7 +116,7 @@ internal static class IconHelper {
 		}
 
 		if (extension == ".svg") {
-			return Application.Current.Dispatcher.Invoke(() => SvgConverter.ConvertSvgToDrawingImage(path));
+			return Application.Current.Dispatcher.Invoke(() => Svg2ImageSource(path));
 		}
 
 		var dwFa = useFileAttr ? FileAttribute.Normal : 0;
@@ -175,8 +181,7 @@ internal static class IconHelper {
 
 		var iconIndex = shFileInfo.iIcon;
 		var hIcon = IntPtr.Zero;
-		// 只能使用STA调用，否则会失败
-		Trace.WriteLine(path + " GetLargeIcon " + iconIndex);
+		// Trace.WriteLine(path + " GetLargeIcon " + iconIndex);
 		hr = Shell32Interop.GetLargeIcon(iconIndex, ILD.Transparent, ref hIcon);
 		if (hr != 0 || hIcon == IntPtr.Zero) {
 #if DEBUG
@@ -226,7 +231,7 @@ internal static class IconHelper {
 		extension = extension.ToLower();
 		if (ExtensionsWithThumbnail.Contains(extension)) {
 			if (extension == ".svg") {
-				return Application.Current.Dispatcher.Invoke(() => SvgConverter.ConvertSvgToDrawingImage(path));
+				return Application.Current.Dispatcher.Invoke(() => Svg2ImageSource(path));
 			}
 			var retCode = SHCreateItemFromParsingName(path, null, GUID_IShellItem2, out var nativeShellItem);
 			if (retCode != 0) {

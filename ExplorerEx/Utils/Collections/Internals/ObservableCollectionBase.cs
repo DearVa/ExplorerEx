@@ -1,8 +1,8 @@
-#nullable enable
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Linq;
 
 namespace ExplorerEx.Utils.Collections.Internals;
 
@@ -11,20 +11,34 @@ public abstract class ObservableCollectionBase<T> : INotifyCollectionChanged, IN
 	public event NotifyCollectionChangedEventHandler? CollectionChanged;
 	public event PropertyChangedEventHandler? PropertyChanged;
 
+	private protected HashSet<T>? Set { get; }
 	private protected List<T> Items { get; }
 
-	protected ObservableCollectionBase() {
+	/// <summary>
+	/// 初始化
+	/// </summary>
+	/// <param name="useHash">是否使用HashSet来去重</param>
+	protected ObservableCollectionBase(bool useHash) {
 		Items = new List<T>();
-	}
-
-	protected ObservableCollectionBase(IEnumerable<T>? items) {
-		if (items == null) {
-			Items = new List<T>();
-		} else {
-			Items = new List<T>(items);
+		if (useHash) {
+			Set = new HashSet<T>();
 		}
 	}
-	
+
+	protected ObservableCollectionBase(IList<T>? items, bool useHash) {
+		if (items == null) {
+			Items = new List<T>();
+			if (useHash) {
+				Set = new HashSet<T>();
+			}
+		} else {
+			Items = new List<T>(items);
+			if (useHash) {
+				Set = new HashSet<T>(items);
+			}
+		}
+	}
+
 	public void EnsureCapacity(int capacity) {
 		Items.EnsureCapacity(capacity);
 	}
@@ -32,12 +46,22 @@ public abstract class ObservableCollectionBase<T> : INotifyCollectionChanged, IN
 	protected void ReplaceItem(int index, T item) {
 		var oldItem = Items[index];
 		Items[index] = item;
+		if (Set != null) {
+			Set.Remove(oldItem);
+			Set.Add(item);
+		}
 
 		OnIndexerPropertyChanged();
 		OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, item, oldItem, index));
 	}
 
 	protected void InsertItem(int index, T item) {
+		if (Set != null) {
+			if (Set.Contains(item)) {
+				return;
+			}
+			Set.Add(item);
+		}
 		Items.Insert(index, item);
 
 		OnCountPropertyChanged();
@@ -46,14 +70,33 @@ public abstract class ObservableCollectionBase<T> : INotifyCollectionChanged, IN
 	}
 
 	protected void InsertItems(int index, ImmutableList<T> items) {
-		Items.InsertRange(index, items);
+		if (Set == null) {
+			foreach (var item in items) {
+				Items.Insert(index++, item);
 
-		OnCountPropertyChanged();
-		OnIndexerPropertyChanged();
-		OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items, index));
+				OnCountPropertyChanged();
+				OnIndexerPropertyChanged();
+				OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+			}
+		} else {
+			foreach (var item in items.Where(item => !Set.Contains(item))) {
+				Items.Insert(index++, item);
+				Set.Add(item);
+
+				OnCountPropertyChanged();
+				OnIndexerPropertyChanged();
+				OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+			}
+		}
 	}
 
 	protected void AddItem(T item) {
+		if (Set != null) {
+			if (Set.Contains(item)) {
+				return;
+			}
+			Set.Add(item);
+		}
 		var index = Items.Count;
 		Items.Add(item);
 
@@ -63,39 +106,55 @@ public abstract class ObservableCollectionBase<T> : INotifyCollectionChanged, IN
 	}
 
 	protected void AddItems(ImmutableList<T> items) {
-		var index = Items.Count;
-		Items.AddRange(items);
+		if (Set == null) {
+			foreach (var item in items) {
+				var index = Items.Count;
+				Items.Add(item);
 
-		OnCountPropertyChanged();
-		OnIndexerPropertyChanged();
-		OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items, index));
+				OnCountPropertyChanged();
+				OnIndexerPropertyChanged();
+				OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+			}
+		} else {
+			foreach (var item in items.Where(item => !Set.Contains(item))) {
+				var index = Items.Count;
+				Items.Add(item);
+				Set.Add(item);
+
+				OnCountPropertyChanged();
+				OnIndexerPropertyChanged();
+				OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+			}
+		}
 	}
 
 	protected void RemoveItemAt(int index) {
 		var item = Items[index];
 		Items.RemoveAt(index);
+		Set?.Remove(item);
 
 		OnCountPropertyChanged();
 		OnIndexerPropertyChanged();
 		OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
 	}
 
-	protected bool RemoveItem(T item) {
+	protected void RemoveItem(T item) {
 		var index = Items.IndexOf(item);
 		if (index < 0) {
-			return false;
+			return;
 		}
 
 		Items.RemoveAt(index);
+		Set?.Remove(item);
 
 		OnCountPropertyChanged();
 		OnIndexerPropertyChanged();
 		OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
-		return true;
 	}
 
 	protected void ClearItems() {
 		Items.Clear();
+		Set?.Clear();
 		OnCountPropertyChanged();
 		OnIndexerPropertyChanged();
 		CollectionChanged?.Invoke(this, EventArgsCache.ResetCollectionChanged);
@@ -104,6 +163,12 @@ public abstract class ObservableCollectionBase<T> : INotifyCollectionChanged, IN
 	protected void Reset(ImmutableList<T> items) {
 		Items.Clear();
 		Items.AddRange(items);
+		if (Set != null) {
+			Set.Clear();
+			foreach (var item in items) {
+				Set.Add(item);
+			}
+		}
 		OnIndexerPropertyChanged();
 		OnCollectionChanged(EventArgsCache.ResetCollectionChanged);
 	}
@@ -111,6 +176,6 @@ public abstract class ObservableCollectionBase<T> : INotifyCollectionChanged, IN
 	private void OnCountPropertyChanged() => OnPropertyChanged(EventArgsCache.CountPropertyChanged);
 	private void OnIndexerPropertyChanged() => OnPropertyChanged(EventArgsCache.IndexerPropertyChanged);
 
-	protected virtual void OnPropertyChanged(PropertyChangedEventArgs args) => PropertyChanged?.Invoke(this, args);
-	protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs args) => CollectionChanged?.Invoke(this, args);
+	protected void OnPropertyChanged(PropertyChangedEventArgs args) => PropertyChanged?.Invoke(this, args);
+	protected void OnCollectionChanged(NotifyCollectionChangedEventArgs args) => CollectionChanged?.Invoke(this, args);
 }

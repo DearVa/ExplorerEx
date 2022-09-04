@@ -371,7 +371,9 @@ public partial class FileListView : INotifyPropertyChanged {
 	///     如果之前有且只有当前项目选中，那么就什么也不做，但是要在鼠标键左键（右键不计时）松开之后开始计时，计时结束前若没有其他操作就开始该项的重命名
 	///     如果之前选中了多个项目，且该项也是选择状态，就什么也不做。此时如果松开按键，那就取消选择其他项，只选中当前项
 	/// 
-	///   没有点击在项目上，那就清空选择，同时记录坐标，为框选做准备
+	///   没有点击在项目上
+	///		如果按下了ctrl键，那就是反选
+	///		如果没按下ctrl键，那就清空选择，同时记录坐标，为框选做准备
 	/// </summary>
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {

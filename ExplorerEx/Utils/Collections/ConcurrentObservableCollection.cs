@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -29,15 +28,14 @@ public sealed class ConcurrentObservableCollection<T> : IList<T>, IReadOnlyList<
 	}
 
 	/// <summary>
-	/// When set to <see langword="true"/> AddRange and InsertRange methods raise NotifyCollectionChanged with all items instead of one event per item.
+	/// 使用HashSet来去重
 	/// </summary>
-	/// <remarks>Most WPF controls doesn't support batch modifications</remarks>
-	public bool SupportRangeNotifications { get; set; }
+	public bool UseHashSet { get; set; }
 
 	public DispatchedObservableCollection<T> AsObservable {
 		get {
 			lock (lockObj) {
-				return observableCollection ??= new DispatchedObservableCollection<T>(this, dispatcher);
+				return observableCollection ??= new DispatchedObservableCollection<T>(this, dispatcher, UseHashSet);
 			}
 		}
 	}
@@ -89,15 +87,7 @@ public sealed class ConcurrentObservableCollection<T> : IList<T>, IReadOnlyList<
 		lock (lockObj) {
 			var count = this.items.Count;
 			this.items = this.items.AddRange(items);
-			if (SupportRangeNotifications) {
-				observableCollection?.EnqueueAddRange(this.items.GetRange(count, this.items.Count - count));
-			} else {
-				if (observableCollection != null) {
-					for (var i = count; i < this.items.Count; i++) {
-						observableCollection.EnqueueAdd(this.items[i]);
-					}
-				}
-			}
+			observableCollection?.EnqueueAddRange(this.items.GetRange(count, this.items.Count - count));
 		}
 	}
 
@@ -131,15 +121,7 @@ public sealed class ConcurrentObservableCollection<T> : IList<T>, IReadOnlyList<
 			var count = this.items.Count;
 			this.items = this.items.InsertRange(index, items);
 			var addedItemsCount = this.items.Count - count;
-			if (SupportRangeNotifications) {
-				observableCollection?.EnqueueInsertRange(index, this.items.GetRange(index, addedItemsCount));
-			} else {
-				if (observableCollection != null) {
-					for (var i = index; i < index + addedItemsCount; i++) {
-						observableCollection.EnqueueInsert(i, this.items[i]);
-					}
-				}
-			}
+			observableCollection?.EnqueueInsertRange(index, this.items.GetRange(index, addedItemsCount));
 		}
 	}
 
