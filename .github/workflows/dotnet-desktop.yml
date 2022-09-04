@@ -52,8 +52,9 @@ jobs:
       matrix:
         configuration: [Release]
 
-    runs-on: windows-2019    # For a list of available runner types, refer to
-                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+    # For a list of available runner types, refer to
+    # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+    runs-on: windows-2019    
 
     env:
       Solution_Name: ExplorerEx.sln                             # Replace with your solution name, i.e. MyWpfApp.sln.
@@ -67,16 +68,24 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
+    
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.0.5
+        
+    - name: Setup VSTest
+      uses: darenm/Setup-VSTest@v1
+
+    # Build Explorer Proxy
+    - name: Build Explorer Proxy
+      run: MSBuild .\ExplorerProxy\ExplorerProxy.csproj /property:Configuration=Release,Platform=x64
+
     # Install the .NET workload
     - name: Install .NET
       uses: actions/setup-dotnet@main
       with:
         dotnet-version: 6.0.x
-
-    # Build Explorer Proxy
-    - name: Build Explorer Proxy
-      run: |
-        MSBuild .\ExplorerProxy\ExplorerProxy.csproj /property:Configuration=Release,Platform=x64
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
@@ -85,9 +94,9 @@ jobs:
     # Create the app package by building and packaging the Windows Application Packaging project
     - name: Create the app package
       run: |
-      dotnet publish ExplorerEx -c Release -r win-x64
-      copy .\ExplorerProxy\bin\x64\Release\ExplorerProxy.dll .\ExplorerEx\bin\Release\net6.0-windows\win-x64\publish
-      copy .\ExplorerProxy\bin\x64\Release\Interop.SHDocVw.dll .\ExplorerEx\bin\Release\net6.0-windows\win-x64\publish
+        dotnet publish ExplorerEx -c Release -r win-x64
+        copy .\ExplorerProxy\bin\x64\Release\ExplorerProxy.dll .\ExplorerEx\bin\Release\net6.0-windows\win-x64\publish
+        copy .\ExplorerProxy\bin\x64\Release\Interop.SHDocVw.dll .\ExplorerEx\bin\Release\net6.0-windows\win-x64\publish
 
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
