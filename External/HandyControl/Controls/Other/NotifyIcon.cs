@@ -310,6 +310,7 @@ public class NotifyIcon : FrameworkElement, IDisposable {
 	private IntPtr Callback(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam) {
 		if (msg == wmTaskbarCreated) {
 			if (Hwnd == hWnd && Visibility == Visibility.Visible) {
+				added = false;
 				UpdateIcon(true);
 			}
 		} else {
