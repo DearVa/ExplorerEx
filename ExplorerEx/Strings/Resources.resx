@@ -731,12 +731,12 @@ After you click "OK", a file named "Delete ExplorerEx Proxy.reg" will be created
     <value>The file has been created on the desktop. Please confirm whether it exists. If it does NOT exist, you can click "Cancel" to abort, and your default file manager will NOT be changed.</value>
   </data>
   <data name="#SetExplorerExAsDefaultInstructions2" xml:space="preserve">
-    <value>Next, after you click "OK", a file named "Set ExplorerEx Proxy.reg" will be created on the desktop. You just need to double-click to open it and select "OK" in the pop-up dialog box to set explorerex as the default file manager, and then delete the file. Please note that do not move the installation directory of this program after setting, otherwise it will become invalid.
+    <value>Next, after you click "OK", the registry editor may ask you for administrator permission. Please allow me to pass. Please note that do not move the installation directory of this program after setting, otherwise it will become invalid.
 
 Enjoy it :)</value>
   </data>
   <data name="#UnsetExplorerExAsDefaultInstructions" xml:space="preserve">
-    <value>Remember "Delete ExplorerEx Proxy.reg"? You can double-click it to open it at any time, and select "OK" in the pop-up dialog box to restore it to the default.
+    <value>Failed to reset automatically. Remember "Delete ExplorerEx Proxy.reg"? You can double-click it to open it at any time, and select "OK" in the pop-up dialog box to restore it to the default.
 
 Can't find it? Don't worry, click "yes" and I will regenerate one on the desktop.</value>
   </data>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -302,10 +303,11 @@ internal sealed class Settings : INotifyPropertyChanged {
 	}
 
 	private static bool SetExplorerExAsDefault_OnChanging(object? o) {
+		var executingAsm = Assembly.GetExecutingAssembly();
+		var executingPath = Path.GetDirectoryName(executingAsm.Location)!;
 		if (o is true) {
-			var executingAsm = Assembly.GetExecutingAssembly();
-			var executingPath = Path.GetDirectoryName(executingAsm.Location)!;
 			ConfigHelper.Save("Path", Path.ChangeExtension(executingAsm.Location, ".exe"));
+			// 务必检查两个dll的有效性
 			var proxyDllPath = Path.Combine(executingPath, "ExplorerProxy.dll");
 			if (!File.Exists(proxyDllPath)) {
 				ContentDialog.Error("#SetExplorerExAsDefaultFailProxyNotFound".L());
@@ -344,26 +346,51 @@ internal sealed class Settings : INotifyPropertyChanged {
 					return false;
 				}
 				var setRegString = new StreamReader(stream).ReadToEnd().Replace("REPLACE_HERE", proxyDllPath.Replace('\\', '/'));
-				var regFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Set ExplorerEx Proxy.reg");
+				var regFilePath = Path.Combine(executingPath, "SetExplorerExProxy.reg");
 				File.WriteAllText(regFilePath, setRegString);
+				Process.Start(new ProcessStartInfo {
+					FileName = "regedit",
+					Arguments = "/S " + regFilePath,
+					UseShellExecute = true
+				});
 			} catch {
 				ContentDialog.Error("#SetExplorerExAsDefaultFailReg".L());
+				return false;
 			}
 		} else {
-			if (ContentDialog.Ask("#UnsetExplorerExAsDefaultInstructions".L(), "PleaseReadCarefully".L()) != ContentDialog.ContentDialogResult.Primary) {
-				return true;
-			}
 			try {
+				// 先尝试自动运行Reg
 				using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ExplorerEx.Assets.DeleteExplorerExProxy.reg");
 				if (stream == null) {
 					ContentDialog.Error("#UnsetExplorerExAsDefaultFailReg".L());
 					return false;
 				}
-				var regFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Delete ExplorerEx Proxy.reg");
-				using var fs = new FileStream(regFilePath, FileMode.Create);
-				stream.CopyTo(fs);
+				var regFilePath = Path.Combine(executingPath, "UnsetExplorerExProxy.reg");
+				using (var fs = new FileStream(regFilePath, FileMode.Create)) {
+					stream.CopyTo(fs);
+				}
+				Process.Start(new ProcessStartInfo {
+					FileName = "regedit",
+					Arguments = "/S " + regFilePath,
+					UseShellExecute = true
+				});
 			} catch {
-				ContentDialog.Error("#UnsetExplorerExAsDefaultFailReg".L());
+				// 自动运行失败，改为手动运行
+				if (ContentDialog.Ask("#UnsetExplorerExAsDefaultInstructions".L(), "PleaseReadCarefully".L()) != ContentDialog.ContentDialogResult.Primary) {
+					return true;
+				}
+				try {
+					using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ExplorerEx.Assets.DeleteExplorerExProxy.reg");
+					if (stream == null) {
+						ContentDialog.Error("#UnsetExplorerExAsDefaultFailReg".L());
+						return false;
+					}
+					var regFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Delete ExplorerEx Proxy.reg");
+					using var fs = new FileStream(regFilePath, FileMode.Create);
+					stream.CopyTo(fs);
+				} catch {
+					ContentDialog.Error("#UnsetExplorerExAsDefaultFailReg".L());
+				}
 			}
 		}
 		return true;

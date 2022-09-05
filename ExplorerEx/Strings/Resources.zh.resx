@@ -778,12 +778,12 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
     <value>文件已经在桌面上创建，请确认是否存在。如果不存在，你可以点击“取消”来中止，你的默认文件管理器将不会被更改。</value>
   </data>
   <data name="#SetExplorerExAsDefaultInstructions2" xml:space="preserve">
-    <value>接下来，当你点击“好”之后，桌面上会创建一个名为“Set ExplorerEx Proxy.reg”的文件。你只需要双击打开它，并在弹出的对话框中选择“确定”，即可将ExplorerEx设置为默认的文件管理器，之后即可删除该文件。请注意，设置之后请勿再移动本程序的安装目录，否则会失效。
+    <value>接下来，当你点击“好”之后，注册表编辑器可能会向你索要管理员权限，请允许通过。请注意，设置之后请勿再移动本程序的安装目录，否则会失效。
 
 尽情享受吧~</value>
   </data>
   <data name="#UnsetExplorerExAsDefaultInstructions" xml:space="preserve">
-    <value>还记得“Delete ExplorerEx Proxy.reg”吗？你可以随时双击打开它，并在弹出的对话框中选择“确定”来恢复为默认。
+    <value>自动设置失败了，还记得“Delete ExplorerEx Proxy.reg”吗？你可以随时双击打开它，并在弹出的对话框中选择“确定”来恢复为默认。
 
 已经找不到了吗？别担心，点击“是”我会重新生成一个在桌面上。</value>
   </data>

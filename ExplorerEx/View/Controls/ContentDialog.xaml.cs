@@ -27,7 +27,22 @@ public partial class ContentDialog {
 
 	public object Content {
 		get => GetValue(ContentProperty);
-		set => SetValue(ContentProperty, value);
+		set {
+			if (value is string s) {
+				// 套一层文本框
+				SetValue(ContentProperty, new ScrollViewer {
+					Content = new TextBlock {
+						Text = s,
+						TextWrapping = TextWrapping.Wrap,
+						MaxWidth = 600,
+						FontSize = 14
+					},
+					HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled
+				});
+			} else {
+				SetValue(ContentProperty, value);
+			}
+		}
 	}
 
 	public static readonly DependencyProperty PrimaryButtonTextProperty = DependencyProperty.Register(
@@ -117,30 +132,30 @@ public partial class ContentDialog {
 	public ContentDialog() {
 		dispatcherFrame = new DispatcherFrame();
 
-		var cubicEase = new CubicEase {
-			EasingMode = EasingMode.EaseOut
+		var cubicEaseInOut = new CubicEase {
+			EasingMode = EasingMode.EaseInOut
+		};
+		var cubicEaseIn = new CubicEase {
+			EasingMode = EasingMode.EaseIn
 		};
 		opacityInAnimation = new DoubleAnimation(1d, TimeSpan.FromMilliseconds(200d)) {
-			EasingFunction = cubicEase
+			EasingFunction = cubicEaseInOut
 		};
 		opacityOutAnimation = new DoubleAnimation(0d, TimeSpan.FromMilliseconds(200d)) {
-			EasingFunction = cubicEase
+			EasingFunction = cubicEaseIn
 		};
-		scaleInAnimation = new DoubleAnimation(0.8d, 1d, TimeSpan.FromMilliseconds(240d)) {
-			EasingFunction = new BackEase {
-				EasingMode = EasingMode.EaseOut,
-				Amplitude = 1.05d
-			}
+		scaleInAnimation = new DoubleAnimation(0.8d, 1d, TimeSpan.FromMilliseconds(200d)) {
+			EasingFunction = cubicEaseInOut
 		};
 		scaleInAnimation.Completed += (_, _) => {
 			ContentPresenter.Focus();
 			Shown?.Invoke();
 		};
 		scaleXOutAnimation = new DoubleAnimation(1d, 1.2d, TimeSpan.FromMilliseconds(200d)) {
-			EasingFunction = cubicEase
+			EasingFunction = cubicEaseIn
 		};
 		scaleYOutAnimation = new DoubleAnimation(1d, 1.2d, TimeSpan.FromMilliseconds(200d)) {
-			EasingFunction = cubicEase
+			EasingFunction = cubicEaseIn
 		};
 		scaleYOutAnimation.Completed += (_, _) => {
 			dispatcherFrame.Continue = false;
