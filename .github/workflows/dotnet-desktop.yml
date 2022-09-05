@@ -87,16 +87,16 @@ jobs:
     - name: Execute unit tests
       run: dotnet test
 
+    # Create the app package by building and packaging the Windows Application Packaging project
+    - name: Create the app package
+      run: dotnet publish ExplorerEx -c Release -r win-x64
+
     # Build Explorer Proxy
     - name: Build Explorer Proxy
       run: |
         MSBuild .\ExplorerProxy\ExplorerProxy.csproj /property:Configuration=Release,Platform=x64
         copy .\ExplorerProxy\bin\x64\Release\ExplorerProxy.dll .\ExplorerEx\bin\Release\net6.0-windows\win-x64\publish
         copy .\ExplorerProxy\bin\x64\Release\Interop.SHDocVw.dll .\ExplorerEx\bin\Release\net6.0-windows\win-x64\publish
-
-    # Create the app package by building and packaging the Windows Application Packaging project
-    - name: Create the app package
-      run: dotnet publish ExplorerEx -c Release -r win-x64
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
     - name: Upload build artifacts

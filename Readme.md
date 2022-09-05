@@ -67,7 +67,7 @@ Some time ago, when I was working on Minecraft mod, I needed to switch frequentl
 → OneDrive and network drives  
 
 #### Advanced function development
-✓ Set as default
+✓ Set as default  
 → Private space (File Locker)  
 → File label (Alias, Colorful tags)  
 → fastcopy (Multi-thread copy)   
