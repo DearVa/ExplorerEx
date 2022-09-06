@@ -26,15 +26,15 @@ public class FileItemCommand : ICommand {
 	/// <summary>
 	/// 当前操作的目录
 	/// </summary>
-	public FolderItem Folder { get; set; } = null!;
+	public virtual FolderItem Folder { get; set; } = null!;
 
 	public bool CanExecute(object? parameter) => true;
 
 	private readonly List<FileListViewItem> emptyItems = new();
 
-	private IReadOnlyList<FileListViewItem> Items => SelectedItemsProvider.Invoke()?.ToList() ?? emptyItems;
+	protected IReadOnlyList<FileListViewItem> Items => SelectedItemsProvider.Invoke()?.ToList() ?? emptyItems;
 
-	private IReadOnlyList<FileListViewItem> Folders => SelectedItemsProvider.Invoke()?.Where(i => i.IsFolder).ToList() ?? emptyItems;
+	protected IReadOnlyList<FileListViewItem> Folders => SelectedItemsProvider.Invoke()?.Where(i => i.IsFolder).ToList() ?? emptyItems;
 
 	public async void Execute(object? param) {
 		switch (param) {
@@ -341,4 +341,8 @@ public class FileItemCommand : ICommand {
 	}
 
 	public event EventHandler? CanExecuteChanged;
+}
+
+public class FolderOnlyItemCommand : FileItemCommand {
+	public override FolderItem Folder => (Items[0] as FolderOnlyItem)!.Parent;
 }

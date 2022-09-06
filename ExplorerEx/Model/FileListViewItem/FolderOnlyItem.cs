@@ -9,13 +9,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using ExplorerEx.Utils;
 using ExplorerEx.Utils.Collections;
+using ExplorerEx.Utils.Enumerators;
 
 namespace ExplorerEx.Model;
 
 /// <summary>
 /// 只显示文件夹，可枚举子文件夹
 /// </summary>
-internal sealed class FolderOnlyItem : FileListViewItem {
+internal sealed class FolderOnlyItem : FolderItem {
 	/// <summary>
 	/// 此电脑
 	/// </summary>
@@ -51,7 +52,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	/// </summary>
 	private readonly string? relativePath;
 
-	private FolderOnlyItem(FolderOnlyItem? parent) : base(IconHelper.FolderDrawingImage, LoadDetailsOptions.Default) {
+	private FolderOnlyItem(FolderOnlyItem? parent) {
 		if (parent == null) {
 			InitializeChildren();
 			UpdateDriveChildren();
@@ -70,7 +71,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	/// <param name="zipPath"></param>
 	/// <param name="relativePath"></param>
 	/// <param name="parent"></param>
-	public FolderOnlyItem(string zipPath, string relativePath, FolderOnlyItem parent) : base(true, LoadDetailsOptions.Default) {
+	public FolderOnlyItem(string zipPath, string relativePath, FolderOnlyItem parent) {
 		if (!File.Exists(zipPath) || zipPath[^4..] != ".zip") {
 			throw new ArgumentException("Not a zip file");
 		}
@@ -84,7 +85,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 			Name = Path.GetFileName(relativePath);
 		}
 		Parent = parent;
-		IsFolder = true;
+		IsReadonly = true;
 		using var zip = ZipFile.OpenRead(zipPath);
 		foreach (var entryName in zip.Entries.Select(e => e.FullName)) {
 			if (entryName.StartsWith(relativePath)) {
@@ -97,21 +98,24 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 		}
 	}
 
-	public FolderOnlyItem(DirectoryInfo directoryInfo, FolderOnlyItem parent) : base(directoryInfo.FullName, directoryInfo.Name, true, LoadDetailsOptions.Default) {
+	public FolderOnlyItem(DirectoryInfo directoryInfo, FolderOnlyItem parent) : base(directoryInfo, LoadDetailsOptions.Default) {
 		Parent = parent;
-		IsFolder = true;
 		// 只看有没有文件夹，不能用FolderUtils.IsEmptyFolder
-		if (Directory.EnumerateDirectories(FullPath).Any() || Directory.EnumerateFiles(FullPath, "*.zip").Any()) {
-			InitializeChildren();
+		try {
+			if (Directory.EnumerateDirectories(FullPath).Any() || Directory.EnumerateFiles(FullPath, "*.zip").Any()) {
+				InitializeChildren();
+			}
+		} catch {
+			// Ignore
 		}
 	}
 
-	public FolderOnlyItem(DriveInfo driveInfo): base(driveInfo.Name, DriveUtils.GetFriendlyName(driveInfo), true, LoadDetailsOptions.Default) {
+	public FolderOnlyItem(DriveInfo driveInfo): base(new DirectoryInfo(driveInfo.Name), LoadDetailsOptions.Default) {
 		Parent = Home;
-		IsFolder = true;
 		if (driveInfo.IsReady) {
 			InitializeChildren();
 		}
+		Name = DriveUtils.GetFriendlyName(driveInfo);
 		Icon = IconHelper.GetDriveThumbnail(driveInfo.Name);
 	}
 
@@ -120,9 +124,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 		actualChildren = new ConcurrentObservableCollection<FolderOnlyItem>();
 	}
 
-	protected override void LoadAttributes() {
-		throw new InvalidOperationException();
-	}
+	protected override void LoadAttributes() { }
 
 	protected override void LoadIcon() {
 		if (zipPath != null) {
@@ -138,14 +140,6 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 		} else {
 			Icon = IconHelper.FolderDrawingImage;
 		}
-	}
-
-	public override string GetRenameName() {
-		throw new InvalidOperationException();
-	}
-
-	protected override void InternalRename(string newName) {
-		throw new InvalidOperationException();
 	}
 
 	public FolderOnlyItem Parent { get; }
@@ -229,39 +223,11 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 									}
 								}
 							} else {
-								foreach (var directoryPath in Directory.EnumerateDirectories(FullPath)) {
+								foreach (var folderOnlyItem in new FolderOnlyItemEnumerator(FullPath, this)) {
 									if (token.IsCancellationRequested) {
 										return;
 									}
-									try {
-										var di = new DirectoryInfo(directoryPath);
-										if (di.Attributes.HasFlag(FileAttributes.System) && !showSystem) {
-											continue;
-										}
-										if (di.Attributes.HasFlag(FileAttributes.Hidden) && !showHidden) {
-											continue;
-										}
-										actualChildren.Add(new FolderOnlyItem(di, this));
-									} catch {
-										// 忽略错误，不添加
-									}
-								}
-								foreach (var zipPath in Directory.EnumerateFiles(FullPath, "*.zip")) {
-									if (token.IsCancellationRequested) {
-										return;
-									}
-									try {
-										var fi = new DirectoryInfo(zipPath);
-										if (fi.Attributes.HasFlag(FileAttributes.System) && !showSystem) {
-											continue;
-										}
-										if (fi.Attributes.HasFlag(FileAttributes.Hidden) && !showHidden) {
-											continue;
-										}
-										actualChildren.Add(new FolderOnlyItem(zipPath, string.Empty, this));
-									} catch {
-										// 忽略错误，不添加
-									}
+									actualChildren.Add(folderOnlyItem);
 								}
 							}
 						} catch {

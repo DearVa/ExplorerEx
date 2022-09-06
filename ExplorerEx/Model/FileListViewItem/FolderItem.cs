@@ -7,6 +7,7 @@ using System.Windows.Media;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 using ExplorerEx.Utils.Collections;
+using ExplorerEx.Utils.Enumerators;
 
 namespace ExplorerEx.Model;
 
@@ -119,7 +120,7 @@ public class FolderItem : FileSystemItem {
 		selectedItem = null;
 		var list = new List<FileListViewItem>();
 		// 谢谢微软喵！谢谢微软喵！谢谢微软喵！谢谢微软喵！谢谢微软喵！谢谢微软喵！谢谢微软喵！谢谢微软喵！谢谢微软喵！
-		foreach (var fileSystemItem in new FileSystemEnumerator(FullPath, options)) {
+		foreach (var fileSystemItem in new FileSystemItemEnumerator(FullPath, options)) {
 			if (token.IsCancellationRequested) {
 				return list;
 			}

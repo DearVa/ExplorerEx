@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Enumeration;
 using ExplorerEx.Model;
-using static ExplorerEx.Model.FileListViewItem;
 
-namespace ExplorerEx.Utils;
+namespace ExplorerEx.Utils.Enumerators;
 
 /// <summary>
 /// 感谢微软大爹留接口，谢谢微软爹，谢谢微软爹
 /// </summary>
-internal class FileSystemEnumerator : FileSystemEnumerator<FileSystemItem>, IEnumerable<FileSystemItem> {
-	private readonly LoadDetailsOptions loadOptions;
+internal class FileSystemItemEnumerator : FileSystemEnumerator<FileSystemItem>, IEnumerable<FileSystemItem> {
+	private readonly FileListViewItem.LoadDetailsOptions loadOptions;
 
-	public FileSystemEnumerator(string directory, in LoadDetailsOptions loadOptions) : base(directory, GetEnumerationOptions()) {
+	public FileSystemItemEnumerator(string directory, in FileListViewItem.LoadDetailsOptions loadOptions) : base(directory, GetEnumerationOptions()) {
 		this.loadOptions = loadOptions;
 	}
 

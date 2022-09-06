@@ -130,7 +130,7 @@ public sealed partial class MainWindow {
 			SelectedItemsProvider = () => SideBarBookmarksTreeView.SelectedItem is BookmarkItem selectedItem ? new[] { selectedItem } : Array.Empty<FileListViewItem>(),
 			TabControlProvider = () => FileTabControl.MouseOverTabControl
 		};
-		SideBarPcItemCommand = new FileItemCommand {
+		SideBarPcItemCommand = new FolderOnlyItemCommand {
 			SelectedItemsProvider = () => selectedSideBarPcItem != null ? new[] { selectedSideBarPcItem } : Array.Empty<FileListViewItem>(),
 			TabControlProvider = () => FileTabControl.MouseOverTabControl
 		};
@@ -186,72 +186,6 @@ public sealed partial class MainWindow {
 
 		if (startUpLoad) {
 			StartupLoad();
-		}
-	}
-
-	private void SideBarItem_OnPreviewMouseUp(object? args) {
-		var e = (MouseButtonEventArgs)args!;
-		if (e.ChangedButton == MouseButton.Right && e.OriginalSource is FrameworkElement frameworkElement) {
-			if (frameworkElement.DataContext is FileListViewItem fileListViewItem) {
-				switch (fileListViewItem) {
-				case BookmarkItem bookmarkItem:
-					bookmarkItem.IsSelected = true;
-					if (!File.Exists(bookmarkItem.FullPath) && !Directory.Exists(bookmarkItem.FullPath)) {
-
-					} else {
-						var menu = (ContextMenu)bookmarkItemContextMenuConverter.Convert(bookmarkItem, null, null, null)!;
-						menu.DataContext = this;
-						menu.SetValue(FileItemAttach.FileItemProperty, bookmarkItem);
-						menu.IsOpen = true;
-					}
-					break;
-				case FolderOnlyItem folderOnlyItem:
-					selectedSideBarPcItem = folderOnlyItem;
-					sideBarPcItemContextMenu.SetValue(FileItemAttach.FileItemProperty, folderOnlyItem);
-					sideBarPcItemContextMenu.IsOpen = true;
-					break;
-				}
-			} else {  // 仓库
-				bookmarkCategoryItemContextMenu.DataContext = frameworkElement.DataContext;
-				bookmarkCategoryItemContextMenu.IsOpen = true;
-			}
-			e.Handled = true;
-		}
-	}
-
-	private static async void SideBarItem_OnClick(object? args) {
-		var e = (RoutedEventArgs)args!;
-		if (e.OriginalSource is FrameworkElement element) {
-			switch (element.DataContext) {
-			case FolderOnlyItem folderOnlyItem when e is MouseButtonEventArgs:  // Double click
-				folderOnlyItem.IsExpanded = !folderOnlyItem.IsExpanded;
-				break;
-			case FileListViewItem fileItem:
-				if (fileItem.IsFolder) {
-					await FileTabControl.FocusedTabControl!.SelectedTab.LoadDirectoryAsync(fileItem.FullPath);
-				} else {
-					try {
-						var psi = new ProcessStartInfo {
-							FileName = fileItem.FullPath,
-							UseShellExecute = true,
-							WorkingDirectory = Path.GetDirectoryName(fileItem.FullPath) ?? ""
-						};
-						if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) && fileItem is FileItem { IsExecutable: true }) {
-							psi.Verb = "runas";
-						}
-						Process.Start(psi);
-					} catch (Exception ex) {
-						if (ex is Win32Exception { ErrorCode: -2147467259 }) {  // 操作被用户取消
-							return;
-						}
-						hc.MessageBox.Error(ex.Message, "FailedToOpenFile".L());
-					}
-				}
-				break;
-			case BookmarkCategory bc:
-				bc.IsExpanded = !bc.IsExpanded;
-				break;
-			}
 		}
 	}
 
@@ -602,6 +536,73 @@ public sealed partial class MainWindow {
 	#endregion
 
 	#region 侧边栏
+
+	private void SideBarItem_OnPreviewMouseUp(object? args) {
+		var e = (MouseButtonEventArgs)args!;
+		if (e.ChangedButton == MouseButton.Right && e.OriginalSource is FrameworkElement frameworkElement) {
+			if (frameworkElement.DataContext is FileListViewItem fileListViewItem) {
+				switch (fileListViewItem) {
+				case BookmarkItem bookmarkItem:
+					bookmarkItem.IsSelected = true;
+					if (!File.Exists(bookmarkItem.FullPath) && !Directory.Exists(bookmarkItem.FullPath)) {
+
+					} else {
+						var menu = (ContextMenu)bookmarkItemContextMenuConverter.Convert(bookmarkItem, null, null, null)!;
+						menu.DataContext = this;
+						menu.SetValue(FileItemAttach.FileItemProperty, bookmarkItem);
+						menu.IsOpen = true;
+					}
+					break;
+				case FolderOnlyItem folderOnlyItem:
+					selectedSideBarPcItem = folderOnlyItem;
+					sideBarPcItemContextMenu.SetValue(FileItemAttach.FileItemProperty, folderOnlyItem);
+					sideBarPcItemContextMenu.IsOpen = true;
+					break;
+				}
+			} else {  // 仓库
+				bookmarkCategoryItemContextMenu.DataContext = frameworkElement.DataContext;
+				bookmarkCategoryItemContextMenu.IsOpen = true;
+			}
+			e.Handled = true;
+		}
+	}
+
+	private static async void SideBarItem_OnClick(object? args) {
+		var e = (RoutedEventArgs)args!;
+		if (e.OriginalSource is FrameworkElement element) {
+			switch (element.DataContext) {
+			case FolderOnlyItem folderOnlyItem when e is MouseButtonEventArgs:  // Double click
+				folderOnlyItem.IsExpanded = !folderOnlyItem.IsExpanded;
+				break;
+			case FileListViewItem fileItem:
+				if (fileItem.IsFolder) {
+					await FileTabControl.FocusedTabControl!.SelectedTab.LoadDirectoryAsync(fileItem.FullPath);
+				} else {
+					try {
+						var psi = new ProcessStartInfo {
+							FileName = fileItem.FullPath,
+							UseShellExecute = true,
+							WorkingDirectory = Path.GetDirectoryName(fileItem.FullPath) ?? ""
+						};
+						if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) && fileItem is FileItem { IsExecutable: true }) {
+							psi.Verb = "runas";
+						}
+						Process.Start(psi);
+					} catch (Exception ex) {
+						if (ex is Win32Exception { ErrorCode: -2147467259 }) {  // 操作被用户取消
+							return;
+						}
+						hc.MessageBox.Error(ex.Message, "FailedToOpenFile".L());
+					}
+				}
+				break;
+			case BookmarkCategory bc:
+				bc.IsExpanded = !bc.IsExpanded;
+				break;
+			}
+		}
+	}
+
 
 	private void OnDragAreaMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
 		DragMove();

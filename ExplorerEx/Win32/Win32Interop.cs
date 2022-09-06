@@ -236,9 +236,6 @@ public static class Win32Interop {
 		return letter;
 	}
 
-	[DllImport(Kernel32)]
-	public static extern uint GetFileAttributesW(IntPtr lpFileName);
-
 	#region 亚克力/云母效果
 
 	public const int GWL_STYLE = -16;
