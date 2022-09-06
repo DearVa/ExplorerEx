@@ -33,7 +33,7 @@ public sealed class DiskDriveItem : FolderItem {
 
 	private static readonly Gradient GradientColor = new(Colors.ForestGreen, Colors.Orange, Colors.Red);
 
-	public DiskDriveItem(DriveInfo drive) : base(new DirectoryInfo(drive.Name)) {
+	public DiskDriveItem(DriveInfo drive) : base(new DirectoryInfo(drive.Name), LoadDetailsOptions.Default) {
 		Drive = drive;
 		FullPath = drive.Name;
 		IsFolder = true;
@@ -41,7 +41,7 @@ public sealed class DiskDriveItem : FolderItem {
 		Name = drive.Name;
 	}
 
-	public override void LoadAttributes(LoadDetailsOptions options) {
+	protected override void LoadAttributes() {
 		Type = DriveUtils.GetTypeDescription(Drive);
 		if (Drive.IsReady) {
 			TotalSpace = Drive.TotalSize;
@@ -56,7 +56,7 @@ public sealed class DiskDriveItem : FolderItem {
 		OnPropertyChanged(nameof(SpaceOverviewString));
 	}
 
-	public override void LoadIcon(LoadDetailsOptions options) {
+	protected override void LoadIcon() {
 		Icon = IconHelper.GetDriveThumbnail(Drive.Name);
 	}
 
@@ -64,7 +64,7 @@ public sealed class DiskDriveItem : FolderItem {
 		throw new NotImplementedException();
 	}
 
-	public override string GetRenameName() {
+	public override string? GetRenameName() {
 		if (Drive.IsReady) {
 			return string.IsNullOrWhiteSpace(Drive.VolumeLabel) ? Type ?? string.Empty : Drive.VolumeLabel;
 		}

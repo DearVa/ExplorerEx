@@ -77,9 +77,9 @@ public class BookmarkItem : FileListViewItem, IFilterable {
 	[DbColumn(nameof(CategoryForeignKey), DbNavigateType.OneToOne)]
 	public virtual BookmarkCategory Category { get; set; } = null!;
 
-	public BookmarkItem() : base(false) { }
+	public BookmarkItem() : base(false, LoadDetailsOptions.Default) { }
 
-	public BookmarkItem(string fullPath, string name, BookmarkCategory category) : base(false) {
+	public BookmarkItem(string fullPath, string name, BookmarkCategory category) : base(false, LoadDetailsOptions.Default) {
 		FullPath = Path.GetFullPath(fullPath);
 		Name = name;
 		Category = category;
@@ -87,11 +87,9 @@ public class BookmarkItem : FileListViewItem, IFilterable {
 		category.AddBookmark(this);
 	}
 
-	public override void LoadAttributes(LoadDetailsOptions options) {
-		throw new InvalidOperationException();
-	}
+	protected override void LoadAttributes() { }
 
-	public override void LoadIcon(LoadDetailsOptions options) {
+	protected override void LoadIcon() {
 		if (FullPath.Length == 3) {
 			IsFolder = true;
 			Icon = GetDriveThumbnail(FullPath);

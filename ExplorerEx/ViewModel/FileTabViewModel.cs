@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -13,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using ExplorerEx.Command;
+using ExplorerEx.Database;
 using ExplorerEx.Model;
 using ExplorerEx.Model.Enums;
 using ExplorerEx.Shell32;
@@ -326,18 +326,14 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			}
 		}
 		if (File.Exists(fullPath)) {
-			item = new FileItem(new FileInfo(fullPath));
+			item = new FileItem(new FileInfo(fullPath), loadDetailsOptions);
 		} else if (Directory.Exists(fullPath)) {
-			item = new FolderItem(new DirectoryInfo(fullPath));
+			item = new FolderItem(new DirectoryInfo(fullPath), loadDetailsOptions);
 		} else {
 			return null;
 		}
 		Items.Add(item);
 		UpdateFolderUI();
-		Task.Run(() => {
-			item.LoadAttributes(loadDetailsOptions);
-			item.LoadIcon(loadDetailsOptions);
-		});
 		return item;
 	}
 
@@ -467,11 +463,11 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	/// <returns></returns>
 	private Task LoadThumbnailsAsync() {
 		switchIconCts?.Cancel();
-		var list = Items.Where(item => item is FileItem).Cast<FileItem>().ToImmutableArray();
+		var list = Items.Where(item => item is FileItem).Cast<FileItem>().ToList();
 		var cts = switchIconCts = new CancellationTokenSource();
 		return Task.Run(() => {
 			foreach (var item in list) {
-				item.LoadIcon(loadDetailsOptions);
+				item.Refresh();
 			}
 		}, cts.Token);
 	}
@@ -483,7 +479,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	/// <returns></returns>
 	private Task SaveViewToDbAsync(FileView? fileView) {
 		var fullPath = FullPath;
-		var dbCtx = App.FileViewDbContext;
+		var dbCtx = DbMain.FileViewDbContext;
 		fileView ??= dbCtx.FirstOrDefault(v => v.FullPath == fullPath);
 		if (fileView == null) {
 			fileView = new FileView {
@@ -588,7 +584,6 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		}
 
 		FileItemCommand.Folder = Folder;
-		Folder.LoadIcon(loadDetailsOptions);
 
 		if (!Folder.IsVirtual) {
 			try {
@@ -613,6 +608,10 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			return false;
 		}
 
+		if (recordHistory) {
+			AddHistory();
+		}
+
 		cts = new CancellationTokenSource();
 		var token = cts.Token;
 		if (token.IsCancellationRequested) {
@@ -629,7 +628,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		FileView? savedView;
 		try {
 			var fullPath = FullPath;
-			savedView = App.FileViewDbContext.FirstOrDefault(v => v.FullPath == fullPath);
+			savedView = DbMain.FileViewDbContext.FirstOrDefault(v => v.FullPath == fullPath);
 			if (savedView != null) { // 如果存储了，那就获取用户定义的视图模式
 				SortBy = savedView.SortBy;
 				IsAscending = savedView.IsAscending;
@@ -674,7 +673,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 
 		try {
 			(fileListViewItems, scrollIntoItem) = await Task.Run(() => {
-				var items = Folder.EnumerateItems(selectedPath, out var selectedItem, token);
+				var items = Folder.EnumerateItems(selectedPath, loadDetailsOptions, out var selectedItem, token);
 				return (items, selectedItem);
 			}, token);
 		} catch (Exception e) {
@@ -702,8 +701,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		Items.Clear();
 		FileView.CommitChange();  // 一旦调用这个，模板就会改变，所以要在清空之后，不然会导致排版混乱和绑定失败
 		loadDetailsOptions.SetPreLoadIconByItemCount(fileListViewItems.Count);
-		LoadDetailsOptions.Current.SetPreLoadIconByItemCount(fileListViewItems.Count);
-		LoadDetailsOptions.Current.UseLargeIcon = loadDetailsOptions.UseLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content;
+		loadDetailsOptions.UseLargeIcon = FileViewType is FileViewType.Icons or FileViewType.Tiles or FileViewType.Content;
 
 		if (fileListViewItems.Count > 0) {
 			Items.AddRange(fileListViewItems);
@@ -716,9 +714,6 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			IsLoading = false;
 		}
 
-		if (recordHistory) {
-			AddHistory();
-		}
 		UpdateFolderUI();
 		UpdateFileUI();
 		if (token.IsCancellationRequested) {
@@ -728,13 +723,6 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 #if DEBUG
 		Trace.WriteLine($"Update UI costs: {sw.ElapsedMilliseconds}ms");
 		sw.Restart();
-#endif
-
-		await LoadDetails(fileListViewItems, loadDetailsOptions, token);
-
-#if DEBUG
-		Trace.WriteLine($"Async load costs: {sw.ElapsedMilliseconds}ms");
-		sw.Stop();
 #endif
 
 		return !token.IsCancellationRequested;
@@ -936,9 +924,9 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 				}
 				try {
 					if (Directory.Exists(fullPath)) {
-						fileListViewItems.Add(new FolderItem(new DirectoryInfo(fullPath)));
+						fileListViewItems.Add(new FolderItem(new DirectoryInfo(fullPath), loadDetailsOptions));
 					} else if (File.Exists(fullPath)) {
-						fileListViewItems.Add(new FileItem(new FileInfo(fullPath)));
+						fileListViewItems.Add(new FileItem(new FileInfo(fullPath), loadDetailsOptions));
 					}
 				} catch (Exception e) {
 					Logger.Exception(e, false);
@@ -956,8 +944,6 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 
 		UpdateFolderUI();
 		UpdateFileUI();
-
-		await LoadDetails(fileListViewItems, loadDetailsOptions, token);
 	}
 
 	private void Watcher_OnError(Exception e) {
@@ -996,41 +982,29 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			if (oldItem == null) {
 				FileSystemItem newItem;
 				if (Directory.Exists(e.FullPath)) {
-					newItem = new FolderItem(new DirectoryInfo(e.FullPath));
+					newItem = new FolderItem(new DirectoryInfo(e.FullPath), loadDetailsOptions);
 				} else if (File.Exists(e.FullPath)) {
-					newItem = new FileItem(new FileInfo(e.FullPath));
+					newItem = new FileItem(new FileInfo(e.FullPath), loadDetailsOptions);
 				} else {
 					return;
 				}
 				Items.Add(newItem);
-				Task.Run(() => {
-					newItem.LoadAttributes(loadDetailsOptions); // TODO: 需要一个专有线程去加载……
-					newItem.LoadIcon(loadDetailsOptions);
-				});
 			} else {
-				Task.Run(() => oldItem.Refresh(loadDetailsOptions)); // TODO: 需要一个专有线程去加载……
+				Task.Run(oldItem.Refresh); // TODO: 需要一个专有线程去加载……
 			}
 			break;
 		}
 		case WatcherChangeTypes.Changed:
 			if (oldItem != null) {
-				Task.Run(() => oldItem.Refresh(loadDetailsOptions)); // TODO: 需要一个专有线程去加载……
+				Task.Run(oldItem.Refresh); // TODO: 需要一个专有线程去加载……
 			}
 			break;
 		case WatcherChangeTypes.Renamed: {
 			FileSystemItem? newItem = null;
 			if (Directory.Exists(e.FullPath)) {
-				newItem = new FolderItem(new DirectoryInfo(e.FullPath));
-				Task.Run(() => { // TODO: 需要一个专有线程去加载……
-					newItem.LoadAttributes(loadDetailsOptions);
-					newItem.LoadIcon(loadDetailsOptions);
-				});
+				newItem = new FolderItem(new DirectoryInfo(e.FullPath), loadDetailsOptions);
 			} else if (File.Exists(e.FullPath)) {
-				newItem = new FileItem(new FileInfo(e.FullPath));
-				Task.Run(() => { // TODO: 需要一个专有线程去加载……
-					newItem.LoadAttributes(loadDetailsOptions);
-					newItem.LoadIcon(loadDetailsOptions);
-				});
+				newItem = new FileItem(new FileInfo(e.FullPath), loadDetailsOptions);
 			}
 			if (newItem == null) {
 				if (oldItem != null) {

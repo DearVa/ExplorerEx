@@ -26,7 +26,7 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 
 	private readonly IntPtr pidl;
 
-	public RecycleBinItem(IntPtr pidl) : base(null!, null!, false) {
+	public RecycleBinItem(IntPtr pidl) : base(false, LoadDetailsOptions.Default) {
 		this.pidl = pidl;
 		Name = GetDetailOf(0) ?? throw new IOException();
 		FullPath = @"$Recycle.Bin\" + Name;
@@ -42,15 +42,15 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 		});
 	}
 
-	public override void LoadAttributes(LoadDetailsOptions options) {
+	protected override void LoadAttributes() {
 		throw new InvalidOperationException();
 	}
 
-	public override void LoadIcon(LoadDetailsOptions options) {
+	protected override void LoadIcon() {
 		var shFileInfo = new ShFileInfo();
 		lock (ShellLock) {
 			var flags = SHGFI.Icon | SHGFI.Pidl;
-			if (options.UseLargeIcon) {
+			if (Options.UseLargeIcon) {
 				flags |= SHGFI.LargeIcon;
 			} else {
 				flags |= SHGFI.SmallIcon;
@@ -167,7 +167,6 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 					}
 					var item = new RecycleBinItem(pidl);
 					Items.Add(item);
-					item.LoadIcon(LoadDetailsOptions.Current);
 				}
 				Marshal.ReleaseComObject(enumFiles);
 				for (var i = itemsCount - 1; i >= 0; i--) {

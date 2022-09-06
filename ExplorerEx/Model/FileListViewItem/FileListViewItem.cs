@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media;
+using ExplorerEx.Database;
 using ExplorerEx.Database.Interface;
 using ExplorerEx.Database.Shared;
 using ExplorerEx.Utils;
@@ -19,27 +20,31 @@ namespace ExplorerEx.Model;
 /// 所有可以显示在<see cref="FileListView"/>中的项目的基类
 /// </summary>
 public abstract class FileListViewItem : INotifyPropertyChanged {
-	protected FileListViewItem(bool isFolder) {
+	protected FileListViewItem(bool isFolder, LoadDetailsOptions options) {
 		defaultIcon = isFolder ? IconHelper.FolderDrawingImage : IconHelper.UnknownFileDrawingImage;
+		Options = options;
 		This = this;
 	}
 
-	protected FileListViewItem(ImageSource defaultIcon) {
+	protected FileListViewItem(ImageSource defaultIcon, LoadDetailsOptions options) {
 		this.defaultIcon = defaultIcon;
+		Options = options;
 		This = this;
 	}
 
-	protected FileListViewItem(string fullPath, string name, bool isFolder) {
+	protected FileListViewItem(string fullPath, string name, bool isFolder, LoadDetailsOptions options) {
 		FullPath = fullPath;
 		Name = name;
 		defaultIcon = isFolder ? IconHelper.FolderDrawingImage : IconHelper.UnknownFileDrawingImage;
+		Options = options;
 		This = this;
 	}
 
-	protected FileListViewItem(string fullPath, string name, ImageSource defaultIcon) {
+	protected FileListViewItem(string fullPath, string name, ImageSource defaultIcon, LoadDetailsOptions options) {
 		FullPath = fullPath;
 		Name = name;
 		this.defaultIcon = defaultIcon;
+		Options = options;
 		This = this;
 	}
 
@@ -51,7 +56,10 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 			if (icon != null) {
 				return icon;
 			}
-			Task.Run(() => LoadIcon(LoadDetailsOptions.Current));  // TODO
+			Task.Run(() => {
+				LoadIcon();
+				LoadAttributes();
+			});  // TODO
 			return defaultIcon;
 		}
 		protected set {
@@ -116,7 +124,7 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	
 	public bool IsFolder { get; protected set; }
 
-	public bool IsBookmarked => App.Container.Resolve<IBookmarkDbContext>().Any(b => b.FullPath == FullPath);
+	public bool IsBookmarked => DbMain.BookmarkDbContext.Any(b => b.FullPath == FullPath);
 	
 	public bool IsSelected {
 		get => isSelected;
@@ -133,9 +141,9 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	/// <summary>
 	/// 加载文件的各项属性
 	/// </summary>
-	public abstract void LoadAttributes(LoadDetailsOptions options);
+	protected abstract void LoadAttributes();
 
-	public abstract void LoadIcon(LoadDetailsOptions options);
+	protected abstract void LoadIcon();
 
 	#region 文件重命名
 	/// <summary>
@@ -183,64 +191,10 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	}
 
 	/// <summary>
-	/// 加载详细信息，包括文件大小、类型、图标等
-	/// </summary>
-	/// <param name="list"></param>
-	/// <param name="token"></param>
-	/// <param name="options"></param>
-	/// <returns></returns>
-	public static async Task LoadDetails(IReadOnlyCollection<FileListViewItem>? list, LoadDetailsOptions options, CancellationToken token) {
-		if (list is { Count: > 0 }) {
-			try {
-				var tasks = Partitioner.Create(list).GetPartitions(Math.Max(App.ProcessorCount, 2)).Select(partition => Task.Run(() => {
-					if (token.IsCancellationRequested) {
-						return Task.FromCanceled(token);
-					}
-					using (partition) {
-						while (partition.MoveNext()) {
-							if (token.IsCancellationRequested) {
-								return Task.FromCanceled(token);
-							}
-
-							partition.Current.LoadAttributes(options);
-						}
-					}
-
-					return Task.CompletedTask;
-				}, token));
-
-				// if (options.PreLoadIcon) {  // 有时候会冲突
-				// 	tasks = tasks.Append(Task.Run(() => {
-				// 		foreach (var item in list) {
-				// 			if (token.IsCancellationRequested) {
-				// 				return Task.FromCanceled(token);
-				// 			}
-				// 
-				// 			item.LoadIcon(options);
-				// 		}
-				// 
-				// 		return Task.CompletedTask;
-				// 	}, token));
-				// }
-
-				await Task.WhenAll(tasks);
-			} catch (TaskCanceledException) {
-				// Ignore
-			} catch (Exception e) {
-				Logger.Exception(e);
-			}
-		}
-	}
-
-
-	/// <summary>
 	/// 加载详细信息时的设置，例如是否使用大图标
 	/// </summary>
 	public class LoadDetailsOptions {
-		public static LoadDetailsOptions Current { get; } = new() {
-			PreLoadIcon = true,
-			UseLargeIcon = false
-		};
+		public static LoadDetailsOptions Default { get; } = new();
 
 		public bool PreLoadIcon { get; set; }
 
@@ -250,6 +204,8 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 			PreLoadIcon = count < 20 * App.ProcessorCount;
 		}
 	}
+
+	public LoadDetailsOptions Options { get; }
 
 	/// <summary>
 	/// 用于更新绑定到自身的东西

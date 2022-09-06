@@ -2,19 +2,14 @@
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using Castle.MicroKernel.Registration;
-using Castle.Windsor;
-using ExplorerEx.Database.Interface;
-using ExplorerEx.Database.SqlSugar;
+using ExplorerEx.Database;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 using ExplorerEx.View;
-using ExplorerEx.Win32;
 using static ExplorerEx.Win32.Win32Interop;
 
 namespace ExplorerEx;
@@ -23,23 +18,18 @@ public partial class App {
 	public static Arguments Args { get; private set; } = null!;
 	public static int ProcessorCount { get; private set; }
 
-	/// <summary>
-	/// 全局实例的注册容器
-	/// </summary>
-	public static IWindsorContainer Container { get; private set; } = null!;
-
-	public static IBookmarkDbContext BookmarkDbContext { get; private set; } = null!;
-	public static IFileViewDbContext FileViewDbContext { get; private set; } = null!;
-
 	private App() { }
 
 	private static bool isRunning;
 	private static Mutex? mutex;
 	private static NotifyIconWindow? notifyIconWindow;
 	private static NotifyMemoryMappedFile? notifyMmf;
-	// private static DispatcherTimer dispatcherTimer;
 
 	protected override async void OnStartup(StartupEventArgs e) {
+#if DEBUG
+		var sw = Stopwatch.StartNew();
+		Trace.WriteLine("Starting up");
+#endif
 		Logger.Initialize();
 
 		AttachConsole(-1);
@@ -70,21 +60,10 @@ public partial class App {
 			return;
 		}
 
-		Container = new WindsorContainer();
-		Container.Register(Component.For<IBookmarkDbContext>().Instance(
-			new BookmarkSugarContext()
-			// new BookmarkEfContext()
-			));
-		BookmarkDbContext = Container.Resolve<IBookmarkDbContext>();
-		Container.Register(Component.For<IFileViewDbContext>().Instance(
-			new FileViewSugarContext()
-			// new FileViewEfContext()
-			));
-		FileViewDbContext = Container.Resolve<IFileViewDbContext>();
-		var loadDataBaseTasks = new[] {
-			BookmarkDbContext.LoadAsync(),
-			FileViewDbContext.LoadAsync()
-		};
+#if DEBUG
+		Trace.WriteLine("Start load database " + sw.ElapsedMilliseconds);
+#endif
+		var loadDbTask = DbMain.Initialize();
 
 		isRunning = true;
 		notifyMmf = new NotifyMemoryMappedFile("ExplorerExIPC", 1024, true);
@@ -99,11 +78,13 @@ public partial class App {
 		Settings.Current.LoadSettings();
 		ChangeTheme(((SolidColorBrush)SystemParameters.WindowGlassBrush).Color, false);
 
-		await Task.WhenAll(loadDataBaseTasks);
-
 		notifyIconWindow = new NotifyIconWindow();
-		//dispatcherTimer = new DispatcherTimer(TimeSpan.FromSeconds(5), DispatcherPriority.Background, LowFrequencyWork, Dispatcher);
-		//dispatcherTimer.Start();
+
+		await loadDbTask;
+#if DEBUG
+		Trace.WriteLine("Database loaded " + sw.ElapsedMilliseconds);
+		sw.Stop();
+#endif
 
 		if (!Args.RunInBackground) {
 			new MainWindow(null).Show();
@@ -166,26 +147,6 @@ public partial class App {
 	}
 
 	/// <summary>
-	/// 使用DispatcherTimer调用的低频工作，10s一次
-	/// </summary>
-	private void LowFrequencyWork(object s, EventArgs e) {
-		if (DateTime.Now.TimeOfDay > new TimeSpan(20, 10, 0)) {
-			var brushes = new ResourceDictionary {
-				Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Basic/Brushes.xaml", UriKind.Absolute)
-			};
-			var newColors = new ResourceDictionary {
-				Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Basic/Colors/ColorsDark.xaml", UriKind.Absolute)
-			};
-			foreach (string brushName in brushes.Keys) {
-				if (Resources[brushName] is SolidColorBrush brush) {
-					var newColorName = brushName[..^5] + "Color";
-					brush.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation((Color)newColors[newColorName], new Duration(TimeSpan.FromMilliseconds(500))));
-				}
-			}
-		}
-	}
-
-	/// <summary>
 	/// 进程间消息传递线程
 	/// </summary>
 	private void IPCWork() {
@@ -206,8 +167,7 @@ public partial class App {
 	protected override void OnExit(ExitEventArgs e) {
 		if (isRunning) {
 			isRunning = false;
-			BookmarkDbContext.Save();
-			FileViewDbContext.Save();
+			DbMain.Save();
 			notifyIconWindow?.NotifyIcon.Dispose();
 			mutex!.Dispose();
 		}

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ExplorerEx.Utils;
+namespace ExplorerEx.Utils.Collections;
 
 /// <summary>
 /// 有容量上限的字典，当容量达到上限值，就会自动删除最早添加的项目。线程安全

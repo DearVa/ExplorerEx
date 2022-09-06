@@ -26,6 +26,7 @@ using System.Windows.Media;
 using System.Diagnostics;
 using System.Windows.Data;
 using System.Windows.Threading;
+using ExplorerEx.Database;
 using hc = HandyControl.Controls;
 using HandyControl.Data;
 using HandyControl.Tools.Interop;
@@ -113,7 +114,7 @@ public sealed partial class MainWindow {
 
 		DataContext = this;
 		InitializeComponent();
-        SideBarBookmarksTreeView.ItemsSource = BookmarkCategoryComboBox.ItemsSource = App.BookmarkDbContext.GetBindable();
+        SideBarBookmarksTreeView.ItemsSource = BookmarkCategoryComboBox.ItemsSource = DbMain.BookmarkDbContext.AsObservableCollection();
 
 		bookmarkItemContextMenuConverter = (FileSystemItemContextMenuConverter)Resources["BookmarkItemContextMenuConverter"];
 		sideBarPcItemContextMenu = (ContextMenu)Resources["SideBarPcItemContextMenu"];
@@ -506,7 +507,7 @@ public sealed partial class MainWindow {
 		if (window.bookmarkPaths == null || window.BookmarkCategory == null) {
 			return;
 		}
-		var dbCtx = App.BookmarkDbContext;
+		var dbCtx = DbMain.BookmarkDbContext;
 		var bookmarkItem = window.bookmarkPaths[window.currentBookmarkIndex];
 		if ((bool)e.NewValue) {
 			var fullPath = Path.GetFullPath(bookmarkItem);
@@ -542,7 +543,6 @@ public sealed partial class MainWindow {
 					var item = new BookmarkItem(bookmarkItem, window.BookmarkName, categoryItem);
 					dbCtx.Add(item);
 					await dbCtx.SaveAsync();
-					item.LoadIcon(FileListViewItem.LoadDetailsOptions.Current);
 				}
 				// await BookmarkManager.BookmarkItems.SaveChangesAsync();
 				// await BookmarkManager.BookmarkCategories.SaveChangesAsync();
@@ -563,7 +563,7 @@ public sealed partial class MainWindow {
 		}
         foreach (var filePath in filePaths) {
 			var fullPath = Path.GetFullPath(filePath);
-			var dbCtx = App.BookmarkDbContext;
+			var dbCtx = DbMain.BookmarkDbContext;
 			var item = dbCtx.FirstOrDefault(b => b.FullPath == fullPath);
 			if (item != null) {
 				dbCtx.Remove(item);

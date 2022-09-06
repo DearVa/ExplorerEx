@@ -16,5 +16,5 @@ public interface IBookmarkDbContext : IDatabase {
 	BookmarkCategory? FirstOrDefault(Expression<Func<BookmarkCategory, bool>> match);
 	void Add(BookmarkCategory category);
 
-	ObservableCollection<BookmarkCategory> GetBindable();
+	ObservableCollection<BookmarkCategory> AsObservableCollection();
 }

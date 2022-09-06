@@ -51,7 +51,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	/// </summary>
 	private readonly string? relativePath;
 
-	private FolderOnlyItem(FolderOnlyItem? parent) : base(IconHelper.FolderDrawingImage) {
+	private FolderOnlyItem(FolderOnlyItem? parent) : base(IconHelper.FolderDrawingImage, LoadDetailsOptions.Default) {
 		if (parent == null) {
 			InitializeChildren();
 			UpdateDriveChildren();
@@ -70,7 +70,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 	/// <param name="zipPath"></param>
 	/// <param name="relativePath"></param>
 	/// <param name="parent"></param>
-	public FolderOnlyItem(string zipPath, string relativePath, FolderOnlyItem parent) : base(null!, null!, true) {
+	public FolderOnlyItem(string zipPath, string relativePath, FolderOnlyItem parent) : base(true, LoadDetailsOptions.Default) {
 		if (!File.Exists(zipPath) || zipPath[^4..] != ".zip") {
 			throw new ArgumentException("Not a zip file");
 		}
@@ -97,7 +97,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 		}
 	}
 
-	public FolderOnlyItem(DirectoryInfo directoryInfo, FolderOnlyItem parent) : base(directoryInfo.FullName, directoryInfo.Name, true) {
+	public FolderOnlyItem(DirectoryInfo directoryInfo, FolderOnlyItem parent) : base(directoryInfo.FullName, directoryInfo.Name, true, LoadDetailsOptions.Default) {
 		Parent = parent;
 		IsFolder = true;
 		// 只看有没有文件夹，不能用FolderUtils.IsEmptyFolder
@@ -106,7 +106,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 		}
 	}
 
-	public FolderOnlyItem(DriveInfo driveInfo): base(driveInfo.Name, DriveUtils.GetFriendlyName(driveInfo), true) {
+	public FolderOnlyItem(DriveInfo driveInfo): base(driveInfo.Name, DriveUtils.GetFriendlyName(driveInfo), true, LoadDetailsOptions.Default) {
 		Parent = Home;
 		IsFolder = true;
 		if (driveInfo.IsReady) {
@@ -120,11 +120,11 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 		actualChildren = new ConcurrentObservableCollection<FolderOnlyItem>();
 	}
 
-	public override void LoadAttributes(LoadDetailsOptions options) {
+	protected override void LoadAttributes() {
 		throw new InvalidOperationException();
 	}
 
-	public override void LoadIcon(LoadDetailsOptions options) {
+	protected override void LoadIcon() {
 		if (zipPath != null) {
 			if (relativePath == string.Empty) {
 				Icon = IconHelper.GetSmallIcon(".zip", true);
@@ -273,7 +273,7 @@ internal sealed class FolderOnlyItem : FileListViewItem {
 								if (token.IsCancellationRequested) {
 									return;
 								}
-								item.LoadIcon(LoadDetailsOptions.Current);
+								item.LoadIcon();
 							}
 						} else {
 							Children = EmptyChildren;

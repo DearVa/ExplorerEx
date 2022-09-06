@@ -37,17 +37,17 @@ internal sealed class HomeFolderItem : FolderItem, ISpecialFolder {
 
 	public override string DisplayText => Name;
 
-	public override void LoadAttributes(LoadDetailsOptions options) {
+	protected override void LoadAttributes() {
 		throw new InvalidOperationException();
 	}
 
-	public override void LoadIcon(LoadDetailsOptions options) { }
+	protected override void LoadIcon() { }
 
 	protected override void InternalRename(string newName) {
 		throw new InvalidOperationException();
 	}
 
-	public override List<FileListViewItem> EnumerateItems(string? selectedPath, out FileListViewItem? selectedItem, CancellationToken token) {
+	public override List<FileListViewItem> EnumerateItems(string? selectedPath, in LoadDetailsOptions options, out FileListViewItem? selectedItem, CancellationToken token) {
 		selectedItem = null;
 		var list = new List<FileListViewItem>();
 		foreach (var drive in DriveInfo.GetDrives()) {

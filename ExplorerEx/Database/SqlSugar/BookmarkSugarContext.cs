@@ -57,7 +57,7 @@ public class BookmarkSugarContext : IBookmarkDbContext {
 
 	public BookmarkItem? FirstOrDefault(Expression<Func<BookmarkItem, bool>> match) => bookmarkCtx.FirstOrDefault(match);
 
-	public ObservableCollection<BookmarkCategory> GetBindable() => categoryCtx.GetBindable();
+	public ObservableCollection<BookmarkCategory> AsObservableCollection() => categoryCtx.GetBindable();
 
 	public void Remove(BookmarkItem bookmark) => bookmarkCtx.Remove(bookmark);
 

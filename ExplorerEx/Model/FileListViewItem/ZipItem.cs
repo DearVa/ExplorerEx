@@ -27,11 +27,11 @@ public class ZipFileItem : FileItem {
 		extension = Path.GetExtension(zipArchiveEntry.Name);
 	}
 
-	public override void LoadAttributes(LoadDetailsOptions options) {
+	protected override void LoadAttributes() {
 		Type = FileUtils.GetFileTypeDescription(extension);
 	}
 
-	public override void LoadIcon(LoadDetailsOptions options) {
+	protected override void LoadIcon() {
 		Icon = IconHelper.GetSmallIcon(extension, true);
 	}
 
@@ -72,7 +72,7 @@ public class ZipFolderItem : FolderItem, IDisposable {
 	/// <param name="zipArchive"></param>
 	/// <param name="fullPath"></param>
 	/// <param name="zipPath"></param>
-	private ZipFolderItem(ZipArchive zipArchive, string fullPath, string zipPath) {
+	private ZipFolderItem(ZipArchive zipArchive, string fullPath, string zipPath) : base(null!, LoadDetailsOptions.Default) {
 		Debug.Assert(fullPath.StartsWith(zipPath));
 		this.zipArchive = zipArchive;
 		FullPath = fullPath;
@@ -84,9 +84,9 @@ public class ZipFolderItem : FolderItem, IDisposable {
 		this.zipPath = zipPath;
 	}
 
-	public override void LoadAttributes(LoadDetailsOptions options) { }
+	protected override void LoadAttributes() { }  // TODO
 
-	public override void LoadIcon(LoadDetailsOptions options) {
+	protected override void LoadIcon() {
 		if (relativePath == string.Empty) {
 			Icon = IconHelper.GetSmallIcon(".zip", true);
 		} else if (hasItems) {
@@ -96,7 +96,7 @@ public class ZipFolderItem : FolderItem, IDisposable {
 		}
 	}
 
-	public override List<FileListViewItem> EnumerateItems(string? selectedPath, out FileListViewItem? selectedItem, CancellationToken token) {
+	public override List<FileListViewItem> EnumerateItems(string? selectedPath, in LoadDetailsOptions options, out FileListViewItem? selectedItem, CancellationToken token) {
 		var showHidden = Settings.Current[Settings.CommonSettings.ShowHiddenFilesAndFolders].GetBoolean();
 		var showSystem = Settings.Current[Settings.CommonSettings.ShowProtectedSystemFilesAndFolders].GetBoolean();
 
