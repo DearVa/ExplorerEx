@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 using ExplorerEx.Database;
-using ExplorerEx.Database.Interface;
 using ExplorerEx.Database.Shared;
 using ExplorerEx.Utils;
 using ExplorerEx.View.Controls;
@@ -88,12 +82,12 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 	private double opacity = 1d;
 
 	[DbColumn(IsPrimaryKey = true, MaxLength = 260)]
-	public virtual string FullPath { get; protected init; } = null!;
+	public string FullPath { get; protected init; } = null!;
 	
 	public abstract string DisplayText { get; }
 
 	[DbColumn]
-	public virtual string Name { get; set; } = null!;
+	public string Name { get; set; } = null!;
 
 	/// <summary>
 	/// 类型描述，自动更新UI
@@ -205,7 +199,7 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 		}
 	}
 
-	public LoadDetailsOptions Options { get; }
+	protected LoadDetailsOptions Options { get; }
 
 	/// <summary>
 	/// 用于更新绑定到自身的东西

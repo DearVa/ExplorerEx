@@ -758,7 +758,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		var startIndex = SelectedItems.Count > 1 ? 0 : SelectedIndex + 1;
 		for (var i = startIndex; i < Items.Count; i++) {
 			var item = (FileListViewItem)Items[i];
-			if (item.DisplayText[..s.Length].ToLower() == s) {
+			if (item.DisplayText.Length >= s.Length && item.DisplayText[..s.Length].ToLower() == s) {
 				UnselectAll();
 				ScrollIntoView(item);
 				item.IsSelected = true;
@@ -767,7 +767,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		}
 		for (var i = 0; i < startIndex; i++) {
 			var item = (FileListViewItem)Items[i];
-			if (item.DisplayText[..s.Length].ToLower() == s) {
+			if (item.DisplayText.Length >= s.Length && item.DisplayText[..s.Length].ToLower() == s) {
 				UnselectAll();
 				ScrollIntoView(item);
 				item.IsSelected = true;
@@ -776,7 +776,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		}
 		for (var i = startIndex; i < Items.Count; i++) {
 			var item = (FileListViewItem)Items[i];
-			if (item.DisplayText.ToLower().Contains(s)) {
+			if (item.DisplayText.Length >= s.Length && item.DisplayText.ToLower().Contains(s)) {
 				UnselectAll();
 				ScrollIntoView(item);
 				item.IsSelected = true;

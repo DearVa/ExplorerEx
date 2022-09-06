@@ -48,12 +48,10 @@
 
         <!-- ReSharper disable once Xaml.RedundantResource -->
         <ContextMenu x:Key="BookmarkCategoryItemContextMenu" d:DataContext="{d:DesignInstance v:MainWindow}">
-            <MenuItem CommandParameter="{Binding RelativeSource={RelativeSource Self}}"
-                      Command="{Binding EditBookmarkCommand}"
-                      Icon="{DynamicResource EditDrawingImage}" Header="{u:Lang Edit}"/>
-            <MenuItem CommandParameter="Delete"
-                      Command="{Binding BookmarkItemCommand}"
-                      Icon="{DynamicResource DeleteDrawingImage}" Header="{u:Lang Delete}"/>
+            <MenuItem Icon="{DynamicResource EditDrawingImage}" Header="{u:Lang Edit}"
+                      Click="ModifyBookmarkCategoryMenuItem_OnClick"/>
+            <MenuItem Icon="{DynamicResource DeleteDrawingImage}" Header="{u:Lang Delete}"
+                      Click="DeleteBookmarkCategoryMenuItem_OnClick"/>
         </ContextMenu>
 
         <ContextMenu x:Key="BookmarkFileItemContextMenu" d:DataContext="{d:DesignInstance v:MainWindow}">
@@ -310,7 +308,7 @@
                         </TabItem.Header>
                         <ct:SideBarContent Header="{u:Lang ThisPC}" ShowSearchButton="False">
                             <ct:SideBarContent.Content>
-                                <TreeView BorderThickness="0"
+                                <TreeView BorderThickness="0" Background="Transparent"
                                           ItemsSource="{Binding Path=Children, Source={x:Static m:FolderOnlyItem.Home}}">
                                     <TreeView.ItemTemplate>
                                         <HierarchicalDataTemplate ItemsSource="{Binding Children, Mode=OneWay}">
@@ -361,7 +359,7 @@
                         </ct:SideBarContent.DragTip>-->
                         </ct:SideBarContent>
                     </TabItem>
-                    <TabItem Width="50" Padding="0">
+                    <!--<TabItem Width="50" Padding="0">
                         <TabItem.Header>
                             <hc:SimplePanel Height="40" ToolTip="{u:Lang Network}" ToolTipService.InitialShowDelay="300"
                                         AllowDrop="True" DragEnter="TabItem_OnDragEnter">
@@ -380,7 +378,7 @@
                             <Grid Grid.Row="1" Background="{DynamicResource SecondaryRegionBrush}">
                             </Grid>
                         </Grid>
-                    </TabItem>
+                    </TabItem>-->
                     <TabItem Width="50" Padding="0">
                         <TabItem.Header>
                             <hc:SimplePanel Height="40" ToolTip="{u:Lang RecycleBin}" ToolTipService.InitialShowDelay="300" 
@@ -411,7 +409,7 @@
                                 </StackPanel>
                             </ct:SideBarContent.HeaderContent>
                             <ct:SideBarContent.Content>
-                                <ListBox BorderThickness="0" SelectionMode="Extended"
+                                <ListBox BorderThickness="0" SelectionMode="Extended" Background="Transparent"
                                          ItemsSource="{Binding AsObservable, Source={x:Static m:RecycleBinItem.Items}}">
                                     <ListBox.ItemContainerStyle>
                                         <Style TargetType="ListBoxItem" BasedOn="{StaticResource ListBoxItemBaseStyle}">
@@ -485,7 +483,7 @@
                             </ct:SideBarContent.DragTip>
                         </ct:SideBarContent>
                     </TabItem>
-                    <TabItem Width="50" Padding="0">
+                    <!--<TabItem Width="50" Padding="0">
                         <TabItem.Header>
                             <hc:SimplePanel Height="40" ToolTip="OneDrive" ToolTipService.InitialShowDelay="300" 
                                         AllowDrop="True" DragEnter="TabItem_OnDragEnter">
@@ -504,7 +502,7 @@
                             <Grid Grid.Row="1" Background="{DynamicResource SecondaryRegionBrush}">
                             </Grid>
                         </Grid>
-                    </TabItem>
+                    </TabItem>-->
                 </ct:FluentTabControl>
 
                 <Popup IsOpen="{Binding IsAddToBookmarkShow, Mode=TwoWay}" PopupAnimation="Fade" AllowsTransparency="True" 

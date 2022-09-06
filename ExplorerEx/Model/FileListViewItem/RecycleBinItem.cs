@@ -42,9 +42,7 @@ public sealed class RecycleBinItem : FileListViewItem, IFilterable {
 		});
 	}
 
-	protected override void LoadAttributes() {
-		throw new InvalidOperationException();
-	}
+	protected override void LoadAttributes() { }
 
 	protected override void LoadIcon() {
 		var shFileInfo = new ShFileInfo();

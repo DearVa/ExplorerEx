@@ -26,18 +26,4 @@ public class DbColumn : Attribute {
 	/// 存储时的最大长度
 	/// </summary>
 	public int MaxLength { get; set; } = -1;
-
-	/// <summary>
-	/// 说明是一个映射，和IsPrimaryKey相冲突，只能应用在<see cref="DbProperty&lt;"/>上
-	/// </summary>
-	public string? NavigateTo { get; set; }
-
-	public DbNavigateType NavigateType { get; set; }
-
-	public DbColumn() { }
-
-	public DbColumn(string navigateTo, DbNavigateType navigateType) {
-		NavigateTo = navigateTo;
-		NavigateType = navigateType;
-	}
 }

@@ -1,6 +1,17 @@
-﻿using System;
+﻿using ExplorerEx.Command;
+using ExplorerEx.Converter;
+using ExplorerEx.Database;
+using ExplorerEx.Model;
+using ExplorerEx.Shell32;
+using ExplorerEx.Utils;
+using ExplorerEx.View.Controls;
+using ExplorerEx.Win32;
+using HandyControl.Tools;
+using HandyControl.Tools.Interop;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -8,28 +19,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interop;
-using ExplorerEx.Command;
-using ExplorerEx.Converter;
-using ExplorerEx.Model;
-using ExplorerEx.Shell32;
-using ExplorerEx.Utils;
-using ExplorerEx.View.Controls;
-using ExplorerEx.Win32;
-using HandyControl.Tools;
-using static ExplorerEx.Win32.Win32Interop;
-using static ExplorerEx.Shell32.Shell32Interop;
-using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
-using TextBox = HandyControl.Controls.TextBox;
 using System.Windows.Media;
-using System.Diagnostics;
-using System.Windows.Data;
 using System.Windows.Threading;
-using ExplorerEx.Database;
+using static ExplorerEx.Shell32.Shell32Interop;
+using static ExplorerEx.Win32.Win32Interop;
+using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
 using hc = HandyControl.Controls;
-using HandyControl.Data;
-using HandyControl.Tools.Interop;
+using TextBox = HandyControl.Controls.TextBox;
 
 namespace ExplorerEx.View;
 
@@ -81,13 +80,15 @@ public sealed partial class MainWindow {
 	/// 侧边栏“此电脑”项目的右键菜单
 	/// </summary>
 	private readonly ContextMenu sideBarPcItemContextMenu;
-
+	/// <summary>
+	/// 侧边栏“收藏夹”仓库的右键菜单
+	/// </summary>
 	private readonly ContextMenu bookmarkCategoryItemContextMenu;
 
 	public MainWindow(string? startupPath, bool startUpLoad = true) {
 		this.startupPath = startupPath;
 		All.Add(this);
-        
+
 		var screenWidth = SystemParameters.PrimaryScreenWidth;
 		var screenHeight = SystemParameters.PrimaryScreenHeight;
 		Width = Math.Min(ConfigHelper.LoadInt("WindowWidth", 1200), screenWidth);
@@ -114,7 +115,7 @@ public sealed partial class MainWindow {
 
 		DataContext = this;
 		InitializeComponent();
-        SideBarBookmarksTreeView.ItemsSource = BookmarkCategoryComboBox.ItemsSource = DbMain.BookmarkDbContext.AsObservableCollection();
+		SideBarBookmarksTreeView.ItemsSource = BookmarkCategoryComboBox.ItemsSource = DbMain.BookmarkDbContext.AsObservableCollection();
 
 		bookmarkItemContextMenuConverter = (FileSystemItemContextMenuConverter)Resources["BookmarkItemContextMenuConverter"];
 		sideBarPcItemContextMenu = (ContextMenu)Resources["SideBarPcItemContextMenu"];
@@ -134,11 +135,8 @@ public sealed partial class MainWindow {
 			TabControlProvider = () => FileTabControl.MouseOverTabControl
 		};
 		EditBookmarkCommand = new SimpleCommand(e => {
-			var contextMenu = e.FindParent<ContextMenu>()!;
-			if (contextMenu.GetValue(FileItemAttach.FileItemProperty) is FileListViewItem item) {
+			if (e.FindParent<ContextMenu>().GetValue(FileItemAttach.FileItemProperty) is FileListViewItem item) {
 				AddToBookmarks(item.FullPath);
-			} else if (contextMenu.GetValue(CustomDataAttach.DataProperty) is BookmarkCategory category) {
-
 			}
 		});
 
@@ -176,11 +174,13 @@ public sealed partial class MainWindow {
 		Hwnd = HwndSource.FromHwnd(new WindowInteropHelper(this).EnsureHandle())!;
 		Hwnd.AddHook(WndProc);
 
+		// 取消控制按钮
 		SetWindowLong(Hwnd.Handle, GWL_STYLE, GetWindowLong(Hwnd.Handle, GWL_STYLE) & ~WS_SYSMENU);
 
 		SplitGrid = new SplitGrid(this, null);
 		ContentGrid.Children.Add(SplitGrid);
 
+		// 主题
 		Settings.ThemeChanged += ChangeTheme;
 		ChangeTheme();
 
@@ -211,9 +211,8 @@ public sealed partial class MainWindow {
 					sideBarPcItemContextMenu.IsOpen = true;
 					break;
 				}
-			} else {
-				var bookmarkCategory = (BookmarkCategory)frameworkElement.DataContext;
-				bookmarkCategoryItemContextMenu.SetValue(CustomDataAttach.DataProperty, bookmarkCategory);
+			} else {  // 仓库
+				bookmarkCategoryItemContextMenu.DataContext = frameworkElement.DataContext;
 				bookmarkCategoryItemContextMenu.IsOpen = true;
 			}
 			e.Handled = true;
@@ -527,7 +526,7 @@ public sealed partial class MainWindow {
 				if (string.IsNullOrWhiteSpace(category)) {
 					category = "DefaultBookmark".L();
 				}
-                var categoryItem = dbCtx.FirstOrDefault((BookmarkCategory bc) => bc.Name == category);
+				var categoryItem = dbCtx.FirstOrDefault((BookmarkCategory bc) => bc.Name == category);
 				if (categoryItem == null) {
 					categoryItem = new BookmarkCategory(category);
 					dbCtx.Add(categoryItem);
@@ -538,14 +537,11 @@ public sealed partial class MainWindow {
 					dbBookmark.Name = window.BookmarkName;
 					dbBookmark.OnPropertyChanged(nameof(dbBookmark.Name));
 					dbBookmark.Category = categoryItem;
-					await dbCtx.SaveAsync();
 				} else {
 					var item = new BookmarkItem(bookmarkItem, window.BookmarkName, categoryItem);
 					dbCtx.Add(item);
-					await dbCtx.SaveAsync();
 				}
-				// await BookmarkManager.BookmarkItems.SaveChangesAsync();
-				// await BookmarkManager.BookmarkCategories.SaveChangesAsync();
+				await dbCtx.SaveAsync();
 				foreach (var updateItem in All.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
 					updateItem.OnPropertyChanged(nameof(updateItem.IsBookmarked));
 				}
@@ -561,7 +557,7 @@ public sealed partial class MainWindow {
 		if (filePaths.Length == 0) {
 			return;
 		}
-        foreach (var filePath in filePaths) {
+		foreach (var filePath in filePaths) {
 			var fullPath = Path.GetFullPath(filePath);
 			var dbCtx = DbMain.BookmarkDbContext;
 			var item = dbCtx.FirstOrDefault(b => b.FullPath == fullPath);
@@ -604,6 +600,8 @@ public sealed partial class MainWindow {
 	}
 
 	#endregion
+
+	#region 侧边栏
 
 	private void OnDragAreaMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
 		DragMove();
@@ -708,6 +706,20 @@ public sealed partial class MainWindow {
 		AddToBookmarks(filePaths);
 	}
 
+	private void ModifyBookmarkCategoryMenuItem_OnClick(object sender, RoutedEventArgs e) {
+		new ContentDialog {
+			Title = "Sorry".L(),
+			Content = "ComingSoon".L()
+		}.Show(this);
+	}
+
+	private void DeleteBookmarkCategoryMenuItem_OnClick(object sender, RoutedEventArgs e) {
+		if (ContentDialog.Ask("#DeleteBookmarkCategory".L(), null, this) != ContentDialog.ContentDialogResult.Primary) {
+			return;
+		}
+		(bookmarkCategoryItemContextMenu.DataContext as BookmarkCategory)!.Delete();
+	}
+
 	private void RecycleBinSideBarContent_OnFileDrop(string[] filePaths) {
 		try {
 			FileUtils.FileOperation(FileOpType.Delete, filePaths);
@@ -750,6 +762,8 @@ public sealed partial class MainWindow {
 			Content = SettingsPanel
 		}.Show(this);
 	}
+
+	#endregion
 
 	#region Overrides
 
@@ -867,7 +881,8 @@ public sealed partial class MainWindow {
 	}
 
 	protected override void OnPreviewTextInput(TextCompositionEventArgs e) {
-		if (RootPanel.Children.Count == 2 && !string.IsNullOrWhiteSpace(e.Text) && e.OriginalSource is not TextBox and not AddressBar) {  // 没有打开任何对话框
+		if ((RootPanel.Children.Count == 2 || !IsAddToBookmarkShow) &&
+			!string.IsNullOrWhiteSpace(e.Text) && e.OriginalSource is not TextBox and not AddressBar) {  // 没有打开任何对话框
 			var mouseOverTabControl = FileTabControl.MouseOverTabControl;
 			if (mouseOverTabControl != null) {
 				var fileListView = mouseOverTabControl.SelectedTab.FileListView;

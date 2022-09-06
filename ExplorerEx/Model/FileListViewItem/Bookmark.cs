@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Media;
 using ExplorerEx.Converter;
+using ExplorerEx.Database;
 using ExplorerEx.Database.Shared;
 using ExplorerEx.Utils;
 using static ExplorerEx.Utils.IconHelper;
@@ -16,37 +17,38 @@ namespace ExplorerEx.Model;
 [DbTable(TableName = "BookmarkCategoryDbSet")]
 public class BookmarkCategory : NotifyPropertyChangedBase {
 	[DbColumn(IsPrimaryKey = true)]
-	public virtual string Name { get; set; } = null!;
+	public string Name {
+		get => name;
+		set => SetField(ref name, value);
+	}
+
+	private string name = null!;
 
 	/// <summary>
 	/// 在Binding里使用
 	/// </summary>
 	[DbColumn]
-	public virtual bool IsExpanded {
+	public bool IsExpanded {
 		get => isExpanded;
-		set {
-			if (isExpanded != value) {
-				isExpanded = value;
-				OnPropertyChanged();
-			}
-		}
+		set => SetField(ref isExpanded, value);
 	}
 
 	private bool isExpanded;
 
 	public ImageSource Icon => Children is { Count: > 0 } ? FolderDrawingImage : EmptyFolderDrawingImage;
 
-	[DbColumn(nameof(BookmarkItem.CategoryForeignKey), DbNavigateType.OneToMany)]
-	public virtual ObservableCollection<BookmarkItem>? Children { get; set; }
+	public ObservableCollection<BookmarkItem> Children => children ??= new ObservableCollection<BookmarkItem>(DbMain.BookmarkDbContext.QueryBookmarkItems(name));
+
+	private ObservableCollection<BookmarkItem>? children;
 
 	public BookmarkCategory() { }
 
 	public BookmarkCategory(string name) {
 		Name = name;
+		isExpanded = true;
 	}
 
 	public void AddBookmark(BookmarkItem item) {
-		Children ??= new ObservableCollection<BookmarkItem>();
 		Children.Add(item);
 		OnPropertyChanged(nameof(Children));
 		OnPropertyChanged(nameof(Icon));
@@ -54,6 +56,18 @@ public class BookmarkCategory : NotifyPropertyChangedBase {
 
 	public override string ToString() {
 		return Name;
+	}
+
+	/// <summary>
+	/// 删除
+	/// </summary>
+	public void Delete() {
+		foreach (var bookmarkItem in Children) {
+			DbMain.BookmarkDbContext.Remove(bookmarkItem);
+		}
+		DbMain.BookmarkDbContext.Save();  // TODO
+		DbMain.BookmarkDbContext.Remove(this);
+		DbMain.BookmarkDbContext.Save();
 	}
 }
 
@@ -69,13 +83,21 @@ public class BookmarkItem : FileListViewItem, IFilterable {
 	/// 不要设置这个的值
 	/// </summary>
 	[DbColumn]
-	public virtual string CategoryForeignKey { get; set; } = null!;
+	public string CategoryForeignKey { get; set; } = null!;
 
-	/// <summary>
-	/// 通过自己的外键来找
-	/// </summary>
-	[DbColumn(nameof(CategoryForeignKey), DbNavigateType.OneToOne)]
-	public virtual BookmarkCategory Category { get; set; } = null!;
+	public BookmarkCategory Category {
+		get => category ??= DbMain.BookmarkDbContext.QueryBookmarkCategory(CategoryForeignKey);
+		set {
+			if (category != value) {
+				category?.Children.Remove(this);
+				CategoryForeignKey = value.Name;
+				category = value;
+				category.Children.Add(this);
+			}
+		}
+	}
+
+	private BookmarkCategory? category;
 
 	public BookmarkItem() : base(false, LoadDetailsOptions.Default) { }
 
@@ -83,7 +105,6 @@ public class BookmarkItem : FileListViewItem, IFilterable {
 		FullPath = Path.GetFullPath(fullPath);
 		Name = name;
 		Category = category;
-		CategoryForeignKey = category.Name;  // 不管了先设置上
 		category.AddBookmark(this);
 	}
 

@@ -720,20 +720,11 @@ For the application to run properly, it's recommanded that you first extract all
   <data name="PleaseReadCarefully" xml:space="preserve">
     <value>Please Read Carefully!</value>
   </data>
-  <data name="#SetExplorerExAsDefaultInstructions0" xml:space="preserve">
-    <value>ExplorerEx is still in development. In order to protect your safety, the next operation will be slightly cumbersome. 
-After you click "OK", a file named "Delete ExplorerEx Proxy.reg" will be created on the desktop. You can move or copy it to any location, but please KEEP it properly. If there is any problem, just double-click to open the file and select "OK" in the pop-up dialog box to reset the default file manager.</value>
+  <data name="#SetExplorerExAsDefaultInstructions" xml:space="preserve">
+    <value>After you click "OK", a file named "Delete ExplorerEx Proxy.reg" will be created on the desktop. You can move or copy it to any location, but please KEEP it properly. If there is any problem, just double-click to open the file and select "OK" in the pop-up dialog box to reset the default file manager.</value>
   </data>
   <data name="SetExplorerExAsDefaultFailReg" xml:space="preserve">
     <value>Unable to create file on desktop, aborting. Your default file manager has NOT been changed.</value>
-  </data>
-  <data name="#SetExplorerExAsDefaultInstructions1" xml:space="preserve">
-    <value>The file has been created on the desktop. Please confirm whether it exists. If it does NOT exist, you can click "Cancel" to abort, and your default file manager will NOT be changed.</value>
-  </data>
-  <data name="#SetExplorerExAsDefaultInstructions2" xml:space="preserve">
-    <value>Next, after you click "OK", the registry editor may ask you for administrator permission. Please allow me to pass. Please note that do not move the installation directory of this program after setting, otherwise it will become invalid.
-
-Enjoy it :)</value>
   </data>
   <data name="#UnsetExplorerExAsDefaultInstructions" xml:space="preserve">
     <value>Failed to reset automatically. Remember "Delete ExplorerEx Proxy.reg"? You can double-click it to open it at any time, and select "OK" in the pop-up dialog box to restore it to the default.
@@ -757,5 +748,14 @@ Can't find it? Don't worry, click "yes" and I will regenerate one on the desktop
   </data>
   <data name="#SetExplorerExAsDefaultFailReg" xml:space="preserve">
     <value>Failed to create the file, aborting.</value>
+  </data>
+  <data name="#DeleteBookmarkCategory" xml:space="preserve">
+    <value>Delete a bookmark category will also delete it's bookmarks. You can't undo this operation. Are you sure?</value>
+  </data>
+  <data name="ComingSoon" xml:space="preserve">
+    <value>Coming soom</value>
+  </data>
+  <data name="Sorry" xml:space="preserve">
+    <value>Sorry</value>
   </data>
 </root>

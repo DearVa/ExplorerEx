@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace ExplorerEx.Win32;
@@ -237,6 +235,9 @@ public static class Win32Interop {
 		}
 		return letter;
 	}
+
+	[DllImport(Kernel32)]
+	public static extern uint GetFileAttributesW(IntPtr lpFileName);
 
 	#region 亚克力/云母效果
 
@@ -551,6 +552,12 @@ public static class Win32Interop {
 
 	[DllImport(Kernel32, CharSet = CharSet.Unicode)]
 	public static extern int ClosePackageInfo(IntPtr pPackageInfo);
+
+	#endregion
+
+	#region 菜单
+
+	
 
 	#endregion
 

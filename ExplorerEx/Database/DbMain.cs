@@ -4,7 +4,7 @@ using ExplorerEx.Database.SqlSugar;
 
 namespace ExplorerEx.Database; 
 
-internal class DbMain {
+internal static class DbMain {
 	public static IBookmarkDbContext BookmarkDbContext { get; }
 
 	public static IFileViewDbContext FileViewDbContext { get; }

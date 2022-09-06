@@ -190,6 +190,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 Delete a bookmark category will also delete it&apos;s bookmarks. You can&apos;t undo this operation. Are you sure? 的本地化字符串。
+        /// </summary>
+        internal static string _DeleteBookmarkCategory {
+            get {
+                return ResourceManager.GetString("#DeleteBookmarkCategory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Double click in the blank space to go to upper level. 的本地化字符串。
         /// </summary>
         internal static string _DoubleClickGoUpperLevelDescription {
@@ -348,32 +357,11 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 ExplorerEx is still in development. In order to protect your safety, the next operation will be slightly cumbersome. 
-        ///After you click &quot;OK&quot;, a file named &quot;Delete ExplorerEx Proxy.reg&quot; will be created on the desktop. You can move or copy it to any location, but please KEEP it properly. If there is any problem, just double-click to open the file and select &quot;OK&quot; in the pop-up dialog box to reset the default file manager. 的本地化字符串。
+        ///   查找类似 After you click &quot;OK&quot;, a file named &quot;Delete ExplorerEx Proxy.reg&quot; will be created on the desktop. You can move or copy it to any location, but please KEEP it properly. If there is any problem, just double-click to open the file and select &quot;OK&quot; in the pop-up dialog box to reset the default file manager. 的本地化字符串。
         /// </summary>
-        internal static string _SetExplorerExAsDefaultInstructions0 {
+        internal static string _SetExplorerExAsDefaultInstructions {
             get {
-                return ResourceManager.GetString("#SetExplorerExAsDefaultInstructions0", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 The file has been created on the desktop. Please confirm whether it exists. If it does NOT exist, you can click &quot;Cancel&quot; to abort, and your default file manager will NOT be changed. 的本地化字符串。
-        /// </summary>
-        internal static string _SetExplorerExAsDefaultInstructions1 {
-            get {
-                return ResourceManager.GetString("#SetExplorerExAsDefaultInstructions1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Next, after you click &quot;OK&quot;, a file named &quot;Set ExplorerEx Proxy.reg&quot; will be created on the desktop. You just need to double-click to open it and select &quot;OK&quot; in the pop-up dialog box to set explorerex as the default file manager, and then delete the file. Please note that do not move the installation directory of this program after setting, otherwise it will become invalid.
-        ///
-        ///Enjoy it :) 的本地化字符串。
-        /// </summary>
-        internal static string _SetExplorerExAsDefaultInstructions2 {
-            get {
-                return ResourceManager.GetString("#SetExplorerExAsDefaultInstructions2", resourceCulture);
+                return ResourceManager.GetString("#SetExplorerExAsDefaultInstructions", resourceCulture);
             }
         }
         
@@ -411,7 +399,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 Remember &quot;Delete ExplorerEx Proxy.reg&quot;? You can double-click it to open it at any time, and select &quot;OK&quot; in the pop-up dialog box to restore it to the default.
+        ///   查找类似 Failed to reset automatically. Remember &quot;Delete ExplorerEx Proxy.reg&quot;? You can double-click it to open it at any time, and select &quot;OK&quot; in the pop-up dialog box to restore it to the default.
         ///
         ///Can&apos;t find it? Don&apos;t worry, click &quot;yes&quot; and I will regenerate one on the desktop. 的本地化字符串。
         /// </summary>
@@ -780,6 +768,15 @@ namespace ExplorerEx.Strings {
         internal static string ColorMode_Light {
             get {
                 return ResourceManager.GetString("ColorMode-Light", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Coming soom 的本地化字符串。
+        /// </summary>
+        internal static string ComingSoon {
+            get {
+                return ResourceManager.GetString("ComingSoon", resourceCulture);
             }
         }
         
@@ -2004,6 +2001,15 @@ namespace ExplorerEx.Strings {
         internal static string SolidColor {
             get {
                 return ResourceManager.GetString("SolidColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Sorry 的本地化字符串。
+        /// </summary>
+        internal static string Sorry {
+            get {
+                return ResourceManager.GetString("Sorry", resourceCulture);
             }
         }
         

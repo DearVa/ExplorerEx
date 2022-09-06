@@ -145,11 +145,11 @@ public class FileItemCommand : ICommand {
 				break;
 			}
 			case "Delete": { // 删除一个或多个文件，按住shift就是强制删除
-				if (Folder.IsReadonly) {
-					break;
-				}
 				var items = Items;
 				if (items.Count == 0) {
+					break;
+				}
+				if (Folder.IsReadonly) {
 					break;
 				}
 				if ((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift) { // 没有按Shift

@@ -767,20 +767,11 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="PleaseReadCarefully" xml:space="preserve">
     <value>请务必仔细阅读！</value>
   </data>
-  <data name="#SetExplorerExAsDefaultInstructions0" xml:space="preserve">
-    <value>ExplorerEx尚处于开发阶段，为了保护你的安全，接下来的操作会略为繁琐。
-当你点击“好”之后，桌面上会创建一个名为“Delete ExplorerEx Proxy.reg”的文件，你可以将其移动或者复制到任何位置，但请妥善保管它。如果出现任何问题，只需双击打开该文件，并在弹出的对话框中选择“确定”，即可重置默认文件管理器。</value>
+  <data name="#SetExplorerExAsDefaultInstructions" xml:space="preserve">
+    <value>当你点击“好”之后，桌面上会创建一个名为“Delete ExplorerEx Proxy.reg”的文件，你可以将其移动或者复制到任何位置，但请妥善保管它。如果出现任何问题，只需双击打开该文件，并在弹出的对话框中选择“确定”，即可重置默认文件管理器。</value>
   </data>
   <data name="SetExplorerExAsDefaultFailReg" xml:space="preserve">
     <value>无法在桌面上创建文件，中止，你的默认文件管理器没有被更改。</value>
-  </data>
-  <data name="#SetExplorerExAsDefaultInstructions1" xml:space="preserve">
-    <value>文件已经在桌面上创建，请确认是否存在。如果不存在，你可以点击“取消”来中止，你的默认文件管理器将不会被更改。</value>
-  </data>
-  <data name="#SetExplorerExAsDefaultInstructions2" xml:space="preserve">
-    <value>接下来，当你点击“好”之后，注册表编辑器可能会向你索要管理员权限，请允许通过。请注意，设置之后请勿再移动本程序的安装目录，否则会失效。
-
-尽情享受吧~</value>
   </data>
   <data name="#UnsetExplorerExAsDefaultInstructions" xml:space="preserve">
     <value>自动设置失败了，还记得“Delete ExplorerEx Proxy.reg”吗？你可以随时双击打开它，并在弹出的对话框中选择“确定”来恢复为默认。
@@ -801,5 +792,14 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name="#SetExplorerExAsDefaultFailReg" xml:space="preserve">
     <value>文件创建失败，中止。</value>
+  </data>
+  <data name="#DeleteBookmarkCategory" xml:space="preserve">
+    <value>删除书签分类会导致其子项也被删除，且不可恢复，确认要继续吗？</value>
+  </data>
+  <data name="ComingSoon" xml:space="preserve">
+    <value>敬请期待</value>
+  </data>
+  <data name="Sorry" xml:space="preserve">
+    <value>很抱歉</value>
   </data>
 </root>

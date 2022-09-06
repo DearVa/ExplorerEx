@@ -19,7 +19,7 @@ public class Long2FileSizeConverter : IValueConverter {
 
 	public static string StaticConvert(long value) {
 		return value switch {
-			< 0 => Properties.Langs.Lang.UnknownSize,
+			< 0 => string.Empty,
 			< 1024 => $"{value} B",
 			< 1048576 => $"{value / 1024.0:0.00} KB",
 			< 1073741824 => $"{value / 1048576.0:0.00} MB",
