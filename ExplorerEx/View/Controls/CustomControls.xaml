@@ -213,9 +213,13 @@
                                     <ItemsControl.ItemTemplate>
                                         <ItemContainerTemplate>
                                             <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance m:FolderOnlyItem}">
-                                                <Button Padding="3" Content="{Binding DisplayText, Mode=OneWay}"
+                                                <Button Padding="3"
                                                         Command="{Binding ItemClickedCommand, RelativeSource={RelativeSource AncestorType=ct:AddressBar}}"
-                                                        CommandParameter="{Binding}" Style="{StaticResource ButtonTransparent}"/>
+                                                        CommandParameter="{Binding}" Style="{StaticResource ButtonTransparent}">
+                                                    <Button.Content>
+                                                        <TextBlock Text="{Binding DisplayText, Mode=OneWay}"/>
+                                                    </Button.Content>
+                                                </Button>
                                                 <ToggleButton x:Name="ExpandButton" Padding="3" BorderThickness="0" hc:IconElement.Icon="{StaticResource RightGeometry}"
                                                               hc:IconElement.Width="5" hc:IconSwitchElement.IconSelected="{StaticResource DownGeometry}"
                                                               IsChecked="{Binding IsExpanded, Mode=TwoWay}" Style="{StaticResource ToggleButtonTransparent}"/>
@@ -341,8 +345,8 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <Grid Grid.ColumnSpan="3" x:Name="mainBorder">
-                            <Border Margin="0" x:Name="mouseOverBorder" CornerRadius="5" Background="{DynamicResource SecondaryRegionBrush}" Opacity="0" />
-                            <Border x:Name="selectedGrid" Visibility="Collapsed" CornerRadius="5" Background="{DynamicResource RegionBrush}" />
+                            <Border Margin="0" x:Name="mouseOverBorder" CornerRadius="5" Background="{DynamicResource RegionBrush}" Opacity="0"/>
+                            <Border x:Name="selectedGrid" Visibility="Collapsed" CornerRadius="5" Background="{DynamicResource TextIconBrush}" Opacity="0.2"/>
                         </Grid>
                         <Path x:Name="PathMain" Margin="10,0,0,0" Grid.Column="0" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}" Fill="{TemplateBinding Foreground}" SnapsToDevicePixels="True" Stretch="Uniform" Data="{TemplateBinding hc:IconElement.Icon}"/>
                         <ContentPresenter Grid.Column="1" x:Name="contentPresenter" ContentSource="Header" Focusable="False" HorizontalAlignment="Stretch" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center"/>

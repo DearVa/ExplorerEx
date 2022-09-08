@@ -97,9 +97,13 @@ public class FileItemCommand : ICommand {
 			case "Cut": {
 				var items = Items;
 				if (items.Count > 0) {
+					var isCut = !Folder.IsReadonly && str == "Cut";
 					var data = new DataObject(DataFormats.FileDrop, items.Where(item => item is FileSystemItem or DiskDriveItem).Select(item => item.FullPath).ToArray());
-					data.SetData("IsCut", !Folder.IsReadonly && str == "Cut");
+					data.SetData("IsCut", isCut);
 					Clipboard.SetDataObject(data);
+					foreach (var item in items) {
+						item.Opacity = 0.3d;
+					}
 				}
 				break;
 			}
@@ -339,7 +343,7 @@ public class FileItemCommand : ICommand {
 			hc.MessageBox.Error(e.Message, "FailedToOpenFile".L());
 		}
 	}
-
+	
 	public event EventHandler? CanExecuteChanged;
 }
 

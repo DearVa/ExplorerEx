@@ -20,16 +20,22 @@
           Background="Transparent"
           UseLayoutRounding="True">
     <ListView.Resources>
+        <ct:FileListViewBindingContext x:Key="BindingContext"/>
+
+        <ItemsPanelTemplate x:Key="VirtualizingWrapPanel">
+            <vw:VirtualizingWrapPanel Background="Transparent" CanHorizontallyScroll="False" UseLayoutRounding="True" IsGroupPanel="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ct:FileListView}}"/>
+        </ItemsPanelTemplate>
+
+        <ItemsPanelTemplate x:Key="VirtualizingStackPanel">
+            <VirtualizingStackPanel Background="Transparent" UseLayoutRounding="True"/>
+        </ItemsPanelTemplate>
+
         <c:FileListViewItemDetails0Converter x:Key="FileListViewItemDetails0Converter"/>
         <c:FileListViewItemDetails1Converter x:Key="FileListViewItemDetails1Converter"/>
 
         <!--只能将Width设为自动，然后在Cell里Binding到FileDataGrid-->
         <DataTemplate x:Key="IconTemplate">
-            <!--https://www.cnblogs.com/wuty/p/15599045.html-->
-            <!--此处必须写成Binding Path=xxx，如果省略Path=，语法上没有问题，也能正确绑定，但是会引发一次异常，导致加载速度变慢-->
-            <Grid Width="{Binding Path=ItemWidth, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-                  Height="{Binding Path=ItemHeight, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-                  VerticalAlignment="Top" d:DataContext="{d:DesignInstance m:FileListViewItem}">
+            <Grid VerticalAlignment="Top" d:DataContext="{d:DesignInstance m:FileListViewItem}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="{Binding Path=ActualWidth, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
                     <RowDefinition/>
@@ -41,9 +47,7 @@
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="ListTemplate">
-            <Grid Width="{Binding Path=ItemWidth, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-                  Height="{Binding Path=ItemHeight, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" 
-                  HorizontalAlignment="Left" d:DataContext="{d:DesignInstance m:FileListViewItem}">
+            <Grid HorizontalAlignment="Left" d:DataContext="{d:DesignInstance m:FileListViewItem}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="{Binding Path=ActualHeight, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
                     <ColumnDefinition/>
@@ -54,9 +58,7 @@
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="TileTemplate">
-            <Grid d:DataContext="{d:DesignInstance m:FileListViewItem}"
-                  Width="{Binding Path=ItemWidth, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-                  Height="{Binding Path=ItemHeight, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}">
+            <Grid d:DataContext="{d:DesignInstance m:FileListViewItem}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="{Binding Path=Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
                     <ColumnDefinition/>
@@ -77,10 +79,8 @@
         </DataTemplate>
         <!--主页显示驱动器-->
         <DataTemplate x:Key="TileHomeTemplate">
-            <Grid d:DataContext="{d:DesignInstance m:DiskDriveItem}"
-                  Width="{Binding Path=ItemWidth, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-                  Height="{Binding Path=ItemHeight, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}">
-                <Grid Margin="5">
+            <Grid d:DataContext="{d:DesignInstance m:DiskDriveItem}">
+                <Grid Margin="4">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="{Binding Path=Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
                         <ColumnDefinition/>
@@ -88,9 +88,9 @@
                     <Image Grid.Column="0" Source="{Binding Icon}" VerticalAlignment="Center" Margin="5"/>
                     <StackPanel Grid.Column="1" Orientation="Vertical">
                         <TextBlock Text="{Binding DisplayText, Mode=OneWay}"/>
-                        <ProgressBar Value="{Binding FreeSpaceRatio, Mode=OneWay}" 
+                        <ProgressBar Value="{Binding PercentFull, Mode=OneWay}" 
                                      Foreground="{Binding ProgressBarBackground, Mode=OneWay}"
-                                     Maximum="1" BorderThickness="1.5" Margin="0,5,0,5" SnapsToDevicePixels="True"
+                                     Maximum="1" BorderThickness="1.5" Margin="0,10,0,10"
                                      Visibility="{Binding Drive.IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
                         <TextBlock Text="{Binding SpaceOverviewString, Mode=OneWay}"
                                    Visibility="{Binding Drive.IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
@@ -99,8 +99,7 @@
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="ContentTemplate">
-            <Grid d:DataContext="{d:DesignInstance m:FileListViewItem}" HorizontalAlignment="Stretch"
-                  Height="{Binding Path=ItemHeight, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}">
+            <Grid d:DataContext="{d:DesignInstance m:FileListViewItem}" HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="{Binding Path=ActualHeight, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
                     <ColumnDefinition Width="2*"/>
@@ -169,12 +168,12 @@
         </DataTemplate>
         <DataTemplate x:Key="FillRatioColumn">
             <ProgressBar d:DataContext="{d:DesignInstance m:DiskDriveItem}"
-                         Value="{Binding FreeSpaceRatio, Mode=OneWay}" 
+                         Value="{Binding PercentFull, Mode=OneWay}" 
                          Foreground="{Binding ProgressBarBackground, Mode=OneWay}"
                          Maximum="1" BorderThickness="1.5" Margin="0,2,0,2" VerticalAlignment="Center" SnapsToDevicePixels="True"
                          Visibility="{Binding Drive.IsReady, Converter={StaticResource Boolean2VisibilityConverter}}">
                 <ProgressBar.ToolTip>
-                    <TextBlock Text="{Binding FreeSpaceRatio, Mode=OneWay, StringFormat=P%}"/>
+                    <TextBlock Text="{Binding PercentFull, Mode=OneWay, StringFormat=P%}"/>
                 </ProgressBar.ToolTip>
             </ProgressBar>
         </DataTemplate>
@@ -399,25 +398,19 @@
         </ControlTemplate>
 
         <ControlTemplate x:Key="GridViewItemTemplate" TargetType="ListViewItem">
-            <Border CornerRadius="4" Margin="2,0" x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true" HorizontalAlignment="Left">
+            <Border CornerRadius="4" Margin="2,-1" x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true" HorizontalAlignment="Left">
                 <GridViewRowPresenter Content="{TemplateBinding Content}" Columns="{TemplateBinding GridView.ColumnCollection}" HorizontalAlignment="Left"/>
             </Border>
         </ControlTemplate>
 
         <c:Object2ObjectConverter x:Key="ItemTemplateConverter" Object1="{StaticResource ListViewItemTemplate}" Object2="{StaticResource GridViewItemTemplate}"/>
-        
-        <!-- 该资源在C#逻辑中获取 -->
-        <!-- ReSharper disable once Xaml.RedundantResource -->
-        <ItemsPanelTemplate x:Key="VirtualizingWrapPanel">
-            <vw:VirtualizingWrapPanel Background="Transparent" CanHorizontallyScroll="False" UseLayoutRounding="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ListView}}"/>
-        </ItemsPanelTemplate>
-
-        <!-- 该资源在C#逻辑中获取 -->
-        <!-- ReSharper disable once Xaml.RedundantResource -->
-        <ItemsPanelTemplate x:Key="VirtualizingStackPanel">
-            <VirtualizingStackPanel Background="Transparent" CanHorizontallyScroll="False" UseLayoutRounding="True"/>
-        </ItemsPanelTemplate>
     </ListView.Resources>
+
+    <ListView.ItemsPanel>
+        <ItemsPanelTemplate>
+            <vw:VirtualizingWrapPanel Background="Transparent" CanHorizontallyScroll="False" UseLayoutRounding="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ct:FileListView}}"/>
+        </ItemsPanelTemplate>
+    </ListView.ItemsPanel>
 
     <ListView.ContextMenu>
         <ContextMenu d:DataContext="{d:DesignInstance vm:FileTabViewModel}">
@@ -569,12 +562,14 @@
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="Template" Value="{Binding View, Converter={StaticResource ItemTemplateConverter}, RelativeSource={RelativeSource AncestorType=ListView}}"/>
+            <Setter Property="Width" Value="{Binding Path=FileListView.ItemWidth, Source={StaticResource BindingContext}}"/>
+            <Setter Property="Height" Value="{Binding Path=FileListView.ItemHeight, Source={StaticResource BindingContext}}"/>
+            <Setter Property="Template" Value="{Binding Path=FileListView.View, Converter={StaticResource ItemTemplateConverter}, Source={StaticResource BindingContext}}"/>
         </Style>
     </ListView.ItemContainerStyle>
 
     <ListView.GroupStyle>
-        <GroupStyle x:Name="FileGroupStyle">
+        <GroupStyle x:Name="GroupStyle" HidesIfEmpty="True">
             <GroupStyle.ContainerStyle>
                 <Style TargetType="GroupItem">
                     <Setter Property="Template">
@@ -594,6 +589,11 @@
                     </Setter>
                 </Style>
             </GroupStyle.ContainerStyle>
+            <GroupStyle.Panel>
+                <ItemsPanelTemplate>
+                    <vw:VirtualizingWrapPanel Background="Transparent" CanHorizontallyScroll="False" UseLayoutRounding="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ct:FileListView}}"/>
+                </ItemsPanelTemplate>
+            </GroupStyle.Panel>
         </GroupStyle>
     </ListView.GroupStyle>
 </ListView>

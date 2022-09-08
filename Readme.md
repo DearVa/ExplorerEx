@@ -6,7 +6,7 @@
 
 ![Preview](https://raw.githubusercontent.com/DearVa/ExplorerEx/master/Images/preview.png)
 
-[🇨🇳中文版](https://github.com/DearVa/ExplorerEx/blob/master/Readme_zh_CN.md)
+## [👉🇨🇳中文版介绍点这里👈](https://github.com/DearVa/ExplorerEx/blob/master/Readme_zh_CN.md)
 
 Due to unknown reasons, the file manager (Explorer) of windows 11 is very slow, especially when opening folders, selecting files, copying and pasting. It even stop responding for a few seconds sometimes.
 

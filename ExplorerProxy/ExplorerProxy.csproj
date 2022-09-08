@@ -51,8 +51,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExplorerExProxy.cs" />
+    <Compile Include="Interop\IFolderView.cs" />
     <Compile Include="Interop\IObjectWithSite.cs" />
     <Compile Include="ExplorerIpc.cs" />
+    <Compile Include="Interop\IPersist.cs" />
+    <Compile Include="Interop\IPersistFolder.cs" />
+    <Compile Include="Interop\IPersistFolder2.cs" />
+    <Compile Include="Interop\IServiceProvider.cs" />
+    <Compile Include="Interop\IShellBrowser.cs" />
+    <Compile Include="Interop\IShellFolder.cs" />
+    <Compile Include="Interop\POINT.cs" />
+    <Compile Include="Interop\SHGDNF.cs" />
+    <Compile Include="Interop\STRRET.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

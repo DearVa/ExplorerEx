@@ -69,8 +69,6 @@ public sealed partial class MainWindow {
 	private static volatile uint globalEverythingQueryId;
 	private readonly HashSet<uint> everythingQueryIds = new();
 
-	private readonly string? startupPath;
-
 	private readonly FileSystemItemContextMenuConverter bookmarkItemContextMenuConverter;
 	/// <summary>
 	/// 由于侧边栏ThisPC不可选中，所以右键按下时用这个代表选中的Item
@@ -86,7 +84,6 @@ public sealed partial class MainWindow {
 	private readonly ContextMenu bookmarkCategoryItemContextMenu;
 
 	public MainWindow(string? startupPath, bool startUpLoad = true) {
-		this.startupPath = startupPath;
 		All.Add(this);
 
 		var screenWidth = SystemParameters.PrimaryScreenWidth;
@@ -185,19 +182,15 @@ public sealed partial class MainWindow {
 		ChangeTheme();
 
 		if (startUpLoad) {
-			StartupLoad();
-		}
-	}
-
-	private void StartupLoad() {
-		try {
-			if (startupPath == null) {
-				_ = SplitGrid.FileTabControl.StartUpLoad(App.Args.Paths.ToArray());
-			} else {
-				_ = SplitGrid.FileTabControl.StartUpLoad(startupPath);
+			try {
+				if (startupPath == null) {
+					_ = SplitGrid.FileTabControl.StartUpLoad(App.Args.Paths.ToArray());
+				} else {
+					_ = SplitGrid.FileTabControl.StartUpLoad(startupPath);
+				}
+			} catch (Exception e) {
+				App.Fatal(e);
 			}
-		} catch (Exception e) {
-			App.Fatal(e);
 		}
 	}
 
@@ -603,6 +596,20 @@ public sealed partial class MainWindow {
 		}
 	}
 
+	private void BookmarkCollapseAllButton_OnClick(object sender, RoutedEventArgs e) {
+		foreach (var bookmarkCategory in DbMain.BookmarkDbContext.AsObservableCollection()) {
+			bookmarkCategory.IsExpanded = false;
+		}
+	}
+
+	private void ThisPCCollapseAllButton_OnClick(object sender, RoutedEventArgs e) {
+		if (FolderOnlyItem.Home.Children == null) {
+			return;
+		}
+		foreach (var folderOnlyItem in FolderOnlyItem.Home.Children) {
+			folderOnlyItem.IsExpanded = false;
+		}
+	}
 
 	private void OnDragAreaMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
 		DragMove();

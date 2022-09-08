@@ -7,7 +7,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -29,7 +28,6 @@ using HandyControl.Controls;
 using HandyControl.Tools;
 using GridView = System.Windows.Controls.GridView;
 using ScrollViewer = System.Windows.Controls.ScrollViewer;
-using TextBox = HandyControl.Controls.TextBox;
 
 namespace ExplorerEx.View.Controls;
 
@@ -88,18 +86,18 @@ public partial class FileListView : INotifyPropertyChanged {
 	public static readonly DependencyProperty FileViewProperty = DependencyProperty.Register(
 		nameof(FileView), typeof(FileView), typeof(FileListView), new PropertyMetadata(default(FileView), OnFileViewChanged));
 
-	public FileView? FileView {
+	public FileView FileView {
 		get => (FileView)GetValue(FileViewProperty);
 		set => SetValue(FileViewProperty, value);
 	}
 
 	private ListCollectionView? listCollectionView;
 
-	public double ItemWidth => FileView?.ItemWidth ?? 0d;
+	public double ItemWidth => FileView.ItemWidth <= 0 ? double.NaN : FileView.ItemWidth;
 
-	public double ItemHeight => FileView?.ItemHeight ?? 30d;
+	public double ItemHeight => FileView.ItemHeight <= 0 ? double.NaN : FileView.ItemHeight;
 
-	public Size ActualItemSize => new(ItemWidth <= 0 ? ActualWidth : ItemWidth + 2d, ItemHeight + 6d);
+	public Size ActualItemSize => new(double.IsNaN(ItemWidth) ? ActualWidth : ItemWidth + 2d, ItemHeight + 6d);
 
 	public static readonly DependencyProperty FullPathProperty = DependencyProperty.Register(
 		nameof(FullPath), typeof(string), typeof(FileListView), new PropertyMetadata(null, OnFullPathChanged));
@@ -150,15 +148,11 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// </summary>
 	public SimpleCommand SelectCommand { get; }
 
-	/// <summary>
-	/// 选择并重命名一个文件，参数为string文件名，不含路径
-	/// </summary>
-	public SimpleCommand StartRenameCommand { get; }
-
 	public SimpleCommand SwitchViewCommand { get; }
 
 	private readonly FileGridDataGridColumnsConverter columnsConverter;
 	private readonly FileGridListBoxTemplateConverter listBoxTemplateConverter;
+
 	private readonly ItemsPanelTemplate virtualizingWrapPanel, virtualizingStackPanel;
 
 	private ContextMenu? openedContextMenu;
@@ -169,15 +163,17 @@ public partial class FileListView : INotifyPropertyChanged {
 	public FileListView() {
 		DataContextChanged += (_, e) => ViewModel = (FileTabViewModel)e.NewValue;
 		InitializeComponent();
+		((FileListViewBindingContext)Resources["BindingContext"]).FileListView = this;
 		ApplyTemplate();
 		SelectCommand = new SimpleCommand(Select);
-		StartRenameCommand = new SimpleCommand(e => ViewModel.StartRename((string?)e));
 		SwitchViewCommand = new SimpleCommand(OnSwitchView);
 		columnsConverter = (FileGridDataGridColumnsConverter)Resources["ColumnsConverter"];
 		listBoxTemplateConverter = (FileGridListBoxTemplateConverter)Resources["ListBoxTemplateConverter"];
+		((FileGridListBoxTemplateConverter)Resources["ListBoxTemplateConverter"]).FileListView = this;
+
 		virtualizingWrapPanel = (ItemsPanelTemplate)Resources["VirtualizingWrapPanel"];
 		virtualizingStackPanel = (ItemsPanelTemplate)Resources["VirtualizingStackPanel"];
-		((FileGridListBoxTemplateConverter)Resources["ListBoxTemplateConverter"]).FileListView = this;
+
 
 		if (!isPreviewTimerInitialized) {
 			MainWindow.FrequentTimerElapsed += MouseHoverTimerWork;
@@ -203,18 +199,16 @@ public partial class FileListView : INotifyPropertyChanged {
 	}
 
 	private void OnFileViewPropertyChanged(object? sender, PropertyChangedEventArgs e) {
-		var fileView = FileView!;
+		var fileView = FileView;
 		switch (e.PropertyName) {
 		case nameof(fileView.FileViewType):
 			if (fileView.FileViewType == FileViewType.Details) {
-				FileGroupStyle.Panel = ItemsPanel = virtualizingStackPanel;
 				var view = new GridView();
 				columnsConverter.Convert(view.Columns, fileView);
 				View = view;
 				var padding = Padding;
 				contentPanel.Margin = new Thickness(padding.Left, 30d + padding.Top, padding.Right, padding.Bottom);
 			} else {
-				FileGroupStyle.Panel = ItemsPanel = virtualizingWrapPanel;
 				ItemTemplate = listBoxTemplateConverter.Convert();
 				View = null;
 				contentPanel.Margin = Padding;
@@ -237,6 +231,7 @@ public partial class FileListView : INotifyPropertyChanged {
 			var groups = listCollectionView!.GroupDescriptions!;
 			groups.Clear();
 			if (fileView.GroupBy.HasValue) {
+				GroupStyle.Panel = virtualizingStackPanel;
 				listCollectionView.IsLiveGrouping = true;
 				IValueConverter? converter = null;
 				switch (fileView.GroupBy) {
@@ -255,6 +250,7 @@ public partial class FileListView : INotifyPropertyChanged {
 				}
 				groups.Add(new PropertyGroupDescription(fileView.GroupBy.ToString(), converter));
 			} else {
+				GroupStyle.Panel = virtualizingWrapPanel;
 				listCollectionView.IsLiveGrouping = false;
 			}
 			break;
@@ -378,18 +374,11 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
 		isDoubleClicked = false;
-		if (e.OriginalSource.FindParent<VirtualizingPanel, ListView>() == null) {  // 如果没有点击在VirtualizingPanel的范围内
-			return;  // 如果没有点击在VirtualizingPanel或者点击在了TextBox内就不处理事件，直接返回
+		if (e.OriginalSource.FindParent<VirtualizingPanel, FileListView>() == null) {  // 如果没有点击在VirtualizingPanel的范围内
+			return;
 		}
-
-		if (e.OriginalSource.FindParent<ListViewItem, VirtualizingPanel>() != null) {  // 点击在了项目上
-			if (e.OriginalSource.FindParent<TextBox, ListViewItem>() != null) {  // 如果点击在了重命名的TextBox里，就直接返回
-				return;
-			}
-		} else {
-			if (e.OriginalSource.FindParent<Expander, VirtualizingPanel>() != null) {  // 如果点击在了Expander上，也直接返回
-				return;
-			}
+		if (e.OriginalSource.FindParent<Expander, VirtualizingPanel>() != null) {  // 如果点击在了Expander上，也直接返回
+			return;
 		}
 
 		Focus();
@@ -442,11 +431,11 @@ public partial class FileListView : INotifyPropertyChanged {
 							var selectedItems = SelectedItems;
 							if (selectedItems.Count == 0) {
 								item.IsSelected = true;
-							} else if (!item.IsSelected) {
+							} else if (item.IsSelected && selectedItems.Count == 1) {
+								isPreparedForRenaming = true;
+							} else {
 								UnselectAll();
 								item.IsSelected = true;
-							} else if (selectedItems.Count == 1) {
-								isPreparedForRenaming = true;
 							}
 						}
 					}
@@ -461,6 +450,7 @@ public partial class FileListView : INotifyPropertyChanged {
 					}
 				}
 			} else {
+				UnselectAll();
 				mouseDownRowIndex = -1;
 				if (Settings.Current[Settings.CommonSettings.DoubleClickGoUpperLevel].GetBoolean() && lastMouseUpItem == null && e.ChangedButton == MouseButton.Left) {
 					if (Math.Abs(mouseDownPoint.X - prevMouseUpPoint.X) < SystemParameters.MinimumHorizontalDragDistance &&
@@ -614,8 +604,11 @@ public partial class FileListView : INotifyPropertyChanged {
 					break;
 				}
 
-				if (e.OriginalSource.FindParent<VirtualizingPanel, ListView>() == null || e.OriginalSource.FindParent<TextBox, VirtualizingPanel>() != null) {
-					break; // 如果没有点击在VirtualizingPanel或者点击在了TextBox内就不处理事件，直接返回
+				if (e.OriginalSource.FindParent<VirtualizingPanel, FileListView>() == null) {  // 如果没有点击在VirtualizingPanel的范围内
+					break;
+				}
+				if (e.OriginalSource.FindParent<Expander, VirtualizingPanel>() != null) {  // 如果点击在了Expander上，也直接返回
+					break;
 				}
 				var isClickOnItem = mouseDownRowIndex >= 0 && mouseDownRowIndex < ItemsSource.Count;
 				if (isPreparedForRenaming) {
@@ -624,10 +617,10 @@ public partial class FileListView : INotifyPropertyChanged {
 						var item = (FileListViewItem)Items[mouseDownRowIndex];
 						if (!shouldRename) {
 							shouldRename = true;
-							Task.Run(() => {
-								Thread.Sleep(Win32Interop.GetDoubleClickTime());
+							Task.Run(async () => {
+								await Task.Delay(Win32Interop.GetDoubleClickTime());
 								if (shouldRename) {
-									ViewModel.StartRename(item);
+									await Dispatcher.BeginInvoke(() => ViewModel.StartRename(item));
 								}
 								shouldRename = false;
 							});
@@ -635,41 +628,25 @@ public partial class FileListView : INotifyPropertyChanged {
 							shouldRename = false;
 						}
 					}
-				} else {
-					var isCtrlOrShiftPressed = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) || Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
-					switch (e.ChangedButton) {
-					case MouseButton.Left:
-						if (isClickOnItem) {
-							var item = (FileListViewItem)Items[mouseDownRowIndex];
-							if (!isCtrlOrShiftPressed && SelectedItems.Count > 1) {
-								UnselectAll();
+				} else if (e.ChangedButton == MouseButton.Right) {
+					if (isClickOnItem && e.OriginalSource is DependencyObject o) {
+						var item = (FileListViewItem)Items[mouseDownRowIndex];
+						openedContextMenu = ((FrameworkElement)ContainerFromElement(o)!).ContextMenu!;
+						openedContextMenu.SetValue(FileItemAttach.FileItemProperty, item);
+						openedContextMenu.DataContext = this;
+						var ext = Path.GetExtension(item.FullPath);
+						FileAssocList.Clear();
+						if (!string.IsNullOrWhiteSpace(ext) && ViewModel.SelectedItems.Count == 1) {
+							foreach (var fileAssocItem in FileAssocItem.GetAssocList(ext)) {
+								FileAssocList.Add(fileAssocItem);
 							}
-							item.IsSelected = true;
-						} else if (!isCtrlOrShiftPressed) {
-							UnselectAll();
 						}
-						break;
-					case MouseButton.Right:
-						if (isClickOnItem && e.OriginalSource is DependencyObject o) {
-							var item = (FileListViewItem)Items[mouseDownRowIndex];
-							openedContextMenu = ((FrameworkElement)ContainerFromElement(o)!).ContextMenu!;
-							openedContextMenu.SetValue(FileItemAttach.FileItemProperty, item);
-							openedContextMenu.DataContext = this;
-							var ext = Path.GetExtension(item.FullPath);
-							FileAssocList.Clear();
-							if (!string.IsNullOrWhiteSpace(ext) && ViewModel.SelectedItems.Count == 1) {
-								foreach (var fileAssocItem in FileAssocItem.GetAssocList(ext)) {
-									FileAssocList.Add(fileAssocItem);
-								}
-							}
-							openedContextMenu.IsOpen = true;
-						} else {
-							UnselectAll();
-							openedContextMenu = ContextMenu!;
-							openedContextMenu.DataContext = ViewModel;
-							openedContextMenu.IsOpen = true;
-						}
-						break;
+						openedContextMenu.IsOpen = true;
+					} else {
+						UnselectAll();
+						openedContextMenu = ContextMenu!;
+						openedContextMenu.DataContext = ViewModel;
+						openedContextMenu.IsOpen = true;
 					}
 				}
 				if (isClickOnItem) {
@@ -692,7 +669,7 @@ public partial class FileListView : INotifyPropertyChanged {
 			isDataContextChanging = false;
 			return;
 		}
-		
+
 		ViewModel.ChangeSelection(e);
 	}
 
@@ -851,7 +828,7 @@ public partial class FileListView : INotifyPropertyChanged {
 			destination = mouseItem.DisplayText;
 			contains = draggingPaths.Any(path => path == mouseItem.FullPath);
 		} else {
-			if (FileView!.PathType == PathType.Home) {
+			if (FileView.PathType == PathType.Home) {
 				e.Effects = DragDropEffects.None;
 				if (lastDragOnItem != null) {
 					lastDragOnItem.IsSelected = false;
@@ -920,7 +897,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
 		base.OnRenderSizeChanged(sizeInfo);
 
-		if (sizeInfo.WidthChanged) {
+		if (sizeInfo.WidthChanged && double.IsNaN(ItemWidth)) {
 			OnPropertyChanged(nameof(ActualItemSize));
 		}
 	}
@@ -989,5 +966,15 @@ public partial class FileListView : INotifyPropertyChanged {
 	[NotifyPropertyChangedInvocator]
 	protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
 		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+	}
+}
+
+public class FileListViewBindingContext : DependencyObject {
+	public static readonly DependencyProperty FileListViewProperty = DependencyProperty.Register(
+		nameof(FileListView), typeof(FileListView), typeof(FileListViewBindingContext), new PropertyMetadata(default(FileListView)));
+
+	public FileListView FileListView {
+		get => (FileListView)GetValue(FileListViewProperty);
+		set => SetValue(FileListViewProperty, value);
 	}
 }

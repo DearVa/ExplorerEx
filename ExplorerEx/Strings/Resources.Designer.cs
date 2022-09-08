@@ -745,6 +745,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 Collapse all 的本地化字符串。
+        /// </summary>
+        internal static string CollapseAll {
+            get {
+                return ResourceManager.GetString("CollapseAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Color mode 的本地化字符串。
         /// </summary>
         internal static string ColorMode {
@@ -1668,15 +1677,6 @@ namespace ExplorerEx.Strings {
         internal static string Question {
             get {
                 return ResourceManager.GetString("Question", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Quick access 的本地化字符串。
-        /// </summary>
-        internal static string Quick_access {
-            get {
-                return ResourceManager.GetString("Quick_access", resourceCulture);
             }
         }
         

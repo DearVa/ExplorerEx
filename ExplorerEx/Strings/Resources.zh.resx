@@ -276,9 +276,6 @@
   <data name="Bookmarks" xml:space="preserve">
     <value>收藏夹</value>
   </data>
-  <data name="Quick_access" xml:space="preserve">
-    <value>快速访问</value>
-  </data>
   <data name="Settings" xml:space="preserve">
     <value>设置</value>
   </data>
@@ -801,5 +798,8 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name="Sorry" xml:space="preserve">
     <value>很抱歉</value>
+  </data>
+  <data name="CollapseAll" xml:space="preserve">
+    <value>折叠全部</value>
   </data>
 </root>

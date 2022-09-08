@@ -15,48 +15,42 @@
         <Setter Property="hc:VisualElement.Text">
             <Setter.Value>
                 <MultiBinding Converter="{StaticResource Number2PercentageConverter}" StringFormat="{}{0:F0} %">
-                    <Binding Path="Value" RelativeSource="{RelativeSource Self}"/>
-                    <Binding Path="Maximum" RelativeSource="{RelativeSource Self}"/>
+                    <Binding Path="Value" RelativeSource="{RelativeSource Self}" />
+                    <Binding Path="Maximum" RelativeSource="{RelativeSource Self}" />
                 </MultiBinding>
             </Setter.Value>
         </Setter>
-        <Setter Property="Height" Value="20"/>
-        <Setter Property="hc:BorderElement.CornerRadius" Value="{StaticResource DefaultCornerRadius}"/>
-        <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Height" Value="3" />
+        <Setter Property="Background" Value="{DynamicResource SecondaryTextBrush}" />
+        <Setter Property="BorderBrush" Value="{x:Null}" />
+        <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ProgressBar">
                     <ControlTemplate.Resources>
                         <Storyboard x:Key="IsIndeterminate" RepeatBehavior="Forever">
                             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" Storyboard.TargetName="Animation">
-                                <EasingDoubleKeyFrame KeyTime="0" Value="0.25"/>
-                                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="0.25"/>
-                                <EasingDoubleKeyFrame KeyTime="0:0:2" Value="0.25"/>
+                                <EasingDoubleKeyFrame KeyTime="0" Value="0.25" />
+                                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="0.25" />
+                                <EasingDoubleKeyFrame KeyTime="0:0:2" Value="0.25" />
                             </DoubleAnimationUsingKeyFrames>
                             <PointAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransformOrigin)" Storyboard.TargetName="Animation">
-                                <EasingPointKeyFrame KeyTime="0" Value="-0.5,0.5"/>
-                                <EasingPointKeyFrame KeyTime="0:0:1" Value="0.5,0.5"/>
-                                <EasingPointKeyFrame KeyTime="0:0:2" Value="1.5,0.5"/>
+                                <EasingPointKeyFrame KeyTime="0" Value="-0.5,0.5" />
+                                <EasingPointKeyFrame KeyTime="0:0:1" Value="0.5,0.5" />
+                                <EasingPointKeyFrame KeyTime="0:0:2" Value="1.5,0.5" />
                             </PointAnimationUsingKeyFrames>
                         </Storyboard>
                     </ControlTemplate.Resources>
-                    <Border x:Name="TemplateRoot" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+                    <Border x:Name="TemplateRoot" CornerRadius="2" BorderBrush="{x:Null}" BorderThickness="0" Background="{TemplateBinding Background}">
                         <hc:SimplePanel>
-                            <Rectangle x:Name="PART_Track"/>
-                            <TextBlock x:Name="TextBlock2" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{TemplateBinding Foreground}" Text="{Binding Path=(hc:VisualElement.Text),RelativeSource={RelativeSource TemplatedParent}}"/>
-                            <Border Style="{StaticResource BorderClip}" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" x:Name="PART_Indicator" HorizontalAlignment="Left">
+                            <Rectangle x:Name="PART_Track" />
+                            <Border Margin="0,-1" Style="{StaticResource BorderClip}" CornerRadius="2" x:Name="PART_Indicator" HorizontalAlignment="Left">
                                 <hc:SimplePanel>
-                                    <Border x:Name="Indicator" Background="{TemplateBinding Foreground}">
-                                        <Border Width="{Binding ActualWidth,ElementName=TemplateRoot}">
-                                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextIconBrush}" Text="{Binding Path=(hc:VisualElement.Text),RelativeSource={RelativeSource TemplatedParent}}"/>
-                                        </Border>
-                                    </Border>
+                                    <Border x:Name="Indicator" Background="{TemplateBinding Foreground}"/>
                                     <Rectangle x:Name="Animation" Visibility="Collapsed" Fill="{TemplateBinding Foreground}" RenderTransformOrigin="0.5,0.5">
                                         <Rectangle.RenderTransform>
                                             <TransformGroup>
-                                                <ScaleTransform/>
+                                                <ScaleTransform />
                                             </TransformGroup>
                                         </Rectangle.RenderTransform>
                                     </Rectangle>
@@ -66,20 +60,19 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="Orientation" Value="Vertical">
-                            <Setter Property="Height" Value="{x:Static system:Double.NaN}"/>
+                            <Setter Property="Height" Value="{x:Static system:Double.NaN}" />
                             <Setter Property="LayoutTransform" TargetName="TemplateRoot">
                                 <Setter.Value>
-                                    <RotateTransform Angle="-90"/>
+                                    <RotateTransform Angle="-90" />
                                 </Setter.Value>
                             </Setter>
                         </Trigger>
                         <Trigger Property="IsIndeterminate" Value="true">
                             <Trigger.EnterActions>
-                                <BeginStoryboard Storyboard="{StaticResource IsIndeterminate}"/>
+                                <BeginStoryboard Storyboard="{StaticResource IsIndeterminate}" />
                             </Trigger.EnterActions>
-                            <Setter Property="Visibility" TargetName="Indicator" Value="Collapsed"/>
-                            <Setter Property="Visibility" TargetName="TextBlock2" Value="Collapsed"/>
-                            <Setter Property="Visibility" TargetName="Animation" Value="Visible"/>
+                            <Setter Property="Visibility" TargetName="Indicator" Value="Collapsed" />
+                            <Setter Property="Visibility" TargetName="Animation" Value="Visible" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

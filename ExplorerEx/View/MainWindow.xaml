@@ -209,11 +209,17 @@
                     <TabItem x:Name="BookmarksTabItem" Width="50" Padding="0">
                         <TabItem.Header>
                             <Grid Height="40" ToolTip="{u:Lang Bookmarks}" ToolTipService.InitialShowDelay="300"
-                              AllowDrop="True" DragEnter="TabItem_OnDragEnter">
+                                  AllowDrop="True" DragEnter="TabItem_OnDragEnter">
                                 <Image Width="24" Height="24" Source="{StaticResource StarDrawingImage}"/>
                             </Grid>
                         </TabItem.Header>
                         <ct:SideBarContent Header="{u:Lang Bookmarks}" Filter="{StaticResource BookmarkFilter}" FileDrop="BookmarksSideBarContent_OnFileDrop">
+                            <ct:SideBarContent.HeaderContent>
+                                <Button Width="25" Height="25" Padding="3" ToolTip="{u:Lang CollapseAll}"
+                                        Style="{StaticResource ButtonTransparent}" Click="BookmarkCollapseAllButton_OnClick">
+                                    <Image Margin="1" Source="{StaticResource CollapseAllDrawingImage}"/>
+                                </Button>
+                            </ct:SideBarContent.HeaderContent>
                             <ct:SideBarContent.Content>
                                 <TreeView x:Name="SideBarBookmarksTreeView" BorderThickness="0" Focusable="False" Background="Transparent">
                                     <TreeView.ItemContainerStyle>
@@ -241,7 +247,7 @@
                                                 </hc:Interaction.Triggers>
 
                                                 <Button Cursor="Hand" VerticalAlignment="Center" HorizontalAlignment="Left" BorderThickness="0" 
-                                                    Background="Transparent" Padding="0">
+                                                        Background="Transparent" Padding="0">
                                                     <hc:Interaction.Triggers>
                                                         <hc:RoutedEventTrigger RoutedEvent="Button.Click">
                                                             <hc:EventToCommand Command="{Binding SideBarItemClickCommand, RelativeSource={RelativeSource AncestorType=Window}}" PassEventArgsToCommand="True"/>
@@ -302,11 +308,17 @@
                     <TabItem Width="50" Padding="0">
                         <TabItem.Header>
                             <hc:SimplePanel Height="40" ToolTip="{u:Lang ThisPC}" ToolTipService.InitialShowDelay="300"
-                                        AllowDrop="True" DragEnter="TabItem_OnDragEnter">
+                                            AllowDrop="True" DragEnter="TabItem_OnDragEnter">
                                 <Image Width="24" Height="24" Source="../Assets/Picture/Computer.png"/>
                             </hc:SimplePanel>
                         </TabItem.Header>
                         <ct:SideBarContent Header="{u:Lang ThisPC}" ShowSearchButton="False">
+                            <ct:SideBarContent.HeaderContent>
+                                <Button Width="25" Height="25" Padding="3" ToolTip="{u:Lang CollapseAll}"
+                                        Style="{StaticResource ButtonTransparent}" Click="ThisPCCollapseAllButton_OnClick">
+                                    <Image Margin="1" Source="{StaticResource CollapseAllDrawingImage}"/>
+                                </Button>
+                            </ct:SideBarContent.HeaderContent>
                             <ct:SideBarContent.Content>
                                 <TreeView BorderThickness="0" Background="Transparent"
                                           ItemsSource="{Binding Path=Children, Source={x:Static m:FolderOnlyItem.Home}}">

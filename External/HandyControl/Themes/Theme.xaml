@@ -2482,10 +2482,9 @@
 				</MultiBinding>
 			</Setter.Value>
 		</Setter>
-		<Setter Property="Height" Value="20" />
-		<Setter Property="hc:BorderElement.CornerRadius" Value="{StaticResource DefaultCornerRadius}" />
-		<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}" />
-		<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+		<Setter Property="Height" Value="3" />
+		<Setter Property="Background" Value="{DynamicResource SecondaryTextBrush}" />
+		<Setter Property="BorderBrush" Value="{x:Null}" />
 		<Setter Property="BorderThickness" Value="0" />
 		<Setter Property="Template">
 			<Setter.Value>
@@ -2504,17 +2503,12 @@
 							</PointAnimationUsingKeyFrames>
 						</Storyboard>
 					</ControlTemplate.Resources>
-					<Border x:Name="TemplateRoot" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+					<Border x:Name="TemplateRoot" CornerRadius="2" BorderBrush="{x:Null}" BorderThickness="0" Background="{TemplateBinding Background}">
 						<hc:SimplePanel>
 							<Rectangle x:Name="PART_Track" />
-							<TextBlock x:Name="TextBlock2" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{TemplateBinding Foreground}" Text="{Binding Path=(hc:VisualElement.Text),RelativeSource={RelativeSource TemplatedParent}}" />
-							<Border Style="{StaticResource BorderClip}" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius),RelativeSource={RelativeSource TemplatedParent}}" x:Name="PART_Indicator" HorizontalAlignment="Left">
+							<Border Margin="0,-1" Style="{StaticResource BorderClip}" CornerRadius="2" x:Name="PART_Indicator" HorizontalAlignment="Left">
 								<hc:SimplePanel>
-									<Border x:Name="Indicator" Background="{TemplateBinding Foreground}">
-										<Border Width="{Binding ActualWidth,ElementName=TemplateRoot}">
-											<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextIconBrush}" Text="{Binding Path=(hc:VisualElement.Text),RelativeSource={RelativeSource TemplatedParent}}" />
-										</Border>
-									</Border>
+									<Border x:Name="Indicator" Background="{TemplateBinding Foreground}" />
 									<Rectangle x:Name="Animation" Visibility="Collapsed" Fill="{TemplateBinding Foreground}" RenderTransformOrigin="0.5,0.5">
 										<Rectangle.RenderTransform>
 											<TransformGroup>
@@ -2540,7 +2534,6 @@
 								<BeginStoryboard Storyboard="{StaticResource IsIndeterminate}" />
 							</Trigger.EnterActions>
 							<Setter Property="Visibility" TargetName="Indicator" Value="Collapsed" />
-							<Setter Property="Visibility" TargetName="TextBlock2" Value="Collapsed" />
 							<Setter Property="Visibility" TargetName="Animation" Value="Visible" />
 						</Trigger>
 					</ControlTemplate.Triggers>

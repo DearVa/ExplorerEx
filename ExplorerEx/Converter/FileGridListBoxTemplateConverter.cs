@@ -28,7 +28,7 @@ internal class FileGridListBoxTemplateConverter {
 	public DataTemplate? TileHomeTemplate { get; set; }
 
 	public DataTemplate? Convert() {
-		return FileListView!.FileView!.FileViewType switch {
+		return FileListView!.FileView.FileViewType switch {
 			FileViewType.Icons => IconTemplate,
 			FileViewType.List => ListTemplate,
 			FileViewType.Tiles when FileListView.FileView.PathType == PathType.Home => TileHomeTemplate,

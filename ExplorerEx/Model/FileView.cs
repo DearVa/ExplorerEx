@@ -9,6 +9,7 @@ using ExplorerEx.Annotations;
 using ExplorerEx.Database.Shared;
 using ExplorerEx.Model.Enums;
 using ExplorerEx.Utils;
+using HandyControl.Tools.Extension;
 
 namespace ExplorerEx.Model;
 
@@ -340,8 +341,14 @@ public class FileView : INotifyPropertyChanged {
 	};
 
 	public Size ItemSize {
-		get => new(ItemWidth, ItemHeight);
+		get => new(ItemWidth <= 0 ? double.NaN : ItemWidth, ItemHeight <= 0 ? double.NaN : ItemHeight);
 		set {
+			if (double.IsNaN(value.Width)) {
+				value.Width = 0;
+			}
+			if (double.IsNaN(value.Height)) {
+				value.Height = 0;
+			}
 			if (!ItemWidth.Equals(value.Width) || !ItemHeight.Equals(value.Height)) {
 				ItemWidth = value.Width;
 				ItemHeight = value.Height;
@@ -459,7 +466,8 @@ public class FileView : INotifyPropertyChanged {
 				return SortBy switch {
 					DetailListType.Type => string.Compare(i1.Type, i2.Type, StringComparison.Ordinal),
 					DetailListType.FileSize => i1.FileSize.CompareTo(i2.FileSize),
-					_ => string.Compare(i1.Name, i2.Name, StringComparison.Ordinal),
+					DetailListType.DateModified => i1 is FileSystemItem f1 && i2 is FileSystemItem f2 ? f1.DateModified.CompareTo(f2.DateModified) : string.Compare(i1.Name, i2.Name, StringComparison.OrdinalIgnoreCase),
+					_ => string.Compare(i1.Name, i2.Name, StringComparison.OrdinalIgnoreCase),
 				};
 			}
 			throw new NotImplementedException();

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -46,8 +47,8 @@ public partial class App {
 			Current.Shutdown();
 			return;
 		}
-		if (Args.RequireDebugger && Debugger.Launch()) {
-			Debugger.Break();
+		if (Args.RequireDebugger) {
+			Debugger.Launch();
 		}
 
 		mutex = new Mutex(true, "ExplorerExMut", out var createdNew);
@@ -67,9 +68,7 @@ public partial class App {
 
 		isRunning = true;
 		notifyMmf = new NotifyMemoryMappedFile("ExplorerExIPC", 1024, true);
-		new Thread(IPCWork) {
-			IsBackground = true
-		}.Start();
+		_ = Task.Factory.StartNew(IPCWork, TaskCreationOptions.LongRunning);
 
 		ProcessorCount = Environment.ProcessorCount;
 		IconHelper.Initialize();
@@ -159,6 +158,9 @@ public partial class App {
 				case "Open":
 					Dispatcher.Invoke(() => View.MainWindow.OpenPath(msg.Length == 2 ? msg[1] : null));
 					break;
+				// case "Select":
+				// 	Dispatcher.Invoke(() => View.MainWindow.OpenPath(msg.Length == 2 ? msg[1] : null));
+				// 	break;
 				}
 			}
 		}

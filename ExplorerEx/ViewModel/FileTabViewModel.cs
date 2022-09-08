@@ -399,7 +399,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			break;
 		case ViewSortGroup.Details:  // 详细信息
 			FileViewType = FileViewType.Details;
-			ItemSize = new Size(0d, 30d);
+			ItemSize = new Size(double.NaN, 30d);
 			break;
 		case ViewSortGroup.Tiles:  // 平铺
 			FileViewType = FileViewType.Tiles;
@@ -407,7 +407,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			break;
 		case ViewSortGroup.Content:  // 内容
 			FileViewType = FileViewType.Content;
-			ItemSize = new Size(0d, 70d);
+			ItemSize = new Size(double.NaN, 70d);
 			break;
 
 		case ViewSortGroup.SortByName:
@@ -784,9 +784,9 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			}
 			var lastIndexOfSlash = FullPath.LastIndexOf('\\');
 			return lastIndexOfSlash switch {
-				-1 => LoadDirectoryAsync(null),
-				2 => LoadDirectoryAsync(FullPath[..3]),  // 例如F:\，此时需要保留最后的\
-				_ => LoadDirectoryAsync(FullPath[..lastIndexOfSlash])
+				-1 => LoadDirectoryAsync(null, true, FullPath),
+				2 => LoadDirectoryAsync(FullPath[..3], true, FullPath),  // 例如F:\，此时需要保留最后的\
+				_ => LoadDirectoryAsync(FullPath[..lastIndexOfSlash], true, FullPath)
 			};
 		}
 		return Task.FromResult(false);

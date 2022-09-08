@@ -16,140 +16,11 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="0,15,10,10" Orientation="Horizontal">
-            <hc:SplitButton Padding="0" Height="35" HitMode="None" IsEnabled="{Binding CanGoToUpperLevel}"
-                            Command="{Binding ViewModel.CreateCommand, RelativeSource={RelativeSource AncestorType=ct:FileViewGrid}}"
-                            Style="{StaticResource SplitButtonTransparent}">
-                <StackPanel Orientation="Horizontal" Margin="10,5,5,5">
-                    <Image VerticalAlignment="Center" Source="{StaticResource NewDrawingImage}" Width="20" Height="20" SnapsToDevicePixels="True"/>
-                    <TextBlock Text="{u:Lang New}" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                </StackPanel>
-                <hc:SplitButton.DropDownContent>
-                    <ContextMenu ItemsSource="{Binding Source={x:Static m:CreateFileItem.Items}}"
-                                 ItemContainerStyle="{StaticResource CreateMenuItemContainerStyle}"/>
-                </hc:SplitButton.DropDownContent>
-            </hc:SplitButton>
-            <Rectangle Width="1" Height="30" Fill="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
-
-            <StackPanel Orientation="Horizontal">
-                <Button VerticalAlignment="Stretch" Height="35" ToolTip="{u:Lang Cut}"
-                        IsEnabled="{Binding CanDeleteOrCut, Mode=OneWay}"
-                        Command="{Binding FileItemCommand}" CommandParameter="Cut"
-                        Style="{StaticResource ButtonTransparent}">
-                    <Image Width="20" Height="20" Source="{DynamicResource CutDrawingImage}"/>
-                </Button>
-                <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Copy}"
-                        IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
-                        Command="{Binding FileItemCommand}" CommandParameter="Copy"
-                        Style="{StaticResource ButtonTransparent}">
-                    <Image Width="20" Height="20" Source="{DynamicResource CopyDrawingImage}"/>
-                </Button>
-                <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Paste}"
-                        IsEnabled="{Binding CanPaste, Mode=OneWay}"
-                        Command="{Binding FileItemCommand}" CommandParameter="Paste"
-                        Style="{StaticResource ButtonTransparent}">
-                    <Image Width="20" Height="20" Source="{DynamicResource PasteDrawingImage}"/>
-                </Button>
-                <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Rename}"
-                        IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
-                        Command="{Binding FileItemCommand}" CommandParameter="Rename"
-                        Style="{StaticResource ButtonTransparent}">
-                    <Image Width="20" Height="20" Source="{DynamicResource RenameDrawingImage}"/>
-                </Button>
-                <!--<Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Share}"
-                                        IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
-                                        Command="{Binding ShareCommand}">
-                                    <Image Width="20" Height="20" Source="{StaticResource ShareDrawingImage}"/>
-                                </Button>-->
-                <Button VerticalAlignment="Stretch" Height="35" Margin="10,0,0,0" ToolTip="{u:Lang Delete}"
-                        IsEnabled="{Binding CanDeleteOrCut, Mode=OneWay}"
-                        Command="{Binding FileItemCommand}" CommandParameter="Delete"
-                        Style="{StaticResource ButtonTransparent}">
-                    <Image Width="20" Height="20" Source="{DynamicResource DeleteDrawingImage}"/>
-                </Button>
-                <Rectangle Width="1" Height="30" Fill="{DynamicResource ThirdlyTextBrush}" Margin="10,0,10,0"/>
-            </StackPanel>
-
-            <hc:SplitButton Padding="0" Height="35" HitMode="None" Command="{Binding SwitchViewCommand}"
-                            Style="{StaticResource SplitButtonTransparent}">
-                <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
-                    <Image Margin="10,0,0,0" Width="20" Height="20"
-                           Source="{Binding FileView.IsAscending, Mode=OneWay, Converter={StaticResource IsAscending2ImageSourceConverter}}"/>
-                    <TextBlock Text="{u:Lang Sort}" VerticalAlignment="Center" Margin="7,0,5,0"/>
-                </StackPanel>
-                <hc:SplitButton.DropDownContent>
-                    <ContextMenu>
-                        <ContextMenu.Items>
-                            <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByName}" Header="{u:Lang Name}" 
-                                      IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByName}}"/>
-                            <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByDateModified}" Header="{u:Lang DateModified}"
-                                      IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByDateModified}}"/>
-                            <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByType}" Header="{u:Lang Type}"
-                                      IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByType}}"/>
-                            <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByFileSize}" Header="{u:Lang FileSize}"
-                                      IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByFileSize}}"/>
-                            <Separator/>
-
-                            <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Ascending}" Icon="{DynamicResource SortAscendingDrawingImage}" Header="{u:Lang Ascending}"
-                                      IsChecked="{Binding FileView.IsAscending, Mode=OneWay}"/>
-                            <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Descending}" Icon="{DynamicResource SortDescendingDrawingImage}" Header="{u:Lang Descending}"
-                                      IsChecked="{Binding FileView.IsAscending, Mode=OneWay, Converter={StaticResource Boolean2BooleanReConverter}}"/>
-                            <Separator/>
-
-                            <MenuItem Icon="{DynamicResource GroupDrawingImage}" Header="{u:Lang GroupBy}">
-                                <MenuItem.Items>
-                                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByNone}" Header="{u:Lang None}" 
-                                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByNone}}"/>
-                                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByName}" Header="{u:Lang Name}" 
-                                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByName}}"/>
-                                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByDateModified}" Header="{u:Lang DateModified}"
-                                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByDateModified}}"/>
-                                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByType}" Header="{u:Lang Type}"
-                                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByType}}"/>
-                                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByFileSize}" Header="{u:Lang FileSize}"
-                                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByFileSize}}"/>
-                                </MenuItem.Items>
-                            </MenuItem>
-                        </ContextMenu.Items>
-                    </ContextMenu>
-                </hc:SplitButton.DropDownContent>
-            </hc:SplitButton>
-            <hc:SplitButton Padding="0" Height="35" Margin="10,0,0,0" HitMode="None" Command="{Binding SwitchViewCommand}"
-                            Style="{StaticResource SplitButtonTransparent}">
-                <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
-                    <Image Margin="10,0,0,0" Width="20" Height="20" 
-                           Source="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource ViewIndex2ImageSourceConverter}}"/>
-                    <TextBlock Text="{u:Lang View}" VerticalAlignment="Center" Margin="10,0,5,0"/>
-                </StackPanel>
-                <hc:SplitButton.DropDownContent>
-                    <ContextMenu>
-                        <ContextMenu.Items>
-                            <MenuItem CommandParameter="{x:Static e:ViewSortGroup.LargeIcons}" Header="{u:Lang LargeIcons}" Icon="{DynamicResource LargeIconsDrawingImage}"
-                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.LargeIcons}}"/>
-                            <MenuItem CommandParameter="{x:Static e:ViewSortGroup.MediumIcons}" Header="{u:Lang MediumIcons}" Icon="{DynamicResource MediumIconsDrawingImage}"
-                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.MediumIcons}}"/>
-                            <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SmallIcons}" Header="{u:Lang SmallIcons}" Icon="{DynamicResource SmallIconsDrawingImage}"
-                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SmallIcons}}"/>
-                            <MenuItem CommandParameter="{x:Static e:ViewSortGroup.List}" Header="{u:Lang List}" Icon="{DynamicResource ListDrawingImage}"
-                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.List}}"/>
-                            <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Details}" Header="{u:Lang Details}" Icon="{DynamicResource DetailsDrawingImage}"
-                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Details}}"/>
-                            <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Tiles}" Header="{u:Lang Tiles}" Icon="{DynamicResource TilesDrawingImage}"
-                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Tiles}}"/>
-                            <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Content}" Header="{u:Lang Content}" Icon="{DynamicResource ContentDrawingImage}"
-                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Content}}"/>
-                        </ContextMenu.Items>
-                    </ContextMenu>
-                </hc:SplitButton.DropDownContent>
-            </hc:SplitButton>
-        </StackPanel>
-
-        <Border Grid.Row="1" Margin="0,0,10,0" Padding="0,3" BorderBrush="{DynamicResource BorderBrush}">
+        <Border Grid.Row="0" Margin="0,0,10,0" Padding="0,3" 
+                BorderBrush="{DynamicResource BorderBrush}" UseLayoutRounding="True">
             <Grid Height="40">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -201,15 +72,15 @@
                 </Button>
 
                 <ct:AddressBar Grid.Column="4" DockPanel.Dock="Left" FullPath="{Binding FullPath, Mode=OneWay}" Margin="5,3"
-                               PreviewKeyDown="AddressBar_OnPreviewKeyDown" PopupItemClicked="AddressBar_OnPopupItemClicked"/>
+                               PreviewKeyDown="AddressBar_OnPreviewKeyDown" PopupItemClicked="AddressBar_OnPopupItemClicked" Height="32"/>
                 <GridSplitter Grid.Column="5" Margin="-2,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                <hc:TextBox Grid.Column="6" DockPanel.Dock="Right" ShowClearButton="True" 
+                <hc:TextBox Grid.Column="6" DockPanel.Dock="Right" ShowClearButton="True" Height="32"
                             Margin="5,3,0,3" hc:InfoElement.Placeholder="{Binding SearchPlaceholderText, Mode=OneWay}"
                             Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
         </Border>
 
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition Height="Auto"/>
@@ -222,18 +93,151 @@
                     <Image Source="{Binding BackgroundImage, Source={x:Static ex:Settings.Current}}"
                            Opacity="{Binding BackgroundImageOpacity, Source={x:Static ex:Settings.Current}}"
                            Stretch="UniformToFill"/>
-                    <ct:FileListView x:Name="FileListView" d:DataContext="{d:DesignInstance vm:FileTabViewModel}"
-                                     ItemsSource="{Binding Items.AsObservable, Mode=OneWay}" 
-                                     FileView="{Binding FileView, Mode=OneWay}"
-                                     FullPath="{Binding FullPath, Mode=OneWay}"
-                                     Folder="{Binding Folder, Mode=OneWay}"
-                                     OwnerWindow="{Binding OwnerWindow, Mode=OneTime}">
-                        <hc:Interaction.Triggers>
-                            <hc:RoutedEventTrigger RoutedEvent="ct:FileListView.ItemDoubleClicked">
-                                <hc:EventToCommand Command="{Binding ItemDoubleClickedCommand}" PassEventArgsToCommand="True"/>
-                            </hc:RoutedEventTrigger>
-                        </hc:Interaction.Triggers>
-                    </ct:FileListView>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0" Background="{DynamicResource RegionBrush}" UseLayoutRounding="True"
+                                BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SecondaryBorderBrush}">
+                            <StackPanel Margin="10,4" Orientation="Horizontal">
+                                <hc:SplitButton Padding="0" Height="34" HitMode="None" IsEnabled="{Binding CanGoToUpperLevel}"
+                                            Command="{Binding ViewModel.CreateCommand, RelativeSource={RelativeSource AncestorType=ct:FileViewGrid}}"
+                                            Style="{StaticResource SplitButtonTransparent}">
+                                    <StackPanel Orientation="Horizontal" Margin="8,4,4,4">
+                                        <Image VerticalAlignment="Center" Source="{StaticResource NewDrawingImage}" Width="16" Height="16" SnapsToDevicePixels="True"/>
+                                        <TextBlock Text="{u:Lang New}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                    </StackPanel>
+                                    <hc:SplitButton.DropDownContent>
+                                        <ContextMenu ItemsSource="{Binding Source={x:Static m:CreateFileItem.Items}}"
+                                                     ItemContainerStyle="{StaticResource CreateMenuItemContainerStyle}"/>
+                                    </hc:SplitButton.DropDownContent>
+                                </hc:SplitButton>
+                                <Rectangle Width="1" Height="30" Fill="{DynamicResource SecondaryBorderBrush}" Margin="10,0,10,0"/>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button VerticalAlignment="Stretch" Height="34" Margin="0,0,6,0" ToolTip="{u:Lang Cut}" Padding="8"
+                                            IsEnabled="{Binding CanDeleteOrCut, Mode=OneWay}"
+                                            Command="{Binding FileItemCommand}" CommandParameter="Cut"
+                                            Style="{StaticResource ButtonTransparent}">
+                                        <Image Width="18" Height="18" Source="{DynamicResource CutDrawingImage}"/>
+                                    </Button>
+                                    <Button VerticalAlignment="Stretch" Height="34" Margin="0,0,6,0" ToolTip="{u:Lang Copy}"  Padding="8"
+                                        IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
+                                        Command="{Binding FileItemCommand}" CommandParameter="Copy"
+                                        Style="{StaticResource ButtonTransparent}">
+                                        <Image Width="16" Height="16" Source="{DynamicResource CopyDrawingImage}"/>
+                                    </Button>
+                                    <Button VerticalAlignment="Stretch" Height="34" Margin="0,0,6,0" ToolTip="{u:Lang Paste}"  Padding="8"
+                                        IsEnabled="{Binding CanPaste, Mode=OneWay}"
+                                        Command="{Binding FileItemCommand}" CommandParameter="Paste"
+                                        Style="{StaticResource ButtonTransparent}">
+                                        <Image Width="16" Height="16" Source="{DynamicResource PasteDrawingImage}"/>
+                                    </Button>
+                                    <Button VerticalAlignment="Stretch" Height="34" Margin="0,0,6,0" ToolTip="{u:Lang Rename}"  Padding="8"
+                                        IsEnabled="{Binding IsItemSelected, Mode=OneWay}"
+                                        Command="{Binding FileItemCommand}" CommandParameter="Rename"
+                                        Style="{StaticResource ButtonTransparent}">
+                                        <Image Width="16" Height="16" Source="{DynamicResource RenameDrawingImage}"/>
+                                    </Button>
+                                    <Button VerticalAlignment="Stretch" Height="34" ToolTip="{u:Lang Delete}"  Padding="8"
+                                        IsEnabled="{Binding CanDeleteOrCut, Mode=OneWay}"
+                                        Command="{Binding FileItemCommand}" CommandParameter="Delete"
+                                        Style="{StaticResource ButtonTransparent}">
+                                        <Image Width="16" Height="16" Source="{DynamicResource DeleteDrawingImage}"/>
+                                    </Button>
+                                    <Rectangle Width="1" Height="30" Fill="{DynamicResource SecondaryBorderBrush}" Margin="10,0,10,0"/>
+                                </StackPanel>
+
+                                <hc:SplitButton Padding="0" Height="34" HitMode="None" Command="{Binding SwitchViewCommand}"
+                                                Style="{StaticResource SplitButtonTransparent}" Margin="0,0,6,0">
+                                    <StackPanel Orientation="Horizontal" Margin="8,4,4,4">
+                                        <Image Width="16" Height="16"
+                                               Source="{Binding FileView.IsAscending, Mode=OneWay, Converter={StaticResource IsAscending2ImageSourceConverter}}"/>
+                                        <TextBlock Text="{u:Lang Sort}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                    </StackPanel>
+                                    <hc:SplitButton.DropDownContent>
+                                        <ContextMenu>
+                                            <ContextMenu.Items>
+                                                <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByName}" Header="{u:Lang Name}" 
+                                      IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByName}}"/>
+                                                <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByDateModified}" Header="{u:Lang DateModified}"
+                                      IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByDateModified}}"/>
+                                                <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByType}" Header="{u:Lang Type}"
+                                      IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByType}}"/>
+                                                <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByFileSize}" Header="{u:Lang FileSize}"
+                                      IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByFileSize}}"/>
+                                                <Separator/>
+
+                                                <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Ascending}" Icon="{DynamicResource SortAscendingDrawingImage}" Header="{u:Lang Ascending}"
+                                      IsChecked="{Binding FileView.IsAscending, Mode=OneWay}"/>
+                                                <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Descending}" Icon="{DynamicResource SortDescendingDrawingImage}" Header="{u:Lang Descending}"
+                                      IsChecked="{Binding FileView.IsAscending, Mode=OneWay, Converter={StaticResource Boolean2BooleanReConverter}}"/>
+                                                <Separator/>
+
+                                                <MenuItem Icon="{DynamicResource GroupDrawingImage}" Header="{u:Lang GroupBy}">
+                                                    <MenuItem.Items>
+                                                        <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByNone}" Header="{u:Lang None}" 
+                                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByNone}}"/>
+                                                        <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByName}" Header="{u:Lang Name}" 
+                                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByName}}"/>
+                                                        <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByDateModified}" Header="{u:Lang DateModified}"
+                                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByDateModified}}"/>
+                                                        <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByType}" Header="{u:Lang Type}"
+                                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByType}}"/>
+                                                        <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByFileSize}" Header="{u:Lang FileSize}"
+                                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByFileSize}}"/>
+                                                    </MenuItem.Items>
+                                                </MenuItem>
+                                            </ContextMenu.Items>
+                                        </ContextMenu>
+                                    </hc:SplitButton.DropDownContent>
+                                </hc:SplitButton>
+                                <hc:SplitButton Padding="0" Height="34" HitMode="None" Command="{Binding SwitchViewCommand}"
+                                                Style="{StaticResource SplitButtonTransparent}">
+                                    <StackPanel Orientation="Horizontal" Margin="8,4,4,4">
+                                        <Image Width="16" Height="16"
+                                               Source="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource ViewIndex2ImageSourceConverter}}"/>
+                                        <TextBlock Text="{u:Lang View}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                    </StackPanel>
+                                    <hc:SplitButton.DropDownContent>
+                                        <ContextMenu>
+                                            <ContextMenu.Items>
+                                                <MenuItem CommandParameter="{x:Static e:ViewSortGroup.LargeIcons}" Header="{u:Lang LargeIcons}" Icon="{DynamicResource LargeIconsDrawingImage}"
+                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.LargeIcons}}"/>
+                                                <MenuItem CommandParameter="{x:Static e:ViewSortGroup.MediumIcons}" Header="{u:Lang MediumIcons}" Icon="{DynamicResource MediumIconsDrawingImage}"
+                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.MediumIcons}}"/>
+                                                <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SmallIcons}" Header="{u:Lang SmallIcons}" Icon="{DynamicResource SmallIconsDrawingImage}"
+                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SmallIcons}}"/>
+                                                <MenuItem CommandParameter="{x:Static e:ViewSortGroup.List}" Header="{u:Lang List}" Icon="{DynamicResource ListDrawingImage}"
+                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.List}}"/>
+                                                <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Details}" Header="{u:Lang Details}" Icon="{DynamicResource DetailsDrawingImage}"
+                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Details}}"/>
+                                                <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Tiles}" Header="{u:Lang Tiles}" Icon="{DynamicResource TilesDrawingImage}"
+                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Tiles}}"/>
+                                                <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Content}" Header="{u:Lang Content}" Icon="{DynamicResource ContentDrawingImage}"
+                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Content}}"/>
+                                            </ContextMenu.Items>
+                                        </ContextMenu>
+                                    </hc:SplitButton.DropDownContent>
+                                </hc:SplitButton>
+                            </StackPanel>
+                        </Border>
+
+                        <ct:FileListView x:Name="FileListView" Grid.Row="1" d:DataContext="{d:DesignInstance vm:FileTabViewModel}"
+                                         ItemsSource="{Binding Items.AsObservable, Mode=OneWay}" 
+                                         FileView="{Binding FileView, Mode=OneWay}"
+                                         FullPath="{Binding FullPath, Mode=OneWay}"
+                                         Folder="{Binding Folder, Mode=OneWay}"
+                                         OwnerWindow="{Binding OwnerWindow, Mode=OneTime}">
+                            <hc:Interaction.Triggers>
+                                <hc:RoutedEventTrigger RoutedEvent="ct:FileListView.ItemDoubleClicked">
+                                    <hc:EventToCommand Command="{Binding ItemDoubleClickedCommand}" PassEventArgsToCommand="True"/>
+                                </hc:RoutedEventTrigger>
+                            </hc:Interaction.Triggers>
+                        </ct:FileListView>
+                    </Grid>
                 </hc:SimplePanel>
             </ct:ClippingBorder>
 

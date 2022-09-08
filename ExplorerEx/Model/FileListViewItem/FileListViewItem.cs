@@ -20,7 +20,7 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 		This = this;
 	}
 
-	protected FileListViewItem(ImageSource defaultIcon, LoadDetailsOptions options) {
+	protected FileListViewItem(ImageSource? defaultIcon, LoadDetailsOptions options) {
 		this.defaultIcon = defaultIcon;
 		Options = options;
 		This = this;
@@ -34,7 +34,7 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 		This = this;
 	}
 
-	protected FileListViewItem(string fullPath, string name, ImageSource defaultIcon, LoadDetailsOptions options) {
+	protected FileListViewItem(string fullPath, string name, ImageSource? defaultIcon, LoadDetailsOptions options) {
 		FullPath = fullPath;
 		Name = name;
 		this.defaultIcon = defaultIcon;
@@ -50,10 +50,7 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 			if (icon != null) {
 				return icon;
 			}
-			Task.Run(() => {
-				LoadIcon();
-				LoadAttributes();
-			});  // TODO
+			LazyLoad();
 			return defaultIcon;
 		}
 		protected set {
@@ -66,9 +63,18 @@ public abstract class FileListViewItem : INotifyPropertyChanged {
 
 	private ImageSource? icon;
 
-	protected readonly ImageSource defaultIcon;
+	protected readonly ImageSource? defaultIcon;
 
-	
+	/// <summary>
+	/// 当get_Icon的时候运行
+	/// </summary>
+	protected virtual void LazyLoad() {
+		Task.Run(() => {
+			LoadIcon();
+			LoadAttributes();
+		});  // TODO
+	}
+
 	public double Opacity {
 		get => opacity;
 		set {

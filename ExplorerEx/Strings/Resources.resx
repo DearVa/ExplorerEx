@@ -229,9 +229,6 @@ Are you sure you want to change?</value>
   <data name="Bookmarks" xml:space="preserve">
     <value>Bookmarks</value>
   </data>
-  <data name="Quick_access" xml:space="preserve">
-    <value>Quick access</value>
-  </data>
   <data name="Settings" xml:space="preserve">
     <value>Settings</value>
   </data>
@@ -757,5 +754,8 @@ Can't find it? Don't worry, click "yes" and I will regenerate one on the desktop
   </data>
   <data name="Sorry" xml:space="preserve">
     <value>Sorry</value>
+  </data>
+  <data name="CollapseAll" xml:space="preserve">
+    <value>Collapse all</value>
   </data>
 </root>

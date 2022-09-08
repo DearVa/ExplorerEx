@@ -23,15 +23,18 @@ public sealed class DiskDriveItem : FolderItem {
 
 	public long TotalSpace { get; private set; }
 
-	public double FreeSpaceRatio => TotalSpace == -1 ? 0 : (double)(TotalSpace - FreeSpace) / TotalSpace;
+	/// <summary>
+	/// 使用占比
+	/// </summary>
+	public double PercentFull => TotalSpace == -1 ? 0 : (double)(TotalSpace - FreeSpace) / TotalSpace;
 
-	public Brush ProgressBarBackground => FreeSpaceRatio > 0.8d ? new SolidColorBrush(GradientColor.Eval((FreeSpaceRatio - 0.5d) * 2d)) : NormalProgressBrush;
+	public Brush ProgressBarBackground => PercentFull > 0.8d ? new SolidColorBrush(GradientColor.Eval((PercentFull - 0.8d) * 10d)) : NormalProgressBrush;
 
 	public string SpaceOverviewString => $"{"Available: ".L()}{FileUtils.FormatByteSize(FreeSpace)}{", ".L()}{"Total: ".L()}{FileUtils.FormatByteSize(TotalSpace)}";
 
 	private static readonly SolidColorBrush NormalProgressBrush = new(Colors.ForestGreen);
 
-	private static readonly Gradient GradientColor = new(Colors.ForestGreen, Colors.Orange, Colors.Red);
+	private static readonly Gradient GradientColor = new(Colors.ForestGreen, Colors.OrangeRed, Colors.Red);
 
 	public DiskDriveItem(DriveInfo drive) : base(new DirectoryInfo(drive.Name), LoadDetailsOptions.Default) {
 		Drive = drive;
@@ -51,7 +54,7 @@ public sealed class DiskDriveItem : FolderItem {
 		}
 		OnPropertyChanged(nameof(FreeSpace));
 		OnPropertyChanged(nameof(TotalSpace));
-		OnPropertyChanged(nameof(FreeSpaceRatio));
+		OnPropertyChanged(nameof(PercentFull));
 		OnPropertyChanged(nameof(ProgressBarBackground));
 		OnPropertyChanged(nameof(SpaceOverviewString));
 	}
@@ -79,7 +82,6 @@ public sealed class DiskDriveItem : FolderItem {
 	private class Gradient {
 		private readonly int segmentLength;
 		private readonly HSVColor[] colors;
-		private readonly Color endColor;
 
 		public Gradient(params Color[] colors) {
 			Debug.Assert(colors is { Length: > 1 });
@@ -88,16 +90,19 @@ public sealed class DiskDriveItem : FolderItem {
 				this.colors[i] = new HSVColor(colors[i]);
 			}
 			segmentLength = colors.Length - 1;
-			endColor = colors[segmentLength];
 		}
 
 		public Color Eval(double v) {
-			if (v >= 1f) {
-				return endColor;
+			switch (v) {
+			case <= 0d:
+				return colors[0].ToRGB();
+			case >= 1d:
+				return colors[^1].ToRGB();
+			default:
+				var j = v * segmentLength;
+				var i = (int)j;
+				return HSVColor.Lerp(colors[i], colors[i + 1], j - i);
 			}
-			var j = v * segmentLength;
-			var i = (int)j;
-			return HSVColor.Lerp(colors[i], colors[i + 1], j - i);
 		}
 	}
 }

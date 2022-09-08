@@ -25,7 +25,6 @@ internal static class IconHelper {
 	/// 可以获取缩略图的文件格式
 	/// </summary>
 	private static readonly HashSet<string> ExtensionsWithThumbnail = new() {
-		".exe",
 		".lnk",
 		".jpg",
 		".jpeg",
@@ -34,7 +33,6 @@ internal static class IconHelper {
 		".tif",
 		".tiff",
 		".gif",
-		".ico",
 		".svg",
 		".mp3",
 		".flac",
@@ -155,26 +153,33 @@ internal static class IconHelper {
 	/// <returns></returns>
 	public static ImageSource GetLargeIcon(string path, bool useFileAttr) {
 		var extension = Path.GetExtension(path);
-		bool isLnk;
+		var useCache = useFileAttr && path.Length != 3;  // 是硬盘根路径
 
-		if (!string.IsNullOrEmpty(extension) && extension.ToLower() == ".lnk") {
-			isLnk = true;
-		} else {
-			isLnk = false;
+		if (path.Length != 3 && string.IsNullOrEmpty(extension)) {
+			return UnknownFileDrawingImage;
 		}
 
+		extension = extension.ToLower();
+		if (useCache) {
+			lock (CachedLargeIcons) {
+				if (CachedLargeIcons.TryGetValue(extension, out var icon)) {
+					return icon;
+				}
+			}
+		}
+		
 		var dwFa = useFileAttr ? FileAttribute.Normal : 0;
 		var flags = SHGFI.SysIconIndex;
 		if (useFileAttr) {
 			flags |= SHGFI.UseFileAttributes;
-		} else if (isLnk) {
+		} else if (extension == ".lnk") {
 			flags |= SHGFI.LinkOverlay;
 		}
 
 		var shFileInfo = new ShFileInfo();
 		
 		var hr = SHGetFileInfo(path, dwFa, ref shFileInfo, Marshal.SizeOf(shFileInfo), flags);
-		Trace.WriteLine(path + ' ' + hr);
+		// Trace.WriteLine(path + ' ' + hr);
 		if (hr == 0) {
 			return UnknownFileDrawingImage;
 		}
@@ -193,8 +198,10 @@ internal static class IconHelper {
 		var bs = (ImageSource)HIcon2BitmapSource(hIcon);
 		DestroyIcon(hIcon);
 
-		lock (CachedLargeIcons) {
-			CachedLargeIcons[extension] = bs;
+		if (useCache) {
+			lock (CachedLargeIcons) {
+				CachedLargeIcons[extension] = bs;
+			}
 		}
 		return bs;
 	}
@@ -257,11 +264,6 @@ internal static class IconHelper {
 			var bs = (ImageSource)HBitmap2BitmapSource(hBitmap);
 			DeleteObject(hBitmap);
 			return bs;
-		}
-		lock (CachedLargeIcons) {
-			if (CachedLargeIcons.TryGetValue(extension, out var image)) {
-				return image;
-			}
 		}
 		return GetLargeIcon(path, false);
 	}

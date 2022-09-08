@@ -69,6 +69,8 @@ public class FolderItem : FileSystemItem {
 
 	protected FolderItem() : base(true) { }
 
+	protected FolderItem(ImageSource? defaultIcon) : base(defaultIcon) { }
+
 	public FolderItem(DirectoryInfo directoryInfo, LoadDetailsOptions options) : base(directoryInfo, InitializeIsEmptyFolder(directoryInfo.FullName), options) {
 		IsFolder = true;
 		FileSize = -1;

@@ -280,7 +280,7 @@ public partial class ContentDialog {
 			throw new InvalidOperationException("No MainWindow is shown.");
 		}
 		return new ContentDialog {
-			Title = caption ?? "Error".L(),
+			Title = caption ?? "Question".L(),
 			Content = msg,
 			PrimaryButtonText = "Ok".L(),
 			CancelButtonText = "Cancel".L(),

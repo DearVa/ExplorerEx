@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Media;
-using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
 using ExplorerEx.View.Controls;
 using File = System.IO.File;
@@ -9,7 +8,7 @@ using File = System.IO.File;
 namespace ExplorerEx.Model;
 
 public abstract class FileSystemItem : FileListViewItem {
-	protected FileSystemInfo? FileSystemInfo { get; }
+	protected FileSystemInfo? FileSystemInfo { get; init; }
 
 	/// <summary>
 	/// 自动更新UI
@@ -41,7 +40,7 @@ public abstract class FileSystemItem : FileListViewItem {
 
 	private DateTime dateCreated = DateTime.MaxValue;
 
-	public override string GetRenameName() {
+	public override string? GetRenameName() {
 		return Name;
 	}
 
@@ -72,15 +71,17 @@ public abstract class FileSystemItem : FileListViewItem {
 	/// <param name="isFolder"></param>
 	protected FileSystemItem(bool isFolder) : base(isFolder, LoadDetailsOptions.Default) { }
 
+	protected FileSystemItem(ImageSource? defaultIcon) : base(defaultIcon, LoadDetailsOptions.Default) { }
+
 	protected FileSystemItem(string fullPath, string name, bool isFolder, LoadDetailsOptions options) : base(fullPath, name, isFolder, options) { }
 
-	protected FileSystemItem(string fullPath, string name, ImageSource defaultIcon, LoadDetailsOptions options) : base(fullPath, name, defaultIcon, options) { }
+	protected FileSystemItem(string fullPath, string name, ImageSource? defaultIcon, LoadDetailsOptions options) : base(fullPath, name, defaultIcon, options) { }
 
 	protected FileSystemItem(FileSystemInfo fileSystemInfo, bool isFolder, LoadDetailsOptions options) : base(fileSystemInfo.FullName, fileSystemInfo.Name, isFolder, options) {
 		FileSystemInfo = fileSystemInfo;
 	}
 
-	protected FileSystemItem(FileSystemInfo fileSystemInfo, ImageSource defaultIcon, LoadDetailsOptions options) : base(fileSystemInfo.FullName, fileSystemInfo.Name, defaultIcon, options) {
+	protected FileSystemItem(FileSystemInfo fileSystemInfo, ImageSource? defaultIcon, LoadDetailsOptions options) : base(fileSystemInfo.FullName, fileSystemInfo.Name, defaultIcon, options) {
 		FileSystemInfo = fileSystemInfo;
 	}
 }
