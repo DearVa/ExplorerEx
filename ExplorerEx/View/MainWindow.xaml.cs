@@ -817,9 +817,14 @@ public sealed partial class MainWindow {
 		}
 	}
 
+	/// <summary>
+	/// 是否打开了任何对话框？或者正在添加书签？
+	/// </summary>
+	private bool IsAnyDialogShown => RootPanel.Children.Count > 2 || IsAddToBookmarkShow;
+
 	protected override void OnKeyDown(KeyEventArgs e) {
 		var handled = true;
-		if (RootPanel.Children.Count == 2) {  // 没有打开任何对话框
+		if (!IsAnyDialogShown) {
 			var mouseOverTab = FileTabControl.MouseOverTabControl?.SelectedTab;
 			if (mouseOverTab != null) {
 				if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
@@ -889,8 +894,7 @@ public sealed partial class MainWindow {
 	}
 
 	protected override void OnPreviewTextInput(TextCompositionEventArgs e) {
-		if ((RootPanel.Children.Count == 2 || !IsAddToBookmarkShow) &&
-			!string.IsNullOrWhiteSpace(e.Text) && e.OriginalSource is not TextBox and not AddressBar) {  // 没有打开任何对话框
+		if (!IsAnyDialogShown && !string.IsNullOrWhiteSpace(e.Text) && e.OriginalSource is not TextBox and not AddressBar) {
 			var mouseOverTabControl = FileTabControl.MouseOverTabControl;
 			if (mouseOverTabControl != null) {
 				var fileListView = mouseOverTabControl.SelectedTab.FileListView;

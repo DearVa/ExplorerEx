@@ -289,8 +289,9 @@ internal sealed class Settings : INotifyPropertyChanged {
 
 	public double BackgroundImageOpacity => this[CommonSettings.BackgroundImageOpacity].GetDouble();
 
-	private void BackgroundImage_OnChanged(object? o) {
-		if (o is string path && File.Exists(path)) {
+	private void BackgroundImage_OnChanged(SettingsItem si) {
+		var path = si.GetString().Trim(' ').Trim('"').Trim(' ');
+		if (File.Exists(path)) {
 			try {
 				BackgroundImage = new BitmapImage(new Uri(path));
 			} catch {
@@ -426,7 +427,7 @@ internal sealed class Settings : INotifyPropertyChanged {
 		settings[CommonSettings.WindowBackdrop].Changed += _ => ThemeChanged?.Invoke();
 
 		settings[CommonSettings.BackgroundImage].Changed += BackgroundImage_OnChanged;
-		BackgroundImage_OnChanged(settings[CommonSettings.BackgroundImage].Value);
+		BackgroundImage_OnChanged(settings[CommonSettings.BackgroundImage]);
 
 		settings[CommonSettings.BackgroundImageOpacity].Changed += _ => OnPropertyChanged(nameof(BackgroundImageOpacity));
 		settings[CommonSettings.ColorMode].Changed += _ => ThemeChanged?.Invoke();  // 更改颜色
