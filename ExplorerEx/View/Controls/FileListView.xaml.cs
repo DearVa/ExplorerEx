@@ -293,11 +293,11 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// <summary>
 	/// 鼠标按下如果在Row上，就是对应的项；如果不在，就是-1。每次鼠标抬起都重置为-1
 	/// </summary>
-	private int mouseDownRowIndex;
+	private int mouseDownItemIndex;
 	/// <summary>
-	/// <see cref="mouseDownRowIndex"/>重置为-1之前的值，主要用于shift多选
+	/// <see cref="mouseDownItemIndex"/>重置为-1之前的值，主要用于shift多选
 	/// </summary>
-	private int lastMouseDownRowIndex;
+	private int prevMouseDownItemIndex;
 
 	private Point mouseDownPoint;
 
@@ -315,11 +315,11 @@ public partial class FileListView : INotifyPropertyChanged {
 	private bool shouldRename;
 
 	private void OnItemsChanged(object? sender, NotifyCollectionChangedEventArgs e) {
-		if (e.OldStartingIndex == lastMouseDownRowIndex) {
-			lastMouseDownRowIndex = -1;
+		if (e.OldStartingIndex == prevMouseDownItemIndex) {
+			prevMouseDownItemIndex = -1;
 		}
-		if (e.OldStartingIndex == mouseDownRowIndex) {
-			mouseDownRowIndex = -1;
+		if (e.OldStartingIndex == mouseDownItemIndex) {
+			mouseDownItemIndex = -1;
 		}
 	}
 
@@ -352,9 +352,12 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// </summary>
 	private bool isDoubleClicked;
 
-	private FileListViewItem? lastMouseUpItem;
+	private bool isCtrlPressedWhenMouseDown;
+	private bool isShiftPressedWhenMouseDown;
+
+	private FileListViewItem? prevMouseUpItem;
 	private Point prevMouseUpPoint;
-	private DateTimeOffset lastMouseUpTime;
+	private DateTimeOffset prevMouseUpTime;
 
 	/// <summary>
 	/// 认真观察了自带文件管理器的交互方式。
@@ -387,13 +390,16 @@ public partial class FileListView : INotifyPropertyChanged {
 			shouldRename = false;
 			mouseDownPoint = e.GetPosition(contentPanel);
 			var item = MouseItem;
+			var keyboard = Keyboard.PrimaryDevice;
+			isCtrlPressedWhenMouseDown = keyboard.IsKeyDown(Key.LeftCtrl) || keyboard.IsKeyDown(Key.RightCtrl);
+			isShiftPressedWhenMouseDown = keyboard.IsKeyDown(Key.LeftShift) || keyboard.IsKeyDown(Key.RightShift);
 			if (item != null) {
-				mouseDownRowIndex = Items.IndexOf(item);
+				mouseDownItemIndex = Items.IndexOf(item);
 				if (e.ChangedButton == MouseButton.Left) {
-					if (item == lastMouseUpItem &&
+					if (item == prevMouseUpItem &&
 						Math.Abs(mouseDownPoint.X - prevMouseUpPoint.X) < SystemParameters.MinimumHorizontalDragDistance &&
 						Math.Abs(mouseDownPoint.Y - prevMouseUpPoint.Y) < SystemParameters.MinimumVerticalDragDistance &&
-						DateTimeOffset.Now <= lastMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime())) {
+						DateTimeOffset.Now <= prevMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime())) {
 						isDoubleClicked = true;
 						if (ViewModel.SelectedItems.Count > 1) {  // 如果双击就取消其他项的选择，只选择当前项
 							foreach (var fileItem in ViewModel.SelectedItems.Where(i => i != item)) {
@@ -402,23 +408,22 @@ public partial class FileListView : INotifyPropertyChanged {
 						}
 						RaiseEvent(new ItemClickEventArgs(ItemDoubleClickedEvent, item));
 					} else {
-						var keyboard = Keyboard.PrimaryDevice;
-						if (keyboard.IsKeyDown(Key.LeftCtrl) || keyboard.IsKeyDown(Key.RightCtrl)) {
-							lastMouseDownRowIndex = mouseDownRowIndex;
+						if (isCtrlPressedWhenMouseDown) {
+							prevMouseDownItemIndex = mouseDownItemIndex;
 							item.IsSelected = !item.IsSelected;
-						} else if (keyboard.IsKeyDown(Key.LeftShift) || keyboard.IsKeyDown(Key.RightShift)) {
-							if (lastMouseDownRowIndex == -1) {
-								lastMouseDownRowIndex = mouseDownRowIndex;
+						} else if (isShiftPressedWhenMouseDown) {
+							if (prevMouseDownItemIndex == -1) {
+								prevMouseDownItemIndex = mouseDownItemIndex;
 								item.IsSelected = true;
 							} else {
-								if (mouseDownRowIndex != lastMouseDownRowIndex) {
+								if (mouseDownItemIndex != prevMouseDownItemIndex) {
 									int startIndex, endIndex;
-									if (mouseDownRowIndex < lastMouseDownRowIndex) {
-										startIndex = mouseDownRowIndex;
-										endIndex = lastMouseDownRowIndex;
+									if (mouseDownItemIndex < prevMouseDownItemIndex) {
+										startIndex = mouseDownItemIndex;
+										endIndex = prevMouseDownItemIndex;
 									} else {
-										startIndex = lastMouseDownRowIndex;
-										endIndex = mouseDownRowIndex;
+										startIndex = prevMouseDownItemIndex;
+										endIndex = mouseDownItemIndex;
 									}
 									UnselectAll();
 									for (var i = startIndex; i <= endIndex; i++) {
@@ -427,20 +432,27 @@ public partial class FileListView : INotifyPropertyChanged {
 								}
 							}
 						} else {
-							lastMouseDownRowIndex = mouseDownRowIndex;
+							prevMouseDownItemIndex = mouseDownItemIndex;
 							var selectedItems = SelectedItems;
-							if (selectedItems.Count == 0) {
+							switch (selectedItems.Count) {
+							case 0:
 								item.IsSelected = true;
-							} else if (item.IsSelected && selectedItems.Count == 1) {
+								break;
+							case 1 when item.IsSelected:
 								isPreparedForRenaming = true;
-							} else {
+								break;
+							case 1:
 								UnselectAll();
 								item.IsSelected = true;
+								break;
+							default:
+								item.IsSelected = true;
+								break;
 							}
 						}
 					}
 				} else {
-					lastMouseDownRowIndex = mouseDownRowIndex;
+					prevMouseDownItemIndex = mouseDownItemIndex;
 					var selectedItems = SelectedItems;
 					if (selectedItems.Count == 0) {
 						item.IsSelected = true;
@@ -450,12 +462,14 @@ public partial class FileListView : INotifyPropertyChanged {
 					}
 				}
 			} else {
-				UnselectAll();
-				mouseDownRowIndex = -1;
-				if (Settings.Current[Settings.CommonSettings.DoubleClickGoUpperLevel].GetBoolean() && lastMouseUpItem == null && e.ChangedButton == MouseButton.Left) {
+				if (!isCtrlPressedWhenMouseDown && !isShiftPressedWhenMouseDown) {
+					UnselectAll();
+				}
+				mouseDownItemIndex = -1;
+				if (Settings.Current[Settings.CommonSettings.DoubleClickGoUpperLevel].GetBoolean() && prevMouseUpItem == null && e.ChangedButton == MouseButton.Left) {
 					if (Math.Abs(mouseDownPoint.X - prevMouseUpPoint.X) < SystemParameters.MinimumHorizontalDragDistance &&
 						Math.Abs(mouseDownPoint.Y - prevMouseUpPoint.Y) < SystemParameters.MinimumVerticalDragDistance &&
-						DateTimeOffset.Now <= lastMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime())) {
+						DateTimeOffset.Now <= prevMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime())) {
 						ViewModel.GoToUpperLevelAsync();
 					}
 				}
@@ -496,7 +510,7 @@ public partial class FileListView : INotifyPropertyChanged {
 			var point = e.GetPosition(contentPanel);
 			if (Math.Abs(point.X - mouseDownPoint.X) >= SystemParameters.MinimumHorizontalDragDistance ||
 				Math.Abs(point.Y - mouseDownPoint.Y) >= SystemParameters.MinimumVerticalDragDistance) {
-				if (mouseDownRowIndex != -1) {
+				if (mouseDownItemIndex != -1) {
 					draggingPaths = ViewModel.SelectedItems.Select(i => i.FullPath).ToArray();
 					var selectedItems = ViewModel.SelectedItems;
 					var data = new DataObject(DataFormats.FileDrop, selectedItems.Select(item => item.FullPath).ToArray(), true);
@@ -610,11 +624,17 @@ public partial class FileListView : INotifyPropertyChanged {
 				if (e.OriginalSource.FindParent<Expander, VirtualizingPanel>() != null) {  // 如果点击在了Expander上，也直接返回
 					break;
 				}
-				var isClickOnItem = mouseDownRowIndex >= 0 && mouseDownRowIndex < ItemsSource.Count;
+
+				var isClickOnItem = mouseDownItemIndex >= 0 && mouseDownItemIndex < ItemsSource.Count;
+				if (isClickOnItem) {
+					prevMouseUpItem = (FileListViewItem)Items[mouseDownItemIndex];
+				} else {
+					prevMouseUpItem = null;
+				}
 				if (isPreparedForRenaming) {
 					isPreparedForRenaming = false;
-					if (mouseDownRowIndex >= 0 && mouseDownRowIndex < ItemsSource.Count && DateTimeOffset.Now > lastMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime() * 1.5)) {
-						var item = (FileListViewItem)Items[mouseDownRowIndex];
+					if (mouseDownItemIndex >= 0 && mouseDownItemIndex < ItemsSource.Count && DateTimeOffset.Now > prevMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime() * 1.5)) {
+						var item = (FileListViewItem)Items[mouseDownItemIndex];
 						if (!shouldRename) {
 							shouldRename = true;
 							Task.Run(async () => {
@@ -628,9 +648,17 @@ public partial class FileListView : INotifyPropertyChanged {
 							shouldRename = false;
 						}
 					}
-				} else if (e.ChangedButton == MouseButton.Right) {
-					if (isClickOnItem && e.OriginalSource is DependencyObject o) {
-						var item = (FileListViewItem)Items[mouseDownRowIndex];
+				} else {
+					switch (e.ChangedButton) {
+					case MouseButton.Left when isClickOnItem:
+						if (!isCtrlPressedWhenMouseDown && !isShiftPressedWhenMouseDown) {
+							foreach (var selectedItem in ViewModel.SelectedItems.Where(selectedItem => selectedItem != prevMouseUpItem).ToList()) {
+								selectedItem.IsSelected = false;
+							}
+						}
+						break;
+					case MouseButton.Right when isClickOnItem && e.OriginalSource is DependencyObject o: {
+						var item = (FileListViewItem)Items[mouseDownItemIndex];
 						openedContextMenu = ((FrameworkElement)ContainerFromElement(o)!).ContextMenu!;
 						openedContextMenu.SetValue(FileItemAttach.FileItemProperty, item);
 						openedContextMenu.DataContext = this;
@@ -642,24 +670,22 @@ public partial class FileListView : INotifyPropertyChanged {
 							}
 						}
 						openedContextMenu.IsOpen = true;
-					} else {
+						break;
+					}
+					case MouseButton.Right:
 						UnselectAll();
 						openedContextMenu = ContextMenu!;
 						openedContextMenu.DataContext = ViewModel;
 						openedContextMenu.IsOpen = true;
+						break;
 					}
 				}
-				if (isClickOnItem) {
-					lastMouseUpItem = (FileListViewItem)Items[mouseDownRowIndex];
-				} else {
-					lastMouseUpItem = null;
-				}
-				lastMouseUpTime = DateTimeOffset.Now;
+				prevMouseUpTime = DateTimeOffset.Now;
 				prevMouseUpPoint = e.GetPosition(contentPanel);
 				e.Handled = true;
 			}
 		} while (false);
-		mouseDownRowIndex = -1;
+		mouseDownItemIndex = -1;
 	}
 
 	protected override void OnSelectionChanged(SelectionChangedEventArgs e) {

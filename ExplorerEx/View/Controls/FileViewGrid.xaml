@@ -99,7 +99,7 @@
                             <RowDefinition/>
                         </Grid.RowDefinitions>
 
-                        <Border Grid.Row="0" Background="{DynamicResource RegionBrush}" UseLayoutRounding="True"
+                        <Border Grid.Row="0" Background="{DynamicResource RegionBrush}" UseLayoutRounding="True" 
                                 BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SecondaryBorderBrush}">
                             <StackPanel Margin="10,4" Orientation="Horizontal">
                                 <hc:SplitButton Padding="0" Height="34" HitMode="None" IsEnabled="{Binding CanGoToUpperLevel}"
