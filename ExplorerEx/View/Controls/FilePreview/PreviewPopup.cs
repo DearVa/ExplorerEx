@@ -20,7 +20,6 @@ public abstract class PreviewPopup : Popup {
 
 	protected PreviewPopup() {
 		SetValue(BlurPopup.EnabledProperty, true);
-		PopupAnimation = PopupAnimation.Fade;
 		AllowsTransparency = true;
 		Focusable = false;
 		IsHitTestVisible = false;

@@ -802,4 +802,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="CollapseAll" xml:space="preserve">
     <value>折叠全部</value>
   </data>
+  <data name="ShowShortcutPopup" xml:space="preserve">
+    <value>选中文件后显示快捷菜单</value>
+  </data>
 </root>

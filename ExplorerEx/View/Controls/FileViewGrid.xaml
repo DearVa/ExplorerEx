@@ -205,19 +205,19 @@
                                         <ContextMenu>
                                             <ContextMenu.Items>
                                                 <MenuItem CommandParameter="{x:Static e:ViewSortGroup.LargeIcons}" Header="{u:Lang LargeIcons}" Icon="{DynamicResource LargeIconsDrawingImage}"
-                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.LargeIcons}}"/>
+                                                          IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.LargeIcons}}"/>
                                                 <MenuItem CommandParameter="{x:Static e:ViewSortGroup.MediumIcons}" Header="{u:Lang MediumIcons}" Icon="{DynamicResource MediumIconsDrawingImage}"
-                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.MediumIcons}}"/>
+                                                          IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.MediumIcons}}"/>
                                                 <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SmallIcons}" Header="{u:Lang SmallIcons}" Icon="{DynamicResource SmallIconsDrawingImage}"
-                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SmallIcons}}"/>
+                                                          IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SmallIcons}}"/>
                                                 <MenuItem CommandParameter="{x:Static e:ViewSortGroup.List}" Header="{u:Lang List}" Icon="{DynamicResource ListDrawingImage}"
-                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.List}}"/>
+                                                          IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.List}}"/>
                                                 <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Details}" Header="{u:Lang Details}" Icon="{DynamicResource DetailsDrawingImage}"
-                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Details}}"/>
+                                                          IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Details}}"/>
                                                 <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Tiles}" Header="{u:Lang Tiles}" Icon="{DynamicResource TilesDrawingImage}"
-                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Tiles}}"/>
+                                                          IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Tiles}}"/>
                                                 <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Content}" Header="{u:Lang Content}" Icon="{DynamicResource ContentDrawingImage}"
-                                      IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Content}}"/>
+                                                          IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Content}}"/>
                                             </ContextMenu.Items>
                                         </ContextMenu>
                                     </hc:SplitButton.DropDownContent>

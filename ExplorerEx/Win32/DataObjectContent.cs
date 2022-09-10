@@ -80,8 +80,7 @@ public class DataObjectContent {
 		}
 		Drag = Parse(e.Data);
 		if (Drag.Type == DataObjectType.FileDrop && Drag.Data is string[] { Length: > 0 } filePaths) {
-			var dragFilesPreview = DragFilesPreview.Singleton;
-			dragFilesPreview.SetFilePaths(filePaths);
+			DragFilesPreview.Singleton.SetFilePaths(filePaths);
 			DragFilesPreview.ShowPreview();
 		}
 	}

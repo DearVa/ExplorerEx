@@ -271,7 +271,8 @@ namespace HandyControl.Tools.Interop
         internal enum GWL
         {
             STYLE = -16,
-            EXSTYLE = -20
+            EXSTYLE = -20,
+            LAYERED = 0x00080000,
         }
 
         internal enum GWLP

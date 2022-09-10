@@ -101,9 +101,11 @@ public class FileItemCommand : ICommand {
 					var data = new DataObject(DataFormats.FileDrop, items.Where(item => item is FileSystemItem or DiskDriveItem).Select(item => item.FullPath).ToArray());
 					data.SetData("IsCut", isCut);
 					Clipboard.SetDataObject(data);
-					foreach (var item in items) {
-						item.Opacity = 0.3d;
-					}
+					//if (isCut) {
+					//	foreach (var item in items) {
+					//		item.Opacity = 0.3d;
+					//	}
+					//}
 				}
 				break;
 			}

@@ -1969,6 +1969,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 Show shortcut menu when selecting files 的本地化字符串。
+        /// </summary>
+        internal static string ShowShortcutPopup {
+            get {
+                return ResourceManager.GetString("ShowShortcutPopup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Show window 的本地化字符串。
         /// </summary>
         internal static string ShowWindow {

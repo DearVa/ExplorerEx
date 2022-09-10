@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -76,7 +77,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	public delegate void ItemDoubleClickEventHandler(object sender, ItemClickEventArgs e);
 
 	public static readonly RoutedEvent ItemDoubleClickedEvent = EventManager.RegisterRoutedEvent(
-		"ItemDoubleClicked", RoutingStrategy.Bubble, typeof(ItemDoubleClickEventHandler), typeof(FileListView));
+		nameof(ItemDoubleClicked), RoutingStrategy.Bubble, typeof(ItemDoubleClickEventHandler), typeof(FileListView));
 
 	public event ItemDoubleClickEventHandler ItemDoubleClicked {
 		add => AddHandler(ItemDoubleClickedEvent, value);
@@ -152,6 +153,7 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	private readonly FileGridDataGridColumnsConverter columnsConverter;
 	private readonly FileGridListBoxTemplateConverter listBoxTemplateConverter;
+	private readonly FileListViewItemContextMenuConverter fileListViewItemContextMenuConverter;
 
 	private readonly ItemsPanelTemplate virtualizingWrapPanel, virtualizingStackPanel;
 
@@ -159,9 +161,10 @@ public partial class FileListView : INotifyPropertyChanged {
 	private ScrollViewer? scrollViewer;
 	private SimplePanel contentPanel = null!;
 	private Border selectionRect = null!;
+	private ShortcutPopup shortcutPopup = null!;
 
 	public FileListView() {
-		DataContextChanged += (_, e) => ViewModel = (FileTabViewModel)e.NewValue;
+		DataContextChanged += (_, e) => shortcutPopup.DataContext = ContextMenu!.DataContext = ViewModel = (FileTabViewModel)e.NewValue;
 		InitializeComponent();
 		((FileListViewBindingContext)Resources["BindingContext"]).FileListView = this;
 		ApplyTemplate();
@@ -169,11 +172,16 @@ public partial class FileListView : INotifyPropertyChanged {
 		SwitchViewCommand = new SimpleCommand(OnSwitchView);
 		columnsConverter = (FileGridDataGridColumnsConverter)Resources["ColumnsConverter"];
 		listBoxTemplateConverter = (FileGridListBoxTemplateConverter)Resources["ListBoxTemplateConverter"];
+		fileListViewItemContextMenuConverter = (FileListViewItemContextMenuConverter)Resources["FileListViewItemContextMenuConverter"];
 		((FileGridListBoxTemplateConverter)Resources["ListBoxTemplateConverter"]).FileListView = this;
 
 		virtualizingWrapPanel = (ItemsPanelTemplate)Resources["VirtualizingWrapPanel"];
 		virtualizingStackPanel = (ItemsPanelTemplate)Resources["VirtualizingStackPanel"];
 
+		showShortcutPopupDelayAction = new DelayAction(TimeSpan.FromMilliseconds(300), () => {
+			Win32Interop.GetCursorPos(out shortcutShowMousePoint);
+			Dispatcher.Invoke(() => shortcutPopup.IsOpen = true);
+		});
 
 		if (!isPreviewTimerInitialized) {
 			MainWindow.FrequentTimerElapsed += MouseHoverTimerWork;
@@ -267,6 +275,8 @@ public partial class FileListView : INotifyPropertyChanged {
 		scrollViewer = (ScrollViewer)GetTemplateChild("ViewScrollViewer")!;
 		contentPanel = (SimplePanel)GetTemplateChild("ContentPanel")!;
 		selectionRect = (Border)GetTemplateChild("SelectionRect")!;
+		shortcutPopup = (ShortcutPopup)GetTemplateChild("ShortcutPopup")!;
+		shortcutPopup.MouseLeave += ShortcutPopup_OnMouseLeave;
 	}
 
 	/// <summary>
@@ -377,6 +387,10 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
 		isDoubleClicked = false;
+
+		if (e.OriginalSource.FindParent<Popup>() != null) {  // 如果点在了Popup内
+			return;
+		}
 		if (e.OriginalSource.FindParent<VirtualizingPanel, FileListView>() == null) {  // 如果没有点击在VirtualizingPanel的范围内
 			return;
 		}
@@ -385,6 +399,8 @@ public partial class FileListView : INotifyPropertyChanged {
 		}
 
 		Focus();
+		HideShortcutPopup();
+
 		if (e.ChangedButton is MouseButton.Left or MouseButton.Right) {
 			isMouseDown = true;
 			shouldRename = false;
@@ -446,7 +462,10 @@ public partial class FileListView : INotifyPropertyChanged {
 								item.IsSelected = true;
 								break;
 							default:
-								item.IsSelected = true;
+								if (!item.IsSelected) {
+									UnselectAll();
+									item.IsSelected = true;
+								}
 								break;
 							}
 						}
@@ -615,9 +634,17 @@ public partial class FileListView : INotifyPropertyChanged {
 					selectionRect.Visibility = Visibility.Collapsed;
 					Mouse.Capture(null);
 					timer?.Stop();
+					if (e.ChangedButton == MouseButton.Left && ViewModel.SelectedItems.Count > 0) {
+						ShowShortcutPopup();
+					} else {
+						HideShortcutPopup();
+					}
 					break;
 				}
 
+				if (e.OriginalSource.FindParent<Popup>() != null) {  // 如果点在了Popup内
+					break;
+				}
 				if (e.OriginalSource.FindParent<VirtualizingPanel, FileListView>() == null) {  // 如果没有点击在VirtualizingPanel的范围内
 					break;
 				}
@@ -656,36 +683,45 @@ public partial class FileListView : INotifyPropertyChanged {
 								selectedItem.IsSelected = false;
 							}
 						}
-						break;
-					case MouseButton.Right when isClickOnItem && e.OriginalSource is DependencyObject o: {
-						var item = (FileListViewItem)Items[mouseDownItemIndex];
-						openedContextMenu = ((FrameworkElement)ContainerFromElement(o)!).ContextMenu!;
-						openedContextMenu.SetValue(FileItemAttach.FileItemProperty, item);
-						openedContextMenu.DataContext = this;
-						var ext = Path.GetExtension(item.FullPath);
-						FileAssocList.Clear();
-						if (!string.IsNullOrWhiteSpace(ext) && ViewModel.SelectedItems.Count == 1) {
-							foreach (var fileAssocItem in FileAssocItem.GetAssocList(ext)) {
-								FileAssocList.Add(fileAssocItem);
-							}
+						if (ViewModel.SelectedItems.Count > 0) {  // 有可能是反选
+							ShowShortcutPopup();
+						} else {
+							HideShortcutPopup();
 						}
-						openedContextMenu.IsOpen = true;
+						break;
+					case MouseButton.Right when isClickOnItem: {
+						ShowItemContextMenu((FileListViewItem)Items[mouseDownItemIndex]);
 						break;
 					}
 					case MouseButton.Right:
 						UnselectAll();
 						openedContextMenu = ContextMenu!;
-						openedContextMenu.DataContext = ViewModel;
 						openedContextMenu.IsOpen = true;
 						break;
 					}
 				}
 				prevMouseUpTime = DateTimeOffset.Now;
 				prevMouseUpPoint = e.GetPosition(contentPanel);
+
 				e.Handled = true;
 			}
 		} while (false);
 		mouseDownItemIndex = -1;
+	}
+
+	private void ShowItemContextMenu(FileListViewItem item) {
+		openedContextMenu = fileListViewItemContextMenuConverter.Convert(item);
+		openedContextMenu.SetValue(FileItemAttach.FileItemProperty, item);
+		openedContextMenu.DataContext = this;
+		var ext = Path.GetExtension(item.FullPath);
+		FileAssocList.Clear();
+		if (!string.IsNullOrWhiteSpace(ext) && ViewModel.SelectedItems.Count == 1) {
+			foreach (var fileAssocItem in FileAssocItem.GetAssocList(ext)) {
+				FileAssocList.Add(fileAssocItem);
+			}
+		}
+		item.OnPropertyChanged(nameof(item.IsBookmarked));
+		openedContextMenu.IsOpen = true;
 	}
 
 	protected override void OnSelectionChanged(SelectionChangedEventArgs e) {
@@ -717,6 +753,9 @@ public partial class FileListView : INotifyPropertyChanged {
 	private static bool isPreviewTimerInitialized;
 	private static PreviewPopup? previewPopup;
 
+	/// <summary>
+	/// 用于处理鼠标事件
+	/// </summary>
 	private void MouseHoverTimerWork() {
 		var item = MouseItem;
 		// 如果鼠标处没有项目或者没有按下Space
@@ -733,11 +772,30 @@ public partial class FileListView : INotifyPropertyChanged {
 			}
 			if (newPopup != null) {
 				previewPopup = newPopup;
-				previewPopup.PlacementTarget = this;
-				var mousePos = Mouse.GetPosition(this);
-				previewPopup.HorizontalOffset = mousePos.X + 20d;
-				previewPopup.VerticalOffset = mousePos.Y + 20d;
+				previewPopup.Placement = PlacementMode.Mouse;
+				previewPopup.HorizontalOffset = 20d;
+				previewPopup.VerticalOffset = 20d;
 				previewPopup.Load(item.FullPath);
+			}
+		}
+
+		if (shortcutPopup.IsOpen) {
+			if (!shortcutPopup.IsMouseOver) {
+				Win32Interop.GetCursorPos(out var mousePoint);
+				int dx = mousePoint.x - shortcutShowMousePoint.x, dy = mousePoint.y - shortcutShowMousePoint.y;
+				var dis = dx * dx + dy * dy;
+				switch (dis) {
+				case > 41000:
+					HideShortcutPopup();
+					break;
+				case > 1000:
+					//shortcutPopup.SetValue(BlurPopup.BlurOpacityProperty, (byte)MathF.Round((1 - (dis - 1000f) / 40000) * 255));
+					shortcutPopup.Opacity = 1d - (dis - 1000d) / 40000d;
+					break;
+				default:
+					shortcutPopup.Opacity = 1d;
+					break;
+				}
 			}
 		}
 	}
@@ -804,6 +862,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	}
 
 	protected override void OnDragEnter(DragEventArgs e) {
+		HideShortcutPopup();
 		isDragDropping = true;
 		var data = DataObjectContent.Drag;
 		if (data is { Type: DataObjectType.FileDrop }) {  // TODO: 更多格式
@@ -870,18 +929,19 @@ public partial class FileListView : INotifyPropertyChanged {
 			if (lastDragOnItem != null) {
 				lastDragOnItem.IsSelected = false;
 			}
-			if (mouseItem != null && !contains) {
-				lastDragOnItem = mouseItem;
-				mouseItem.IsSelected = true;  // 让拖放到的item高亮
-			}
 		}
 
-		if (mouseItem != null && contains) {  // 自己不能往自己身上拖放
-			e.Effects = DragDropEffects.None;
-		} else if (mouseItem is { IsFolder: false } and not FileItem { IsExecutable: true }) {  // 不是可执行文件就禁止拖放
-			e.Effects = DragDropEffects.None;
-		} else if (e.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } fileList && Path.GetDirectoryName(fileList[0]) == destination) {  // 相同文件夹禁止移动
-			e.Effects = DragDropEffects.None;
+		if (mouseItem != null) {
+			if (contains) { // 自己不能往自己身上拖放
+				e.Effects = DragDropEffects.None;
+			} else if (mouseItem is {IsFolder: false} and not FileItem {IsExecutable: true}) { // 不是可执行文件就禁止拖放
+				e.Effects = DragDropEffects.None;
+			} else if (e.Data.GetData(DataFormats.FileDrop) is string[] {Length: > 0} fileList && Path.GetDirectoryName(fileList[0]) == destination) { // 相同文件夹禁止移动
+				e.Effects = DragDropEffects.None;
+			} else {
+				lastDragOnItem = mouseItem;
+				mouseItem.IsSelected = true; // 让拖放到的item高亮
+			}
 		}
 
 		var dragFilesPreview = DragFilesPreview.Singleton;
@@ -930,6 +990,61 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	protected override void OnTextInput(TextCompositionEventArgs e) { }
 
+	#region 快捷操作菜单
+
+	/// <summary>
+	/// 显示快捷操作菜单的时候，鼠标光标所在的位置
+	/// </summary>
+	private Win32Interop.PointW shortcutShowMousePoint;
+
+	private readonly DelayAction showShortcutPopupDelayAction;
+
+	/// <summary>
+	/// 显示快捷操作菜单，会延迟200ms
+	/// </summary>
+	private void ShowShortcutPopup() {
+		if (Settings.Current[Settings.CommonSettings.ShowShortcutPopup].GetBoolean()) {
+			if (shortcutPopup.IsOpen) {
+				return;
+			}
+			showShortcutPopupDelayAction.Start();
+		}
+	}
+
+	private void HideShortcutPopup() {
+		showShortcutPopupDelayAction.Stop();
+		shortcutPopup.IsOpen = false;
+	}
+
+	/// <summary>
+	/// 鼠标离开时，更新位置
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	/// <exception cref="NotImplementedException"></exception>
+	private void ShortcutPopup_OnMouseLeave(object sender, MouseEventArgs e) {
+		Win32Interop.GetCursorPos(out shortcutShowMousePoint);
+	}
+
+	private void ShortcutPopup_OnShowMore() {
+		Dispatcher.Invoke(() => {
+			shortcutPopup.IsOpen = false;
+			var item = ViewModel.SelectedItems.FirstOrDefault();
+			if (item != null) {
+				ShowItemContextMenu(item);
+			}
+		});
+	}
+
+	#endregion
+
+	protected override void OnLostKeyboardFocus(KeyboardFocusChangedEventArgs e) {
+		base.OnLostKeyboardFocus(e);
+		//if (!shortcutPopup.IsKeyboardFocusWithin) {
+		//	shortcutPopup.IsOpen = false;
+		//}
+	}
+
 	/// <summary>
 	/// 根据键盘按键决定要执行什么操作（Shift移动，Ctrl复制，Alt链接）
 	/// </summary>
@@ -937,16 +1052,16 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// <returns></returns>
 	private static DragDropEffects GetEffectWithKeyboard(DragDropEffects effects) {
 		var keyboard = Keyboard.PrimaryDevice;
-		if (keyboard.IsKeyDown(Key.LeftShift) || keyboard.IsKeyDown(Key.RightShift)) {
-			if (effects.HasFlag(DragDropEffects.Move)) {
+		if (effects.HasFlag(DragDropEffects.Move)) {
+			if (keyboard.IsKeyDown(Key.LeftShift) || keyboard.IsKeyDown(Key.RightShift)) {
 				return DragDropEffects.Move;
 			}
-		} else if (keyboard.IsKeyDown(Key.LeftCtrl) || keyboard.IsKeyDown(Key.RightCtrl)) {
-			if (effects.HasFlag(DragDropEffects.Copy)) {
+		} else if (effects.HasFlag(DragDropEffects.Copy)) {
+			if (keyboard.IsKeyDown(Key.LeftCtrl) || keyboard.IsKeyDown(Key.RightCtrl)) {
 				return DragDropEffects.Copy;
 			}
-		} else if (keyboard.IsKeyDown(Key.LeftAlt) || keyboard.IsKeyDown(Key.RightAlt)) {
-			if (effects.HasFlag(DragDropEffects.Link)) {
+		} else if (effects.HasFlag(DragDropEffects.Link)) {
+			if (keyboard.IsKeyDown(Key.LeftAlt) || keyboard.IsKeyDown(Key.RightAlt)) {
 				return DragDropEffects.Link;
 			}
 		}

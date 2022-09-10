@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Threading;
 using ExplorerEx.Command;
 using ExplorerEx.Model;
 using ExplorerEx.Utils;
@@ -31,7 +30,8 @@ internal class AddressBar : TextBox {
 
 	public event Action<FolderOnlyItem>? PopupItemClicked;
 
-	private ScrollViewer scrollViewer = null!, contentHost = null!;
+	private ScrollViewer? scrollViewer;
+	private ScrollViewer contentHost = null!;
 
 	public AddressBar() {
 		ItemClickedCommand = new SimpleCommand(Item_OnClicked);
@@ -54,12 +54,13 @@ internal class AddressBar : TextBox {
 	public override void OnApplyTemplate() {
 		base.OnApplyTemplate();
 		scrollViewer = (ScrollViewer)GetTemplateChild("ScrollViewer")!;
+		scrollViewer.ScrollToRightEnd();
 		contentHost = (ScrollViewer)GetTemplateChild("PART_ContentHost")!;
 	}
 
 	protected override void OnGotFocus(RoutedEventArgs e) {
 		base.OnGotFocus(e);
-		scrollViewer.Visibility = Visibility.Collapsed;
+		scrollViewer!.Visibility = Visibility.Collapsed;
 		contentHost.Visibility = Visibility.Visible;
 		Dispatcher.BeginInvoke(SelectAll);
 	}
@@ -67,7 +68,7 @@ internal class AddressBar : TextBox {
 	protected override void OnLostFocus(RoutedEventArgs e) {
 		base.OnLostFocus(e);
 		contentHost.Visibility = Visibility.Collapsed;
-		scrollViewer.Visibility = Visibility.Visible;
+		scrollViewer!.Visibility = Visibility.Visible;
 		Text = FullPath;
 	}
 
@@ -140,7 +141,6 @@ internal class AddressBar : TextBox {
 				items.Add(new FolderOnlyItem(new DirectoryInfo(newPath), items[^1]));
 			}
 		}
-		// Template may not applied yet.
-		addressBar.Dispatcher.BeginInvoke(() => addressBar.scrollViewer.ScrollToRightEnd(), DispatcherPriority.Loaded);
+		addressBar.scrollViewer?.ScrollToRightEnd();
 	}
 }

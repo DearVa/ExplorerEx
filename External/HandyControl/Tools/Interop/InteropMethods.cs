@@ -498,6 +498,15 @@ public static class InteropMethods {
 	[DllImport(ExternDll.User32)]
 	public static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
 
+	[Flags]
+	public enum LayeredWindowFlags {
+		ColorKey = 0x00000001,
+		Alpha = 0x00000002,
+	}
+
+	[DllImport(ExternDll.User32)]
+	public static extern bool SetLayeredWindowAttributes(IntPtr hwnd, int crKey, byte bAlpha, LayeredWindowFlags dwFlags);
+
 	public enum DwmWindowAttribute {
 		TransitionsForceDisabled = 2,
 		UseImmersiveDarkMode = 20,

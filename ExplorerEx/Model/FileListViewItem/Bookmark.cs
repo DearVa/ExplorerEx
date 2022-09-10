@@ -105,7 +105,6 @@ public class BookmarkItem : FileListViewItem, IFilterable {
 		FullPath = Path.GetFullPath(fullPath);
 		Name = name;
 		Category = category;
-		category.AddBookmark(this);
 	}
 
 	protected override void LoadAttributes() { }

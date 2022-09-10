@@ -758,4 +758,7 @@ Can't find it? Don't worry, click "yes" and I will regenerate one on the desktop
   <data name="CollapseAll" xml:space="preserve">
     <value>Collapse all</value>
   </data>
+  <data name="ShowShortcutPopup" xml:space="preserve">
+    <value>Show shortcut menu when selecting files</value>
+  </data>
 </root>

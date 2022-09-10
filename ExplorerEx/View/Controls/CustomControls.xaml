@@ -443,17 +443,4 @@
             </Setter.Value>
         </Setter>
     </Style>
-
-    <!--<Style TargetType="ct:FileListView">
-        <Setter Property="AllowDrop" Value="True"/>
-        <Setter Property="SelectionMode" Value="Extended"/>
-        <Setter Property="VirtualizingStackPanel.IsVirtualizingWhenGrouping" Value="True"/>
-        <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
-        <Setter Property="VirtualizingStackPanel.ScrollUnit" Value="Pixel"/>
-        <Setter Property="Padding" Value="2"/>
-        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="UseLayoutRounding" Value="True"/>
-        <Setter Property="r"></Setter>
-    </Style>-->
 </ResourceDictionary>

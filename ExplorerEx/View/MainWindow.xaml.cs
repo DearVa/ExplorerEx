@@ -69,7 +69,7 @@ public sealed partial class MainWindow {
 	private static volatile uint globalEverythingQueryId;
 	private readonly HashSet<uint> everythingQueryIds = new();
 
-	private readonly FileSystemItemContextMenuConverter bookmarkItemContextMenuConverter;
+	private readonly FileListViewItemContextMenuConverter bookmarkItemContextMenuConverter;
 	/// <summary>
 	/// 由于侧边栏ThisPC不可选中，所以右键按下时用这个代表选中的Item
 	/// </summary>
@@ -114,7 +114,7 @@ public sealed partial class MainWindow {
 		InitializeComponent();
 		SideBarBookmarksTreeView.ItemsSource = BookmarkCategoryComboBox.ItemsSource = DbMain.BookmarkDbContext.AsObservableCollection();
 
-		bookmarkItemContextMenuConverter = (FileSystemItemContextMenuConverter)Resources["BookmarkItemContextMenuConverter"];
+		bookmarkItemContextMenuConverter = (FileListViewItemContextMenuConverter)Resources["BookmarkItemContextMenuConverter"];
 		sideBarPcItemContextMenu = (ContextMenu)Resources["SideBarPcItemContextMenu"];
 		sideBarPcItemContextMenu.DataContext = this;
 		bookmarkCategoryItemContextMenu = (ContextMenu)Resources["BookmarkCategoryItemContextMenu"];
@@ -469,9 +469,9 @@ public sealed partial class MainWindow {
 					dbCtx.Add(item);
 				}
 				await dbCtx.SaveAsync();
-				foreach (var updateItem in All.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
-					updateItem.OnPropertyChanged(nameof(updateItem.IsBookmarked));
-				}
+				//foreach (var updateItem in All.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
+				//	updateItem.OnPropertyChanged(nameof(updateItem.IsBookmarked));
+				//}
 			}
 			window.currentBookmarkIndex++;
 			if (window.currentBookmarkIndex < window.bookmarkPaths.Length) {
@@ -489,11 +489,12 @@ public sealed partial class MainWindow {
 			var dbCtx = DbMain.BookmarkDbContext;
 			var item = dbCtx.FirstOrDefault(b => b.FullPath == fullPath);
 			if (item != null) {
+				item.Category.Children.Remove(item);
 				dbCtx.Remove(item);
 				await dbCtx.SaveAsync();
-				foreach (var updateItem in All.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
-					updateItem.OnPropertyChanged(nameof(updateItem.IsBookmarked));
-				}
+				//foreach (var updateItem in All.SelectMany(mw => mw.SplitGrid).SelectMany(f => f.TabItems).SelectMany(i => i.Items).Where(i => i.FullPath == fullPath)) {
+				//	updateItem.OnPropertyChanged(nameof(updateItem.IsBookmarked));
+				//}
 			}
 		}
 	}
@@ -540,7 +541,7 @@ public sealed partial class MainWindow {
 					if (!File.Exists(bookmarkItem.FullPath) && !Directory.Exists(bookmarkItem.FullPath)) {
 
 					} else {
-						var menu = (ContextMenu)bookmarkItemContextMenuConverter.Convert(bookmarkItem, null, null, null)!;
+						var menu = bookmarkItemContextMenuConverter.Convert(bookmarkItem);
 						menu.DataContext = this;
 						menu.SetValue(FileItemAttach.FileItemProperty, bookmarkItem);
 						menu.IsOpen = true;

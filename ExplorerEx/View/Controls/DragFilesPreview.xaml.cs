@@ -130,6 +130,7 @@ public partial class DragFilesPreview {
 				DragImage1Border.Visibility = Visibility.Collapsed;
 			}
 		}
+		DragImage0.Source = DragImage1.Source = DragImage2.Source = null;
 		Task.Run(() => {
 			var thumbnails = new ImageSource[filePaths.Count > 3 ? 3 : filePaths.Count];
 			if (filePaths.Count > 0) {
@@ -167,26 +168,26 @@ public partial class DragFilesPreview {
 		return IconHelper.GetPathThumbnail(path);
 	}
 
-	private static readonly Brush DestBrush = new SolidColorBrush(Color.FromRgb(13, 61, 206));
-	private static readonly Brush OpBrush = new SolidColorBrush(Color.FromRgb(5, 5, 105));
-
 	private void FormatOperation() {
 		OperationTextBlock.Inlines.Clear();
 		if (operationText == null) {
 			return;
 		}
+		var resources = Application.Current.Resources;
+		var destBrush = (Brush)resources["LightPrimaryBrush"];
+		var opBrush = (Brush)resources["PrimaryBrush"];
 		if (operationText[0] == '*') {
-			OperationTextBlock.Inlines.Add(new Run(Destination) { Foreground = DestBrush });
-			OperationTextBlock.Inlines.Add(new Run(operationText[1..]) { Foreground = OpBrush });
+			OperationTextBlock.Inlines.Add(new Run(Destination) { Foreground = destBrush });
+			OperationTextBlock.Inlines.Add(new Run(operationText[1..]) { Foreground = opBrush });
 		} else if (operationText[^1] == '*') {
-			OperationTextBlock.Inlines.Add(new Run(operationText[..^1]) { Foreground = OpBrush });
-			OperationTextBlock.Inlines.Add(new Run(Destination) { Foreground = DestBrush });
+			OperationTextBlock.Inlines.Add(new Run(operationText[..^1]) { Foreground = opBrush });
+			OperationTextBlock.Inlines.Add(new Run(Destination) { Foreground = destBrush });
 		} else {
 			for (var i = 0; i < operationText.Length; i++) {
 				if (operationText[i] == '*') {
-					OperationTextBlock.Inlines.Add(new Run(operationText[..i]) { Foreground = OpBrush });
-					OperationTextBlock.Inlines.Add(new Run(Destination) { Foreground = DestBrush });
-					OperationTextBlock.Inlines.Add(new Run(operationText[(i + 1)..]) { Foreground = OpBrush });
+					OperationTextBlock.Inlines.Add(new Run(operationText[..i]) { Foreground = opBrush });
+					OperationTextBlock.Inlines.Add(new Run(Destination) { Foreground = destBrush });
+					OperationTextBlock.Inlines.Add(new Run(operationText[(i + 1)..]) { Foreground = opBrush });
 					break;
 				}
 			}

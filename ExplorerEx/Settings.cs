@@ -252,6 +252,7 @@ internal sealed class Settings : INotifyPropertyChanged {
 		public const string ShowHiddenFilesAndFolders = "Advanced.ShowHiddenFilesAndFolders";
 		public const string ShowProtectedSystemFilesAndFolders = "Advanced.ShowProtectedSystemFilesAndFolders";
 
+		public const string ShowShortcutPopup = "Experimental.ShowShortcutPopup";
 		public const string SetExplorerExAsDefault = "Experimental.SetExplorerExAsDefault";
 	}
 

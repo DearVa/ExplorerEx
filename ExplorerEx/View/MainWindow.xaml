@@ -87,7 +87,7 @@
         </ContextMenu>
 
         <!-- ReSharper disable once Xaml.RedundantResource -->
-        <c:FileSystemItemContextMenuConverter x:Key="BookmarkItemContextMenuConverter"
+        <c:FileListViewItemContextMenuConverter x:Key="BookmarkItemContextMenuConverter"
                                               FolderContextMenu="{StaticResource BookmarkFolderItemContextMenu}"
                                               FileContextMenu="{StaticResource BookmarkFileItemContextMenu}"/>
 
@@ -517,7 +517,7 @@
                     </TabItem>-->
                 </ct:FluentTabControl>
 
-                <Popup IsOpen="{Binding IsAddToBookmarkShow, Mode=TwoWay}" PopupAnimation="Fade" AllowsTransparency="True" 
+                <Popup IsOpen="{Binding IsAddToBookmarkShow, Mode=TwoWay}" AllowsTransparency="True" 
                    PlacementTarget="{Binding ElementName=BookmarksTabItem}" StaysOpen="False" Placement="Right"
                    hc:BlurPopup.Enabled="True">
                     <Border Background="{DynamicResource BackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2">

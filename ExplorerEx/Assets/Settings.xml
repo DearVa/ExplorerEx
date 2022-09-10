@@ -42,6 +42,7 @@
   </category>
 
   <category header="Experimental">
+    <item header="ShowShortcutPopup" type="boolean" default="true"/>
     <item header="SetExplorerExAsDefault" type="boolean" default="false"/>
   </category>
 </settings>

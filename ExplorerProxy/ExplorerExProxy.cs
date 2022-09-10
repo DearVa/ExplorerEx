@@ -103,24 +103,18 @@ namespace ExplorerProxy {
 				// 文件管理器居然是IE套壳？？（大雾
 				this.pUnkSite = pUnkSite;
 				explorer = (WebBrowserClass)Marshal.GetTypedObjectForIUnknown(pExplorer, typeof(WebBrowserClass));
-				explorer.DocumentComplete += Explorer_OnDocumentComplete;
-				explorer.WindowStateChanged += ExplorerOnWindowStateChanged;
+				explorer.NavigateComplete += Explorer_OnNavigateComplete;
 			}
 		}
 
-		private void ExplorerOnWindowStateChanged(uint dwwindowstateflags, uint dwvalidflagsmask) {
-			
-		}
-
-		private void Explorer_OnDocumentComplete(object pdisp, ref object url) {
-			explorer.DocumentComplete -= Explorer_OnDocumentComplete;
-			var urlStr = (string)url;
-			if (string.IsNullOrWhiteSpace(urlStr)) {
+		private void Explorer_OnNavigateComplete(string url) {
+			explorer.NavigateComplete -= Explorer_OnNavigateComplete;
+			if (string.IsNullOrWhiteSpace(url)) {
 				OpenPathInExplorerEx(null);
-			} else if (urlStr.Length == 40) {
+			} else if (url.Length == 40) {
 				// 可能是Shell位置
-				if (urlStr[0] == ':' && urlStr[1] == ':' && urlStr[2] == '{' && urlStr[39] == '}') {
-					if (Guid.TryParse(urlStr.Substring(3, 36), out var clsId)) {
+				if (url[0] == ':' && url[1] == ':' && url[2] == '{' && url[39] == '}') {
+					if (Guid.TryParse(url.Substring(3, 36), out var clsId)) {
 						if (clsId == new Guid(0x20D04FE0, 0x3AEA, 0x1069, 0xA2, 0xD8, 0x08, 0x00, 0x2B, 0x30, 0x30, 0x9D) ||
 							clsId == new Guid(0x5E5F29CE, 0xE0A8, 0x49D3, 0xAF, 0x32, 0x7A, 0x7B, 0xDC, 0x17, 0x34, 0x78)) {
 							// This PC
@@ -128,8 +122,8 @@ namespace ExplorerProxy {
 						}
 					}
 				}
-			} else if (Directory.Exists(urlStr)) {
-				OpenPathInExplorerEx(urlStr);
+			} else if (Directory.Exists(url)) {
+				OpenPathInExplorerEx(url);
 			}
 		}
 

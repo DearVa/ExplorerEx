@@ -18,14 +18,17 @@
           VirtualizingStackPanel.ScrollUnit="Pixel"
           Padding="2" FocusVisualStyle="{x:Null}"
           Background="Transparent"
-          UseLayoutRounding="True">
+          UseLayoutRounding="True"
+          Focusable="True">
     <ListView.Resources>
         <ct:FileListViewBindingContext x:Key="BindingContext"/>
 
+        <!-- ReSharper disable once Xaml.RedundantResource -->
         <ItemsPanelTemplate x:Key="VirtualizingWrapPanel">
             <vw:VirtualizingWrapPanel Background="Transparent" CanHorizontallyScroll="False" UseLayoutRounding="True" IsGroupPanel="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ct:FileListView}}"/>
         </ItemsPanelTemplate>
 
+        <!-- ReSharper disable once Xaml.RedundantResource -->
         <ItemsPanelTemplate x:Key="VirtualizingStackPanel">
             <VirtualizingStackPanel Background="Transparent" UseLayoutRounding="True"/>
         </ItemsPanelTemplate>
@@ -386,7 +389,8 @@
                       Icon="{DynamicResource MoreDrawingImage}" Header="{u:Lang ShowMoreOptions}"/>
         </ContextMenu>
 
-        <c:FileSystemItemContextMenuConverter x:Key="FileSystemItemContextMenuConverter"
+        <!-- ReSharper disable once Xaml.RedundantResource -->
+        <c:FileListViewItemContextMenuConverter x:Key="FileListViewItemContextMenuConverter"
                                               DiskDriveContextMenu="{StaticResource DiskDriveItemContextMenu}"
                                               FolderContextMenu="{StaticResource FolderItemContextMenu}"
                                               FileContextMenu="{StaticResource FileItemContextMenu}"/>
@@ -549,13 +553,14 @@
                 <hc:SimplePanel x:Name="ContentPanel" ClipToBounds="True">
                     <Border x:Name="SelectionRect" CornerRadius="3" Opacity="0.6" Background="{DynamicResource LightPrimaryBrush}" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1" Visibility="Collapsed" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 </hc:SimplePanel>
+
+                <ct:ShortcutPopup x:Name="ShortcutPopup" ShowMore="ShortcutPopup_OnShowMore"/>
             </hc:SimplePanel>
         </ControlTemplate>
     </ListView.Template>
 
     <ListView.ItemContainerStyle>
         <Style TargetType="ListViewItem" BasedOn="{StaticResource ListViewItemBaseStyle}">
-            <Setter Property="ContextMenu" Value="{Binding Converter={StaticResource FileSystemItemContextMenuConverter}}"/>
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Margin" Value="0,2"/>
