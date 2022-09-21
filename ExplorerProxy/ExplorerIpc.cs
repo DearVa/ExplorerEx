@@ -25,10 +25,7 @@ namespace ExplorerProxy {
 			this.capacity = capacity;
 			mutex = new Mutex(false, name + "Mutex");
 			var semName = name + "Semaphore";
-			if (!Semaphore.TryOpenExisting(semName, out var semaphore)) {
-				throw new Exception();  // 打不开就直接扔异常了
-			}
-			this.semaphore = semaphore;
+            this.semaphore = Semaphore.OpenExisting(semName); //打不开就直接扔异常了
 			mmf = MemoryMappedFile.OpenExisting(name);
 		}
 

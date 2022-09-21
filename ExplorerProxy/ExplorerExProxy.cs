@@ -68,17 +68,17 @@ namespace ExplorerProxy {
 		public static extern int MessageBox(IntPtr hWnd, string text, string caption, MessageBoxType type);
 
 		public enum MessageBoxType {
-			Ok = 0x0,
-			OkCancel = 0x1,
-			AbortRetryIgnore = 0x2,
-			YesNoCancel = 0x3,
-			YesNo = 0x4,
-			RetryCancel = 0x5,
+			Ok                = 0x0,
+			OkCancel          = 0x1,
+			AbortRetryIgnore  = 0x2,
+			YesNoCancel       = 0x3,
+			YesNo             = 0x4,
+			RetryCancel       = 0x5,
 			CancelTryContinue = 0x6,
-			IconError = 0x10,
-			IconQuestion = 0x20,
-			IconWarning = 0x30,
-			IconInformation = 0x40,
+			IconError         = 0x10,
+			IconQuestion      = 0x20,
+			IconWarning       = 0x30,
+			IconInformation   = 0x40,
 		}
 
 		[DllImport("user32.dll")]
