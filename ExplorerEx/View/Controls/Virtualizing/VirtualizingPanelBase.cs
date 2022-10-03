@@ -7,7 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 
-namespace WpfToolkit.Controls;
+namespace ExplorerEx.View.Controls;
 
 /// <summary>
 ///     Base class for panels which are supporting virtualization.
@@ -17,8 +17,8 @@ public abstract class VirtualizingPanelBase : VirtualizingPanel, IScrollInfo {
 	public static readonly DependencyProperty MouseWheelDeltaProperty = DependencyProperty.Register(nameof(MouseWheelDelta), typeof(double), typeof(VirtualizingPanelBase), new FrameworkPropertyMetadata(48.0));
 	public static readonly DependencyProperty ScrollLineDeltaItemProperty = DependencyProperty.Register(nameof(ScrollLineDeltaItem), typeof(int), typeof(VirtualizingPanelBase), new FrameworkPropertyMetadata(1));
 	public static readonly DependencyProperty MouseWheelDeltaItemProperty = DependencyProperty.Register(nameof(MouseWheelDeltaItem), typeof(int), typeof(VirtualizingPanelBase), new FrameworkPropertyMetadata(3));
-	private IRecyclingItemContainerGenerator? _itemContainerGenerator;
-	private DependencyObject? _itemsOwner;
+	private IRecyclingItemContainerGenerator? itemContainerGenerator;
+	private DependencyObject? itemsOwner;
 	private Visibility previousHorizontalScrollBarVisibility = Visibility.Collapsed;
 
 	private Visibility previousVerticalScrollBarVisibility = Visibility.Collapsed;
@@ -96,7 +96,7 @@ public abstract class VirtualizingPanelBase : VirtualizingPanel, IScrollInfo {
 	/// </summary>
 	protected DependencyObject ItemsOwner {
 		get {
-			if (_itemsOwner is null) {
+			if (itemsOwner is null) {
 				/* Use reflection to access internal method because the public 
 				 * GetItemsOwner method does always return the items control instead 
 				 * of the real items owner for example the group item when grouping */
@@ -107,9 +107,9 @@ public abstract class VirtualizingPanelBase : VirtualizingPanel, IScrollInfo {
 					new[] { typeof(DependencyObject) },
 					null
 				)!;
-				_itemsOwner = (DependencyObject)getItemsOwnerInternalMethod.Invoke(null, new object[] { this })!;
+				itemsOwner = (DependencyObject)getItemsOwnerInternalMethod.Invoke(null, new object[] { this })!;
 			}
-			return _itemsOwner;
+			return itemsOwner;
 		}
 	}
 
@@ -118,7 +118,7 @@ public abstract class VirtualizingPanelBase : VirtualizingPanel, IScrollInfo {
 	/* Because of a bug in the framework the ItemContainerGenerator 
 	* is null until InternalChildren accessed at least one time. */
 	protected new IRecyclingItemContainerGenerator ItemContainerGenerator =>
-		_itemContainerGenerator ??= (IRecyclingItemContainerGenerator)base.ItemContainerGenerator;
+		itemContainerGenerator ??= (IRecyclingItemContainerGenerator)base.ItemContainerGenerator;
 
 	protected Size Extent { get; private set; } = new(0, 0);
 	protected Size Viewport { get; private set; } = new(0, 0);

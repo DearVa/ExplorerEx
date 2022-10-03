@@ -19,7 +19,7 @@ internal static class IconHelper {
 	public static DrawingImage EmptyFolderDrawingImage { get; }
 	public static DrawingImage UnknownFileDrawingImage { get; }
 	public static DrawingImage MissingFileDrawingImage { get; }
-	public static BitmapImage ComputerBitmapImage { get; } = new(new Uri("pack://application:,,,/ExplorerEx;component/Assets/Picture/Computer.png"));
+	public static BitmapImage ComputerBitmapImage { get; }
 
 	/// <summary>
 	/// 可以获取缩略图的文件格式
@@ -67,6 +67,7 @@ internal static class IconHelper {
 		EmptyFolderDrawingImage = (DrawingImage)resources["EmptyFolderDrawingImage"];
 		UnknownFileDrawingImage = (DrawingImage)resources["UnknownFileDrawingImage"];
 		MissingFileDrawingImage = (DrawingImage)resources["MissingFileDrawingImage"];
+		ComputerBitmapImage = new BitmapImage(new Uri("pack://application:,,,/ExplorerEx;component/Assets/Picture/Computer.png"));
 	}
 
 	/// <summary>

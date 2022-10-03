@@ -16,7 +16,7 @@ namespace ExplorerEx.Model;
 /// <summary>
 /// 只显示文件夹，可枚举子文件夹
 /// </summary>
-internal sealed class FolderOnlyItem : FolderItem {
+public sealed class FolderOnlyItem : FolderItem {
 	/// <summary>
 	/// 此电脑
 	/// </summary>

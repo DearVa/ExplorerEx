@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 
-namespace WpfToolkit.Controls; 
+namespace ExplorerEx.View.Controls; 
 
 /// <summary>
 ///     A implementation of a wrap panel that supports virtualization and can be used in horizontal and vertical

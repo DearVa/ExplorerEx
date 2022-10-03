@@ -1,21 +1,21 @@
-﻿<local:GridView x:Class="WpfToolkit.Controls.GridDetailsView"
+﻿<ct:VirtualizingGridView x:Class="ExplorerEx.View.Controls.GridDetailsView"
                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                xmlns:local="clr-namespace:WpfToolkit.Controls"
+                xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
                 mc:Ignorable="d"
                 d:DesignHeight="400"
                 d:DesignWidth="600"
                 x:Name="uc">
-    <local:GridView.ItemsPanel>
+    <ct:VirtualizingGridView.ItemsPanel>
         <ItemsPanelTemplate>
-            <local:VirtualizingWrapPanelWithItemExpansion
+            <ct:VirtualizingWrapPanelWithItemExpansion
                 ExpandedItem="{Binding ExpandedItem, ElementName=uc, Mode=OneWay}"
                 Orientation="{Binding Orientation, ElementName=uc, Mode=OneWay}"
                 SpacingMode="{Binding SpacingMode, ElementName=uc, Mode=OneWay}"
                 StretchItems="{Binding StretchItems, ElementName=uc, Mode=OneWay}">
-                <local:VirtualizingWrapPanelWithItemExpansion.ExpandedItemTemplate>
+                <ct:VirtualizingWrapPanelWithItemExpansion.ExpandedItemTemplate>
                     <DataTemplate>
                         <StackPanel
                             Loaded="ExpandedItemContainerRoot_Loaded"
@@ -25,9 +25,9 @@
                                 Content="{Binding Mode=OneWay}" />
                         </StackPanel>
                     </DataTemplate>
-                </local:VirtualizingWrapPanelWithItemExpansion.ExpandedItemTemplate>
-            </local:VirtualizingWrapPanelWithItemExpansion>
+                </ct:VirtualizingWrapPanelWithItemExpansion.ExpandedItemTemplate>
+            </ct:VirtualizingWrapPanelWithItemExpansion>
         </ItemsPanelTemplate>
-    </local:GridView.ItemsPanel>
+    </ct:VirtualizingGridView.ItemsPanel>
 
-</local:GridView>
+</ct:VirtualizingGridView>

@@ -8,7 +8,6 @@
           xmlns:m="clr-namespace:ExplorerEx.Model"
           xmlns:c="clr-namespace:ExplorerEx.Converter"
           xmlns:ct="clr-namespace:ExplorerEx.View.Controls"
-          xmlns:vw="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
           xmlns:vm="clr-namespace:ExplorerEx.ViewModel"
           xmlns:e="clr-namespace:ExplorerEx.Model.Enums"
           d:DataContext="{d:DesignInstance ct:FileListView}"
@@ -25,7 +24,7 @@
 
         <!-- ReSharper disable once Xaml.RedundantResource -->
         <ItemsPanelTemplate x:Key="VirtualizingWrapPanel">
-            <vw:VirtualizingWrapPanel Background="Transparent" CanHorizontallyScroll="False" UseLayoutRounding="True" IsGroupPanel="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ct:FileListView}}"/>
+            <ct:VirtualizingWrapPanel Background="Transparent" CanHorizontallyScroll="False" UseLayoutRounding="True" IsGroupPanel="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ct:FileListView}}"/>
         </ItemsPanelTemplate>
 
         <!-- ReSharper disable once Xaml.RedundantResource -->
@@ -412,7 +411,7 @@
 
     <ListView.ItemsPanel>
         <ItemsPanelTemplate>
-            <vw:VirtualizingWrapPanel Background="Transparent" CanHorizontallyScroll="False" UseLayoutRounding="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ct:FileListView}}"/>
+            <ct:VirtualizingWrapPanel Background="Transparent" CanHorizontallyScroll="False" UseLayoutRounding="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ct:FileListView}}"/>
         </ItemsPanelTemplate>
     </ListView.ItemsPanel>
 
@@ -584,7 +583,7 @@
                                     <Expander.Header>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding Path=Name}" VerticalAlignment="Center" />
-                                            <TextBlock Text="{Binding Path=ItemCount, StringFormat= ({0})}" VerticalAlignment="Center" Margin="5,0,0,0" />
+                                            <TextBlock Text="{Binding Path=ItemCount, StringFormat=({0})}" VerticalAlignment="Center" Margin="8,0,0,0" />
                                         </StackPanel>
                                     </Expander.Header>
                                     <ItemsPresenter/>
@@ -596,7 +595,7 @@
             </GroupStyle.ContainerStyle>
             <GroupStyle.Panel>
                 <ItemsPanelTemplate>
-                    <vw:VirtualizingWrapPanel Background="Transparent" CanHorizontallyScroll="False" UseLayoutRounding="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ct:FileListView}}"/>
+                    <ct:VirtualizingWrapPanel Background="Transparent" CanHorizontallyScroll="False" UseLayoutRounding="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ct:FileListView}}"/>
                 </ItemsPanelTemplate>
             </GroupStyle.Panel>
         </GroupStyle>

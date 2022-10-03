@@ -77,7 +77,6 @@
   <ItemGroup>
     <ProjectReference Include="..\External\HandyControl\HandyControl.csproj" />
     <ProjectReference Include="..\External\SVGImage\SharpSvgImage.csproj" />
-    <ProjectReference Include="..\External\VirtualizingWrapPanel\VirtualizingWrapPanel.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -114,6 +113,9 @@
     <Page Update="View\Controls\FilePreview\TextPreviewPopup.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Update="View\Controls\Virtualizing\GridDetailsView.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>
   </ItemGroup>
 

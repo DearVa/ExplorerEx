@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExplorerEx", "ExplorerEx\Ex
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HandyControl", "External\HandyControl\HandyControl.csproj", "{BD0EEA59-836D-4C13-A6F1-207224630962}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VirtualizingWrapPanel", "External\VirtualizingWrapPanel\VirtualizingWrapPanel.csproj", "{6811A028-ADA8-44B9-BFE8-D268BB2447AA}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpSvgImage", "External\SVGImage\SharpSvgImage.csproj", "{60FE8AA1-AA35-4D97-833C-A2D420E652C5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExplorerProxy", "ExplorerProxy\ExplorerProxy.csproj", "{4263166E-01B3-44C1-891A-F6C9BA44153C}"
@@ -37,14 +35,6 @@ Global
 		{BD0EEA59-836D-4C13-A6F1-207224630962}.Release|Any CPU.Build.0 = Release|x64
 		{BD0EEA59-836D-4C13-A6F1-207224630962}.Release|x64.ActiveCfg = Release|x64
 		{BD0EEA59-836D-4C13-A6F1-207224630962}.Release|x64.Build.0 = Release|x64
-		{6811A028-ADA8-44B9-BFE8-D268BB2447AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6811A028-ADA8-44B9-BFE8-D268BB2447AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6811A028-ADA8-44B9-BFE8-D268BB2447AA}.Debug|x64.ActiveCfg = Debug|x64
-		{6811A028-ADA8-44B9-BFE8-D268BB2447AA}.Debug|x64.Build.0 = Debug|x64
-		{6811A028-ADA8-44B9-BFE8-D268BB2447AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6811A028-ADA8-44B9-BFE8-D268BB2447AA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6811A028-ADA8-44B9-BFE8-D268BB2447AA}.Release|x64.ActiveCfg = Release|x64
-		{6811A028-ADA8-44B9-BFE8-D268BB2447AA}.Release|x64.Build.0 = Release|x64
 		{60FE8AA1-AA35-4D97-833C-A2D420E652C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{60FE8AA1-AA35-4D97-833C-A2D420E652C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60FE8AA1-AA35-4D97-833C-A2D420E652C5}.Debug|x64.ActiveCfg = Debug|x64
