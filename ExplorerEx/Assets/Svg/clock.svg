@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_图层_1" data-name="图层 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 43.67 43.67">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#_未命名的渐变_68);
+      }
+
+      .cls-2 {
+        fill: url(#_未命名的渐变_65);
+      }
+
+      .cls-3 {
+        fill: #646464;
+        stroke: #646464;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2px;
+      }
+    </style>
+    <linearGradient id="_未命名的渐变_68" data-name="未命名的渐变 68" x1="9.03" y1="-.35" x2="38.7" y2="51.04" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset=".19" stop-color="#fbfbfb"/>
+      <stop offset=".37" stop-color="#efefef"/>
+      <stop offset=".56" stop-color="#dbdbdb"/>
+      <stop offset=".74" stop-color="silver"/>
+      <stop offset=".91" stop-color="#9d9d9d"/>
+      <stop offset="1" stop-color="#8a8a8a"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_65" data-name="未命名的渐变 65" x1="32.75" y1="40.74" x2="10.91" y2="2.92" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#b4b4b4"/>
+      <stop offset=".03" stop-color="#b2b2b2"/>
+      <stop offset=".29" stop-color="#ababab"/>
+      <stop offset="1" stop-color="#aaa"/>
+    </linearGradient>
+  </defs>
+  <g>
+    <circle class="cls-1" cx="21.83" cy="21.83" r="21.83"/>
+    <path class="cls-2" d="M21.83,2c10.94,0,19.83,8.9,19.83,19.83s-8.9,19.83-19.83,19.83S2,32.77,2,21.83,10.9,2,21.83,2M21.83,0C9.78,0,0,9.78,0,21.83s9.78,21.83,21.83,21.83,21.83-9.78,21.83-21.83S33.89,0,21.83,0h0Z"/>
+  </g>
+  <line class="cls-3" x1="21.68" y1="22.17" x2="21.6" y2="8.5"/>
+  <line class="cls-3" x1="21.92" y1="22.26" x2="33.5" y2="22.33"/>
+</svg>
