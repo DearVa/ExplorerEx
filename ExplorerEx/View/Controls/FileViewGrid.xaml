@@ -76,7 +76,7 @@
                 <GridSplitter Grid.Column="5" Margin="-2,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                 <hc:TextBox Grid.Column="6" DockPanel.Dock="Right" ShowClearButton="True" Height="32"
                             Margin="5,3,0,3" hc:InfoElement.Placeholder="{Binding SearchPlaceholderText, Mode=OneWay}"
-                            Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
+                            Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
         </Border>
 

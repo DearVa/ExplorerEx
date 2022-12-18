@@ -72,7 +72,9 @@ public partial class DragFilesPreview {
 			if (dragDropEffect == value) {
 				return;
 			}
+#if DEBUG
 			Trace.WriteLine(value);
+#endif
 			Icon = value;
 			switch (value) {
 			case DragDropEffects.Copy:

@@ -141,9 +141,9 @@ public class FileTabItem : TabItem {
 		CommandBindings.Add(new CommandBinding(ControlCommands.CloseOther, (_, _) => TabControlParent?.CloseOtherItems(this)));
 		Loaded += (s, _) => {
 			var tab = (FileTabItem)s;
-			if (tab.ViewModel.playTabAnimation) {
+			if (tab.ViewModel.PlayTabAnimation) {
 				tab.BeginAnimation(OpacityProperty, TabShowAnimation);
-				tab.ViewModel.playTabAnimation = false;
+				tab.ViewModel.PlayTabAnimation = false;
 			} else {
 				tab.Opacity = 1d;
 			}

@@ -13,13 +13,14 @@
             <Border Margin="8,0,0,6" CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource SecondaryRegionBrush}" MinHeight="70">
                 <Grid Margin="0,0,20,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="60"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
 
-                    <Image Grid.Column="0" Source="{Binding Icon}" Width="30" Height="30"/>
+                    <Image Grid.Column="0" Source="{Binding Icon}" Width="30" Height="30" Margin="15,0,0,0"
+                           Visibility="{Binding Icon, Converter={StaticResource Object2VisibilityConverter}}"/>
                     <hc:SimplePanel Grid.Column="1">
-                        <Grid HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <Grid HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15,0,0,0">
                             <Grid.RowDefinitions>
                                 <RowDefinition/>
                                 <RowDefinition Height="Auto"/>
@@ -39,13 +40,14 @@
             <Border Margin="8,0,0,6" CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource SecondaryRegionBrush}" MinHeight="70">
                 <Grid Margin="0,0,20,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="60"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
 
-                    <Image Grid.Column="0" Source="{Binding Icon}" Width="30" Height="30"/>
+                    <Image Grid.Column="0" Source="{Binding Icon}" Width="30" Height="30" Margin="15,0,0,0"
+                           Visibility="{Binding Icon, Converter={StaticResource Object2VisibilityConverter}}"/>
                     <DockPanel Grid.Column="1">
-                        <Grid DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,20,0">
+                        <Grid DockPanel.Dock="Left" VerticalAlignment="Center" Margin="15,0,20,0">
                             <Grid.RowDefinitions>
                                 <RowDefinition/>
                                 <RowDefinition Height="Auto"/>
@@ -70,13 +72,14 @@
             <Border Margin="8,0,0,6" CornerRadius="6" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource SecondaryRegionBrush}" MinHeight="70">
                 <Grid Margin="0,0,20,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="60"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
 
-                    <Image Grid.Column="0" Source="{Binding Icon}" Width="30" Height="30"/>
+                    <Image Grid.Column="0" Source="{Binding Icon}" Width="30" Height="30" Margin="15,0,0,0"
+                           Visibility="{Binding Icon, Converter={StaticResource Object2VisibilityConverter}}"/>
                     <hc:SimplePanel Grid.Column="1">
-                        <Grid HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <Grid HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15,0,0,0">
                             <Grid.RowDefinitions>
                                 <RowDefinition/>
                                 <RowDefinition Height="Auto"/>

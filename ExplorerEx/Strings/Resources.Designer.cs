@@ -267,7 +267,7 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 Select the interface language of ExplorerEx 的本地化字符串。
+        ///   查找类似 Select the interface language of ExplorerEx (Restart application to apply) 的本地化字符串。
         /// </summary>
         internal static string _LanguageDescription {
             get {
@@ -534,6 +534,15 @@ namespace ExplorerEx.Strings {
         internal static string Ascending {
             get {
                 return ResourceManager.GetString("Ascending", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Ask me 的本地化字符串。
+        /// </summary>
+        internal static string AskMe {
+            get {
+                return ResourceManager.GetString("AskMe", resourceCulture);
             }
         }
         
@@ -1141,6 +1150,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似 Experimental 的本地化字符串。
+        /// </summary>
+        internal static string Experimental {
+            get {
+                return ResourceManager.GetString("Experimental", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Extract 的本地化字符串。
         /// </summary>
         internal static string Extract {
@@ -1582,11 +1600,11 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
-        ///   查找类似 Open file location 的本地化字符串。
+        ///   查找类似 Open directory 的本地化字符串。
         /// </summary>
-        internal static string OpenFileLocation {
+        internal static string OpenDirectory {
             get {
-                return ResourceManager.GetString("OpenFileLocation", resourceCulture);
+                return ResourceManager.GetString("OpenDirectory", resourceCulture);
             }
         }
         
@@ -2253,6 +2271,15 @@ namespace ExplorerEx.Strings {
         internal static string View {
             get {
                 return ResourceManager.GetString("View", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 When close the last tab 的本地化字符串。
+        /// </summary>
+        internal static string WhenCloseTheLastTab {
+            get {
+                return ResourceManager.GetString("WhenCloseTheLastTab", resourceCulture);
             }
         }
         

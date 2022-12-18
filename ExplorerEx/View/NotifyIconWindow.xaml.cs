@@ -15,7 +15,7 @@ namespace ExplorerEx.View;
 /// </summary>
 public partial class NotifyIconWindow {
 	public NotifyIconWindow() {
-		Thread.CurrentThread.CurrentUICulture = new CultureInfo(Settings.Current[Settings.CommonSettings.Language].GetInt32());
+		Thread.CurrentThread.CurrentUICulture = new CultureInfo(Settings.Current[Settings.CommonSettings.Language].AsInt32());
 
 		DataContext = this;
 		

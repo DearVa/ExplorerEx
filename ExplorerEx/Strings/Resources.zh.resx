@@ -393,9 +393,6 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="#FormatDriveError" xml:space="preserve">
     <value>格式化驱动器时发生错误，这并不表示所选驱动器不可格式化。</value>
   </data>
-  <data name="OpenFileLocation" xml:space="preserve">
-    <value>打开文件位置</value>
-  </data>
   <data name="CopyAsPath" xml:space="preserve">
     <value>复制文件路径</value>
   </data>
@@ -684,7 +681,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
     <value>语言</value>
   </data>
   <data name="#LanguageDescription" xml:space="preserve">
-    <value>选择ExplorerEx的显示语言</value>
+    <value>选择ExplorerEx的显示语言（需要重启应用生效）</value>
   </data>
   <data name="Chinese" xml:space="preserve">
     <value>中文</value>
@@ -804,5 +801,17 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   </data>
   <data name="ShowShortcutPopup" xml:space="preserve">
     <value>选中文件后显示快捷菜单</value>
+  </data>
+  <data name="Experimental" xml:space="preserve">
+    <value>实验性</value>
+  </data>
+  <data name="WhenCloseTheLastTab" xml:space="preserve">
+    <value>当关闭最后一个标签页时</value>
+  </data>
+  <data name="AskMe" xml:space="preserve">
+    <value>询问我</value>
+  </data>
+  <data name="OpenDirectory" xml:space="preserve">
+    <value>打开所在文件夹</value>
   </data>
 </root>

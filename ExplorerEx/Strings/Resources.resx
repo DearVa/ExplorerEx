@@ -344,9 +344,6 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="#FormatDriveError" xml:space="preserve">
     <value>An error occurred during the last format. This does not indicate that the drive is unformattable.</value>
   </data>
-  <data name="OpenFileLocation" xml:space="preserve">
-    <value>Open file location</value>
-  </data>
   <data name="CopyAsPath" xml:space="preserve">
     <value>Copy as path</value>
   </data>
@@ -637,7 +634,7 @@ For the application to run properly, it's recommanded that you first extract all
     <value>Language</value>
   </data>
   <data name="#LanguageDescription" xml:space="preserve">
-    <value>Select the interface language of ExplorerEx</value>
+    <value>Select the interface language of ExplorerEx (Restart application to apply)</value>
   </data>
   <data name="Chinese" xml:space="preserve">
     <value>Chinese</value>
@@ -760,5 +757,17 @@ Can't find it? Don't worry, click "yes" and I will regenerate one on the desktop
   </data>
   <data name="ShowShortcutPopup" xml:space="preserve">
     <value>Show shortcut menu when selecting files</value>
+  </data>
+  <data name="Experimental" xml:space="preserve">
+    <value>Experimental</value>
+  </data>
+  <data name="WhenCloseTheLastTab" xml:space="preserve">
+    <value>When close the last tab</value>
+  </data>
+  <data name="AskMe" xml:space="preserve">
+    <value>Ask me</value>
+  </data>
+  <data name="OpenDirectory" xml:space="preserve">
+    <value>Open directory</value>
   </data>
 </root>

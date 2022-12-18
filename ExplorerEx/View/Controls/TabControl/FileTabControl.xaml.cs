@@ -1,7 +1,6 @@
 ﻿using System;
 using ExplorerEx.Utils;
 using ExplorerEx.ViewModel;
-using HandyControl.Data;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,8 +10,6 @@ using System.Linq;
 using System.Windows.Input;
 using ExplorerEx.Model;
 using ExplorerEx.Win32;
-using ConfigHelper = ExplorerEx.Utils.ConfigHelper;
-using MessageBox = HandyControl.Controls.MessageBox;
 using System.IO;
 using System.Windows.Controls;
 using System.Collections.Specialized;
@@ -252,7 +249,9 @@ public partial class FileTabControl {
 		}
 		if (await HandleTabClosing(tab)) {
 			CachedViews.Remove(tab);
-			TabItems.RemoveAt(index);
+			if (index < TabItems.Count) {
+				TabItems.RemoveAt(index);
+			}
 		}
 	}
 
@@ -372,7 +371,7 @@ public partial class FileTabControl {
 			UpdateFocusedTabControl();
 			MouseOverTabControl = FocusedTabControl;
 		}
-		tab.playTabAnimation = true;
+		tab.PlayTabAnimation = true;
 		// Trace.WriteLine(string.Join("\n", MainWindow.MainWindows.SelectMany(mw => mw.splitGrid).SelectMany(f => f.TabItems).Select(i => i.FullPath)));
 	}
 
@@ -394,7 +393,7 @@ public partial class FileTabControl {
 				UpdateFocusedTabControl();
 				MouseOverTabControl = FocusedTabControl;
 			} else {  // 说明就剩这一个Tab了
-				switch (ConfigHelper.LoadInt("LastTabClosed")) {
+				switch (Settings.Current[Settings.CommonSettings.WhenCloseTheLastTab].AsInt32()) {
 				case 1:
 					tab.Dispose();
 					TabControls.Remove(this);
@@ -406,20 +405,19 @@ public partial class FileTabControl {
 					await SelectedTab.LoadDirectoryAsync(null);
 					return false;
 				default:
-					var msi = new MessageBoxInfo {
-						Button = MessageBoxButton.OKCancel,
-						OkButtonText = "CloseWindow".L(),
-						CancelButtonText = "BackToHome".L(),
-						Message = "#YouClosedTheLastTab".L(),
-						CheckBoxText = "RememberMyChoiceAndDontAskAgain".L(),
-						IsChecked = false,
-						Image = MessageBoxImage.Question
+					var content = new ContentDialogContentWithCheckBox {
+						Content = "#YouClosedTheLastTab".L()
 					};
-					var result = MessageBox.Show(msi);
-					if (msi.IsChecked) {
-						ConfigHelper.Save("LastTabClosed", result == MessageBoxResult.OK ? 1 : 2);
+					var result = new ContentDialog {
+						Title = "Tip".L(),
+						Content = content,
+						PrimaryButtonText = "CloseWindow".L(),
+						CancelButtonText = "BackToHome".L()
+					}.Show(MainWindow);
+					if (content.IsChecked) {
+						Settings.Current[Settings.CommonSettings.WhenCloseTheLastTab].Value = result == ContentDialog.ContentDialogResult.Primary ? 1 : 2;
 					}
-					if (result == MessageBoxResult.OK) {
+					if (result == ContentDialog.ContentDialogResult.Primary) {
 						tab.Dispose();
 						TabControls.Remove(this);
 						UpdateFocusedTabControl();

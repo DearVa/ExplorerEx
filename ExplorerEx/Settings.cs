@@ -113,13 +113,31 @@ internal abstract class SettingsItem : SettingsCategoryItem, INotifyPropertyChan
 		OnPropertyChanged(nameof(Self));
 	}
 
-	public bool GetBoolean() => Convert.ToBoolean(Value);
+	public bool AsBoolean(bool defaultValue = default) {
+		try {
+			return Convert.ToBoolean(Value);
+		} catch {
+			return defaultValue;
+		}
+	}
 
-	public int GetInt32() => Convert.ToInt32(Value);
+	public int AsInt32(int defaultValue = default) {
+		try {
+			return Convert.ToInt32(Value);
+		} catch {
+			return defaultValue;
+		}
+	}
 
-	public double GetDouble() => Convert.ToDouble(Value);
+	public double AsDouble(double defaultValue = default) {
+		try {
+			return Convert.ToDouble(Value);
+		} catch {
+			return defaultValue;
+		}
+	}
 
-	public string GetString() => Convert.ToString(Value) ?? string.Empty;
+	public string AsString(string defaultValue = "") => Value?.ToString() ?? defaultValue;
 
 	/// <summary>
 	/// 与<see cref="PropertyChanged"/>不同，这个是专门用于监测值的变化
@@ -128,7 +146,7 @@ internal abstract class SettingsItem : SettingsCategoryItem, INotifyPropertyChan
 
 	public event PropertyChangedEventHandler? PropertyChanged;
 
-	private void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
+	protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
 		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 	}
 }
@@ -152,7 +170,10 @@ internal class SettingsSelectItem : SettingsItem {
 	public List<Item> Items { get; } = new();
 
 	public int SelectedIndex {
-		get => Value is int value ? Items.FindIndex(i => i.Value == value) : -1;
+		get {
+			var value = AsInt32();
+			return Items.FindIndex(i => i.Value == value);
+		}
 		set {
 			if (value < 0 || value >= Items.Count) {
 				Value = null;
@@ -162,7 +183,9 @@ internal class SettingsSelectItem : SettingsItem {
 		}
 	}
 
-	public SettingsSelectItem(string fullName, string header, string? description, string? icon) : base(fullName, header, description, icon, SettingsType.Select) { }
+	public SettingsSelectItem(string fullName, string header, string? description, string? icon) : base(fullName, header, description, icon, SettingsType.Select) {
+		Changed += _ => OnPropertyChanged(nameof(SelectedIndex));
+	}
 
 	public override void SetDefaultValue(object? value) {
 		if (value is int i) {
@@ -244,6 +267,7 @@ internal sealed class Settings : INotifyPropertyChanged {
 
 		public const string DoubleClickGoUpperLevel = "Common.DoubleClickGoUpperLevel";
 
+		public const string WhenCloseTheLastTab = "Customize.WhenCloseTheLastTab";
 		public const string DontAskWhenClosingMultiTabs = "Customize.DontAskWhenClosingMultiTabs";
 		public const string DontAskWhenChangeExtension = "Customize.DontAskWhenChangeExtension";
 		public const string DontAskWhenRecycle = "Customize.DontAskWhenRecycle";
@@ -265,7 +289,7 @@ internal sealed class Settings : INotifyPropertyChanged {
 	/// </summary>
 	public bool IsDarkMode {
 		get {
-			var colorMode = (ColorMode)settings[CommonSettings.ColorMode].GetInt32();
+			var colorMode = (ColorMode)settings[CommonSettings.ColorMode].AsInt32();
 			switch (colorMode) {
 			case ColorMode.FollowSystem:
 				try {
@@ -284,14 +308,14 @@ internal sealed class Settings : INotifyPropertyChanged {
 		}
 	}
 
-	public WindowBackdrop WindowBackdrop => (WindowBackdrop)settings[CommonSettings.WindowBackdrop].GetInt32();
+	public WindowBackdrop WindowBackdrop => (WindowBackdrop)settings[CommonSettings.WindowBackdrop].AsInt32();
 
 	public ImageSource? BackgroundImage { get; set; }
 
-	public double BackgroundImageOpacity => this[CommonSettings.BackgroundImageOpacity].GetDouble();
+	public double BackgroundImageOpacity => this[CommonSettings.BackgroundImageOpacity].AsDouble();
 
 	private void BackgroundImage_OnChanged(SettingsItem si) {
-		var path = si.GetString().Trim(' ').Trim('"').Trim(' ');
+		var path = si.AsString().Trim(' ').Trim('"').Trim(' ');
 		if (File.Exists(path)) {
 			try {
 				BackgroundImage = new BitmapImage(new Uri(path));
@@ -322,7 +346,7 @@ internal sealed class Settings : INotifyPropertyChanged {
 	}
 
 	private static void SetExplorerExAsDefault_OnChanged(SettingsItem si) {
-		var value = si.GetBoolean();
+		var value = si.AsBoolean();
 		do {
 			var executingAsm = Assembly.GetExecutingAssembly();
 			var executingPath = Path.GetDirectoryName(executingAsm.Location)!;
@@ -417,21 +441,21 @@ internal sealed class Settings : INotifyPropertyChanged {
 	private void RegisterEvents() {
 		ThemeChanged = null;
 
-		settings[CommonSettings.Language].Changed += o => {  // 更改界面语言
+		settings[CommonSettings.Language].Changed += static o => {  // 更改界面语言
 			var prevCulture = CurrentCulture;
 			try {
-				CurrentCulture = new CultureInfo(o.GetInt32());
+				CurrentCulture = new CultureInfo(o.AsInt32());
 			} catch {
 				CurrentCulture = prevCulture;
 			}
 		};
-		settings[CommonSettings.WindowBackdrop].Changed += _ => ThemeChanged?.Invoke();
+		settings[CommonSettings.WindowBackdrop].Changed += static _ => ThemeChanged?.Invoke();
 
 		settings[CommonSettings.BackgroundImage].Changed += BackgroundImage_OnChanged;
 		BackgroundImage_OnChanged(settings[CommonSettings.BackgroundImage]);
 
 		settings[CommonSettings.BackgroundImageOpacity].Changed += _ => OnPropertyChanged(nameof(BackgroundImageOpacity));
-		settings[CommonSettings.ColorMode].Changed += _ => ThemeChanged?.Invoke();  // 更改颜色
+		settings[CommonSettings.ColorMode].Changed += static _ => ThemeChanged?.Invoke();  // 更改颜色
 
 		settings[CommonSettings.SetExplorerExAsDefault].Changed += SetExplorerExAsDefault_OnChanged;
 	}

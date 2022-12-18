@@ -97,8 +97,8 @@ public class ZipFolderItem : FolderItem, IDisposable {
 	}
 
 	public override List<FileListViewItem> EnumerateItems(string? selectedPath, in LoadDetailsOptions options, out FileListViewItem? selectedItem, CancellationToken token) {
-		var showHidden = Settings.Current[Settings.CommonSettings.ShowHiddenFilesAndFolders].GetBoolean();
-		var showSystem = Settings.Current[Settings.CommonSettings.ShowProtectedSystemFilesAndFolders].GetBoolean();
+		var showHidden = Settings.Current[Settings.CommonSettings.ShowHiddenFilesAndFolders].AsBoolean();
+		var showSystem = Settings.Current[Settings.CommonSettings.ShowProtectedSystemFilesAndFolders].AsBoolean();
 
 		selectedItem = null;
 		var list = new List<FileListViewItem>();

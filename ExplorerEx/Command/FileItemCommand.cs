@@ -65,7 +65,7 @@ public class FileItemCommand : ICommand {
 					new MainWindow(item.FullPath).Show();
 				}
 				break;
-			case "OpenFileLocation": {
+			case "OpenDirectory": {
 				var tabControl = TabControlProvider.Invoke();
 				if (tabControl == null) {
 					return;
@@ -124,7 +124,7 @@ public class FileItemCommand : ICommand {
 						var destPaths = filePaths.Select(path => Path.Combine(Folder.FullPath, Path.GetFileName(path))).ToList();
 						try {
 							await Task.Run(() => FileUtils.FileOperation(isCut ? FileOpType.Move : FileOpType.Copy, filePaths, destPaths));
-							FileTabControl.MouseOverTabControl?.SelectedTab.FileListView.SelectItems(destPaths);
+							FileTabControl.MouseOverTabControl?.SelectedTab.FileListView?.SelectItems(destPaths);
 						} catch (Exception e) {
 							Logger.Exception(e, false);
 							ContentDialog.Error(e.Message);
@@ -159,7 +159,7 @@ public class FileItemCommand : ICommand {
 					break;
 				}
 				if ((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift) { // 没有按Shift
-					if (!Settings.Current[Settings.CommonSettings.DontAskWhenRecycle].GetBoolean()) {
+					if (!Settings.Current[Settings.CommonSettings.DontAskWhenRecycle].AsBoolean()) {
 						if (ContentDialog.Ask("#AreYouSureToRecycleTheseFiles".L()) == ContentDialog.ContentDialogResult.Cancel) {
 							break;
 						}
@@ -171,7 +171,7 @@ public class FileItemCommand : ICommand {
 						ContentDialog.Error(e.Message);
 					}
 				} else {
-					if (!Settings.Current[Settings.CommonSettings.DontAskWhenDelete].GetBoolean()) {
+					if (!Settings.Current[Settings.CommonSettings.DontAskWhenDelete].AsBoolean()) {
 						if (ContentDialog.Ask("#AreYouSureToDeleteTheseFilesPermanently".L()) == ContentDialog.ContentDialogResult.Cancel) {
 							break;
 						}
@@ -217,7 +217,7 @@ public class FileItemCommand : ICommand {
 			}
 			case "Edit":
 				foreach (var item in Items.Where(i => i is FileItem { IsEditable: true })) {
-					OpenFileWith(item, Settings.Current["Common.DefaultTextEditor"].GetString());
+					OpenFileWith(item, Settings.Current["Common.DefaultTextEditor"].AsString());
 				}
 				break;
 			case "Unzip":
@@ -338,7 +338,7 @@ public class FileItemCommand : ICommand {
 		try {
 			Process.Start(new ProcessStartInfo {
 				FileName = app,
-				Arguments = item.FullPath,
+				Arguments = '"' + item.FullPath + '"',
 				UseShellExecute = true
 			});
 		} catch (Exception e) {

@@ -18,10 +18,10 @@ internal class FileSystemItemEnumerator : FileSystemEnumerator<FileSystemItem>, 
 
 	private static EnumerationOptions GetEnumerationOptions() {
 		var options = new EnumerationOptions();
-		if (Settings.Current[Settings.CommonSettings.ShowHiddenFilesAndFolders].GetBoolean()) {
+		if (Settings.Current[Settings.CommonSettings.ShowHiddenFilesAndFolders].AsBoolean()) {
 			options.AttributesToSkip ^= FileAttributes.Hidden;
 		}
-		if (Settings.Current[Settings.CommonSettings.ShowProtectedSystemFilesAndFolders].GetBoolean()) {
+		if (Settings.Current[Settings.CommonSettings.ShowProtectedSystemFilesAndFolders].AsBoolean()) {
 			options.AttributesToSkip ^= FileAttributes.System;
 		}
 		return options;

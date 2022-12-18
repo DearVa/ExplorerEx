@@ -251,7 +251,7 @@ public partial class ContentDialog {
 	/// <param name="ownerWindow"></param>
 	/// <returns></returns>
 	public static bool ShowWithDefault(string settingsKey, string msg, string? caption = null, MainWindow? ownerWindow = null) {
-		if (Settings.Current[settingsKey].GetBoolean()) {
+		if (Settings.Current[settingsKey].AsBoolean()) {
 			return true;
 		}
 		if (MainWindow.FocusedWindow == null) {

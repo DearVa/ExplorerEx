@@ -49,12 +49,18 @@ public abstract class FileSystemItem : FileListViewItem {
 		if (basePath == null) {
 			throw new InvalidOperationException();
 		}
+
 		if (Path.GetExtension(FullPath) != Path.GetExtension(newName)) {
 			if (!ContentDialog.ShowWithDefault(Settings.CommonSettings.DontAskWhenChangeExtension, "#AreYouSureToChangeExtension".L())) {
 				return;
 			}
 		}
-		File.Move(FullPath, Path.Combine(basePath, newName), false);
+
+		if (IsFolder) {
+			Directory.Move(FullPath, Path.Combine(basePath, newName));
+		} else {
+			File.Move(FullPath, Path.Combine(basePath, newName), false);
+		}
 	}
 
 	/// <summary>

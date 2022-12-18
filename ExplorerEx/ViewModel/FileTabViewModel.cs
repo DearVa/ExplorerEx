@@ -35,7 +35,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 
 	public MainWindow OwnerWindow => OwnerTabControl.MainWindow;
 
-	public FileListView FileListView { get; set; } = null!;
+	public FileListView? FileListView { get; set; }
 
 	/// <summary>
 	/// 当前路径文件夹
@@ -164,7 +164,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 
 	public bool IsItemSelected => SelectedItems.Count > 0;
 
-	public bool CanDeleteOrCut => IsItemSelected && SelectedItems.All(i => i is FileSystemItem);
+	public bool CanDeleteOrCut => IsItemSelected && SelectedItems.All(static i => i is FileSystemItem);
 
 	/// <summary>
 	/// 文件项的Command
@@ -223,6 +223,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	/// 如果不为null，就说明用户输入了搜索，OneWayToSource
 	/// </summary>
 	public string? SearchText {
+		get => searchText;
 		set {
 			if (string.IsNullOrWhiteSpace(value)) {
 				if (searchText != null) {
@@ -251,7 +252,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	/// <summary>
 	/// 给FileTabItem使用
 	/// </summary>
-	internal bool playTabAnimation = true;
+	internal bool PlayTabAnimation = true;
 
 	//private int totalLoadedFiles;
 
@@ -298,7 +299,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 							return;
 						}
 						newItem.IsSelected = true;
-						FileListView.ScrollIntoView(newItem);
+						FileListView?.ScrollIntoView(newItem);
 					} else {
 						hc.MessageBox.Error("", "CannotCreate".L());
 					}
@@ -351,7 +352,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	}
 
 	public void StartRename(FileListViewItem item) {
-		FileListView.ScrollIntoView(item);
+		FileListView?.ScrollIntoView(item);
 		item.IsSelected = true;
 		var originalName = item.GetRenameName();
 		if (originalName == null) {
@@ -463,7 +464,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 	/// <returns></returns>
 	private Task LoadThumbnailsAsync() {
 		switchIconCts?.Cancel();
-		var list = Items.Where(item => item is FileItem).Cast<FileItem>().ToList();
+		var list = Items.Where(static item => item is FileItem).Cast<FileItem>().ToList();
 		var cts = switchIconCts = new CancellationTokenSource();
 		return Task.Run(() => {
 			foreach (var item in list) {
@@ -544,6 +545,11 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		switchIconCts?.Cancel();
 		SelectedItems.Clear();
 		cts.Cancel();
+
+		if (!string.IsNullOrEmpty(searchText)) {
+			searchText = string.Empty;
+			OnPropertyChanged(nameof(SearchText));
+		}
 
 		if (Folder is IDisposable disposable) {
 			disposable.Dispose();
@@ -707,7 +713,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			Items.AddRange(fileListViewItems);
 			_ = dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => {
 				GroupBy = savedView?.GroupBy;  // Loaded之后再执行，不然会非常卡QAQ
-				FileListView?.ScrollIntoView(scrollIntoItem);  // TODO：有时还是null，先用?.
+				FileListView?.ScrollIntoView(scrollIntoItem);
 				IsLoading = false;
 			});
 		} else {
@@ -814,11 +820,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			SelectedFileItemsSizeText = null;
 		} else {
 			var size = SelectedFilesSize;
-			if (size == -1) {
-				SelectedFileItemsSizeText = null;
-			} else {
-				SelectedFileItemsSizeText = FileUtils.FormatByteSize(size);
-			}
+			SelectedFileItemsSizeText = size == -1 ? null : FileUtils.FormatByteSize(size);
 		}
 		OnPropertyChanged(nameof(IsItemSelected));
 		OnPropertyChanged(nameof(CanDeleteOrCut));
@@ -890,19 +892,23 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 			_ = LoadDirectoryAsync(FullPath);
 			return;
 		}
+
 		if (EverythingInterop.IsAvailable) {
 			Items.Clear();  // 清空文件列表，进入搜索模式
 
-			PathType = PathType.Search;
-			FileView.CommitChange();
-			EverythingInterop.Search = PathType == PathType.LocalFolder ? FullPath + ' ' + searchText : searchText;
+			if (PathType != PathType.Search) {
+				PathType = PathType.Search;
+				FileView.CommitChange();
+			}
+
+			EverythingInterop.Search = Folder.IsVirtual ? searchText : FullPath + ' ' + searchText;
 			EverythingInterop.Max = 999;
 			var mainWindow = OwnerTabControl.MainWindow;
 			mainWindow.UnRegisterEverythingQuery(everythingQueryId);
 			everythingQueryId = mainWindow.RegisterEverythingQuery();
 			EverythingInterop.Query(false);
 		} else {
-			hc.MessageBox.Error("EverythingIsNotAvailable".L());
+			ContentDialog.Error("EverythingIsNotAvailable".L(), ownerWindow: OwnerTabControl.MainWindow);
 		}
 	}
 
@@ -912,7 +918,7 @@ public class FileTabViewModel : NotifyPropertyChangedBase, IDisposable {
 		if (id != everythingQueryId) {
 			return;
 		}
-		PathType = PathType.Home;
+		//PathType = PathType.Home;
 		everythingReplyCts?.Cancel();
 		everythingReplyCts = new CancellationTokenSource();
 		var token = everythingReplyCts.Token;

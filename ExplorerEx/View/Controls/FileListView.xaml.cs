@@ -299,6 +299,8 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// </summary>
 	private bool isMouseDown;
 
+	private bool isMouseOnFileNameLabel;
+
 	private bool isPreparedForRenaming;
 	/// <summary>
 	/// 鼠标按下如果在Row上，就是对应的项；如果不在，就是-1。每次鼠标抬起都重置为-1
@@ -454,7 +456,7 @@ public partial class FileListView : INotifyPropertyChanged {
 							case 0:
 								item.IsSelected = true;
 								break;
-							case 1 when item.IsSelected:
+							case 1 when item.IsSelected && isMouseOnFileNameLabel:
 								isPreparedForRenaming = true;
 								break;
 							case 1:
@@ -485,7 +487,7 @@ public partial class FileListView : INotifyPropertyChanged {
 					UnselectAll();
 				}
 				mouseDownItemIndex = -1;
-				if (Settings.Current[Settings.CommonSettings.DoubleClickGoUpperLevel].GetBoolean() && prevMouseUpItem == null && e.ChangedButton == MouseButton.Left) {
+				if (Settings.Current[Settings.CommonSettings.DoubleClickGoUpperLevel].AsBoolean() && prevMouseUpItem == null && e.ChangedButton == MouseButton.Left) {
 					if (Math.Abs(mouseDownPoint.X - prevMouseUpPoint.X) < SystemParameters.MinimumHorizontalDragDistance &&
 						Math.Abs(mouseDownPoint.Y - prevMouseUpPoint.Y) < SystemParameters.MinimumVerticalDragDistance &&
 						DateTimeOffset.Now <= prevMouseUpTime.AddMilliseconds(Win32Interop.GetDoubleClickTime())) {
@@ -513,13 +515,15 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// <param name="e"></param>
 	protected override void OnPreviewMouseMove(MouseEventArgs e) {
 		if (e.OriginalSource is DependencyObject o) {
-			MouseItem = ContainerFromElement(o) switch {
+			var mouseItem = MouseItem = ContainerFromElement(o) switch {
 				ListBoxItem i => (FileListViewItem)i.Content,
 				DataGridRow r => (FileListViewItem)r.Item,
 				_ => null
 			};
+			isMouseOnFileNameLabel = mouseItem != null && o is TextBlock;
 		} else {
 			MouseItem = null;
+			isMouseOnFileNameLabel = false;
 		}
 		if (!isMouseDown || isDoubleClicked || isDragDropping) {
 			return;
@@ -530,10 +534,10 @@ public partial class FileListView : INotifyPropertyChanged {
 			if (Math.Abs(point.X - mouseDownPoint.X) >= SystemParameters.MinimumHorizontalDragDistance ||
 				Math.Abs(point.Y - mouseDownPoint.Y) >= SystemParameters.MinimumVerticalDragDistance) {
 				if (mouseDownItemIndex != -1) {
-					draggingPaths = ViewModel.SelectedItems.Select(i => i.FullPath).ToArray();
+					draggingPaths = ViewModel.SelectedItems.Select(static i => i.FullPath).ToArray();
 					var selectedItems = ViewModel.SelectedItems;
-					var data = new DataObject(DataFormats.FileDrop, selectedItems.Select(item => item.FullPath).ToArray(), true);
-					var allowedEffects = selectedItems.Any(item => item is DiskDriveItem) ? DragDropEffects.Link : DragDropEffects.All;
+					var data = new DataObject(DataFormats.FileDrop, selectedItems.Select(static item => item.FullPath).ToArray(), true);
+					var allowedEffects = selectedItems.Any(static item => item is DiskDriveItem) ? DragDropEffects.Link : DragDropEffects.All;
 					isDragDropping = true;
 					DragFilesPreview.IsInternalDrag = true;
 					DragDrop.DoDragDrop(this, data, allowedEffects);
@@ -925,6 +929,11 @@ public partial class FileListView : INotifyPropertyChanged {
 			destination = FullPath;
 			contains = draggingPaths.Any(path => path == destination);
 		}
+
+		if (contains || Path.GetDirectoryName(draggingPaths[0]) == destination) { // 自己不能往自己身上拖放，相同文件夹禁止移动
+			e.Effects = DragDropEffects.None;
+		}
+
 		if (lastDragOnItem != mouseItem) {
 			if (lastDragOnItem != null) {
 				lastDragOnItem.IsSelected = false;
@@ -932,11 +941,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		}
 
 		if (mouseItem != null) {
-			if (contains) { // 自己不能往自己身上拖放
-				e.Effects = DragDropEffects.None;
-			} else if (mouseItem is {IsFolder: false} and not FileItem {IsExecutable: true}) { // 不是可执行文件就禁止拖放
-				e.Effects = DragDropEffects.None;
-			} else if (e.Data.GetData(DataFormats.FileDrop) is string[] {Length: > 0} fileList && Path.GetDirectoryName(fileList[0]) == destination) { // 相同文件夹禁止移动
+			if (mouseItem is {IsFolder: false} and not FileItem {IsExecutable: true}) { // 不是可执行文件就禁止拖放
 				e.Effects = DragDropEffects.None;
 			} else {
 				lastDragOnItem = mouseItem;
@@ -970,7 +975,7 @@ public partial class FileListView : INotifyPropertyChanged {
 		}
 		try {
 			var affectedItems = await FileUtils.HandleDrop(DataObjectContent.Drag, path, GetEffectWithKeyboard(e.Effects));
-			SelectItems(affectedItems?.Select(Path.GetFileName).Where(s => !string.IsNullOrWhiteSpace(s))!);
+			SelectItems(affectedItems?.Select(Path.GetFileName).Where(static s => !string.IsNullOrWhiteSpace(s))!);
 		} catch (Exception ex) {
 			Logger.Exception(ex);
 		}
@@ -1003,7 +1008,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	/// 显示快捷操作菜单，会延迟200ms
 	/// </summary>
 	private void ShowShortcutPopup() {
-		if (Settings.Current[Settings.CommonSettings.ShowShortcutPopup].GetBoolean()) {
+		if (Settings.Current[Settings.CommonSettings.ShowShortcutPopup].AsBoolean()) {
 			if (shortcutPopup.IsOpen) {
 				return;
 			}
@@ -1038,12 +1043,12 @@ public partial class FileListView : INotifyPropertyChanged {
 
 	#endregion
 
-	protected override void OnLostKeyboardFocus(KeyboardFocusChangedEventArgs e) {
-		base.OnLostKeyboardFocus(e);
-		//if (!shortcutPopup.IsKeyboardFocusWithin) {
-		//	shortcutPopup.IsOpen = false;
-		//}
-	}
+	//protected override void OnLostKeyboardFocus(KeyboardFocusChangedEventArgs e) {
+	//	base.OnLostKeyboardFocus(e);
+	//	if (!shortcutPopup.IsKeyboardFocusWithin) {
+	//		shortcutPopup.IsOpen = false;
+	//	}
+	//}
 
 	/// <summary>
 	/// 根据键盘按键决定要执行什么操作（Shift移动，Ctrl复制，Alt链接）
@@ -1087,7 +1092,7 @@ public partial class FileListView : INotifyPropertyChanged {
 	}
 
 	private void FormatDiskDrive_OnClick(object sender, RoutedEventArgs e) {
-		foreach (var item in ViewModel.SelectedItems.Where(i => i is DiskDriveItem).Cast<DiskDriveItem>().ToImmutableList()) {
+		foreach (var item in ViewModel.SelectedItems.Where(static i => i is DiskDriveItem).Cast<DiskDriveItem>().ToImmutableList()) {
 			Shell32Interop.ShowFormatDriveDialog(item.Drive);
 		}
 	}

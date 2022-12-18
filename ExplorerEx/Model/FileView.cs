@@ -132,23 +132,23 @@ public class DetailList : IByteCodec {
 	private static readonly DetailList[] DefaultLocalFolderDetailLists = {
 		new(DetailListType.Name, 300),
 		new(DetailListType.DateModified, 200),
-		new(DetailListType.Type, 200),
+		new(DetailListType.Type, 100),
 		new(DetailListType.FileSize, 100)
 	};
 
 	private static readonly DetailList[] DefaultRecycleBinDetailLists = {
 		new(DetailListType.Name, 300),
 		new(DetailListType.OriginalLocation, 300),
-		new(DetailListType.DateDeleted, 100),
+		new(DetailListType.DateDeleted, 200),
 		new(DetailListType.FileSize, 100),
-		new(DetailListType.Type, 200),
-		new(DetailListType.DateModified, 100)
+		new(DetailListType.Type, 100),
+		new(DetailListType.DateModified, 200)
 	};
 
 	private static readonly DetailList[] DefaultSearchDetailLists = {
 		new(DetailListType.Name, 300),
-		new(DetailListType.DateModified, 100),
-		new(DetailListType.Type, 200),
+		new(DetailListType.DateModified, 200),
+		new(DetailListType.Type, 100),
 		new(DetailListType.FileSize, 100),
 		new(DetailListType.FullPath, 800)
 	};

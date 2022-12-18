@@ -36,7 +36,7 @@ public sealed partial class MainWindow {
 	/// <summary>
 	/// 获取聚焦的窗口，可能为null
 	/// </summary>
-	public static MainWindow? FocusedWindow => All.Count > 0 ? All.FirstOrDefault(mw => mw.IsFocused) ?? All[0] : null;
+	public static MainWindow? FocusedWindow => All.Count > 0 ? All.FirstOrDefault(static mw => mw.IsFocused) ?? All[0] : null;
 
 
 	public event Action<uint, EverythingInterop.QueryReply>? EverythingQueryReplied;
@@ -53,7 +53,7 @@ public sealed partial class MainWindow {
 	/// </summary>
 	public static event Action? FrequentTimerElapsed;
 
-	private static readonly DispatcherTimer FrequentTimer = new(TimeSpan.FromMilliseconds(100), DispatcherPriority.Input, (_, _) => FrequentTimerElapsed?.Invoke(), Application.Current.Dispatcher);
+	private static readonly DispatcherTimer FrequentTimer = new(TimeSpan.FromMilliseconds(100), DispatcherPriority.Input, static (_, _) => FrequentTimerElapsed?.Invoke(), Application.Current.Dispatcher);
 
 	public SimpleCommand SideBarItemPreviewMouseUpCommand { get; }
 	public SimpleCommand SideBarItemClickCommand { get; }
@@ -125,11 +125,11 @@ public sealed partial class MainWindow {
 
 		BookmarkItemCommand = new FileItemCommand {
 			SelectedItemsProvider = () => SideBarBookmarksTreeView.SelectedItem is BookmarkItem selectedItem ? new[] { selectedItem } : Array.Empty<FileListViewItem>(),
-			TabControlProvider = () => FileTabControl.MouseOverTabControl
+			TabControlProvider = static () => FileTabControl.MouseOverTabControl
 		};
 		SideBarPcItemCommand = new FolderOnlyItemCommand {
 			SelectedItemsProvider = () => selectedSideBarPcItem != null ? new[] { selectedSideBarPcItem } : Array.Empty<FileListViewItem>(),
-			TabControlProvider = () => FileTabControl.MouseOverTabControl
+			TabControlProvider = static () => FileTabControl.MouseOverTabControl
 		};
 		EditBookmarkCommand = new SimpleCommand(e => {
 			if (e.FindParent<ContextMenu>().GetValue(FileItemAttach.FileItemProperty) is FileListViewItem item) {
@@ -160,7 +160,7 @@ public sealed partial class MainWindow {
 
 		if (ConfigHelper.LoadBoolean("WindowMaximized")) {
 			WindowState = WindowState.Maximized;
-			BorderThickness = new Thickness(8);
+			IsMaximized = true;
 		}
 
 		FrequentTimer.Start();
@@ -338,7 +338,9 @@ public sealed partial class MainWindow {
 		if (All.Count == 0) {  // 窗口都关闭了
 			new MainWindow(null).Show();
 		} else {
-			All[0].BringToFront();
+			foreach (var mainWindow in All) {
+				mainWindow.BringToFront();
+			}
 		}
 	}
 
@@ -842,10 +844,10 @@ public sealed partial class MainWindow {
 						mouseOverTab.FileItemCommand.Execute("Paste");
 						break;
 					case Key.A:
-						mouseOverTab.FileListView.SelectAll();
+						mouseOverTab.FileListView?.SelectAll();
 						break;
 					case Key.I:
-						mouseOverTab.FileListView.InverseSelection();
+						mouseOverTab.FileListView?.InverseSelection();
 						break;
 					case Key.W:
 						FileTabControl.MouseOverTabControl!.CloseTab(mouseOverTab);
@@ -875,7 +877,6 @@ public sealed partial class MainWindow {
 						mouseOverTab.FileItemCommand.Execute("Open");
 						break;
 					case Key.Delete:
-						Trace.WriteLine("111");
 						mouseOverTab.FileItemCommand.Execute("Delete");
 						break;
 					case Key.Back:
@@ -897,8 +898,8 @@ public sealed partial class MainWindow {
 	protected override void OnPreviewTextInput(TextCompositionEventArgs e) {
 		if (!IsAnyDialogShown && !string.IsNullOrWhiteSpace(e.Text) && e.OriginalSource is not TextBox and not AddressBar) {
 			var mouseOverTabControl = FileTabControl.MouseOverTabControl;
-			if (mouseOverTabControl != null) {
-				var fileListView = mouseOverTabControl.SelectedTab.FileListView;
+			var fileListView = mouseOverTabControl?.SelectedTab.FileListView;
+			if (fileListView != null) {
 				fileListView.Focus();
 				fileListView.SelectByText(e.Text);
 			}
@@ -936,12 +937,12 @@ public sealed partial class MainWindow {
 	}
 
 	protected override void OnPreviewDragLeave(DragEventArgs e) {
-		base.OnPreviewDragLeave(e);
 		var cursorHwnd = GetCursorHwnd();
 		if (All.Any(mw => mw.Hwnd.Handle == cursorHwnd)) {
 			return;  // 只有当真正离开了窗口，才取消显示
 		}
 		DataObjectContent.HandleDragLeave();
+		base.OnPreviewDragLeave(e);
 	}
 
 	#endregion
@@ -957,6 +958,9 @@ public sealed partial class MainWindow {
 
 	private static void IsMaximized_OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		var window = (MainWindow)d;
+		if (window.WindowState == WindowState.Minimized) {
+			return;
+		}
 		var isMaximized = (bool)e.NewValue;
 		ConfigHelper.Save("WindowMaximized", isMaximized);
 		if (isMaximized) {

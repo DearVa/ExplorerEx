@@ -197,8 +197,8 @@ public sealed class FolderOnlyItem : FolderItem {
 					Task.Run(() => {
 						try {
 							if (zipPath != null && relativePath != null) {
-								var showHidden = Settings.Current[Settings.CommonSettings.ShowHiddenFilesAndFolders].GetBoolean();
-								var showSystem = Settings.Current[Settings.CommonSettings.ShowProtectedSystemFilesAndFolders].GetBoolean();
+								var showHidden = Settings.Current[Settings.CommonSettings.ShowHiddenFilesAndFolders].AsBoolean();
+								var showSystem = Settings.Current[Settings.CommonSettings.ShowProtectedSystemFilesAndFolders].AsBoolean();
 
 								using var archive = ZipFile.Open(zipPath, ZipArchiveMode.Read, Encoding.GetEncoding("gbk"));
 								foreach (var entry in archive.Entries) {

@@ -288,6 +288,10 @@
             <MenuItem Header="{u:Lang CopyAsPath}" CommandParameter="CopyAsPath"
                       Command="{Binding Path=ViewModel.FileItemCommand}"
                       Icon="{DynamicResource CopyDrawingImage}"/>
+            <MenuItem Header="{u:Lang OpenDirectory}" CommandParameter="OpenDirectory"
+                      Command="{Binding Path=ViewModel.FileItemCommand}"
+                      Icon="{DynamicResource ShareDrawingImage}"
+                      Visibility="{Binding Path=ViewModel.PathType, Converter={StaticResource Equality2VisibilityConverter}, ConverterParameter={x:Static m:PathType.Search}}"/>
             <Separator/>
 
             <MenuItem CommandParameter="AddToBookmarks"
@@ -364,13 +368,23 @@
                       Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileItem.IsZip), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"/>
             <Separator/>
 
-            <MenuItem Header="{u:Lang OpenFileLocation}" CommandParameter="OpenFileLocation"
-                      Command="{Binding Path=ViewModel.FileItemCommand}"
-                      Visibility="{Binding Path=(m:FileItemAttach.FileItem).(m:FileItem.IsLink), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
-                      Icon="{DynamicResource ShareDrawingImage}"/>
             <MenuItem Header="{u:Lang CopyAsPath}" CommandParameter="CopyAsPath"
                       Command="{Binding Path=ViewModel.FileItemCommand}"
                       Icon="{DynamicResource CopyDrawingImage}"/>
+            <MenuItem Header="{u:Lang OpenDirectory}" CommandParameter="OpenDirectory"
+                      Command="{Binding Path=ViewModel.FileItemCommand}"
+                      Icon="{DynamicResource ShareDrawingImage}">
+                <MenuItem.Visibility>
+                    <MultiBinding Converter="{StaticResource MultiBoolean2VisibilityConverter}" Mode="OneWay">
+                        <Binding Path="(m:FileItemAttach.FileItem).(m:FileItem.IsLink)" RelativeSource="{RelativeSource AncestorType=ContextMenu}" Mode="OneWay"/>
+                        <Binding Path="ViewModel.PathType" Converter="{StaticResource Equality2BooleanConverter}" ConverterParameter="{x:Static m:PathType.Search}"/>
+                    </MultiBinding>
+                </MenuItem.Visibility>
+            </MenuItem>
+            <MenuItem CommandParameter="OpenDirectory"
+                      Command="{Binding Path=ViewModel.FileItemCommand}"
+                      Icon="{DynamicResource ShareDrawingImage}" Header="{u:Lang OpenDirectory}"
+                      Visibility="{Binding Path=ViewModel.PathType, Converter={StaticResource Equality2VisibilityConverter}, ConverterParameter={x:Static m:PathType.Search}}"/>
             <Separator/>
 
             <MenuItem CommandParameter="AddToBookmarks"

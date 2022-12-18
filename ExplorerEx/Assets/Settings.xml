@@ -30,6 +30,11 @@
   </category>
 
   <category header="Customize">
+    <item header="WhenCloseTheLastTab" type="select">
+      <option header="AskMe"/>
+      <option header="CloseWindow"/>
+      <option header="BackToHome"/>
+    </item>
     <item header="DontAskWhenClosingMultiTabs" type="boolean" default="false"/>
     <item header="DontAskWhenChangeExtension" type="boolean" default="false"/>
     <item header="DontAskWhenRecycle" type="boolean" default="false"/>

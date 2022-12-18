@@ -1,6 +1,7 @@
 ﻿using ExplorerEx.View.Controls;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
 
 namespace ExplorerEx.Win32;
@@ -75,6 +76,7 @@ public class DataObjectContent {
 	}
 
 	public static void HandleDragEnter(DragEventArgs e) {
+		Trace.WriteLine("enter");
 		if (DragFilesPreview.IsShown) {
 			return;
 		}
