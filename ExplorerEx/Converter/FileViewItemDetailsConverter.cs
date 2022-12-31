@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows.Data;
-using ExplorerEx.Model;
+using ExplorerEx.Models;
 using ExplorerEx.Utils;
 using HandyControl.Tools.Converter;
 

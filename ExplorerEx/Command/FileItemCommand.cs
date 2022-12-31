@@ -8,11 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using ExplorerEx.Model;
+using ExplorerEx.Definitions.Interfaces;
+using ExplorerEx.Models;
+using ExplorerEx.Services;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
-using ExplorerEx.View;
-using ExplorerEx.View.Controls;
+using ExplorerEx.Views;
+using ExplorerEx.Views.Controls;
 using HandyControl.Data;
 using hc = HandyControl.Controls;
 
@@ -34,7 +36,7 @@ public class FileItemCommand : ICommand {
 
 	protected IReadOnlyList<FileListViewItem> Items => SelectedItemsProvider.Invoke()?.ToList() ?? emptyItems;
 
-	protected IReadOnlyList<FileListViewItem> Folders => SelectedItemsProvider.Invoke()?.Where(i => i.IsFolder).ToList() ?? emptyItems;
+	protected IReadOnlyList<FileListViewItem> Folders => SelectedItemsProvider.Invoke()?.Where(static i => i.IsFolder).ToList() ?? emptyItems;
 
 	public async void Execute(object? param) {
 		switch (param) {
@@ -98,7 +100,7 @@ public class FileItemCommand : ICommand {
 				var items = Items;
 				if (items.Count > 0) {
 					var isCut = !Folder.IsReadonly && str == "Cut";
-					var data = new DataObject(DataFormats.FileDrop, items.Where(item => item is FileSystemItem or DiskDriveItem).Select(item => item.FullPath).ToArray());
+					var data = new DataObject(DataFormats.FileDrop, items.Where(static item => item is FileSystemItem or DiskDriveItem).Select(static item => item.FullPath).ToArray());
 					data.SetData("IsCut", isCut);
 					Clipboard.SetDataObject(data);
 					//if (isCut) {
@@ -126,7 +128,7 @@ public class FileItemCommand : ICommand {
 							await Task.Run(() => FileUtils.FileOperation(isCut ? FileOpType.Move : FileOpType.Copy, filePaths, destPaths));
 							FileTabControl.MouseOverTabControl?.SelectedTab.FileListView?.SelectItems(destPaths);
 						} catch (Exception e) {
-							Logger.Exception(e, false);
+							Service.Resolve<ILoggerService>().Exception(e, false);
 							ContentDialog.Error(e.Message);
 						}
 					}
@@ -165,9 +167,9 @@ public class FileItemCommand : ICommand {
 						}
 					}
 					try {
-						await Task.Run(() => FileUtils.FileOperation(FileOpType.Delete, items.Where(item => item is FileSystemItem).Select(item => item.FullPath).ToArray()));
+						await Task.Run(() => FileUtils.FileOperation(FileOpType.Delete, items.Where(static item => item is FileSystemItem).Select(static item => item.FullPath).ToArray()));
 					} catch (Exception e) {
-						Logger.Exception(e, false);
+						Service.Resolve<ILoggerService>().Exception(e, false);
 						ContentDialog.Error(e.Message);
 					}
 				} else {
@@ -187,7 +189,7 @@ public class FileItemCommand : ICommand {
 									File.Delete(fsi.FullPath);
 								}
 							} catch (Exception e) {
-								Logger.Exception(e, false);
+								Service.Resolve<ILoggerService>().Exception(e, false);
 								failedFiles.Add(fsi.FullPath);
 							}
 						}
@@ -199,10 +201,10 @@ public class FileItemCommand : ICommand {
 				break;
 			}
 			case "AddToBookmarks":
-				TabControlProvider.Invoke()?.MainWindow.AddToBookmarks(Items.Select(i => i.FullPath).ToArray());
+				TabControlProvider.Invoke()?.MainWindow.AddToBookmarks(Items.Select(static i => i.FullPath).ToArray());
 				break;
 			case "RemoveFromBookmarks":
-				await MainWindow.RemoveFromBookmark(Items.Select(i => i.FullPath).ToArray());
+				await MainWindow.RemoveFromBookmark(Items.Select(static i => i.FullPath).ToArray());
 				break;
 			case "Properties": {
 				var items = Items;
@@ -216,7 +218,7 @@ public class FileItemCommand : ICommand {
 				break;
 			}
 			case "Edit":
-				foreach (var item in Items.Where(i => i is FileItem { IsEditable: true })) {
+				foreach (var item in Items.Where(static i => i is FileItem { IsEditable: true })) {
 					OpenFileWith(item, Settings.Current["Common.DefaultTextEditor"].AsString());
 				}
 				break;
@@ -224,7 +226,7 @@ public class FileItemCommand : ICommand {
 				if (Folder.IsReadonly) {
 					break;
 				}
-				foreach (var item in Items.Where(i => i is FileItem { IsZip: true })) {
+				foreach (var item in Items.Where(static i => i is FileItem { IsZip: true })) {
 					ExtractZipWindow.Show(item.FullPath);
 				}
 				break;
@@ -232,9 +234,10 @@ public class FileItemCommand : ICommand {
 				Terminal.RunTerminal(Folder.FullPath);
 				break;
 			case "ShowMore": {
-				if (!ConfigHelper.LoadBoolean("ShowMore")) {
+				var configure = Service.Resolve<IConfigureService>();
+				if (!configure.LoadBoolean("ShowMore")) {
 					hc.MessageBox.Info("#ShowMore".L());
-					ConfigHelper.Save("ShowMore", true);
+					configure.Save("ShowMore", true);
 				}
 				var items = Items;
 				if (items.Count == 0) {
@@ -245,10 +248,10 @@ public class FileItemCommand : ICommand {
 					}
 				} else {
 					if (items[0] is ISpecialFolder) {
-						Debug.Assert(items.All(i => i is ISpecialFolder));
-						Shell32Interop.ShowShellContextMenu(items.Select(i => ((ISpecialFolder)i).Csidl).ToArray());
+						Debug.Assert(items.All(static i => i is ISpecialFolder));
+						Shell32Interop.ShowShellContextMenu(items.Select(static i => ((ISpecialFolder)i).Csidl).ToArray());
 					} else {
-						Shell32Interop.ShowShellContextMenu(items.Select(i => i.FullPath).ToArray());
+						Shell32Interop.ShowShellContextMenu(items.Select(static i => i.FullPath).ToArray());
 					}
 				}
 				break;

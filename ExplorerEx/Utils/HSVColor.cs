@@ -4,16 +4,16 @@ using System.Windows.Media;
 
 namespace ExplorerEx.Utils; 
 
-public readonly struct HSVColor {
+public readonly struct HsvColor {
 	public readonly double hue, saturation, value;
 
-	public HSVColor(double hue, double saturation, double value) {
+	public HsvColor(double hue, double saturation, double value) {
 		this.hue = Math.Min(Math.Max(hue, 0), 360);
 		this.saturation = Math.Min(Math.Max(saturation, 0), 1);
 		this.value = Math.Min(Math.Max(value, 0), 1);
 	}
 
-	public HSVColor(Color color) {
+	public HsvColor(Color color) {
 		var r = color.R;
 		var g = color.G;
 		var b = color.B;
@@ -40,11 +40,11 @@ public readonly struct HSVColor {
 		value = max / 255f;
 	}
 
-	public Color ToRGB() {
-		return HSV2RGB(hue, saturation, value);
+	public Color ToRgb() {
+		return Hsv2Rgb(hue, saturation, value);
 	}
 	
-	private static Color HSV2RGB(double hue, double saturation, double value) {
+	private static Color Hsv2Rgb(double hue, double saturation, double value) {
 		var hi = (byte)Math.Floor(hue / 60) % 6;
 		var f = hue / 60 - Math.Floor(hue / 60);
 		value *= 255;
@@ -67,13 +67,13 @@ public readonly struct HSVColor {
 		return f0 + (f1 - f0) * v;
 	}
 
-	public static Color Lerp(HSVColor color0, HSVColor color1, double v) {
-		return HSV2RGB(Lerp(color0.hue, color1.hue, v), Lerp(color0.saturation, color1.saturation, v), Lerp(color0.value, color1.value, v));
+	public static Color Lerp(HsvColor color0, HsvColor color1, double v) {
+		return Hsv2Rgb(Lerp(color0.hue, color1.hue, v), Lerp(color0.saturation, color1.saturation, v), Lerp(color0.value, color1.value, v));
 	}
 }
 
-public static class HSVColorUtils {
-	public static HSVColor ToHSV(this Color color) {
-		return new HSVColor(color);
+public static class HsvColorUtils {
+	public static HsvColor ToHsv(this Color color) {
+		return new HsvColor(color);
 	}
 }

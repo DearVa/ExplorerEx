@@ -1,0 +1,620 @@
+﻿<ListView x:Class="ExplorerEx.Views.Controls.FileListView"
+          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+          xmlns:hc="https://handyorg.github.io/handycontrol"
+          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+          xmlns:u="clr-namespace:ExplorerEx.Utils"
+          xmlns:c="clr-namespace:ExplorerEx.Converter"
+          xmlns:viewModels="clr-namespace:ExplorerEx.ViewModels"
+          xmlns:ct="clr-namespace:ExplorerEx.Views.Controls"
+          xmlns:models="clr-namespace:ExplorerEx.Models"
+          xmlns:e="clr-namespace:ExplorerEx.Models.Enums"
+          d:DataContext="{d:DesignInstance ct:FileListView}"
+          mc:Ignorable="d" AllowDrop="True" SelectionMode="Extended"
+          VirtualizingStackPanel.IsVirtualizingWhenGrouping="True"
+          VirtualizingStackPanel.IsVirtualizing="True"
+          VirtualizingStackPanel.ScrollUnit="Pixel"
+          Padding="2" FocusVisualStyle="{x:Null}"
+          Background="Transparent"
+          UseLayoutRounding="True"
+          Focusable="True">
+    <ListView.Resources>
+        <ct:FileListViewBindingContext x:Key="BindingContext"/>
+
+        <!-- ReSharper disable once Xaml.RedundantResource -->
+        <ItemsPanelTemplate x:Key="VirtualizingWrapPanel">
+            <ct:VirtualizingWrapPanel Background="Transparent" CanHorizontallyScroll="False" UseLayoutRounding="True" IsGroupPanel="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ct:FileListView}}"/>
+        </ItemsPanelTemplate>
+
+        <!-- ReSharper disable once Xaml.RedundantResource -->
+        <ItemsPanelTemplate x:Key="VirtualizingStackPanel">
+            <VirtualizingStackPanel Background="Transparent" UseLayoutRounding="True"/>
+        </ItemsPanelTemplate>
+
+        <c:FileListViewItemDetails0Converter x:Key="FileListViewItemDetails0Converter"/>
+        <c:FileListViewItemDetails1Converter x:Key="FileListViewItemDetails1Converter"/>
+
+        <!--只能将Width设为自动，然后在Cell里Binding到FileDataGrid-->
+        <DataTemplate x:Key="IconTemplate">
+            <Grid VerticalAlignment="Top" d:DataContext="{d:DesignInstance models:FileListViewItem}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="{Binding Path=ActualWidth, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Image Grid.Row="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
+                       VerticalAlignment="Center" Margin="10" UseLayoutRounding="True" Opacity="{Binding Opacity}"/>
+                <TextBlock x:Name="NameTextBlock" Grid.Row="1" Text="{Binding DisplayText, Mode=OneWay}" HorizontalAlignment="Center" 
+                           TextAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="ListTemplate">
+            <Grid HorizontalAlignment="Left" d:DataContext="{d:DesignInstance models:FileListViewItem}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="{Binding Path=ActualHeight, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Image Grid.Column="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
+                       VerticalAlignment="Center" Margin="5" UseLayoutRounding="True" Opacity="{Binding Opacity}"/>
+                <TextBlock Grid.Column="1" Text="{Binding DisplayText, Mode=OneWay}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="TileTemplate">
+            <Grid d:DataContext="{d:DesignInstance models:FileListViewItem}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="{Binding Path=Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Image Grid.Column="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
+                       VerticalAlignment="Center" Margin="10" Opacity="{Binding Opacity}"/>
+                <Grid Grid.Column="1" Margin="0,5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="{Binding DisplayText, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Row="1" Text="{Binding Type, Mode=OneWay}" VerticalAlignment="Center" TextTrimming="WordEllipsis"/>
+                    <TextBlock Grid.Row="2" Text="{Binding FileSize, Mode=OneWay, Converter={StaticResource Long2FileSizeConverter}}" VerticalAlignment="Center" TextTrimming="WordEllipsis"/>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+        <!--主页显示驱动器-->
+        <DataTemplate x:Key="TileHomeTemplate">
+            <Grid d:DataContext="{d:DesignInstance models:DiskDriveItem}">
+                <Grid Margin="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="{Binding Path=Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Image Grid.Column="0" Source="{Binding Icon}" VerticalAlignment="Center" Margin="5"/>
+                    <StackPanel Grid.Column="1" Orientation="Vertical">
+                        <TextBlock Text="{Binding DisplayText, Mode=OneWay}"/>
+                        <ProgressBar Value="{Binding PercentFull, Mode=OneWay}" 
+                                     Foreground="{Binding ProgressBarBackground, Mode=OneWay}"
+                                     Maximum="1" BorderThickness="1.5" Margin="0,10,0,10"
+                                     Visibility="{Binding Drive.IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                        <TextBlock Text="{Binding SpaceOverviewString, Mode=OneWay}"
+                                   Visibility="{Binding Drive.IsReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="ContentTemplate">
+            <Grid d:DataContext="{d:DesignInstance models:FileListViewItem}" HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="{Binding Path=ActualHeight, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Grid}}"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Image Grid.Column="0" HorizontalAlignment="Center" SnapsToDevicePixels="True" Source="{Binding Icon}"
+                       VerticalAlignment="Center" Margin="10" Opacity="{Binding Opacity}"/>
+                <Grid Grid.Column="1" Margin="0,5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="{Binding DisplayText, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="{Binding Type, Mode=OneWay}" TextTrimming="WordEllipsis"/>
+                </Grid>
+                <Grid Grid.Column="2" Margin="0,5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" VerticalAlignment="Center" Text="{Binding This, Converter={StaticResource FileListViewItemDetails0Converter}}" TextTrimming="WordEllipsis"/>
+                    <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="{Binding This, Converter={StaticResource FileListViewItemDetails1Converter}}" TextTrimming="WordEllipsis"/>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="NameColumn">
+            <Grid Height="30" VerticalAlignment="Center" d:DataContext="{d:DesignInstance models:FileListViewItem}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Image Grid.Column="0" Source="{Binding Icon}" VerticalAlignment="Center" Margin="5" Opacity="{Binding Opacity}"/>
+                <TextBlock Grid.Column="1" Text="{Binding DisplayText, Mode=OneWay}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="ModificationDateColumn">
+            <TextBlock d:DataContext="{d:DesignInstance models:FileSystemItem}"
+                       Text="{Binding DateModified, Mode=OneWay, Converter={StaticResource FileDateTime2StringConverter}}" 
+                       VerticalAlignment="Center"
+                       IsHitTestVisible="False"/>
+        </DataTemplate>
+        <DataTemplate x:Key="TypeColumn">
+            <TextBlock d:DataContext="{d:DesignInstance models:FileListViewItem}"
+                       Text="{Binding Type, Mode=OneWay}" 
+                       VerticalAlignment="Center"
+                       IsHitTestVisible="False"/>
+        </DataTemplate>
+        <DataTemplate x:Key="FileSizeColumn">
+            <TextBlock d:DataContext="{d:DesignInstance models:FileSystemItem}"
+                       Text="{Binding FileSize, Mode=OneWay, Converter={StaticResource Bytes2StringConverter}}" 
+                       VerticalAlignment="Center"
+                       IsHitTestVisible="False"/>
+        </DataTemplate>
+        <DataTemplate x:Key="AvailableSpaceColumn">
+            <TextBlock d:DataContext="{d:DesignInstance models:DiskDriveItem}"
+                       Text="{Binding FreeSpace, Mode=OneWay, Converter={StaticResource Long2FileSizeConverter}}" 
+                       VerticalAlignment="Center"
+                       IsHitTestVisible="False"/>
+        </DataTemplate>
+        <DataTemplate x:Key="TotalSpaceColumn">
+            <TextBlock d:DataContext="{d:DesignInstance models:DiskDriveItem}"
+                       Text="{Binding TotalSpace, Mode=OneWay, Converter={StaticResource Long2FileSizeConverter}}" 
+                       VerticalAlignment="Center"
+                       IsHitTestVisible="False"/>
+        </DataTemplate>
+        <DataTemplate x:Key="FillRatioColumn">
+            <ProgressBar d:DataContext="{d:DesignInstance models:DiskDriveItem}"
+                         Value="{Binding PercentFull, Mode=OneWay}" 
+                         Foreground="{Binding ProgressBarBackground, Mode=OneWay}"
+                         Maximum="1" BorderThickness="1.5" Margin="0,2,0,2" VerticalAlignment="Center" SnapsToDevicePixels="True"
+                         Visibility="{Binding Drive.IsReady, Converter={StaticResource Boolean2VisibilityConverter}}">
+                <ProgressBar.ToolTip>
+                    <TextBlock Text="{Binding PercentFull, Mode=OneWay, StringFormat=P%}"/>
+                </ProgressBar.ToolTip>
+            </ProgressBar>
+        </DataTemplate>
+        <DataTemplate x:Key="FileSystemColumn">
+            <TextBlock d:DataContext="{d:DesignInstance models:DiskDriveItem}"
+                       Text="{Binding Drive.DriveFormat, Mode=OneWay}" 
+                       VerticalAlignment="Center"
+                       IsHitTestVisible="False"/>
+        </DataTemplate>
+        <DataTemplate x:Key="FullPathColumn">
+            <TextBlock d:DataContext="{d:DesignInstance models:FileSystemItem}"
+                       Text="{Binding FullPath, Mode=OneWay}" 
+                       VerticalAlignment="Center"
+                       IsHitTestVisible="False"/>
+        </DataTemplate>
+
+        <!-- 该资源在C#逻辑中获取 -->
+        <!-- ReSharper disable once Xaml.RedundantResource -->
+        <c:FileGridDataGridColumnsConverter x:Key="ColumnsConverter"
+                                            Name="{StaticResource NameColumn}" DateModified="{StaticResource ModificationDateColumn}"
+                                            Type="{StaticResource TypeColumn}" FileSize="{StaticResource FileSizeColumn}"
+                                            AvailableSpace="{StaticResource AvailableSpaceColumn}" TotalSpace="{StaticResource TotalSpaceColumn}"
+                                            FillRatio="{StaticResource FillRatioColumn}" FileSystem="{StaticResource FileSystemColumn}"
+                                            FullPath="{StaticResource FullPathColumn}"/>
+
+        <!-- 该资源在C#逻辑中获取 -->
+        <!-- ReSharper disable once Xaml.RedundantResource -->
+        <c:FileGridListBoxTemplateConverter x:Key="ListBoxTemplateConverter"
+                                            IconTemplate="{StaticResource IconTemplate}" ListTemplate="{StaticResource ListTemplate}"
+                                            TileTemplate="{StaticResource TileTemplate}" TileHomeTemplate="{StaticResource TileHomeTemplate}"
+                                            ContentTemplate="{StaticResource ContentTemplate}"/>
+
+        <ControlTemplate x:Key="FileOperationsTemplate">
+            <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance ct:FileListView}">
+                <MenuItem ToolTip="{u:Lang Cut}" CommandParameter="Cut"
+                          Command="{Binding ViewModel.FileItemCommand}"
+                          Icon="{DynamicResource CutDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                <MenuItem ToolTip="{u:Lang Copy}" CommandParameter="Copy"
+                          Command="{Binding ViewModel.FileItemCommand}"
+                          Icon="{DynamicResource CopyDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                <MenuItem ToolTip="{u:Lang Rename}" CommandParameter="Rename"
+                          Command="{Binding ViewModel.FileItemCommand}"
+                          Icon="{DynamicResource RenameDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                <MenuItem ToolTip="{u:Lang Delete}" CommandParameter="Delete"
+                          Command="{Binding ViewModel.FileItemCommand}"
+                          Icon="{DynamicResource DeleteDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                <MenuItem ToolTip="{u:Lang Properties}" CommandParameter="Properties"
+                          Command="{Binding ViewModel.FileItemCommand}"
+                          Icon="{DynamicResource PropertiesDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+            </StackPanel>
+        </ControlTemplate>
+
+        <ContextMenu x:Key="DiskDriveItemContextMenu" d:DataContext="{d:DesignInstance ct:FileListView}" Style="{StaticResource ContextMenuBaseStyle}">
+            <MenuItem Height="35">
+                <MenuItem.Template>
+                    <ControlTemplate>
+                        <StackPanel Orientation="Horizontal" d:DataContext="{d:DesignInstance ct:FileListView}">
+                            <MenuItem ToolTip="{u:Lang Copy}" CommandParameter="Copy"
+                                      Command="{Binding ViewModel.FileItemCommand}"
+                                      Icon="{StaticResource CopyDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                            <MenuItem ToolTip="{u:Lang Rename}" CommandParameter="Rename"
+                                      Command="{Binding ViewModel.FileItemCommand}"
+                                      Icon="{StaticResource RenameDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                            <MenuItem ToolTip="{u:Lang Properties}" CommandParameter="Properties"
+                                      Command="{Binding ViewModel.FileItemCommand}"
+                                      Icon="{DynamicResource PropertiesDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                        </StackPanel>
+                    </ControlTemplate>
+                </MenuItem.Template>
+            </MenuItem>
+            <Separator/>
+
+            <MenuItem CommandParameter="Open" 
+                      Command="{Binding ViewModel.FileItemCommand}"
+                      Icon="{Binding Path=(models:FileItemAttach.FileItem).Icon, RelativeSource={RelativeSource AncestorType=ContextMenu}}" Header="{u:Lang Open}"/>
+            <MenuItem CommandParameter="OpenInNewTab"
+                      Command="{Binding ViewModel.FileItemCommand}" 
+                      Icon="{DynamicResource ShareDrawingImage}" Header="{u:Lang OpenInNewTab}"/>
+            <MenuItem CommandParameter="OpenInNewWindow"
+                      Command="{Binding ViewModel.FileItemCommand}" 
+                      Icon="{DynamicResource ShareDrawingImage}" Header="{u:Lang OpenInNewWindow}"/>
+            <Separator/>
+
+            <MenuItem CommandParameter="AddToBookmarks"
+                      Command="{Binding ViewModel.FileItemCommand}"
+                      Visibility="{Binding Path=(models:FileItemAttach.FileItem).IsBookmarked, RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                      Icon="{DynamicResource StarDrawingImage}" Header="{u:Lang AddToBookmarks}"/>
+            <MenuItem CommandParameter="RemoveFromBookmarks"
+                      Command="{Binding ViewModel.FileItemCommand}"
+                      Visibility="{Binding Path=(models:FileItemAttach.FileItem).IsBookmarked, RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                      Icon="{StaticResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
+            <Separator/>
+            <MenuItem Click="FormatDiskDrive_OnClick" Icon="{StaticResource FormatDriveDrawingImage}"
+                      Header="{u:Lang FormatDrive}" Foreground="{DynamicResource DangerBrush}"/>
+        </ContextMenu>
+
+        <ContextMenu x:Key="FolderItemContextMenu" d:DataContext="{d:DesignInstance ct:FileListView}">
+            <MenuItem Height="35" Template="{StaticResource FileOperationsTemplate}"/>
+            <Separator/>
+
+            <MenuItem CommandParameter="Open"
+                      Command="{Binding ViewModel.FileItemCommand}"
+                      Icon="{Binding Path=(models:FileItemAttach.FileItem).Icon, RelativeSource={RelativeSource AncestorType=ContextMenu}}" Header="{u:Lang Open}"/>
+            <MenuItem CommandParameter="OpenInNewTab"
+                      Command="{Binding ViewModel.FileItemCommand}" 
+                      Icon="{DynamicResource ShareDrawingImage}" Header="{u:Lang OpenInNewTab}"/>
+            <MenuItem CommandParameter="OpenInNewWindow"
+                      Command="{Binding ViewModel.FileItemCommand}" 
+                      Icon="{DynamicResource ShareDrawingImage}" Header="{u:Lang OpenInNewWindow}"/>
+            <MenuItem Header="{u:Lang CopyAsPath}" CommandParameter="CopyAsPath"
+                      Command="{Binding Path=ViewModel.FileItemCommand}"
+                      Icon="{DynamicResource CopyDrawingImage}"/>
+            <MenuItem Header="{u:Lang OpenDirectory}" CommandParameter="OpenDirectory"
+                      Command="{Binding Path=ViewModel.FileItemCommand}"
+                      Icon="{DynamicResource ShareDrawingImage}"
+                      Visibility="{Binding Path=ViewModel.PathType, Converter={StaticResource Equality2VisibilityConverter}, ConverterParameter={x:Static models:PathType.Search}}"/>
+            <Separator/>
+
+            <MenuItem CommandParameter="AddToBookmarks"
+                      Command="{Binding ViewModel.FileItemCommand}"
+                      Visibility="{Binding Path=(models:FileItemAttach.FileItem).IsBookmarked, RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                      Icon="{DynamicResource StarDrawingImage}" Header="{u:Lang AddToBookmarks}"/>
+            <MenuItem CommandParameter="RemoveFromBookmarks"
+                      Command="{Binding ViewModel.FileItemCommand}"
+                      Visibility="{Binding Path=(models:FileItemAttach.FileItem).IsBookmarked, RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                      Icon="{DynamicResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
+            <Separator/>
+
+            <MenuItem CommandParameter="ShowMore"
+                      Command="{Binding ViewModel.FileItemCommand}"
+                      Icon="{DynamicResource MoreDrawingImage}" Header="{u:Lang ShowMoreOptions}"/>
+        </ContextMenu>
+
+        <c:FileAssocTemplateSelector x:Key="FileAssocTemplateSelector" DefaultStyle="{StaticResource MenuItemBaseStyle}">
+            <c:FileAssocTemplateSelector.CustomStyle>
+                <Style BasedOn="{StaticResource MenuItemBaseStyle}" TargetType="MenuItem">
+                    <Setter Property="Command" Value="{Binding Path=DataContext.(ct:FileListView.ViewModel).FileItemCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                    <Setter Property="CommandParameter" Value="{Binding}"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate>
+                                <Border MinWidth="120" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True" CornerRadius="5">
+                                    <Grid x:Name="Grid" HorizontalAlignment="Left" Margin="4" d:DataContext="{d:DesignInstance models:FileAssocItem}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="30"/>
+                                            <ColumnDefinition SharedSizeGroup="MenuItemCPColumnGroup" Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Image Grid.Column="0" Source="{Binding Icon, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center" Width="{TemplateBinding hc:IconElement.Width}" Height="{TemplateBinding hc:IconElement.Height}"/>
+                                        <TextBlock Grid.Column="1" Margin="9,0,0,0" Text="{Binding Description, Mode=OneWay}" VerticalAlignment="Center" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                    </Grid>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </c:FileAssocTemplateSelector.CustomStyle>
+        </c:FileAssocTemplateSelector>
+
+        <ContextMenu x:Key="FileItemContextMenu" d:DataContext="{d:DesignInstance ct:FileListView}">
+            <MenuItem Height="40" Template="{StaticResource FileOperationsTemplate}"/>
+            <Separator/>
+
+            <MenuItem Header="{u:Lang Open}" CommandParameter="Open"
+                      Command="{Binding ViewModel.FileItemCommand}"
+                      Visibility="{Binding Path=(models:FileItemAttach.FileItem).(models:FileItem.IsExecutable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                      Icon="{Binding Path=(models:FileItemAttach.FileItem).Icon, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+            <MenuItem Header="{u:Lang Run}" CommandParameter="Open"
+                      Command="{Binding ViewModel.FileItemCommand}"
+                      Visibility="{Binding Path=(models:FileItemAttach.FileItem).(models:FileItem.IsExecutable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                      Icon="{Binding Path=(models:FileItemAttach.FileItem).Icon, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+            <MenuItem Header="{u:Lang RunAsAdmin}" CommandParameter="RunAs"
+                      Command="{Binding Path=ViewModel.FileItemCommand}"
+                      Visibility="{Binding Path=(models:FileItemAttach.FileItem).(models:FileItem.IsExecutable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                      Icon="{DynamicResource UacDrawingImage}"/>
+            <MenuItem Header="{u:Lang OpenWith}" ItemContainerStyleSelector="{StaticResource FileAssocTemplateSelector}" Icon="{DynamicResource OpenWithDrawingImage}"
+                      Visibility="{Binding Count, Source={x:Static ct:FileListView.FileAssocList}, Mode=OneWay, Converter={StaticResource Int2VisibilityConverter}}">
+                <MenuItem.ItemsSource>
+                    <CompositeCollection>
+                        <CollectionContainer Collection="{Binding Source={x:Static ct:FileListView.FileAssocList}, Mode=OneWay}"/>
+                        <Separator/>
+                        <MenuItem Header="{u:Lang ChooseAnotherApp}" Icon="{DynamicResource OpenWithDrawingImage}" Click="ChooseAnotherAppMenuItem_OnClick"/>
+                    </CompositeCollection>
+                </MenuItem.ItemsSource>
+            </MenuItem>
+            <MenuItem Header="{u:Lang Edit}" CommandParameter="Edit"
+                      Command="{Binding Path=ViewModel.FileItemCommand}"
+                      Visibility="{Binding Path=(models:FileItemAttach.FileItem).(models:FileItem.IsEditable), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+            <MenuItem Header="{u:Lang Extract}" CommandParameter="Unzip"
+                      Command="{Binding Path=ViewModel.FileItemCommand}"
+                      Visibility="{Binding Path=(models:FileItemAttach.FileItem).(models:FileItem.IsZip), RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+            <Separator/>
+
+            <MenuItem Header="{u:Lang CopyAsPath}" CommandParameter="CopyAsPath"
+                      Command="{Binding Path=ViewModel.FileItemCommand}"
+                      Icon="{DynamicResource CopyDrawingImage}"/>
+            <MenuItem Header="{u:Lang OpenDirectory}" CommandParameter="OpenDirectory"
+                      Command="{Binding Path=ViewModel.FileItemCommand}"
+                      Icon="{DynamicResource ShareDrawingImage}">
+                <MenuItem.Visibility>
+                    <MultiBinding Converter="{StaticResource MultiBoolean2VisibilityConverter}" Mode="OneWay">
+                        <Binding Path="(models:FileItemAttach.FileItem).(models:FileItem.IsLink)" RelativeSource="{RelativeSource AncestorType=ContextMenu}" Mode="OneWay"/>
+                        <Binding Path="ViewModel.PathType" Converter="{StaticResource Equality2BooleanConverter}" ConverterParameter="{x:Static models:PathType.Search}"/>
+                    </MultiBinding>
+                </MenuItem.Visibility>
+            </MenuItem>
+            <MenuItem CommandParameter="OpenDirectory"
+                      Command="{Binding Path=ViewModel.FileItemCommand}"
+                      Icon="{DynamicResource ShareDrawingImage}" Header="{u:Lang OpenDirectory}"
+                      Visibility="{Binding Path=ViewModel.PathType, Converter={StaticResource Equality2VisibilityConverter}, ConverterParameter={x:Static models:PathType.Search}}"/>
+            <Separator/>
+
+            <MenuItem CommandParameter="AddToBookmarks"
+                      Command="{Binding ViewModel.FileItemCommand}"
+                      Visibility="{Binding Path=(models:FileItemAttach.FileItem).IsBookmarked, RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                      Icon="{DynamicResource StarDrawingImage}" Header="{u:Lang AddToBookmarks}"/>
+            <MenuItem CommandParameter="RemoveFromBookmarks"
+                      Command="{Binding ViewModel.FileItemCommand}"
+                      Visibility="{Binding Path=(models:FileItemAttach.FileItem).IsBookmarked, RelativeSource={RelativeSource AncestorType=ContextMenu}, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                      Icon="{DynamicResource UnstarDrawingImage}" Header="{u:Lang RemoveFromBookmarks}"/>
+            <Separator/>
+
+            <MenuItem CommandParameter="ShowMore"
+                      Command="{Binding ViewModel.FileItemCommand}"
+                      Icon="{DynamicResource MoreDrawingImage}" Header="{u:Lang ShowMoreOptions}"/>
+        </ContextMenu>
+
+        <!-- ReSharper disable once Xaml.RedundantResource -->
+        <c:FileListViewItemContextMenuConverter x:Key="FileListViewItemContextMenuConverter"
+                                              DiskDriveContextMenu="{StaticResource DiskDriveItemContextMenu}"
+                                              FolderContextMenu="{StaticResource FolderItemContextMenu}"
+                                              FileContextMenu="{StaticResource FileItemContextMenu}"/>
+
+        <ControlTemplate x:Key="ListViewItemTemplate" TargetType="ListViewItem">
+            <Border CornerRadius="4" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                <ContentPresenter/>
+            </Border>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="GridViewItemTemplate" TargetType="ListViewItem">
+            <Border CornerRadius="4" Margin="2,-1" x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true" HorizontalAlignment="Left">
+                <GridViewRowPresenter Content="{TemplateBinding Content}" Columns="{TemplateBinding GridView.ColumnCollection}" HorizontalAlignment="Left"/>
+            </Border>
+        </ControlTemplate>
+
+        <c:Object2ObjectConverter x:Key="ItemTemplateConverter" Object1="{StaticResource ListViewItemTemplate}" Object2="{StaticResource GridViewItemTemplate}"/>
+    </ListView.Resources>
+
+    <ListView.ItemsPanel>
+        <ItemsPanelTemplate>
+            <ct:VirtualizingWrapPanel Background="Transparent" CanHorizontallyScroll="False" UseLayoutRounding="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ct:FileListView}}"/>
+        </ItemsPanelTemplate>
+    </ListView.ItemsPanel>
+
+    <ListView.ContextMenu>
+        <ContextMenu d:DataContext="{d:DesignInstance viewModels:FileTabViewModel}">
+            <MenuItem Height="40">
+                <MenuItem.Template>
+                    <ControlTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <MenuItem ToolTip="{u:Lang Refresh}" Click="Refresh_OnClick" Icon="{DynamicResource RefreshDrawingImage}" 
+                                      Header="{u:Lang Refresh}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                            <MenuItem ToolTip="{u:Lang Paste}" CommandParameter="Paste"
+                                      Command="{Binding FileItemCommand}" 
+                                      Visibility="{Binding CanPaste, Mode=OneWay, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                      Icon="{DynamicResource PasteDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                            <MenuItem ToolTip="{u:Lang Properties}" CommandParameter="Properties"
+                                      Command="{Binding FileItemCommand}"
+                                      Icon="{DynamicResource PropertiesDrawingImage}" Style="{StaticResource ButtonLikeMenuItem}"/>
+                        </StackPanel>
+                    </ControlTemplate>
+                </MenuItem.Template>
+            </MenuItem>
+            <Separator/>
+            <MenuItem Click="NewFolder_OnClick" Icon="{DynamicResource NewFolderDrawingImage}" Header="{u:Lang NewFolder}"
+                      Visibility="{Binding Folder.IsReadonly, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
+            <MenuItem Icon="{DynamicResource NewDrawingImage}" Header="{u:Lang New}"
+                      Visibility="{Binding Folder.IsReadonly, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                      ItemsSource="{Binding Source={x:Static models:CreateFileItem.Items}}">
+                <MenuItem.ItemContainerStyle>
+                    <Style BasedOn="{StaticResource CreateMenuItemContainerStyle}" TargetType="MenuItem">
+                        <Setter Property="Command" Value="{Binding DataContext.CreateCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                    </Style>
+                </MenuItem.ItemContainerStyle>
+            </MenuItem>
+            <Separator Visibility="{Binding Folder.IsReadonly, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
+            <MenuItem Icon="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource ViewIndex2ImageSourceConverter}}" Header="{u:Lang View}">
+                <MenuItem.Items>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.LargeIcons}" Header="{u:Lang LargeIcons}" Icon="{DynamicResource LargeIconsDrawingImage}"
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.LargeIcons}}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.MediumIcons}" Header="{u:Lang MediumIcons}" Icon="{DynamicResource MediumIconsDrawingImage}"
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.MediumIcons}}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.SmallIcons}" Header="{u:Lang SmallIcons}" Icon="{DynamicResource SmallIconsDrawingImage}"
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SmallIcons}}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.List}" Header="{u:Lang List}" Icon="{DynamicResource ListDrawingImage}"
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.List}}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.Details}" Header="{u:Lang Details}" Icon="{DynamicResource DetailsDrawingImage}"
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Details}}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.Tiles}" Header="{u:Lang Tiles}" Icon="{DynamicResource TilesDrawingImage}"
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Tiles}}"/>
+                    <MenuItem Command="{Binding SwitchViewCommand}" CommandParameter="{x:Static e:ViewSortGroup.Content}" Header="{u:Lang Content}" Icon="{DynamicResource ContentDrawingImage}"
+                              IsChecked="{Binding FileView.FileViewTypeIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.Content}}"/>
+                </MenuItem.Items>
+            </MenuItem>
+            <MenuItem Icon="{Binding FileView.IsAscending, Mode=OneWay, Converter={StaticResource IsAscending2ImageSourceConverter}}"
+                      Header="{u:Lang Sort}">
+                <MenuItem.Items>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByName}" Command="{Binding SwitchViewCommand}" Header="{u:Lang Name}" 
+                              IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByName}}"/>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByDateModified}" Command="{Binding SwitchViewCommand}" Header="{u:Lang DateModified}"
+                              IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByDateModified}}"/>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByType}" Command="{Binding SwitchViewCommand}" Header="{u:Lang Type}"
+                              IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByType}}"/>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.SortByFileSize}" Command="{Binding SwitchViewCommand}" Header="{u:Lang FileSize}"
+                              IsChecked="{Binding FileView.SortByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.SortByFileSize}}"/>
+                    <Separator/>
+
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Ascending}" Command="{Binding SwitchViewCommand}" 
+                              Icon="{DynamicResource SortAscendingDrawingImage}" Header="{u:Lang Ascending}"
+                              IsChecked="{Binding FileView.IsAscending, Mode=OneWay}"/>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.Descending}" Command="{Binding SwitchViewCommand}"
+                              Icon="{DynamicResource SortDescendingDrawingImage}" Header="{u:Lang Descending}"
+                              IsChecked="{Binding FileView.IsAscending, Mode=OneWay, Converter={StaticResource Boolean2BooleanReConverter}}"/>
+                </MenuItem.Items>
+            </MenuItem>
+            <MenuItem Icon="{DynamicResource GroupDrawingImage}" Header="{u:Lang GroupBy}">
+                <MenuItem.Items>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByNone}" Command="{Binding SwitchViewCommand}" Header="{u:Lang None}" 
+                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByNone}}"/>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByName}" Command="{Binding SwitchViewCommand}" Header="{u:Lang Name}" 
+                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByName}}"/>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByDateModified}" Command="{Binding SwitchViewCommand}" Header="{u:Lang DateModified}"
+                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByDateModified}}"/>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByType}" Command="{Binding SwitchViewCommand}" Header="{u:Lang Type}"
+                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByType}}"/>
+                    <MenuItem CommandParameter="{x:Static e:ViewSortGroup.GroupByFileSize}" Command="{Binding SwitchViewCommand}" Header="{u:Lang FileSize}"
+                              IsChecked="{Binding FileView.GroupByIndex, Mode=OneWay, Converter={StaticResource Equality2BooleanConverter}, ConverterParameter={x:Static e:ViewSortGroup.GroupByFileSize}}"/>
+                </MenuItem.Items>
+            </MenuItem>
+            <Separator/>
+
+            <MenuItem CommandParameter="Terminal" Command="{Binding FileItemCommand}"
+                      Visibility="{Binding Folder.IsVirtual, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                      Icon="{Binding Source={x:Static u:Terminal.TerminalIcon}}" Header="{u:Lang OpenInTerminal}"/>
+            <Separator Visibility="{Binding Folder.IsVirtual, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                       Style="{StaticResource SeparatorBaseStyle}"/>
+
+            <MenuItem CommandParameter="ShowMore"
+                      Command="{Binding FileItemCommand}"
+                      Icon="{DynamicResource MoreDrawingImage}" Header="{u:Lang ShowMoreOptions}"/>
+        </ContextMenu>
+    </ListView.ContextMenu>
+
+    <ListView.Template>
+        <ControlTemplate TargetType="ListView">
+            <hc:SimplePanel>
+                <hc:ToggleBlock VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <hc:ToggleBlock.IsChecked>
+                        <MultiBinding Converter="{StaticResource BooleanArr2BooleanConverter}">
+                            <Binding Path="HasItems" RelativeSource="{RelativeSource TemplatedParent}" Mode="OneWay"/>
+                            <Binding Path="ViewModel.IsLoading" RelativeSource="{RelativeSource AncestorType=ct:FileListView}" Converter="{StaticResource Boolean2BooleanReConverter}" Mode="OneWay"/>
+                        </MultiBinding>
+                    </hc:ToggleBlock.IsChecked>
+                    <hc:ToggleBlock.CheckedContent>
+                        <Grid SnapsToDevicePixels="True" Margin="{Binding Padding, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <GridViewHeaderRowPresenter Grid.Row="0" Visibility="{Binding View, Converter={StaticResource Object2VisibilityConverter}, RelativeSource={RelativeSource TemplatedParent}}"
+                                                        ColumnHeaderContainerStyle="{Binding View.(GridView.ColumnHeaderContainerStyle), RelativeSource={RelativeSource TemplatedParent}}" 
+                                                        ColumnHeaderToolTip="{Binding View.(GridView.ColumnHeaderToolTip), RelativeSource={RelativeSource TemplatedParent}}" 
+                                                        ColumnHeaderContextMenu="{Binding View.(GridView.ColumnHeaderContextMenu), RelativeSource={RelativeSource TemplatedParent}}" 
+                                                        ColumnHeaderTemplate="{Binding View.(GridView.ColumnHeaderTemplate), RelativeSource={RelativeSource TemplatedParent}}" 
+                                                        Columns="{Binding View.(GridView.Columns), RelativeSource={RelativeSource TemplatedParent}}" 
+                                                        Margin="2,2,2,0" SnapsToDevicePixels="True"/>
+                            <ScrollViewer x:Name="ViewScrollViewer" Background="{x:Null}" Grid.Row="1" CanContentScroll="True">
+                                <ItemsPresenter/>
+                            </ScrollViewer>
+                        </Grid>
+                    </hc:ToggleBlock.CheckedContent>
+                    <hc:ToggleBlock.UnCheckedContent>
+                        <hc:SimplePanel Background="Transparent">
+                            <TextBlock Text="{u:Lang ThisIsAnEmptyFolder}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" Foreground="{DynamicResource PrimaryTextBrush}">
+                                <TextBlock.Visibility>
+                                    <Binding Path="ViewModel.(viewModels:FileTabViewModel.IsLoading)" Mode="OneWay" RelativeSource="{RelativeSource TemplatedParent}" Converter="{StaticResource Boolean2VisibilityReConverter}" FallbackValue="Visible"/>
+                                </TextBlock.Visibility>
+                            </TextBlock>
+                        </hc:SimplePanel>
+                    </hc:ToggleBlock.UnCheckedContent>
+                </hc:ToggleBlock>
+                <hc:SimplePanel x:Name="ContentPanel" ClipToBounds="True">
+                    <Border x:Name="SelectionRect" CornerRadius="3" Opacity="0.6" Background="{DynamicResource LightPrimaryBrush}" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="1" Visibility="Collapsed" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                </hc:SimplePanel>
+
+                <ct:ShortcutPopup x:Name="ShortcutPopup" ShowMore="ShortcutPopup_OnShowMore"/>
+            </hc:SimplePanel>
+        </ControlTemplate>
+    </ListView.Template>
+
+    <ListView.ItemContainerStyle>
+        <Style TargetType="ListViewItem" BasedOn="{StaticResource ListViewItemBaseStyle}">
+            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Width" Value="{Binding Path=FileListView.ItemWidth, Source={StaticResource BindingContext}}"/>
+            <Setter Property="Height" Value="{Binding Path=FileListView.ItemHeight, Source={StaticResource BindingContext}}"/>
+            <Setter Property="Template" Value="{Binding Path=FileListView.View, Converter={StaticResource ItemTemplateConverter}, Source={StaticResource BindingContext}}"/>
+        </Style>
+    </ListView.ItemContainerStyle>
+
+    <ListView.GroupStyle>
+        <GroupStyle x:Name="GroupStyle" HidesIfEmpty="True">
+            <GroupStyle.ContainerStyle>
+                <Style TargetType="GroupItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type GroupItem}">
+                                <Expander IsExpanded="True" ExpandDirection="Down">
+                                    <Expander.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Path=Name}" VerticalAlignment="Center" />
+                                            <TextBlock Text="{Binding Path=ItemCount, StringFormat=({0})}" VerticalAlignment="Center" Margin="8,0,0,0" />
+                                        </StackPanel>
+                                    </Expander.Header>
+                                    <ItemsPresenter/>
+                                </Expander>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </GroupStyle.ContainerStyle>
+            <GroupStyle.Panel>
+                <ItemsPanelTemplate>
+                    <ct:VirtualizingWrapPanel Background="Transparent" CanHorizontallyScroll="False" UseLayoutRounding="True" ItemSize="{Binding ActualItemSize, RelativeSource={RelativeSource AncestorType=ct:FileListView}}"/>
+                </ItemsPanelTemplate>
+            </GroupStyle.Panel>
+        </GroupStyle>
+    </ListView.GroupStyle>
+</ListView>

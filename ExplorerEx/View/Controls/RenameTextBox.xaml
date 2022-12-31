@@ -1,7 +1,0 @@
-﻿<hc:TextBox x:Class="ExplorerEx.View.Controls.RenameTextBox"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:u="clr-namespace:ExplorerEx.Utils"
-             Margin="0,10" TabIndex="0" Style="{StaticResource TextBoxPlusBaseStyle}"
-             VerifyFunc="{Binding Source={x:Static u:FileUtils.FileNameVerifyFunc}}"/>

@@ -23,7 +23,7 @@ internal enum SHCNE : uint {
 	DriveAddGUI = 0x00010000,
 	RenameFolder = 0x00020000,
 	FreeSpace = 0x00040000,
-	EXTENDED_EVENT = 0x04000000,
+	ExtendedEvent = 0x04000000,
 	AssocChanged = 0x08000000,
 	DiskEvents = 0x0002381F,
 	GlobalEvents = 0x0C0581E0,

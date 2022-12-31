@@ -11,9 +11,12 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Xml;
+using ExplorerEx.Assets;
 using ExplorerEx.Command;
+using ExplorerEx.Definitions.Interfaces;
+using ExplorerEx.Services;
 using ExplorerEx.Utils;
-using ExplorerEx.View.Controls;
+using ExplorerEx.Views.Controls;
 using Microsoft.Win32;
 
 namespace ExplorerEx;
@@ -65,10 +68,14 @@ internal abstract class SettingsItem : SettingsCategoryItem, INotifyPropertyChan
 
 	internal static SettingsItem Empty { get; } = new EmptySettingsItem();
 
+	protected readonly IConfigureService configure;
+
 	protected SettingsItem(string fullName, string header, string? description, string? icon, SettingsType type) : base(header, description, icon) {
 		FullName = fullName;
 		Type = type;
 		Self = this;
+
+		configure = Service.Resolve<IConfigureService>();
 	}
 
 	public string FullName { get; }
@@ -83,9 +90,9 @@ internal abstract class SettingsItem : SettingsCategoryItem, INotifyPropertyChan
 				OnPropertyChanged();
 				OnPropertyChanged(nameof(Self));
 				if (value != null) {
-					ConfigHelper.SaveToBuffer(FullName, value);
+					configure.SaveToBuffer(FullName, value);
 				} else {
-					ConfigHelper.Delete(FullName);
+					configure.Delete(FullName);
 				}
 				Changed?.Invoke(this);
 			}
@@ -255,6 +262,7 @@ internal sealed class Settings : INotifyPropertyChanged {
 	public ObservableCollection<SettingsCategory> Categories { get; } = new();
 
 	private readonly Dictionary<string, SettingsItem> settings = new();
+	private readonly IConfigureService configure;
 
 	#region 特殊/常用设置
 
@@ -283,6 +291,10 @@ internal sealed class Settings : INotifyPropertyChanged {
 	public static CultureInfo CurrentCulture { get; private set; } = CultureInfo.CurrentUICulture;
 
 	public static event Action? ThemeChanged;
+
+	public Settings() {
+		configure = Service.Resolve<IConfigureService>();
+	}
 
 	/// <summary>
 	/// 是否为暗色模式，根据设置获取，如果是跟随系统，就获取系统色
@@ -345,13 +357,13 @@ internal sealed class Settings : INotifyPropertyChanged {
 		}
 	}
 
-	private static void SetExplorerExAsDefault_OnChanged(SettingsItem si) {
+	private void SetExplorerExAsDefault_OnChanged(SettingsItem si) {
 		var value = si.AsBoolean();
 		do {
 			var executingAsm = Assembly.GetExecutingAssembly();
 			var executingPath = Path.GetDirectoryName(executingAsm.Location)!;
 			if (value) {
-				ConfigHelper.Save("Path", Path.ChangeExtension(executingAsm.Location, ".exe"));
+				configure.Save("Path", Path.ChangeExtension(executingAsm.Location, ".exe"));
 				// 务必检查两个dll的有效性
 				var proxyDllPath = Path.Combine(executingPath, "ExplorerProxy.dll");
 				if (!File.Exists(proxyDllPath)) {
@@ -472,12 +484,12 @@ internal sealed class Settings : INotifyPropertyChanged {
 	}
 
 	public void LoadSettings() {
-		var lcId = ConfigHelper.LoadInt(CommonSettings.Language, -1);
+		var lcId = configure.LoadInt(CommonSettings.Language, -1);
 		if (lcId != -1) {
 			CurrentCulture = new CultureInfo(lcId);
 		}
 
-		using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ExplorerEx.Assets.Settings.xml")!;
+		using var stream = new MemoryStream(Embedded.Config_Settings);
 		using var xml = XmlReader.Create(stream);
 		if (!xml.Read() || xml.Name != "settings") {
 			return;
@@ -540,7 +552,7 @@ internal sealed class Settings : INotifyPropertyChanged {
 					default:
 						continue;
 					}
-					item.SetDefaultValue(ConfigHelper.Load(fullName) ?? xml.GetAttribute("default"));
+					item.SetDefaultValue(configure.Load(fullName) ?? xml.GetAttribute("default"));
 					if (expander != null) {
 						expander.Items.Add(item);
 					} else {
@@ -573,7 +585,7 @@ internal sealed class Settings : INotifyPropertyChanged {
 			settings[CommonSettings.Language].Value = CurrentCulture.LCID;
 		}
 		// 设置窗口背景材质
-		if (ConfigHelper.Load(CommonSettings.WindowBackdrop) == null) {
+		if (configure.Load(CommonSettings.WindowBackdrop) == null) {
 			if (Environment.OSVersion.Version >= Version.Parse("10.0.22000.0")) {
 				this[CommonSettings.WindowBackdrop].Value = 2;  // Mica
 			} else {

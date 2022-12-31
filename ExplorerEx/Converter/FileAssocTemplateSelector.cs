@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using ExplorerEx.Model;
+using ExplorerEx.Models;
 
 namespace ExplorerEx.Converter;
 

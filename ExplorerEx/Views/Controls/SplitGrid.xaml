@@ -1,0 +1,17 @@
+﻿<Grid x:Class="ExplorerEx.Views.Controls.SplitGrid"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:hc="https://handyorg.github.io/handycontrol">
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition MinWidth="100"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+        <RowDefinition MinHeight="100"/>
+    </Grid.RowDefinitions>
+
+    <GridSplitter x:Name="Splitter" Background="Transparent" Margin="-2" Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+    <hc:SimplePanel x:Name="DragArea" AllowDrop="true" IsHitTestVisible="False" Background="Transparent" Margin="0,50,0,0" 
+                    MouseMove="DragArea_OnMouseMove" MouseLeave="DragArea_OnMouseLeave">
+        <Border x:Name="SplitPreviewRectangle" CornerRadius="5" Background="#569cc6" Opacity="0"/>
+    </hc:SimplePanel>
+</Grid>

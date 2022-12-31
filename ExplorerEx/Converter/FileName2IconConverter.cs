@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Windows;
 using System.Windows.Data;
-using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
-using ExplorerEx.Win32;
 
 namespace ExplorerEx.Converter; 
 
@@ -19,7 +15,7 @@ internal class FileName2IconConverter : IValueConverter {
 	/// <param name="parameter"></param>
 	/// <param name="culture"></param>
 	/// <returns></returns>
-	public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+	public object? Convert(object value, Type targetType, object parameter, CultureInfo culture) {
 		if (value is string fileName) {
             var location = FileUtils.FindFileLocation(fileName);
 			if (location != null) {
@@ -33,6 +29,6 @@ internal class FileName2IconConverter : IValueConverter {
 	}
 
 	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-		throw new NotImplementedException();
+		throw new NotSupportedException();
 	}
 }

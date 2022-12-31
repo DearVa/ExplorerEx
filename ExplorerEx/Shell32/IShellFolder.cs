@@ -353,37 +353,3 @@ internal interface IShellFolder2 : IShellFolder {
 	[PreserveSig]
 	int MapColumnToSCID(uint iColumn, out PropertyKey pscid);
 }
-
-[Flags]
-public enum SFGAO : uint {
-	CanCopy = 0x00000001,
-	CanMove = 0x00000002,
-	CanLink = 0x00000004,
-	Link = 0x00010000,
-	Share = 0x00020000,
-	Readonly = 0x00040000,
-	Hidden = 0x00080000,
-	Folder = 0x20000000,
-	FileSystem = 0x40000000,
-	HasSubfolder = 0x80000000,
-}
-
-[Flags]
-public enum SHCONT {
-	Folders = 0x0020,
-	NonFolders = 0x0040,
-	IncludeHidden = 0x0080,
-	InitOnFirstNext = 0x0100,
-	NetPrinterSrch = 0x0200,
-	Shareable = 0x0400,
-	Storage = 0x0800
-}
-
-[Flags]
-public enum SHGDN {
-	Normal = 0x0000,
-	InFolder = 0x0001,
-	ForEditing = 0x1000,
-	ForAddressBar = 0x4000,
-	ForParsing = 0x8000,
-}

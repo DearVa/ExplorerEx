@@ -814,4 +814,7 @@ ExplorerEx [-h|--help] [-r|--runInBackground] [-o|--openInNewWindow] [-d|--requi
   <data name="OpenDirectory" xml:space="preserve">
     <value>打开所在文件夹</value>
   </data>
+  <data name="DateCreated" xml:space="preserve">
+    <value>创建日期</value>
+  </data>
 </root>

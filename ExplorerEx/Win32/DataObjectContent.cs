@@ -1,8 +1,9 @@
-﻿using ExplorerEx.View.Controls;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Reflection;
 using System.Windows;
+using ExplorerEx.Views.Controls;
+using HarmonyLib;
 
 namespace ExplorerEx.Win32;
 
@@ -41,6 +42,16 @@ public class DataObjectContent {
 	};
 
 	static DataObjectContent() {
+		var harmony = new Harmony("ExplorerExDragDropPatch");
+		var type = typeof(DragDrop).Assembly.GetType("System.Windows.OleDropTarget")!;
+		harmony.Patch(type.GetMethod("MS.Win32.UnsafeNativeMethods.IOleDropTarget.OleDragEnter", BindingFlags.Instance | BindingFlags.NonPublic)!, 
+			new HarmonyMethod(typeof(DataObjectContent).GetMethod("OleDragEnterPrefix", BindingFlags.Static | BindingFlags.NonPublic)), 
+			new HarmonyMethod(typeof(DataObjectContent).GetMethod("OleDragEnterPostfix", BindingFlags.Static | BindingFlags.NonPublic)));
+
+		harmony.Patch(type.GetMethod("MS.Win32.UnsafeNativeMethods.IOleDropTarget.OleDragLeave", BindingFlags.Instance | BindingFlags.NonPublic)!, 
+			new HarmonyMethod(typeof(DataObjectContent).GetMethod("OleDragLeavePrefix", BindingFlags.Static | BindingFlags.NonPublic)), 
+			new HarmonyMethod(typeof(DataObjectContent).GetMethod("OleDragLeavePostfix", BindingFlags.Static | BindingFlags.NonPublic)));
+
 		Clipboard = Default = new DataObjectContent(null, DataObjectType.Unknown);
 	}
 
@@ -76,10 +87,6 @@ public class DataObjectContent {
 	}
 
 	public static void HandleDragEnter(DragEventArgs e) {
-		Trace.WriteLine("enter");
-		if (DragFilesPreview.IsShown) {
-			return;
-		}
 		Drag = Parse(e.Data);
 		if (Drag.Type == DataObjectType.FileDrop && Drag.Data is string[] { Length: > 0 } filePaths) {
 			DragFilesPreview.Singleton.SetFilePaths(filePaths);
@@ -94,4 +101,32 @@ public class DataObjectContent {
 		Drag = null;
 		DragFilesPreview.HidePreview();
 	}
+
+	#region Patch
+
+	public static bool IsWindowDragEnter { get; private set; }
+
+	public static bool IsWindowDragLeave { get; private set; }
+
+	// ReSharper disable UnusedMember.Local
+#pragma warning disable IDE0051 // 删除未使用的私有成员
+	private static void OleDragEnterPrefix() {
+		IsWindowDragEnter = true;
+	}
+
+	private static void OleDragEnterPostfix() {
+		IsWindowDragEnter = false;
+	}
+
+	private static void OleDragLeavePrefix() {
+		IsWindowDragLeave = true;
+	}
+
+	private static void OleDragLeavePostfix() {
+		IsWindowDragLeave = false;
+	}
+#pragma warning restore IDE0051 // 删除未使用的私有成员
+	// ReSharper restore UnusedMember.Local
+
+	#endregion
 }

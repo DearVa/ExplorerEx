@@ -871,6 +871,15 @@ namespace ExplorerEx.Strings {
         }
         
         /// <summary>
+        ///   查找类似  的本地化字符串。
+        /// </summary>
+        internal static string DateCreated {
+            get {
+                return ResourceManager.GetString("DateCreated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Date modified 的本地化字符串。
         /// </summary>
         internal static string DateModified {

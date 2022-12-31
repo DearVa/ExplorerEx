@@ -1,5 +1,6 @@
 ﻿namespace ExplorerEx.Shell32;
 
+// ReSharper disable once InconsistentNaming
 public enum CSIDL : short {
 	/// <summary>
 	/// &lt;desktop&gt;

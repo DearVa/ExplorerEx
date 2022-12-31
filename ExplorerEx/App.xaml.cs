@@ -8,9 +8,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using ExplorerEx.Database;
+using ExplorerEx.Definitions.Interfaces;
+using ExplorerEx.Services;
 using ExplorerEx.Shell32;
 using ExplorerEx.Utils;
-using ExplorerEx.View;
+using ExplorerEx.Views;
 using static ExplorerEx.Win32.Win32Interop;
 
 namespace ExplorerEx;
@@ -31,7 +33,10 @@ public partial class App {
 		var sw = Stopwatch.StartNew();
 		Trace.WriteLine("Starting up");
 #endif
-		Logger.Initialize();
+
+		Service.AddSingleton<ILoggerService, DefaultLogger>();
+		Service.AddSingleton<IConfigureService, RegistryConfigure>();
+		Service.Build();
 
 		AttachConsole(-1);
 		await Console.Out.FlushAsync();
@@ -68,7 +73,7 @@ public partial class App {
 
 		isRunning = true;
 		notifyMmf = new NotifyMemoryMappedFile("ExplorerExIPC", 1024, true);
-		_ = Task.Factory.StartNew(IPCWork, TaskCreationOptions.LongRunning);
+		_ = Task.Factory.StartNew(IpcWork, TaskCreationOptions.LongRunning);
 
 		ProcessorCount = Environment.ProcessorCount;
 		IconHelper.Initialize();
@@ -102,9 +107,9 @@ public partial class App {
 		var brushes = new ResourceDictionary {
 			Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Basic/Brushes.xaml", UriKind.Absolute)
 		};
-		var primaryHsvColor = primaryColor.ToHSV();
-		var lightPrimaryColor = new HSVColor(primaryHsvColor.hue, primaryHsvColor.saturation * 0.8, primaryHsvColor.value).ToRGB();
-		var darkPrimaryColor = new HSVColor(primaryHsvColor.hue, primaryHsvColor.saturation * 1.25, primaryHsvColor.value).ToRGB();
+		var primaryHsvColor = primaryColor.ToHsv();
+		var lightPrimaryColor = new HsvColor(primaryHsvColor.hue, primaryHsvColor.saturation * 0.8, primaryHsvColor.value).ToRgb();
+		var darkPrimaryColor = new HsvColor(primaryHsvColor.hue, primaryHsvColor.saturation * 1.25, primaryHsvColor.value).ToRgb();
 		var newColors = new ResourceDictionary {
 			Source = new Uri(Settings.Current.IsDarkMode ? "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/ColorsDark.xaml" : "pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Colors.xaml", UriKind.Absolute),
 			["LightPrimaryColor"] = lightPrimaryColor,
@@ -148,7 +153,7 @@ public partial class App {
 	/// <summary>
 	/// 进程间消息传递线程
 	/// </summary>
-	private void IPCWork() {
+	private void IpcWork() {
 		while (isRunning) {
 			notifyMmf!.WaitForModified();
 			var data = notifyMmf.Read();
@@ -156,7 +161,7 @@ public partial class App {
 				var msg = Encoding.UTF8.GetString(data).Split('|');
 				switch (msg[0]) {
 				case "Open":
-					Dispatcher.Invoke(() => View.MainWindow.OpenPath(msg.Length == 2 ? msg[1] : null));
+					Dispatcher.Invoke(() => Views.MainWindow.OpenPath(msg.Length == 2 ? msg[1] : null));
 					break;
 				// case "Select":
 				// 	Dispatcher.Invoke(() => View.MainWindow.OpenPath(msg.Length == 2 ? msg[1] : null));
@@ -181,7 +186,7 @@ public partial class App {
 	/// </summary>
 	/// <param name="e"></param>
 	public static void Fatal(Exception e) {
-		Logger.Exception(e, false);
+		Service.Resolve<ILoggerService>().Exception(e, false);
 		MessageBox(IntPtr.Zero, string.Format("#FatalError".L(), e), "Fatal", MessageBoxType.IconStop);
 		Environment.Exit(-1);
 	}

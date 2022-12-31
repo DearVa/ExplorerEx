@@ -133,12 +133,15 @@ public struct ImageListDrawParams {
 }
 
 [Flags]
+// ReSharper disable once InconsistentNaming
+// ReSharper disable once IdentifierTypo
 internal enum SHIL : uint {
 	ExtraLarge = 0x2,
 	Jumbo = 0x4
 }
 
 [Flags]
+// ReSharper disable once InconsistentNaming
 internal enum ILD {
 	Transparent = 1
 }

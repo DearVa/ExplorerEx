@@ -18,7 +18,7 @@ public interface IFilterable {
 /// 提供一个Filter，控制Visibility
 /// </summary>
 public class StringFilter2VisibilityConverter : IValueConverter {
-	public string FilterString { get; set; }
+	public string? FilterString { get; set; }
 
 	public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
 		if (string.IsNullOrEmpty(FilterString) || value is not IFilterable f) {
@@ -28,6 +28,6 @@ public class StringFilter2VisibilityConverter : IValueConverter {
 	}
 
 	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-		throw new NotImplementedException();
+		throw new NotSupportedException();
 	}
 }

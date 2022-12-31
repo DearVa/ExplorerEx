@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:e="clr-namespace:ExplorerEx.Model.Enums"
              xmlns:u="clr-namespace:ExplorerEx.Utils"
+             xmlns:e="clr-namespace:ExplorerEx.Models.Enums"
              mc:Ignorable="d">
     <Application.Resources>
         <ResourceDictionary>
@@ -116,8 +116,8 @@
                     </Style>
 
                     <c:Boolean2ObjectConverter x:Key="IsAscending2ImageSourceConverter" 
-                                               True="{DynamicResource SortAscendingDrawingImage}"
-                                               False="{DynamicResource SortDescendingDrawingImage}"/>
+                                               TrueValue="{DynamicResource SortAscendingDrawingImage}"
+                                               FalseValue="{DynamicResource SortDescendingDrawingImage}"/>
 
                     <c:DictionaryConverter x:Key="ViewIndex2ImageSourceConverter">
                         <c:DictionaryConverter.Items>
@@ -132,7 +132,7 @@
                     </c:DictionaryConverter>
                 </ResourceDictionary>
 
-                <ResourceDictionary Source="View/Controls/CustomControls.xaml"/>
+                <ResourceDictionary Source="Views/Controls/CustomControls.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

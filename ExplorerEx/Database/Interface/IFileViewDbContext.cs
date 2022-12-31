@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
-using ExplorerEx.Model;
+using ExplorerEx.Models;
 
 namespace ExplorerEx.Database.Interface; 
 

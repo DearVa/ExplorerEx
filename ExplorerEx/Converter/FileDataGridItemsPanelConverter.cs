@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Controls;
 using System.Windows.Data;
-using ExplorerEx.Model;
+using ExplorerEx.Models;
 
 namespace ExplorerEx.Converter;
 

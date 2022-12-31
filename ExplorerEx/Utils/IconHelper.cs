@@ -67,7 +67,7 @@ internal static class IconHelper {
 		EmptyFolderDrawingImage = (DrawingImage)resources["EmptyFolderDrawingImage"];
 		UnknownFileDrawingImage = (DrawingImage)resources["UnknownFileDrawingImage"];
 		MissingFileDrawingImage = (DrawingImage)resources["MissingFileDrawingImage"];
-		ComputerBitmapImage = new BitmapImage(new Uri("pack://application:,,,/ExplorerEx;component/Assets/Picture/Computer.png"));
+		ComputerBitmapImage = new BitmapImage(new Uri("pack://application:,,,/ExplorerEx;component/Assets/Image/Computer.png"));
 	}
 
 	/// <summary>

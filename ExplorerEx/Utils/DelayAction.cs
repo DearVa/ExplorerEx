@@ -7,7 +7,7 @@ namespace ExplorerEx.Utils;
 /// 创建一个延迟执行的任务
 /// </summary>
 internal class DelayAction {
-	public event Action Action;
+	public event Action? Action;
 
 	private DateTimeOffset desireFireTime;
 

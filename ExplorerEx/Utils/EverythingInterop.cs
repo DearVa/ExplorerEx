@@ -84,12 +84,12 @@ public static class EverythingInterop {
 	}
 
 	[DllImport(DllName, CharSet = CharSet.Unicode)]
-	private static extern uint Everything_SetSearchW(string lpSearchString);
+	private static extern uint Everything_SetSearchW(string? lpSearchString);
 
 	[DllImport(DllName)]
     private static extern IntPtr Everything_GetSearchW();
 
-    public static string Search {
+    public static string? Search {
 	    get => Marshal.PtrToStringUni(Everything_GetSearchW());
 		set => Check(Everything_SetSearchW(value));
 	}
@@ -309,7 +309,7 @@ public static class EverythingInterop {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct EverythingIpcListw {
+	public struct EverythingIpcListW {
 		public uint totalFolders;
 		public uint totalFiles;
 		public uint totalItems;
@@ -326,7 +326,7 @@ public static class EverythingInterop {
 		public uint FoldersCount { get; init; }
 		public uint FilesCount { get; init; }
 		public uint ItemsCount { get; init; }
-		public string[] FullPaths { get; init; }
+		public string[]? FullPaths { get; init; }
 	}
 
 	/// <summary>
@@ -336,7 +336,7 @@ public static class EverythingInterop {
 	/// <param name="cbData"></param>
 	/// <returns></returns>
 	public static unsafe QueryReply ParseEverythingIpcResult(IntPtr lpData, uint cbData) {
-		var eil = Marshal.PtrToStructure<EverythingIpcListw>(lpData);
+		var eil = Marshal.PtrToStructure<EverythingIpcListW>(lpData);
 		var result = new string[eil.itemsCount];
 		var ptr = (byte*)lpData.ToPointer();
 		var uPtr = (uint*)ptr;

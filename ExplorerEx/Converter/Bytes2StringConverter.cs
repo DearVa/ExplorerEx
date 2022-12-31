@@ -9,7 +9,7 @@ namespace ExplorerEx.Converter;
 /// 将字节数转换成易读的形式
 /// </summary>
 internal class Bytes2StringConverter : IValueConverter {
-	public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+	public object? Convert(object? value, Type targetType, object parameter, CultureInfo culture) {
 		return value switch {
 			long l => FileUtils.FormatByteSize(l),
 			int i => FileUtils.FormatByteSize(i),

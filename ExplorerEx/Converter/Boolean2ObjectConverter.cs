@@ -6,27 +6,27 @@ using System.Windows.Data;
 namespace ExplorerEx.Converter; 
 
 public class Boolean2ObjectConverter : DependencyObject, IValueConverter {
-	public static readonly DependencyProperty TrueProperty = DependencyProperty.Register(
-		"True", typeof(object), typeof(Boolean2ObjectConverter), new PropertyMetadata(default(object)));
+	public static readonly DependencyProperty TrueValueProperty = DependencyProperty.Register(
+		nameof(TrueValue), typeof(object), typeof(Boolean2ObjectConverter), new PropertyMetadata(default(object)));
 
-	public object True {
-		get => GetValue(TrueProperty);
-		set => SetValue(TrueProperty, value);
+	public object TrueValue {
+		get => GetValue(TrueValueProperty);
+		set => SetValue(TrueValueProperty, value);
 	}
 
-	public static readonly DependencyProperty FalseProperty = DependencyProperty.Register(
-		"False", typeof(object), typeof(Boolean2ObjectConverter), new PropertyMetadata(default(object)));
+	public static readonly DependencyProperty FalseValueProperty = DependencyProperty.Register(
+		nameof(FalseValue), typeof(object), typeof(Boolean2ObjectConverter), new PropertyMetadata(default(object)));
 
-	public object False {
-		get => GetValue(FalseProperty);
-		set => SetValue(FalseProperty, value);
+	public object FalseValue {
+		get => GetValue(FalseValueProperty);
+		set => SetValue(FalseValueProperty, value);
 	}
 
-	public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-		return value is true ? True : False;
+	public object Convert(object? value, Type targetType, object parameter, CultureInfo culture) {
+		return value is true ? TrueValue : FalseValue;
 	}
 
-	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-		return value?.Equals(True);
+	public object? ConvertBack(object? value, Type targetType, object parameter, CultureInfo culture) {
+		return value?.Equals(TrueValue);
 	}
 }

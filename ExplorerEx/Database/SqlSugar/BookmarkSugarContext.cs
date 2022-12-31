@@ -5,7 +5,9 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Windows;
 using ExplorerEx.Database.Interface;
-using ExplorerEx.Model;
+using ExplorerEx.Definitions.Interfaces;
+using ExplorerEx.Models;
+using ExplorerEx.Services;
 using ExplorerEx.Utils;
 
 namespace ExplorerEx.Database.SqlSugar;
@@ -37,7 +39,7 @@ public class BookmarkSugarContext : IBookmarkDbContext {
 					}
 				} catch (Exception e) {
 					MessageBox.Show("无法加载数据库，可能是权限不够或者数据库版本过旧，请删除Data文件夹后再试一次。\n错误为：" + e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-					Logger.Exception(e, false);
+					Service.Resolve<ILoggerService>().Exception(e, false);
 				}
 			});
 			isLoaded = true;

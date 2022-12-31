@@ -1,8 +1,8 @@
-﻿using ExplorerEx.View;
-using ExplorerEx.Win32;
+﻿using ExplorerEx.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -11,7 +11,9 @@ using System.Windows;
 using ExplorerEx.Shell32;
 using System.Threading;
 using System.Threading.Tasks;
-using ExplorerEx.View.Controls;
+using ExplorerEx.Definitions.Interfaces;
+using ExplorerEx.Services;
+using ExplorerEx.Views.Controls;
 using HandyControl.Data;
 using FileAttribute = ExplorerEx.Shell32.FileAttribute;
 
@@ -49,7 +51,7 @@ internal static class FileUtils {
 	public static Func<string, OperationResult<bool>> FileNameVerifyFuncNoMsg { get; }
 
 	static FileUtils() {
-		FileNameVerifyFunc = fileName => new OperationResult<bool>(!IsProhibitedFileName(fileName, out var msg)) {
+		FileNameVerifyFunc = static fileName => new OperationResult<bool>(!IsProhibitedFileName(fileName, out var msg)) {
 			Message = msg
 		};
 		FileNameVerifyFuncNoMsg = fileName => new OperationResult<bool>(!IsProhibitedFileName(fileName, out _));
@@ -62,6 +64,15 @@ internal static class FileUtils {
 	/// <returns></returns>
 	public static bool IsExecutable(string filePath) {
 		return filePath.Length > 7 && filePath[^4..] is ".exe" or ".com" or ".cmd" or ".bat";
+	}
+
+	/// <summary>
+	/// 是否为可编辑文本文件
+	/// </summary>
+	/// <param name="filePath"></param>
+	/// <returns></returns>
+	public static bool IsEditable(string filePath) {
+		return filePath.Length > 7 && filePath[^4..] is ".txt" or ".log" or ".ini" or ".inf" or ".cmd" or ".bat" or ".ps1";
 	}
 
 	/// <summary>
@@ -346,7 +357,7 @@ internal static class FileUtils {
 					});
 					return new[] { destPath };
 				} catch (Exception ex) {
-					Logger.Exception(ex);
+					Service.Resolve<ILoggerService>().Exception(ex);
 				}
 			}
 		} else {
@@ -376,7 +387,7 @@ internal static class FileUtils {
 							}
 							return destPaths;
 						} catch (Exception ex) {
-							Logger.Exception(ex, false);
+							Service.Resolve<ILoggerService>().Exception(ex, false);
 							ContentDialog.Error(ex.Message);
 						}
 					}
@@ -386,7 +397,7 @@ internal static class FileUtils {
 				case DataObjectType.Html:
 				case DataObjectType.Text:
 				case DataObjectType.UnicodeText:
-					new SaveDataObjectWindow(destPath, content.Data.ToString()).Show();
+					//new SaveDataObjectWindow(destPath, content.Data.ToString()).Show();
 					break;
 				}
 			}
@@ -430,7 +441,7 @@ internal static class FileUtils {
 	/// <param name="filePath"></param>
 	/// <param name="windowSize"></param>
 	/// <returns></returns>
-	public static bool IsTextFile(out Encoding? encoding, string filePath, int windowSize = 10240) {
+	public static bool IsTextFile([NotNullWhen(true)] out Encoding? encoding, string filePath, int windowSize = 10240) {
 		FileStream fileStream;
 		try {
 			fileStream = File.OpenRead(filePath);

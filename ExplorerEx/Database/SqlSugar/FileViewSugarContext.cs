@@ -1,5 +1,5 @@
 ﻿using ExplorerEx.Database.Interface;
-using ExplorerEx.Model;
+using ExplorerEx.Models;
 
 namespace ExplorerEx.Database.SqlSugar; 
 

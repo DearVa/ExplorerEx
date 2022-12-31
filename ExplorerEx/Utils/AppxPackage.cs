@@ -4,27 +4,29 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using static ExplorerEx.Win32.Win32Interop;
 
 namespace ExplorerEx.Utils;
 
 public class AppxPackage {
-	private AppxPackage() { }
+	private AppxPackage(string fullName) {
+		FullName = fullName;
+	}
 
-	public string FullName { get; private set; }
-	public string FullPath { get; private set; }
-	public string Publisher { get; private set; }
-	public string PublisherId { get; private set; }
-	public string ResourceId { get; private set; }
-	public string FamilyName { get; private set; }
-	public string ApplicationUserModelId { get; private set; }
-	public string Logo { get; private set; }
-	public string PublisherDisplayName { get; private set; }
-	public string Description { get; private set; }
-	public string DisplayName { get; private set; }
+	public string FullName { get; }
+
+	public string? FullPath { get; private set; }
+	public string? Publisher { get; private set; }
+	public string? PublisherId { get; private set; }
+	public string? ResourceId { get; private set; }
+	public string? FamilyName { get; private set; }
+	public string? ApplicationUserModelId { get; private set; }
+	public string? Logo { get; private set; }
+	public string? PublisherDisplayName { get; private set; }
+	public string? Description { get; private set; }
+	public string? DisplayName { get; private set; }
 	public bool IsFramework { get; private set; }
-	public Version Version { get; private set; }
+	public Version? Version { get; private set; }
 	public AppxPackageArchitecture ProcessorArchitecture { get; private set; }
 
 	public IEnumerable<AppxPackage> DependencyGraph {
@@ -33,17 +35,28 @@ public class AppxPackage {
 		}
 	}
 
-	public static string GetFullPathByPackageName(string fullName) {
-		OpenPackageInfoByFullName(fullName, 0, out var pInfo);
+	public static string? GetFullPathByPackageName(string fullName) {
+		var res = OpenPackageInfoByFullName(fullName, 0, out var pInfo);
+		if (res != 0) {
+			return null;
+		}
 		if (pInfo != IntPtr.Zero) {
 			var infoBuffer = IntPtr.Zero;
 			try {
 				var len = 0;
-				GetPackageInfo(pInfo, PackageConstants.InformationBasic, ref len, IntPtr.Zero, out _);
+				res = GetPackageInfo(pInfo, PackageConstants.InformationBasic, ref len, IntPtr.Zero, out _);
+				if (res != 0) {
+					return null;
+				}
+
 				if (len > 0) {
 					infoBuffer = Marshal.AllocHGlobal(len);
-					GetPackageInfo(pInfo, PackageConstants.InformationBasic, ref len, infoBuffer, out _);
-					return Marshal.PtrToStringUni(((PackageInfo)Marshal.PtrToStructure(infoBuffer, typeof(PackageInfo))!).path);
+					res = GetPackageInfo(pInfo, PackageConstants.InformationBasic, ref len, infoBuffer, out _);
+					if (res != 0) {
+						return null;
+					}
+
+					return Marshal.PtrToStringUni(Marshal.PtrToStructure<PackageInfo>(infoBuffer).path);
 				}
 			} finally {
 				if (infoBuffer != IntPtr.Zero) {
@@ -63,7 +76,7 @@ public class AppxPackage {
 	/// <param name="desireSize"></param>
 	/// <returns></returns>
 	/// <exception cref="ArgumentNullException"></exception>
-	public static string FindMinimumQualifiedImagePath(string fullPath, string resourceName, int desireSize) {
+	public static string? FindMinimumQualifiedImagePath(string fullPath, string resourceName, int desireSize) {
 		if (resourceName == null) {
 			throw new ArgumentNullException(nameof(resourceName));
 		}
@@ -73,7 +86,7 @@ public class AppxPackage {
 		var name = Path.GetFileNameWithoutExtension(resourceName);
 		var ext = Path.GetExtension(resourceName);
 		var nowSize = int.MaxValue;
-		string result = null;
+		string? result = null;
 		foreach (var filePath in Directory.EnumerateFiles(Path.Combine(fullPath, Path.GetDirectoryName(resourceName)!), name + sizeToken + "*" + ext)) {
 			var fileName = Path.GetFileNameWithoutExtension(filePath);
 			var pos = fileName.IndexOf(sizeToken, StringComparison.Ordinal) + sizeToken.Length;
@@ -87,29 +100,45 @@ public class AppxPackage {
 	}
 
 	public static IEnumerable<AppxPackage> QueryPackageInfo(string fullName, PackageConstants flags) {
-		OpenPackageInfoByFullName(fullName, 0, out var pInfo);
+		var res = OpenPackageInfoByFullName(fullName, 0, out var pInfo);
+		if (res != 0) {
+			yield break;
+		}
+
 		if (pInfo != IntPtr.Zero) {
 			var infoBuffer = IntPtr.Zero;
 			try {
 				var len = 0;
-				GetPackageInfo(pInfo, flags, ref len, IntPtr.Zero, out var count);
+				res = GetPackageInfo(pInfo, flags, ref len, IntPtr.Zero, out var count);
+				if (res != 0) {
+					yield break;
+				}
+
 				if (len > 0) {
 					// ReSharper disable once SuspiciousTypeConversion.Global
 					var factory = (IAppxFactory)new AppxFactory();
 					infoBuffer = Marshal.AllocHGlobal(len);
-					var res = GetPackageInfo(pInfo, flags, ref len, infoBuffer, out count);
+					res = GetPackageInfo(pInfo, flags, ref len, infoBuffer, out count);
+					if (res != 0) {
+						yield break;
+					}
+
 					for (var i = 0; i < count; i++) {
-						var info = (PackageInfo)Marshal.PtrToStructure(infoBuffer + i * Marshal.SizeOf(typeof(PackageInfo)), typeof(PackageInfo))!;
-						var package = new AppxPackage {
-							FamilyName = Marshal.PtrToStringUni(info.packageFamilyName),
-							FullName = Marshal.PtrToStringUni(info.packageFullName),
-							FullPath = Marshal.PtrToStringUni(info.path),
-							Publisher = Marshal.PtrToStringUni(info.packageId.publisher),
-							PublisherId = Marshal.PtrToStringUni(info.packageId.publisherId),
-							ResourceId = Marshal.PtrToStringUni(info.packageId.resourceId),
-							ProcessorArchitecture = info.packageId.processorArchitecture,
-							Version = new Version(info.packageId.VersionMajor, info.packageId.VersionMinor, info.packageId.VersionBuild, info.packageId.VersionRevision)
-						};
+						var info = Marshal.PtrToStructure<PackageInfo>(infoBuffer + i * Marshal.SizeOf(typeof(PackageInfo)));
+						var packageFullName = Marshal.PtrToStringUni(info.packageFullName);
+						if (packageFullName != null) {
+							var package = new AppxPackage(packageFullName) {
+								FamilyName = Marshal.PtrToStringUni(info.packageFamilyName),
+								FullPath = Marshal.PtrToStringUni(info.path),
+								Publisher = Marshal.PtrToStringUni(info.packageId.publisher),
+								PublisherId = Marshal.PtrToStringUni(info.packageId.publisherId),
+								ResourceId = Marshal.PtrToStringUni(info.packageId.resourceId),
+								ProcessorArchitecture = info.packageId.processorArchitecture,
+								Version = new Version(info.packageId.VersionMajor, info.packageId.VersionMinor, info.packageId.VersionBuild, info.packageId.VersionRevision)
+							};
+
+							yield return package;
+						}
 
 						// read manifest
 						//string manifestPath = System.IO.Path.Combine(package.FullPath, "AppXManifest.xml");
@@ -152,7 +181,7 @@ public class AppxPackage {
 						//    }
 						//    Marshal.ReleaseComObject(strm);
 						//}
-						yield return package;
+						
 					}
 					Marshal.ReleaseComObject(factory);
 				}

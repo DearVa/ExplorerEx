@@ -1,0 +1,25 @@
+﻿<controls:PreviewPopup x:Class="ExplorerEx.Views.Controls.ImagePreviewPopup"
+                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+                xmlns:hc="https://handyorg.github.io/handycontrol"
+                xmlns:controls="clr-namespace:ExplorerEx.Views.Controls"
+                mc:Ignorable="d" Width="660" Height="360">
+    <Grid>
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="320"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock x:Name="StatusTextBlock" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+            <controls:ClippingBorder Grid.Row="1" Background="#1e1e1e" CornerRadius="5">
+                <Grid>
+                    <Image x:Name="Image" Visibility="Collapsed"/>
+                    <hc:GifImage x:Name="GifImage" Visibility="Collapsed"/>
+                </Grid>
+            </controls:ClippingBorder>
+        </Grid>
+    </Grid>
+</controls:PreviewPopup>

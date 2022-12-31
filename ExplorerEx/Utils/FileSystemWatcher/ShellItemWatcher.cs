@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using static ExplorerEx.Utils.IFileSystemWatcher;
 
 namespace ExplorerEx.Utils;
 
@@ -8,7 +7,7 @@ namespace ExplorerEx.Utils;
 /// 监视一个Shell项目的变化
 /// </summary>
 public class ShellItemWatcher : IFileSystemWatcher {
-	public string Path { get; set; }
+	public string? Path { get; set; }
 	public bool Enabled { get; set; }
 	public Func<string, bool>? Filter { get; set; }
 	public NotifyFilters NotifyFilter { get; set; }

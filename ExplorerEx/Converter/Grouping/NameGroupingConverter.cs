@@ -2,8 +2,6 @@
 using System.Globalization;
 using System.Text;
 using System.Windows.Data;
-using ExplorerEx.Model;
-using ExplorerEx.Utils;
 
 namespace ExplorerEx.Converter.Grouping;
 
@@ -13,9 +11,8 @@ internal class NameGroupingConverter : IValueConverter {
 	private NameGroupingConverter() { }
 
 	public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-		var name = (string)value;
-		if (name == null) {
-			return "Empty".L();
+		if (value is not string name) {
+			return Strings.Resources.Empty;
 		}
 		var first = name[0];
 		return first switch {

@@ -38,7 +38,7 @@ public struct StrRet {
 	/// </summary>
 	public IntPtr data;
 
-	public override string ToString() {
+	public override string? ToString() {
 		if (data == IntPtr.Zero) {
 			return null;
 		}

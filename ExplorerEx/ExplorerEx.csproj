@@ -8,7 +8,7 @@
     <Platforms>x64</Platforms>
     <DebugType>embedded</DebugType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <ApplicationIcon>Assets\ExplorerEx.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\Image\Icon.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <SignAssembly>False</SignAssembly>
     <LangVersion>latest</LangVersion>
@@ -27,27 +27,30 @@
 
   <ItemGroup>
     <None Remove="Assets\DeleteExplorerExProxy.reg" />
+    <None Remove="Assets\Image\Icon.ico" />
+    <None Remove="Assets\Image\Icon.png" />
     <None Remove="Assets\LogConfig.xml" />
-    <None Remove="Assets\Picture\Computer.png" />
-    <None Remove="Assets\Picture\Logo.ico" />
-    <None Remove="Assets\Picture\Logo.png" />
-    <None Remove="Assets\Picture\Network.png" />
-    <None Remove="Assets\Picture\RecycleBin.png" />
-    <None Remove="Assets\Picture\RecycleBinFull.png" />
+    <None Remove="Assets\Image\Computer.png" />
+    <None Remove="Assets\Image\Network.png" />
+    <None Remove="Assets\Image\RecycleBin.png" />
+    <None Remove="Assets\Image\RecycleBinFull.png" />
     <None Remove="Assets\SetExplorerExProxy.reg" />
     <None Remove="Assets\Settings.xml" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Assets\ExplorerEx.ico" />
-    <Resource Include="Assets\Picture\RecycleBinFull.png" />
-    <Resource Include="Assets\Picture\Computer.png" />
-    <Resource Include="Assets\Picture\Network.png" />
-    <Resource Include="Assets\Picture\RecycleBin.png" />
-    <Resource Include="Assets\Picture\Logo.ico" />
-    <Resource Include="Assets\Picture\Logo.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
+    <Resource Include="Assets\Image\Icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\Image\Icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Image\RecycleBinFull.png" />
+    <Resource Include="Assets\Image\Computer.png" />
+    <Resource Include="Assets\Image\Network.png" />
+    <Resource Include="Assets\Image\RecycleBin.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -58,17 +61,15 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Assets\DeleteExplorerExProxy.reg" />
-    <EmbeddedResource Include="Assets\LogConfig.xml" />
+    <EmbeddedResource Include="Assets\Config\Log.xml" />
     <EmbeddedResource Include="Assets\SetExplorerExProxy.reg" />
-    <EmbeddedResource Include="Assets\Settings.xml" />
+    <EmbeddedResource Include="Assets\Config\Settings.xml" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AsyncFixer" Version="1.6.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Lib.Harmony" Version="2.2.2" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.8" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="NLog" Version="5.0.4" />
     <PackageReference Include="SqlSugarCore" Version="5.1.2.6" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
@@ -83,17 +84,26 @@
     <Compile Update="AssemblyInfo.cs">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Compile>
+    <Compile Update="Assets\Embedded.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Embedded.resx</DependentUpon>
+    </Compile>
     <Compile Update="Strings\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Update="View\Controls\FilePreview\TextPreviewPopup.xaml.cs">
+    <Compile Update="Views\Controls\FilePreview\TextPreviewPopup.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Assets\Embedded.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Embedded.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="Strings\Resources.en.resx">
       <DependentUpon>Resources.resx</DependentUpon>
     </EmbeddedResource>
@@ -110,11 +120,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Update="View\Controls\FilePreview\TextPreviewPopup.xaml">
+    <Page Update="Views\Controls\FilePreview\TextPreviewPopup.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="View\Controls\Virtualizing\GridDetailsView.xaml">
+    <Page Update="Views\Controls\Virtualizing\GridDetailsView.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>
   </ItemGroup>

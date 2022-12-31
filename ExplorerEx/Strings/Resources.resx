@@ -770,4 +770,7 @@ Can't find it? Don't worry, click "yes" and I will regenerate one on the desktop
   <data name="OpenDirectory" xml:space="preserve">
     <value>Open directory</value>
   </data>
+  <data name="DateCreated" xml:space="preserve">
+    <value>Date created</value>
+  </data>
 </root>

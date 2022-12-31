@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Enumeration;
-using ExplorerEx.Model;
+using ExplorerEx.Models;
 
 namespace ExplorerEx.Utils.Enumerators;
 

@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using ExplorerEx.Command;
-using ExplorerEx.Model;
+using ExplorerEx.Models;
 using ExplorerEx.Utils;
 using static ExplorerEx.Win32.Win32Interop;
 

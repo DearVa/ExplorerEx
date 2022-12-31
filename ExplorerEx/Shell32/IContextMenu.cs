@@ -8,6 +8,7 @@ namespace ExplorerEx.Shell32;
 /// Flags that specify how the shortcut menu can be changed.
 /// </summary>
 [Flags]
+// ReSharper disable once InconsistentNaming
 public enum CMF : uint {
     /// <summary>
     /// Indicates normal operation. A shortcut menu extension, namespace extension, or drag-and-drop handler can add all menu items.
@@ -100,6 +101,7 @@ public enum CMF : uint {
 /// Flags specifying the information to return. This parameter can have one of the following values.
 /// </summary>
 [Flags]
+// ReSharper disable once InconsistentNaming
 public enum GCS : uint {
 	/// <summary>
 	/// Sets pszName to an ANSI string containing the language-independent command name for the menu item.
