@@ -2,6 +2,10 @@
 
 [![.NET Desktop](https://github.com/DearVa/ExplorerEx/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/DearVa/ExplorerEx/actions/workflows/dotnet-desktop.yml)
 
+<div align="center">    
+  <img src="https://raw.githubusercontent.com/DearVa/ExplorerEx/master/ExplorerEx/Assets/Image/Icon.png" width="100" height="90" alt="Icon" align=center />
+</div>
+
 ### ExplorerEx is a Swift, Multi-Tabbed, Modern UI and Humanized File Explorer.
 
 ![Preview](https://raw.githubusercontent.com/DearVa/ExplorerEx/master/Images/preview.png)
@@ -13,10 +17,6 @@ Due to unknown reasons, the file manager (Explorer) of windows 11 is very slow, 
 Some time ago, when I was working on Minecraft mod, I needed to switch frequently in multiple folders. Not only did it very slow, but also the "multi tab" function with high user voice has not been available yet. So I came up with the idea of developing a file manager myself.
 
 ## Stable > Swift > Good appearance
-
-### 👋👋 I'm waiting for a new Icon. If you are good at design, please submit it to me!
-### 👋👋 图标长期招募中……如果您擅长设计或者有好的创意，欢迎提交您的作品！
-
 
 ### Features:
 
@@ -43,7 +43,8 @@ Some time ago, when I was working on Minecraft mod, I needed to switch frequentl
 * **Humanized** For ordinary users, the interface is simple and easy to understand. For users who are familiar with computers, there are also advanced functions such as creating symbol links and not prompting when modifying file extension names. Users can customize them in settings or other places.
 
 * **Set as Default** ExplorerEx could set itself as the default file manager through a [BHO Plug-in](https://github.com/DearVa/ExplorerEx/tree/master/ExplorerProxy) which has little impact on the system, and any third-party software that opens the default Explorer can jump to ExplorerEx without any window flicker.
-  
+
+#### 这个项目在开发时鄙人还不了解诸如依赖注入、MVVM等开发思想，所以项目的代码组织十分丑陋，也正因如此项目的维护难度日渐增大，如今已放弃后续更新（如果有后续，那就是彻底的重构了）。但是项目中仍然有许多对Win32 API和Shell32 API的深入研究，可供诸位学习。
 
 ### Road map
 #### Basic function development
