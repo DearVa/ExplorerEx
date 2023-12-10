@@ -2,8 +2,11 @@
 
 [![.NET Desktop](https://github.com/DearVa/ExplorerEx/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/DearVa/ExplorerEx/actions/workflows/dotnet-desktop.yml)
 
-### ExplorerEx是一个响应快、多标签页、现代化界面且人性化的文件浏览器。
+<div align="center">    
+  <img src="https://raw.githubusercontent.com/DearVa/ExplorerEx/master/ExplorerEx/Assets/Image/Icon.png" width="100" height="90" alt="Icon" align=center />
+</div>
 
+### ExplorerEx是一个响应快、多标签页、现代化界面且人性化的文件浏览器。
 ![Preview](https://raw.githubusercontent.com/DearVa/ExplorerEx/master/Images/preview.png)
 
 由于不为人知的原因，Windows 11的文件管理器响应十分缓慢，特别是打开文件夹、框选文件、复制粘贴时，在低端机上甚至能够停止响应几秒钟。
@@ -32,7 +35,8 @@
 * **人性化** 对于普通的用户，界面可以简单易懂，但是也有高级功能（如：创建硬链接、修改文件拓展名时不提示），用户可以在设置或者其他地方自定义。
 
 * **可设为默认** ExplorerEx通过[BHO拓展插件](https://github.com/DearVa/ExplorerEx/tree/master/ExplorerProxy)来将自身设为默认，对系统影响很小，且任何第三方软件打开默认资源管理器都可以跳转到ExplorerEx，没有任何窗口闪烁问题。
-  
+
+#### 这个项目在开发时鄙人还不了解诸如依赖注入、MVVM等开发思想，所以项目的代码组织十分丑陋，也正因如此项目的维护难度日渐增大，如今已放弃后续更新（如果有后续，那就是彻底的重构了）。但是项目中仍然有许多对Win32 API和Shell32 API的深入研究，可供诸位学习。
 
 ### 路线图
 #### 基础功能开发
