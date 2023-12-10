@@ -7,7 +7,6 @@
 </div>
 
 ### ExplorerEx is a Swift, Multi-Tabbed, Modern UI and Humanized File Explorer.
-
 ![Preview](https://raw.githubusercontent.com/DearVa/ExplorerEx/master/Images/preview.png)
 
 ## [👉🇨🇳中文版介绍点这里👈](https://github.com/DearVa/ExplorerEx/blob/master/Readme_zh_CN.md)
@@ -44,7 +43,7 @@ Some time ago, when I was working on Minecraft mod, I needed to switch frequentl
 
 * **Set as Default** ExplorerEx could set itself as the default file manager through a [BHO Plug-in](https://github.com/DearVa/ExplorerEx/tree/master/ExplorerProxy) which has little impact on the system, and any third-party software that opens the default Explorer can jump to ExplorerEx without any window flicker.
 
-#### 这个项目在开发时鄙人还不了解诸如依赖注入、MVVM等开发思想，所以项目的代码组织十分丑陋，也正因如此项目的维护难度日渐增大，如今已放弃后续更新（如果有后续，那就是彻底的重构了）。但是项目中仍然有许多对Win32 API和Shell32 API的深入研究，可供诸位学习。
+#### During the development of this project, I was not familiar with development concepts such as dependency injection and MVVM, so the code organization of the project was very ugly. As a result, the maintenance difficulty of the project has increased day by day, and now I have abandoned subsequent updates (if there are any, it is a complete refactoring). However, there is still a lot of in-depth research on the Win32 API and Shell32 API in the project for everyone to learn from.
 
 ### Road map
 #### Basic function development
